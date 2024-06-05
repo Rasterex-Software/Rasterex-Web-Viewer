@@ -11,6 +11,7 @@ import { GuiMode } from 'src/rxcore/enums/GuiMode';
 import { Subscription } from 'rxjs';
 import { SideNavMenuService } from '../side-nav-menu/side-nav-menu.service';
 import { MeasurePanelService } from '../annotation-tools/measure-panel/measure-panel.service';
+import { ActionType } from './type';
 
 
 @Component({
@@ -48,6 +49,7 @@ export class TopNavMenuComponent implements OnInit {
   containLayers: boolean = false;
   containBlocks: boolean = false;
   isActionSelected: boolean = false;
+  actionType: ActionType = "None";
   private guiOnNoteSelected: Subscription;
   currentScaleValue: string;
 
@@ -118,6 +120,7 @@ export class TopNavMenuComponent implements OnInit {
     });
 
     this.service.activeFile$.subscribe(file => {
+        console.log(file)
     })
 
     this.guiOnNoteSelected = this.rxCoreService.guiOnCommentSelect$.subscribe((value: boolean) => {
@@ -349,23 +352,27 @@ export class TopNavMenuComponent implements OnInit {
     }
   }
 
-  onActionSelect(): void {
+  onCommentPanelSelect (): void {
+    this.onActionSelect("Comment")
+  }
 
-    if (this.isActionSelected) {
-      this.isActionSelected = false;
-      this.annotationToolsService.setNotePanelState({ visible: false });
+  onSearchPanelSelect (): void {
+    this.onActionSelect("Search")
+  }
 
-    }else{
-      this.isActionSelected = true;
-      this.rxCoreService.setCommentSelected(this.isActionSelected);
-      this.annotationToolsService.setNotePanelState({ visible: this.isActionSelected });
-
+  onActionSelect(actionType: ActionType): void {
+    
+    if(this.actionType.includes(actionType)) {
+      this.isActionSelected = !this.isActionSelected
+    } else {
+      this.actionType = actionType;
+      this.isActionSelected = true
     }
 
-    //this.isActionSelected = true;
-    //this.rxCoreService.setCommentSelected(this.isActionSelected);
-    //this.annotationToolsService.setNotePanelState({ visible: this.isActionSelected });
+    console.log(actionType, this.isActionSelected)
 
+    this.annotationToolsService.setNotePanelState({ visible: this.isActionSelected && actionType === "Comment" });
+    this.annotationToolsService.setSearchPanelState({ visible: this.isActionSelected && actionType === "Search" });
 
     setTimeout(() => {
       //RXCore.doResize(false, 0, 0);      

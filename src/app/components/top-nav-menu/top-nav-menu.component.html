@@ -139,7 +139,16 @@
     <div class="top-nav-item dropdown">
         <rx-dropdown [options]="options" [value]="selectedValue" [align]="'right'" [transparent]="false" (valueChange)="onModeChange($event)"></rx-dropdown>
     </div>
-    <div [ngClass]="{'selected': isActionSelected}" class="tooltip Comments-icon" (click)="onActionSelect()">
+    <div [ngClass]="{'selected': isActionSelected && actionType === 'Search'}" class="tooltip Comments-icon"
+        (click)="onSearchPanelSelect()">
+        <svg xmlns="http://www.w3.org/2000/svg" style="margin-top: 4px; margin-left: 2px;" width="24" height="24" viewBox="0 0 28 28">
+            <path fill="#333C4E" stroke="#333C4E" stroke-width="0.2"
+                d="M18.319 14.433A8.001 8.001 0 0 0 6.343 3.868a8 8 0 0 0 10.564 11.976l.043.045l4.242 4.243a1 1 0 1 0 1.415-1.415l-4.243-4.242a1.116 1.116 0 0 0-.045-.042m-2.076-9.15a6 6 0 1 1-8.485 8.485a6 6 0 0 1 8.485-8.485"
+                clipRule="evenodd"></path>
+        </svg>
+        <span class="tooltip-text tooltip-left">Search</span>
+    </div>
+    <div [ngClass]="{'selected': isActionSelected && actionType === 'Comment'}" class="tooltip Comments-icon" (click)="onCommentPanelSelect()">
         <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path
                 d="M21.9788 22C21.7453 22 21.5156 21.9177 21.3268 21.7579L18.3639 19.2524H6.01897C5.45703 19.2527 5 18.7916 5 18.2246V6.02814C5 5.46115 5.45703 5 6.01897 5H21.9813C22.543 5.00028 23 5.46143 23 6.02814V20.9702C23 21.374 22.7747 21.7313 22.4119 21.9018C22.2724 21.9679 22.1248 22 21.9788 22ZM6.01897 6.02814V18.2243H18.5492C18.669 18.2243 18.7846 18.2668 18.8766 18.3443L21.9816 20.9699L21.981 6.02814H6.01897ZM13.0435 9.71987C13.0435 9.43581 12.8154 9.20594 12.5341 9.20594H9.03341C8.75187 9.20594 8.52406 9.43609 8.52406 9.71987C8.52406 10.0037 8.75216 10.2338 9.03341 10.2338H12.5341C12.8157 10.2341 13.0435 10.0039 13.0435 9.71987ZM19.4759 12.1263C19.4759 11.8423 19.2478 11.6124 18.9666 11.6124H9.03341C8.75187 11.6124 8.52406 11.8426 8.52406 12.1263C8.52406 12.4101 8.75216 12.6403 9.03341 12.6403H18.9666C19.2478 12.6406 19.4759 12.4104 19.4759 12.1263ZM19.4759 14.5328C19.4759 14.249 19.2478 14.0189 18.9666 14.0189H9.03341C8.75187 14.0189 8.52406 14.249 8.52406 14.5328C8.52406 14.8166 8.75216 15.0468 9.03341 15.0468H18.9666C19.2478 15.047 19.4759 14.8166 19.4759 14.5328Z"

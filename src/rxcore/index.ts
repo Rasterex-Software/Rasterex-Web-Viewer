@@ -284,6 +284,18 @@ export class RXCore {
         RxCore.textSearch(text, direction, casesens);
     }
 
+    public static documentTextSearch(text: string | undefined, casesens: boolean = false, wholetext: boolean = false) {
+        RxCore.documentTextSearch(text, casesens, wholetext)
+    }
+
+    public static markupDocumentSearchResult(pageInfo) {
+        RxCore.documentMarkupTextSearch(pageInfo)
+    }
+
+    public static markupTextWithOrange(item) {
+        RxCore.markupTextWithOrange(item)
+    }
+
     public static vectorLayersAll(onoff: boolean): void {
         RxCore.vectorLayersAll(onoff);
     }
@@ -708,6 +720,10 @@ export class RXCore {
 
     public static onGuiNumMathces(callback: Function): void {
         RxCore.GUI_NumMathces.connect(callback);
+    }
+
+    public static onGuiDocumentSearch(callback: Function): void {
+        RxCore.GUI_DocumentSearch.connect(callback);
     }
 
     public static onGuiVectorLayers(callback: (layers: Array<IVectorLayer>) => void): void {

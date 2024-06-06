@@ -115,12 +115,10 @@ export class SearchPanelComponent implements OnInit {
             this.searchWholeWord = option.wholeWord;
             this.searchCurrentMatches = option.currentMatches;
             this.searchNumMatches = option.numMatches;
-            this.splitedResult = []
+            this.splitedResult = [];
+            this.searchResult = [];
 
             this.cdr.markForCheck()
-
-            const page = this.getPageNumFromId(this.searchCurrentMatches)
-            RXCore.gotoPage(page)
             RXCore.documentTextSearch(this.search, this.searchCaseSensitive, this.searchWholeWord)
         })
     }

@@ -133,10 +133,10 @@
         overflow-y: auto;
         overflow-x: hidden;
         height: 100%;
-        margin: 12px;
 
         .page-match {
             margin: 4px 0;
+            padding: 12px;
 
             span {
                 color: var(--main) !important;
@@ -160,6 +160,8 @@
                         color: var(--main) !important;
                         font-size: 12px;
                         margin: 0;
+                        word-wrap: break-word;
+                        word-break: break-all;
                     }
                 }
                 }

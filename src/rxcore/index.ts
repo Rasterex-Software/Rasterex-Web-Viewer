@@ -296,6 +296,10 @@ export class RXCore {
         RxCore.markupTextWithOrange(item)
     }
 
+    public static onGuiDocumentSearch(callback: Function): void {
+        RxCore.GUI_DocumentSearch.connect(callback);
+    }
+
     public static vectorLayersAll(onoff: boolean): void {
         RxCore.vectorLayersAll(onoff);
     }
@@ -720,10 +724,6 @@ export class RXCore {
 
     public static onGuiNumMathces(callback: Function): void {
         RxCore.GUI_NumMathces.connect(callback);
-    }
-
-    public static onGuiDocumentSearch(callback: Function): void {
-        RxCore.GUI_DocumentSearch.connect(callback);
     }
 
     public static onGuiVectorLayers(callback: (layers: Array<IVectorLayer>) => void): void {

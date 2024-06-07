@@ -239,8 +239,6 @@ export class NotePanelComponent implements OnInit {
         }
       }
       /*added for comment list panel */
-
-      
       this.visible = state?.visible;
       if(this.visible){
         RXCore.setLayout(this.panelwidth, 0, false);

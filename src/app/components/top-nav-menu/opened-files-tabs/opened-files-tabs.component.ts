@@ -118,10 +118,6 @@ export class OpenedFilesTabsComponent implements OnInit {
     this.topNavMenuService.selectTab$.subscribe(file => {
       this.handleSelectTab(file);
     });
-
-    this.topNavMenuService.closeTab$.subscribe((file) => {
-      this._closeTab(file);
-    })
   }
 
   handleCloseTab(event, file): void {
@@ -131,6 +127,7 @@ export class OpenedFilesTabsComponent implements OnInit {
     if (file.comparison && RXCore.markupChanged) {
       this.compareService.onUnsavedChanges.next();
     } else {
+      this.topNavMenuService.closeTab.next(file)
       this._closeTab(file);
     }
   }

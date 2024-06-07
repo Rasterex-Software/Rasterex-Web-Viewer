@@ -39,6 +39,9 @@ export class SearchPanelComponent implements OnInit {
     pageIndex: any[] = [];
     isSearching: boolean = false;
     currentItem = null;
+    scrollY = 0;
+
+    currentScrollItem: number = 0;
 
     constructor(
     private sanitizer: DomSanitizer,
@@ -102,6 +105,25 @@ export class SearchPanelComponent implements OnInit {
             })
         })
 
+        this.service.closeTab$.subscribe(file => {
+            if(this.searchOptions[file.id]) {
+                const {[file.id]: _, ...rest} = this.searchOptions
+                this.searchOptions = rest;
+            }
+            if(Object.keys(this.searchOptions).length === 0) {
+                this.activeFileId = -1;
+                this.search = "";
+                this.searchCaseSensitive = false;
+                this.searchWholeWord = false;
+                this.searchCurrentMatches = 0;
+                this.searchNumMatches = 0;
+                this.splitedResult = [];
+                this.searchResult = [];
+                this.currentScrollItem = 0;
+            }
+            this.cdr.markForCheck()
+        })
+
         this.service.activeFile$.subscribe(file => {
             if(this.searchOptions[this.activeFileId]) {
                 this.searchOptions[this.activeFileId] = {
@@ -114,17 +136,21 @@ export class SearchPanelComponent implements OnInit {
                 }
             }
             const option = this.searchOptions[file.id]
-            this.activeFileId = file.id
-            this.search = option.text;
-            this.searchCaseSensitive  = option.caseSensitive
-            this.searchWholeWord = option.wholeWord;
-            this.searchCurrentMatches = option.currentMatches;
-            this.searchNumMatches = option.numMatches;
-            this.splitedResult = [];
-            this.searchResult = [];
+
+            if(option) {
+                this.activeFileId = file.id
+                this.search = option.text;
+                this.searchCaseSensitive  = option.caseSensitive
+                this.searchWholeWord = option.wholeWord;
+                this.searchCurrentMatches = option.currentMatches;
+                this.searchNumMatches = option.numMatches;
+                this.splitedResult = [];
+                this.searchResult = [];
+                this.currentScrollItem = 0;
+                RXCore.documentTextSearch(this.search, this.searchCaseSensitive, this.searchWholeWord)
+            }
 
             this.cdr.markForCheck()
-            RXCore.documentTextSearch(this.search, this.searchCaseSensitive, this.searchWholeWord)
         })
     }
 
@@ -151,11 +177,24 @@ export class SearchPanelComponent implements OnInit {
     }
 
     onScroll(event: MouseEvent) {
+        const DELTA = 10;
         const target = (event.target as HTMLDivElement)
-        if(target.scrollTop + target.clientHeight >= target.scrollHeight - 100) {
-            this.splitedResult = this.searchResult.slice(0, this.splitedResult.length + 10)
-            this.cdr.markForCheck()
+        let start = 0, end = 0
+        if(target.scrollTop <= DELTA) {
+            this.currentScrollItem -= 10;
         }
+        else if (target.scrollTop + target.clientHeight >= target.scrollHeight - DELTA) {
+            this.currentScrollItem += 10;
+        }
+        
+        this.currentScrollItem = Math.max(20, this.currentScrollItem);
+        this.currentScrollItem = Math.min(this.currentScrollItem, this.searchResult.length);
+        
+        end = this.currentScrollItem
+        start = Math.max(0, end - 20)
+        this.splitedResult = this.searchResult.slice(start, end)
+        this.scrollY = target.scrollTop;
+        this.cdr.markForCheck()
     }
 
     sanitizeHtml(html: string): SafeHtml {

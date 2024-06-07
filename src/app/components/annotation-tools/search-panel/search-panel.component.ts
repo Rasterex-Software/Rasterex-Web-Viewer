@@ -58,7 +58,9 @@ export class SearchPanelComponent implements OnInit {
                 RXCore.setLayout(0, 0, false);
                 RXCore.doResize(false,0, 0);/*added for comment list panel */
             }
+            RXCore.toggleShowHighlightMarkups(this.visible)
         })
+
 
         RXCore.onGuiDocumentSearch((matches) => {
             this.searchResult = matches;
@@ -72,12 +74,12 @@ export class SearchPanelComponent implements OnInit {
                     id ++;
                     this.pageIndex.push(match.pgindex)
                 })
+                RXCore.markupSearchResult()
             })
         
             this.searchCurrentMatches = 0;
             this.splitedResult = this.searchResult.slice(0, 10)
 
-            RXCore.markupDocumentSearchResult(this.searchResult[0])
             this.cdr.markForCheck()
         })
 
@@ -123,6 +125,9 @@ export class SearchPanelComponent implements OnInit {
         })
     }
 
+    onWindowResize(event): void {
+    }
+
     private _getOpenFilesList(): Array<any> {
         const hidden = new Set<number>();
         return RXCore.getOpenFilesList().map(file => {
@@ -158,6 +163,7 @@ export class SearchPanelComponent implements OnInit {
         this.visible = false;
         RXCore.setLayout(0, 0, false);
         RXCore.doResize(false, 0, 0);/*added for comment list panel */
+        RXCore.toggleShowHighlightMarkups(false)
     }
 
     onSearchItemClick(item: any) {
@@ -165,7 +171,6 @@ export class SearchPanelComponent implements OnInit {
         this.currentItem = item;
         const page = this.getPageNumFromId(this.searchCurrentMatches)
         RXCore.gotoPage(page)
-        RXCore.markupDocumentSearchResult(this.searchResult[page])
         RXCore.markupTextWithOrange(this.currentItem)
     }
 
@@ -180,6 +185,7 @@ export class SearchPanelComponent implements OnInit {
     }
 
     onSearch(event): void {
+        RXCore.endTextSearch();
         if(!this.search) {
             this.onReset()
         } else if(this.search.length >= 2) {
@@ -205,7 +211,6 @@ export class SearchPanelComponent implements OnInit {
         } 
         const page = this.getPageNumFromId(this.searchCurrentMatches)
         RXCore.gotoPage(page)
-        RXCore.markupDocumentSearchResult(this.searchResult[page])
         this.searchResult[page].list.forEach(item => {
             if(item.match.id === this.searchCurrentMatches) {
                 this.currentItem = item

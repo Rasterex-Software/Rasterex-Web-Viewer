@@ -284,12 +284,16 @@ export class RXCore {
         RxCore.textSearch(text, direction, casesens);
     }
 
-    public static documentTextSearch(text: string | undefined, casesens: boolean = false, wholetext: boolean = false) {
+    public static markupSearchResult(): void {
+        RxCore.forcetextsearchmarker()
+    }
+
+    public static documentTextSearch(text: string | undefined, casesens: boolean = false, wholetext: boolean = false): void {
         RxCore.documentTextSearch(text, casesens, wholetext)
     }
 
-    public static markupDocumentSearchResult(pageInfo) {
-        RxCore.documentMarkupTextSearch(pageInfo)
+    public static toggleShowHighlightMarkups(value: boolean): void {
+        RxCore.toggleShowHighlightMarkups(value)
     }
 
     public static markupTextWithOrange(item) {

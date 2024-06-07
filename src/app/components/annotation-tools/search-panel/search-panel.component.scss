@@ -94,6 +94,21 @@
                     background-color: #EDF1F2;
                 }
             }
+            button {
+                background-color: #31BD59;
+                border: none;
+                border-radius: 4px;
+                color: #FFF;
+                padding: 5px 10px;
+                cursor: pointer;
+                &:hover {
+                    background-color: #34a153;
+                }
+            }
+            button.disabled {
+                background-color: #A4ABAE;
+                cursor: not-allowed;
+            }
         }
     }
 

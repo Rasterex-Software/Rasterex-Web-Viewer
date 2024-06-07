@@ -3,12 +3,16 @@
         <div class="header-section">
             <div class="search">
                 <img src="/assets/images/search-ico.svg" />
-                <input type="text" id="search" placeholder="Search for comments..." [(ngModel)]="search" (keyup)="onSearch($event)"/>
+                <input type="text" id="search" placeholder="Search for text..." [(ngModel)]="search" autocomplete="off"/>
                 <span class="btn-close" (click)="onReset()" *ngIf="search !== ''">&times;</span>
             </div>
             <div class="sort">
-                <rx-checkbox [label]="'Case sensitive'" [(value)]="searchCaseSensitive" (valueChange)="onSearch($event)"/>
-                <rx-checkbox [label]="'Whole word'" [(value)]="searchWholeWord" (valueChange)="onSearch($event)"/>
+                <rx-checkbox [label]="'Case sensitive'" [(value)]="searchCaseSensitive" />
+                <rx-checkbox [label]="'Whole word'" [(value)]="searchWholeWord" />
+                <button
+                [ngClass]="{'disabled':isSearching}"
+                 (click)="onSearch($event)" 
+                 [disabled]="isSearching" >Search</button>
             </div>
         </div>
         <div class="search-toolbar-section">

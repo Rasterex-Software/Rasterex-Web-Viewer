@@ -13,7 +13,7 @@ import { DomSanitizer, SafeHtml } from "@angular/platform-browser";
   host: {
     '(window:resize)': 'onWindowResize($event)'
   },
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SearchPanelComponent implements OnInit {
     visible: boolean = false;
@@ -37,6 +37,7 @@ export class SearchPanelComponent implements OnInit {
     searchResult: any[] = [];
     splitedResult: any[] = [];
     pageIndex: any[] = [];
+    isSearching: boolean = false;
     currentItem = null;
 
     constructor(
@@ -45,7 +46,8 @@ export class SearchPanelComponent implements OnInit {
     private readonly compareService: CompareService,
     private readonly service: TopNavMenuService,
     private cdr: ChangeDetectorRef,
-    private readonly annotationToolsService: AnnotationToolsService) {}
+    private readonly annotationToolsService: AnnotationToolsService) {
+    }
 
     ngOnInit(): void {
         this.annotationToolsService.searchPanelState$.subscribe(state => {
@@ -75,6 +77,7 @@ export class SearchPanelComponent implements OnInit {
                     this.pageIndex.push(match.pgindex)
                 })
                 RXCore.markupSearchResult()
+                this.isSearching = false;
             })
         
             this.searchCurrentMatches = 0;
@@ -189,6 +192,7 @@ export class SearchPanelComponent implements OnInit {
         if(!this.search) {
             this.onReset()
         } else if(this.search.length >= 2) {
+            this.isSearching = true;
             RXCore.documentTextSearch(this.search, this.searchCaseSensitive, this.searchWholeWord);
         }
         this.cdr.markForCheck()

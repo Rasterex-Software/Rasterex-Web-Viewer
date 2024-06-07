@@ -333,5 +333,14 @@ export class QuickActionsMenuComponent implements OnInit, OnDestroy {
     this.confirmDeleteOpened = true;
     this.visible = false;
   }
+  onInsertClick(): void {
+    if(this.annotation.type === MARKUP_TYPES.SHAPE.RECTANGLE.type) {
+      RXCore.markupRectToAreaSwitch(this.annotation);
+    }    
+    if (this.operation?.created) { RXCore.selectMarkUp(true); }
+ 
+    RXCore.insertPoint();
+    this.visible = false;
+  }
 
 }

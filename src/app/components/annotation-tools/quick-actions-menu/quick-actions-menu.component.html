@@ -40,6 +40,13 @@
             (click)="onInfoClick()">
                 <img src="/assets/images/markup-info-ico.svg" />
         </li>
+
+        <li
+            *ngIf="annotation.type === 8 || annotation.type === 3"
+            (click)="onInsertClick()">
+                <img id="quickActionsMenuInsertPoint" src="/assets/images/insert-point.svg" height="48" />
+        </li>
+
     </ul>
 </div>
 

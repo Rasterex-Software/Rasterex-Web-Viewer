@@ -14,17 +14,29 @@
                   <div class="col">{{measurementText}}</div>
                   <div class="col">{{measureData?.dimtext}}</div>
                 </div>
-                <!-- <ng-container *ngIf="measureData?.currentMousePosition">
+                                
+                <div class="row" 
+                  *ngIf="measureData.type === MARKUP_TYPES.MEASURE.AREA.type ||
+                  measureData.type === MARKUP_TYPES.SHAPE.RECTANGLE.type">
+                    <div class="col">Distance</div>
+                    <div class="col">{{measureData?.perimeterLengthOnArea || 0}}</div>
+                </div>
+
+                <ng-container *ngIf="measureData.type === MARKUP_TYPES.MEASURE.LENGTH.type">
                   <div class="row">
-                      <div class="col">X</div>
-                      <div class="col">{{measureData?.currentMousePosition?.x}}</div>
+                    <div class="col">Angle</div>
+                    <div class="col">{{measureData?.angleLine}}&deg;</div>
+                  </div>
+                  <div class="row">
+                    <div class="col">X</div>
+                    <div class="col">{{measureData?.xLength}}</div>
                   </div>
                   <div class="row">
                     <div class="col">Y</div>
-                    <div class="col">{{measureData?.currentMousePosition?.y}}</div>
+                    <div class="col">{{measureData?.yLength}}</div>
                   </div>
-                  
-                </ng-container> -->
+                </ng-container>
+
               </section>
           </div>
         

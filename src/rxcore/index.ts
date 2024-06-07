@@ -862,5 +862,20 @@ export class RXCore {
         RxCore.setdimPrecision(value);
     }
 
+    public static markupAreaRect(onoff: boolean): void {
+        RxCore.markupAreaRect(onoff);
+    }
+ 
+    public static insertPoint(): void {
+        RxCore.insertPoint();
+    }
+ 
+    public static deletePoint(): void {
+        RxCore.deletePoint();
+    } 
+    public static markupRectToAreaSwitch(markup: IMarkup): void {
+        RxCore.markupRectToAreaSwitch(markup);
+    } 
+
 
 }

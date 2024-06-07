@@ -310,6 +310,10 @@ export class AnnotationToolsComponent implements OnInit {
         //this.service.setPropertiesPanelState({ visible: this.isActionSelected[actionName], markup:  MARKUP_TYPES.MEASURE.PATH, readonly: false });
         RXCore.markupMeasurePath(this.isActionSelected[actionName]);
         break;
+      case 'MEASURE_RECTANGULAR_AREA':
+          this.service.setMeasurePanelDetailState({ visible: this.isActionSelected[actionName], type: MARKUP_TYPES.SHAPE.RECTANGLE.type, created: true });
+          RXCore.markupAreaRect(this.isActionSelected[actionName]);
+          break;         
       case 'SNAP':
           RXCore.changeSnapState(this.isActionSelected[actionName]);
           break;

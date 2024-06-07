@@ -99,7 +99,7 @@
                                     </div>
                                 </div>
                                 <div class="note-comment-list" *ngIf="item.GetComments().length > 0">
-                                    <div class="note-comment" *ngIf="item.text">
+                                    <!-- <div class="note-comment" *ngIf="item.text">
                                         <div class="item-note">
                                             <div class="item-comment-left">
                                                 <div class="comment-img">
@@ -126,8 +126,8 @@
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                    <div class="note-comment" *ngIf="item.dimtext">
+                                    </div> -->
+                                    <!-- <div class="note-comment" *ngIf="item.dimtext">
                                         <div class="item-note">
                                             <div class="item-comment-left">
                                                 <div class="comment-img">
@@ -154,7 +154,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
+                                    </div> -->
         
                                     <div *ngFor="let itemNote of item.GetComments();let i = index" class="note-comment">
                                         <div *ngIf="itemNote" class="item-note">

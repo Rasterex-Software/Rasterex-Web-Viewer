@@ -51,6 +51,7 @@ export class MeasureDetailPanelComponent implements OnInit, OnDestroy {
           this.measurementText = "Distance";
           
         break;
+        case MARKUP_TYPES.SHAPE.RECTANGLE.type :
         case MARKUP_TYPES.MEASURE.AREA.type :
           this.panelHeading = "Area Measurement";  
           this.measurementText = "Area";
@@ -113,6 +114,20 @@ export class MeasureDetailPanelComponent implements OnInit, OnDestroy {
       }
     });
 
+    this.rxCoreService.guiOnMarkupChanged$.subscribe(({annotation, operation}) => {
+
+      switch(annotation.type) {
+        case MARKUP_TYPES.MEASURE.LENGTH.type :
+          this.setMeasurementOnLength(annotation);          
+          break;
+        case MARKUP_TYPES.SHAPE.RECTANGLE.type :
+        case MARKUP_TYPES.MEASURE.AREA.type :
+          this.calculateArea(annotation);
+          break;
+      }
+
+    });   
+
   }
 
   manageRealTimeBox(markup) {
@@ -125,12 +140,14 @@ export class MeasureDetailPanelComponent implements OnInit, OnDestroy {
             this.panelHeading = "Distance Measurement";
             this.measurementText = "Distance";
             this.visible = true;
-            
+            this.setMeasurementOnLength(markup);
           break;
+          case MARKUP_TYPES.SHAPE.RECTANGLE.type :
           case MARKUP_TYPES.MEASURE.AREA.type :
             this.panelHeading = "Area Measurement";  
             this.measurementText = "Area";
             this.visible = true;
+            this.calculateArea(markup);
           break;
           case MARKUP_TYPES.MEASURE.PATH.type :
             this.panelHeading = "Perimeter Measurement";
@@ -152,6 +169,63 @@ export class MeasureDetailPanelComponent implements OnInit, OnDestroy {
         }
         
       }
+  }
+
+  calculateArea(markup: any) {
+    this.measureData = markup;
+    this.setDistanceOnArea(this.measureData); 
+  }
+
+  setDistanceOnArea(markup: any) {
+    if(markup.type === MARKUP_TYPES.MEASURE.AREA.type) {
+      this.measureData.perimeterLengthOnArea = markup?.setdimvalueperimeter() || 0;
+    } 
+
+    if(markup.type === MARKUP_TYPES.SHAPE.RECTANGLE.type) {
+      markup.removepoints();
+      
+      let rotatedrect = markup.rotatedrect;
+      let points = [{x: rotatedrect.x, y: rotatedrect.y},
+          {x: rotatedrect.x + rotatedrect.w, y: rotatedrect.y},
+          {x: rotatedrect.x + rotatedrect.w, y: rotatedrect.y + rotatedrect.h},
+          {x: rotatedrect.x, y: rotatedrect.y + rotatedrect.h}];
+
+      for(let idx = 0; idx < points.length; idx++) {
+        markup.addrectpoint(points[idx].x, points[idx].y);
+      }
+      
+      this.measureData.perimeterLengthOnArea = markup?.setdimvalueperimeter() || 0;
+    }
+  }
+
+  setMeasurementOnLength(markup: any) {
+    this.measureData = markup;
+    this.measureData.angleRadians = this.measureData?.getangleofline(this.measureData.x, this.measureData.y, this.measureData.w, this.measureData.h, false);
+    
+    if(this.measureData.angleRadians) {
+        let angle = (this.measureData.angleRadians.angle * (180/Math.PI));
+        let formattedAngle = angle;
+
+        if(angle >= -90 && angle < 0) {
+          formattedAngle = Math.abs(angle);
+        } else if(angle < -90) {
+          formattedAngle = 180 + angle;        
+        } else if(angle > 90) {
+          formattedAngle = 180 - angle;
+        } 
+
+        this.measureData.angleLine = formattedAngle.toFixed(2);
+    }
+
+    //let xData = this.measureData.dimtextx.split(" ");
+    //this.measureData.xLength = Math.abs(xData[0]) + " " + xData[1];
+    
+    this.measureData.xLength = this.measureData.dimtextx;
+
+    //let yData = this.measureData.dimtexty.split(" ");
+    //this.measureData.yLength = Math.abs(yData[0]) + " " + yData[1];
+
+    this.measureData.yLength = this.measureData.dimtexty;
   }
 
   ngOnDestroy(): void {

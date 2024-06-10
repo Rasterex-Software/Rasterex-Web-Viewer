@@ -6,6 +6,7 @@ import { FileGaleryService } from '../../file-galery/file-galery.service';
 import { BottomToolbarService } from '../../bottom-toolbar/bottom-toolbar.service';
 import { TopNavMenuService } from '../top-nav-menu.service';
 import { GuiMode } from 'src/rxcore/enums/GuiMode';
+import { uniqueId } from 'lodash-es';
 
 declare var bringIframeToFront;
 declare var hideAllIframes;
@@ -36,7 +37,7 @@ export class OpenedFilesTabsComponent implements OnInit {
         hidden.add(comparison.activeFile.index);
         hidden.add(comparison.otherFile.index);
       }
-      return { ...file, comparison };
+      return { ...file, comparison};
     }).map(file => {
       file.hidden = hidden.has(file.index);
       return file;
@@ -117,10 +118,6 @@ export class OpenedFilesTabsComponent implements OnInit {
     this.topNavMenuService.selectTab$.subscribe(file => {
       this.handleSelectTab(file);
     });
-
-    this.topNavMenuService.closeTab$.subscribe((file) => {
-      this._closeTab(file);
-    })
   }
 
   handleCloseTab(event, file): void {
@@ -130,6 +127,7 @@ export class OpenedFilesTabsComponent implements OnInit {
     if (file.comparison && RXCore.markupChanged) {
       this.compareService.onUnsavedChanges.next();
     } else {
+      this.topNavMenuService.closeTab.next(file)
       this._closeTab(file);
     }
   }

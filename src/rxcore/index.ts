@@ -292,6 +292,10 @@ export class RXCore {
         RxCore.documentTextSearch(text, casesens, wholetext)
     }
 
+    public static clearDocumentTextSearch() {
+        RxCore.clearDocumentTextSearch();
+    }
+
     public static toggleShowHighlightMarkups(value: boolean): void {
         RxCore.toggleShowHighlightMarkups(value)
     }

@@ -147,6 +147,7 @@
     .match-list {
         overflow-y: auto;
         overflow-x: hidden;
+        scrollbar-width: thin;
         height: 100%;
 
         .page-match {

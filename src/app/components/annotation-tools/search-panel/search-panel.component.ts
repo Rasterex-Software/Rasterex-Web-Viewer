@@ -206,6 +206,9 @@ export class SearchPanelComponent implements OnInit {
         RXCore.setLayout(0, 0, false);
         RXCore.doResize(false, 0, 0);/*added for comment list panel */
         RXCore.toggleShowHighlightMarkups(false)
+        this.onReset()
+        this.rxCoreService.setCommentSelected(false)
+        RXCore.clearDocumentTextSearch()
     }
 
     onSearchItemClick(item: any) {

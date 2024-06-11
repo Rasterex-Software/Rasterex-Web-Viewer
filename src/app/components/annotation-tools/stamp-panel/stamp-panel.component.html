@@ -1,34 +1,75 @@
 <rx-panel [title]="'Stamp'" (onClose)="onPanelClose()">
-    <div class="stamp-panel-container">
-        <section>
-            <h4>Templates</h4>
+  <div class="stamp-panel-container">
+
+    <rx-accordion [collapsing]="false">
+      <rx-accordion-item *ngIf="true" [title]="'Custom Stamps'">
+        <ng-template accordionContent>
+          <section>
+            <button type="button" class="btn btn-primary" (click)="opened = true">Add New</button>
             <div class="templates-list">
-                <img
-                    *ngFor="let template of templates;"
-                    [stampTemplate]="template"
-                    [src]="template.src"
-                    [ngStyle]="{ 'width.px': template.width, 'height.px': template.height }" />
+              <img *ngFor="let template of customTemplates;" [stampTemplate]="template" [src]="template.src"
+                [ngStyle]="{ 'width.px': template.width, 'height.px': template.height }" />
             </div>
-        </section>
-    </div>
+          </section>
+
+        </ng-template>
+      </rx-accordion-item>
+      <rx-accordion-item [title]="'Standard Stamps'">
+        <ng-template accordionContent>
+          <section>
+            <div class="templates-list">
+              <img *ngFor="let template of templates;" [stampTemplate]="template" [src]="template.src"
+                [ngStyle]="{ 'width.px': template.width, 'height.px': template.height }" />
+            </div>
+          </section>
+        </ng-template>
+      </rx-accordion-item>
+    </rx-accordion>
+
+  </div>
 </rx-panel>
 
-<rx-modal-dialog [opened]="opened">
-    <div class="confirm-modal-container" style="max-width: fit-content;">
-        <div class="rx-modal-dialog-header">
-            <img (click)="opened = false;" class="close" style="right: 14px; top: 10px;" src="/assets/images/close-modal-ico.svg" />
-            <span class="title">Add stamp</span>
-        </div>
-        <div class="body" style="width: 364px; box-sizing: border-box;">
-            <div class="btn-group" role="group">
-                <button [class.selected]="activeIndex == 0" (click)="activeIndex=0">Text</button>
-                <button [class.selected]="activeIndex == 1" (click)="activeIndex=1">Stroke</button>
-                <button [class.selected]="activeIndex == 2" (click)="activeIndex=2">Fill</button>
-            </div>
-        </div>
-        <div class="footer">
-            <button (click)="opened = false;" class="btn btn-light">CANCEL</button>
-            <button class="btn btn-primary">SAVE</button>
-        </div>
+<rx-modal-dialog #addDialog [opened]="opened">
+  <div class="confirm-modal-container" style="max-width: fit-content;">
+    <div class="rx-modal-dialog-header">
+      <img (click)="opened = false;" class="close" style="right: 14px; top: 10px;"
+        src="/assets/images/close-modal-ico.svg" />
+      <span class="title">Add stamp</span>
     </div>
+    <div class="body" style="width: 364px; box-sizing: border-box;">
+      <!-- <div class="btn-group" role="group">
+        <button [class.selected]="activeIndex == 0" (click)="activeIndex=0">Text</button>
+        <button [class.selected]="activeIndex == 1" (click)="activeIndex=1">Stroke</button>
+        <button [class.selected]="activeIndex == 2" (click)="activeIndex=2">Fill</button>
+      </div> -->
+      <button class="btn btn-primary" [disabled]="!(height || width)"
+        onclick="document.getElementById('sampLoader').click();">Select Image
+      </button>
+      <br>
+      <img [src]="previewSrc" [style.height.px]="height" [style.width.px]="width" alt="Select Image" />
+      <div class="slider-container">
+        <span class="label">Height </span>
+        <ngx-slider class="slider" [(value)]="height"
+          [options]="{floor: 20, ceil: 150, hideLimitLabels: true, hidePointerLabels: true, showSelectionBar: true }">
+        </ngx-slider>
+        <span class="value">{{height}}px </span>
+      </div>
+      <div class="slider-container">
+        <span class="label">Width </span>
+        <ngx-slider class="slider" [(value)]="width"
+          [options]="{floor: 20, ceil: 150, hideLimitLabels: true, hidePointerLabels: true, showSelectionBar: true }">
+        </ngx-slider>
+        <span class="value">{{width}}px </span>
+      </div>
+      <!-- <input name="height" type="number" [(ngModel)]="height" />
+      <input name="height" type="number" [(ngModel)]="width" /> -->
+      <input type="file" id="sampLoader" name="sampLoader" (change)="handleImage($event)" accept="image/*"
+        style="display:none;" />
+    </div>
+    <div class="footer">
+      <button (click)="opened = false;" class="btn btn-light">CANCEL</button>
+      <button class="btn btn-primary" [disabled]="!(height && width && previewSrc)" (click)="addCustomStamp()">SAVE
+      </button>
+    </div>
+  </div>
 </rx-modal-dialog>

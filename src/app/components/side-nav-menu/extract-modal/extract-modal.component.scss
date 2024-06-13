@@ -1,0 +1,30 @@
+.extract-modal {
+    .rx-modal-dialog-header {
+        height: 50px;
+
+        span {
+            font-weight: bold;
+            font-size: 18px;
+            position: absolute;
+            left: 14px;
+            top: 10px;
+        }
+
+        img {
+            right: 14px;
+            top: 10px;
+        }
+    }
+
+    .body {
+        word-wrap: break-word;
+        padding: 0 24px 18px;
+    }
+
+    .footer {
+        display: flex;
+        justify-content: end;
+        column-gap: 16px;
+        padding: 8px;
+    }
+}

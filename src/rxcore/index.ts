@@ -296,6 +296,34 @@ export class RXCore {
         RxCore.clearDocumentTextSearch();
     }
 
+    public static rotatePage(pageNum: number, clockwise: boolean) {
+        RxCore.rotatePage(pageNum, clockwise)
+    }
+
+    public static onRotatePage(callback: Function): void {
+        RxCore.GUI_RotatePage.connect(callback)
+    }
+
+    public static refreshThumbnails(): void {
+        RxCore.refreshThumbnails()
+    }
+
+    public static movePageTo (pageIndex, desIndex): void {
+        RxCore.movePageTo(pageIndex, desIndex)
+    }
+
+    public static removePage(pageNum: number) {
+        RxCore.removePage(pageNum)
+    }
+
+    public static extractPage(pageIndex: number, remove: boolean) {
+        RxCore.extractPage(pageIndex, remove)
+    }
+
+    public static onGuiRemovePage(callback: Function): void {
+        RxCore.GUI_RemovePage.connect(callback)
+    }
+
     public static toggleShowHighlightMarkups(value: boolean): void {
         RxCore.toggleShowHighlightMarkups(value)
     }

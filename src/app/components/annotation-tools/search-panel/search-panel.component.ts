@@ -5,6 +5,7 @@ import { RxCoreService } from "src/app/services/rxcore.service";
 import { CompareService } from "../../compare/compare.service";
 import { TopNavMenuService } from "../../top-nav-menu/top-nav-menu.service";
 import { DomSanitizer, SafeHtml } from "@angular/platform-browser";
+import { debounce } from "lodash-es";
 
 @Component({
   selector: 'rx-search-panel',
@@ -50,6 +51,7 @@ export class SearchPanelComponent implements OnInit {
     private readonly service: TopNavMenuService,
     private cdr: ChangeDetectorRef,
     private readonly annotationToolsService: AnnotationToolsService) {
+        this.onScroll = debounce(this.onScroll.bind(this), 300);
     }
 
     ngOnInit(): void {
@@ -84,8 +86,8 @@ export class SearchPanelComponent implements OnInit {
             })
         
             this.searchCurrentMatches = 0;
-            this.splitedResult = this.searchResult.slice(0, 10)
 
+            this.splitedResult = this.searchResult.slice(0, Math.min(10, this.searchResult.length))
             this.cdr.markForCheck()
         })
 
@@ -194,6 +196,7 @@ export class SearchPanelComponent implements OnInit {
         start = Math.max(0, end - 20)
         this.splitedResult = this.searchResult.slice(start, end)
         this.scrollY = target.scrollTop;
+        console.log(this.splitedResult)
         this.cdr.markForCheck()
     }
 
@@ -246,7 +249,7 @@ export class SearchPanelComponent implements OnInit {
 
     onTextSearchNavigate(mode: boolean) {
         if(mode) {
-            if(this.searchCurrentMatches < this.searchNumMatches) {
+            if(this.searchCurrentMatches < this.searchNumMatches - 1) {
                 this.searchCurrentMatches ++;
             }
         } 

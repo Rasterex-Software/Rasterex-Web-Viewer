@@ -43,6 +43,7 @@
                     [id]="'page-' + i"
                     [ngStyle]="{'width': scale + '%'}"
                     class="page"
+                    (contextmenu)="onRightClick($event, i)"
                     [class.selected]="i == selectedPageIndex">
                     <canvas
                         [pageThumbnail]="thumbnail"
@@ -108,3 +109,4 @@
         </ng-container>
     </div>
 </div>
+<rx-context-menu [x]="contextMenuX" [y]="contextMenuY" (onAction)="onAction($event)" [show]="showContextMenu"></rx-context-menu>

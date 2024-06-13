@@ -70,6 +70,8 @@ import { MeasureDetailPanelComponent } from './components/annotation-tools/measu
 import { ToastrModule } from 'ngx-toastr';
 import { SearchPanelComponent } from './components/annotation-tools/search-panel/search-panel.component';
 import { HighlightPipe } from './components/annotation-tools/search-panel/highligth.pipe';
+import { ContextMenuComponent } from './components/side-nav-menu/context-menu/context-menu.component';
+import { ExtractModalComponent } from './components/side-nav-menu/extract-modal/extract-modal.component';
 
 
 @NgModule({
@@ -130,6 +132,8 @@ import { HighlightPipe } from './components/annotation-tools/search-panel/highli
     BlocksComponent,
     AnnotationShapeIconComponent,
     MeasureDetailPanelComponent,
+    ContextMenuComponent,
+    ExtractModalComponent,
     HighlightPipe
   ],
   imports: [

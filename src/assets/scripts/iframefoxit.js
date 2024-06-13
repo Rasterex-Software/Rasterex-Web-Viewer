@@ -958,9 +958,7 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
     this.getThumbnail = function (pagenum) {
         if (foxview.pdfViewer) {
             foxview.pdfViewer.getCurrentPDFDoc().getPageByIndex(pagenum).then(function (page) {
-                var pgindex = page.info.index;
                 page.getThumb(0, 1.5).then(function (thumbnail) {
-                    pgindex = page.info.index;
                     RxCore.setThumbnailFoxit(thumbnail, pagenum);
                     foxview.pagestates[pagenum].thumbadded = false;
                 });
@@ -968,23 +966,7 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
         }
     };
 
-    this.rotatePage = function (pagenum, nrotation){
-
-        /*Enumerator
-            rotation0 	0 degree rotation.
-            rotation1 	90 degree rotation.
-            rotation2 	180 degree rotation.
-            rotation3 	270 degree rotation.*/
-
-        var nfoxrot = 0;
-
-        if (nrotation == 0){nfoxrot = 0;}
-        if (nrotation == 90){nfoxrot = 1;}
-        if (nrotation == 180){nfoxrot = 2;}
-        if (nrotation == 270){nfoxrot = 3;}
-
-
-
+    this.rotatePage = function (pagenum, clockwise){
         if (foxview.pdfViewer) {
 
             /*foxview.pdfViewer.rotateTo(nrotation).then(function(){
@@ -1001,11 +983,17 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
 
             foxview.pdfViewer.getCurrentPDFDoc().getPageByIndex(pagenum).then(function (page) {
                 //var pgindex = page.info.index;
+                let rotation = page.getRotation();
+
+                if(clockwise) {
+                    rotation ++;
+                } else {
+                    rotation = (rotation + 3) % 4;
+                }
                 
-                page.setRotation(nfoxrot).then(function () {
-                        // rotation change success
-                        //console.log("rotate success");
+                page.setRotation(rotation).then(function () {
                         foxview.pagestates[pagenum].rendered = false;
+                        foxview.redraw = true;
                 });
                 
             });
@@ -1022,6 +1010,25 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
         //console.log('redraw');
 
     };
+
+    this.extractPage = function(pageIndex) {
+        if (foxview.pdfViewer) {
+            const pdfDoc = foxview.pdfViewer.getCurrentPDFDoc(); 
+            pdfDoc.extractPages([[pageIndex]]).then((extractedDoc) => {
+                console.log(extractedDoc)
+                this.exportCustomPDF(extractedDoc, pageIndex  + 1);
+            })
+        }
+    }
+
+    this.exportCustomPDF = function (pdfDoc, pdfName) {
+        const blob = new Blob(pdfDoc, {type: 'application/pdf'});
+        const link = document.createElement('a');
+        link.href = window.URL.createObjectURL(blob);
+        link.download = pdfName  + ".pdf";
+        link.click();
+        link.remove()
+    }
 
     this.savePDF = function () {
 
@@ -1262,7 +1269,6 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
 
 
         foxview.scale = factor;
-
         //{pageIndex : pagenum, x : newpos.x, y : newpos.y};
         var position = {pageIndex : pagenum, x : newpos.x, y : newpos.y};
 
@@ -1274,6 +1280,16 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
         foxview.pdfViewer.zoomTo(foxview.scale, position);
 
     }; 
+
+    this.removePage = async function(pageIndex) {
+        await foxview.pdfViewer.getCurrentPDFDoc().removePage(pageIndex)
+        // foxview.redraw = true;
+        // foxview.pdfViewer.redraw()
+    }
+
+    this.movePageTo = async function(pageIndex, destIndex) {
+        await foxview.pdfViewer.getCurrentPDFDoc().movePageTo(pageIndex, destIndex)
+    }
 
 
     this.zoomToPoint = function (pagenum, factor, deltaf, mousepoint, offset, center, bIn ){
@@ -2792,12 +2808,9 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
     };
 
     this.onRenderSuccess = function (pdfViewer, ViewerEvents) {
-
         if (pdfViewer) {
             pdfViewer.eventEmitter.on(ViewerEvents.renderPageSuccess, function (pageRender) {
-
                 foxview.curpagerender = pageRender;
-                
                 //console.log('redraw event success');
 
                 //get page scale
@@ -2880,7 +2893,6 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
                 }*/
 
                 if (foxview.pagestates[pgindex].rendered && !foxview.redraw) {
-                    
                     
                     foxview.rendering = false;
                     return;
@@ -2973,7 +2985,7 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
                 //foxitpage = foxview.getAnnotCanvases(foxitpage);
 
                 foxview.pagestates[pgindex].scrollTop = foxitpage.pagepos.top;
-
+                
                 RxCore.setfoxitPageSize(foxitpage);
 
                 if (foxview.curpage == pgindex) {

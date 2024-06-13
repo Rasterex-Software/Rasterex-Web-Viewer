@@ -1,0 +1,15 @@
+<rx-modal-dialog *ngIf="visible">
+    <div class="extract-modal-container extract-modal">
+        <div class="rx-modal-dialog-header">
+            <span>Extract Page</span>
+            <img (click)="cancel()" class="close" src="/assets/images/close-modal-ico.svg" />
+        </div>
+        <div class="body">
+            <p>Are you sure you want to extract the selected page?</p>
+        </div>
+        <div class="footer">
+            <button (click)="extract(true)" class="btn btn-light">Extract and Delete</button>
+            <button (click)="extract(false)" class="btn btn-primary">Extract</button>
+        </div>
+    </div>
+</rx-modal-dialog>

@@ -13,4 +13,18 @@ export class SideNavMenuService {
   toggleSidebar(index: number) {
     this.sidebarChanged.next(index);
   }
+
+  private extractModalChanged: Subject<boolean> = new Subject<boolean>();
+  public extractModalChanged$: Observable<boolean> = this.extractModalChanged.asObservable();
+
+  toggleExtractModal(visible: boolean): void {
+    this.extractModalChanged.next(visible);
+  }
+
+  private rightClickedPage: Subject<number> = new Subject<number>();
+  public rightClickedPage$: Observable<number> = this.rightClickedPage.asObservable();
+
+  setRightClickedPage(pageIndex: number) {
+    this.rightClickedPage.next(pageIndex)
+  }
 }

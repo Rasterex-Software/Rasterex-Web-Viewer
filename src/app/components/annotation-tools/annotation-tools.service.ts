@@ -38,6 +38,12 @@ export class AnnotationToolsService {
     this._notePanelState.next(any);
   }
 
+  private _searchPanelState: BehaviorSubject<any> = new BehaviorSubject<any>({});
+  public searchPanelState$: Observable<any> = this._searchPanelState.asObservable();
+  public setSearchPanelState(any): void {
+    this._searchPanelState.next(any);
+  }
+
   private _notePopoverState: Subject<any> = new Subject<any>();
   public notePopoverState$: Observable<any> = this._notePopoverState.asObservable();
   public setNotePopoverState(any): void {

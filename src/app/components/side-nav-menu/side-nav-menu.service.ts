@@ -21,6 +21,20 @@ export class SideNavMenuService {
     this.extractModalChanged.next(visible);
   }
 
+  private insertModalChanged: Subject<boolean> = new Subject<boolean>();
+  public insertModalChanged$: Observable<boolean> = this.insertModalChanged.asObservable();
+
+  toggleInsertModal(visible: boolean): void {
+    this.insertModalChanged.next(visible);
+  }
+
+  private replaceModalChanged: Subject<boolean> = new Subject<boolean>();
+  public replaceModalChanged$: Observable<boolean> = this.replaceModalChanged.asObservable();
+
+  toggleReplaceModal(visible: boolean): void {
+    this.replaceModalChanged.next(visible);
+  }
+
   private rightClickedPage: Subject<number> = new Subject<number>();
   public rightClickedPage$: Observable<number> = this.rightClickedPage.asObservable();
 

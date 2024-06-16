@@ -70,22 +70,21 @@ export class SearchPanelComponent implements OnInit {
 
 
         RXCore.onGuiDocumentSearch((matches) => {
-            this.searchResult = matches;
             this.searchNumMatches = 0;
             let id = 0;
             this.pageIndex = []
             matches.forEach((match: any) => {
                 this.searchNumMatches += match.list.length;
-                match.list.forEach(item => {
-                    item.match.id = id
-                    id ++;
-                    this.pageIndex.push(match.pgindex)
-                })
-                RXCore.markupSearchResult()
-                this.isSearching = false;
+                    match.list.forEach(item => {
+                        item.match.id = id
+                        id ++;
+                        this.pageIndex.push(match.pgindex)
+                    })  
             })
-        
+            RXCore.markupSearchResult()
+            this.isSearching = false;
             this.searchCurrentMatches = 0;
+            this.searchResult = matches;
 
             this.splitedResult = this.searchResult.slice(0, Math.min(10, this.searchResult.length))
             this.cdr.markForCheck()

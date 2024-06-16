@@ -59,7 +59,7 @@ export class PagesComponent implements OnInit {
     this.rxCoreService.guiPage$.subscribe(page => {
       this.selectedPageIndex = page.currentpage;
       document.getElementById(`page-${page.currentpage}`)?.scrollIntoView({
-      behavior: "smooth",
+      behavior: "instant",
       block: "start",
       inline: "start"
     });
@@ -124,19 +124,31 @@ onDocumentClick(event: MouseEvent) {
     RXCore.navigateBookmark(item.value);
   }
 
-  onRightClick(event: MouseEvent, pageIndex: number) {
+
+  onRightClick(event: MouseEvent | PointerEvent, pageIndex: number) {
     event.preventDefault();
+    event.stopPropagation();
+
     this.contextMenuX = event.clientX;
     this.contextMenuY = event.clientY;
+
     this.showContextMenu = true;
 
-    this.rightClickedPageIndex = pageIndex
-    this.sideNavMenuService.setRightClickedPage(pageIndex)
+    this.rightClickedPageIndex = pageIndex;
+
+    this.sideNavMenuService.setRightClickedPage(pageIndex);
 
     const spaceBelow = window.innerHeight - event.clientY;
-    // If the space below is less than the menu height, position the menu above
-    if (spaceBelow < this.menuHeight) {
-      this.contextMenuY -= this.menuHeight; // Adjust the position to place the menu above
+    const spaceAbove = event.clientY;
+    const menuHeight = this.menuHeight; 
+    if (spaceBelow < menuHeight && spaceAbove >= menuHeight) {
+      this.contextMenuY = event.clientY - menuHeight;
+    } else {
+      this.contextMenuY = event.clientY;
+    }
+
+    if (this.contextMenuY + menuHeight > window.innerHeight) {
+      this.contextMenuY = window.innerHeight - menuHeight;
     }
   }
 
@@ -159,8 +171,10 @@ onDocumentClick(event: MouseEvent) {
         RXCore.rotatePage(this.rightClickedPageIndex, false)
         break;
       case 'page-insert':
+        this.sideNavMenuService.toggleInsertModal(true)
         break;
       case 'page-replace':
+        this.sideNavMenuService.toggleReplaceModal(true)
         break;
       case 'page-extract':
         this.sideNavMenuService.toggleExtractModal(true)

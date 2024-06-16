@@ -320,6 +320,14 @@ export class RXCore {
         RxCore.extractPage(pageIndex, remove)
     }
 
+    public static insertBlankPages(startIndex: number, count: number, width: number, height: number) {
+        RxCore.insertBlankPages(startIndex, count, width, height)
+    }
+
+    public static getDPI() {
+        return RxCore.getDPI()
+    }
+
     public static onGuiRemovePage(callback: Function): void {
         RxCore.GUI_RemovePage.connect(callback)
     }

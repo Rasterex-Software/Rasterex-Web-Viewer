@@ -1,0 +1,22 @@
+<rx-modal-dialog *ngIf="visible">
+    <div class="replace-modal-container replace-modal">
+        <div class="rx-modal-dialog-header">
+            <span>Replace Page</span>
+            <img (click)="close()" class="close" src="/assets/images/close-modal-ico.svg" />
+        </div>
+        <div class="body">
+            <rx-dnd-zone *ngIf="!isBlank" class="browse">
+                <div>
+                    <img src="/assets/images/files-img.svg" />
+                    <p>Drag & Drop your files here or</p>
+                    <button (click)="browseFiles()">CHOOSE ON COMPUTER</button>
+                </div>
+            </rx-dnd-zone>
+        </div>
+        <div class="footer">
+            <button 
+            [disabled]="isInvalid"
+            (click)="replacePages()">Replace Page(s)</button>
+        </div>
+    </div>
+</rx-modal-dialog>

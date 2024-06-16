@@ -51,6 +51,12 @@
                         (click)="onPageSelect(i)">
                     </canvas>
                     <span>{{i+1}} / {{numpages}}</span>
+                    <button (click)="onRightClick($event, i)">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 16 16">
+                            <path fill="white"
+                                d="M3 9.5a1.5 1.5 0 1 1 0-3a1.5 1.5 0 0 1 0 3m5 0a1.5 1.5 0 1 1 0-3a1.5 1.5 0 0 1 0 3m5 0a1.5 1.5 0 1 1 0-3a1.5 1.5 0 0 1 0 3" />
+                        </svg>
+                    </button>
                 </div>
             </div>
         </ng-container>
@@ -110,3 +116,5 @@
     </div>
 </div>
 <rx-context-menu [x]="contextMenuX" [y]="contextMenuY" (onAction)="onAction($event)" [show]="showContextMenu"></rx-context-menu>
+<rx-insert-modal></rx-insert-modal>
+<rx-replace-modal></rx-replace-modal>

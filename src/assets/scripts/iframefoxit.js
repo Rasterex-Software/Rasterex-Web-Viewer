@@ -966,6 +966,27 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
         }
     };
 
+    this.getRotation = function (pagenum) {
+        if (foxview.pdfViewer) {
+            return foxview.pdfViewer.getCurrentPDFDoc().getPageByIndex(pagenum).then(function (page) {
+                return page.getRotation(); // Directly return the value from the inner promise
+            });
+        } else {
+            return Promise.resolve(0);
+        }
+    }
+
+
+    this.getNewThumbnail = async function (pagenum) {
+        if (foxview.pdfViewer) {
+            const page = await foxview.pdfViewer.getCurrentPDFDoc().getPageByIndex(pagenum);
+            const thumbnail = await page.getThumb(0, 1.5);
+            RxCore.setThumbnailFoxit(thumbnail, pagenum);
+            foxview.pagestates[pagenum].thumbadded = false;
+            return thumbnail
+        }
+    };
+
     this.rotatePage = function (pagenum, clockwise){
         if (foxview.pdfViewer) {
 
@@ -1018,6 +1039,43 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
                 console.log(extractedDoc)
                 this.exportCustomPDF(extractedDoc, pageIndex  + 1);
             })
+        }
+    }
+
+    this.insertBlankPages = function (pageIndex, count, width, height) {
+        if (foxview.pdfViewer) {
+            const pdfDoc = foxview.pdfViewer.getCurrentPDFDoc();
+            for(let pi = 0; pi < count; pi ++) {
+                const pageState =  { 
+                    pageindex: pi + pageIndex, 
+                    rendered: false, 
+                    pagescale: null, 
+                    width: 0, 
+                    height: 0,
+                    rotation : 0, 
+                    originalrotation : 0,
+                    foxitscale: foxview.scale, 
+                    thumbadded: false, 
+                    doscroll: false, 
+                    scrollComplete: false, 
+                    scrollposx: 0, 
+                    scrollposy: 0, 
+                    rxscrollposx: 0, 
+                    rxscrollposy: 0, 
+                    scrollTop: 0, 
+                    scrollupdate: false, 
+                    scrollArr: [] 
+                }
+                foxview.pagestates.splice(pageIndex + pi, 0, pageState)
+            }
+
+            for(let i = 0; i < foxview.pagestates.length; i ++) {
+                foxview.pagestates[i].pageindex = i;
+            }
+
+            foxview.numpages += count
+            const newArray = new Array(count).fill([pageIndex])
+            return pdfDoc.insertBlankPages(newArray, width, height)
         }
     }
 
@@ -1281,14 +1339,19 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
 
     }; 
 
-    this.removePage = async function(pageIndex) {
-        await foxview.pdfViewer.getCurrentPDFDoc().removePage(pageIndex)
+    this.removePage = function(pageIndex) {
+        foxview.pagestates.splice(pageIndex, 1)
+
+        for(let i = 0; i < foxview.pagestates.length; i ++) {
+            foxview.pagestates[i].pageindex = i;
+        }
+        return foxview.pdfViewer.getCurrentPDFDoc().removePage(pageIndex)
         // foxview.redraw = true;
         // foxview.pdfViewer.redraw()
     }
 
-    this.movePageTo = async function(pageIndex, destIndex) {
-        await foxview.pdfViewer.getCurrentPDFDoc().movePageTo(pageIndex, destIndex)
+    this.movePageTo = function(pageIndex, destIndex) {
+        return foxview.pdfViewer.getCurrentPDFDoc().movePageTo(pageIndex, destIndex)
     }
 
 

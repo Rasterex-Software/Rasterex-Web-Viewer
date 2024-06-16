@@ -103,6 +103,7 @@
                 cursor: pointer;
                 &:hover {
                     background-color: #34a153;
+                    box-shadow: 0 0 4px var(--accent);
                 }
             }
             button.disabled {

@@ -1,0 +1,96 @@
+<rx-modal-dialog *ngIf="visible">
+    <div class="insert-modal-container insert-modal">
+        <div class="rx-modal-dialog-header">
+            <span>Add New Page</span>
+            <img (click)="close()" class="close" src="/assets/images/close-modal-ico.svg" />
+        </div>
+        <div class="body">
+            <div class="tab">
+                <button 
+                class="left"
+                (click)="setBlank(true)"
+                [class.current]="isBlank">Blank</button>
+                <button 
+                class="right"
+                (click)="setBlank(false)"
+                [class.current]="!isBlank">Upload</button>
+            </div>
+            <div *ngIf="isBlank" class="blank">
+                <div>
+                    <p>Place Placement</p>
+                    <rx-radio-button [options]="radioOptions" [class]="''" [(selectedValue)]="selectedRadioValue"
+                        (selectionChange)="onRadioSelectionChange($event)">
+                    </rx-radio-button>
+                </div>
+                <div>
+                    <p>Page Location</p>
+                    <div class="group">
+                        <div class="input">
+                            <span>Specify Page</span>
+                            <input type="number" max="{{numpages}}" min="0" [(ngModel)]="currentPage" autocomplete="off" (change)="validate()"/>
+                        </div>
+                        <div class="input">
+                            <span>Number of Pages</span>
+                            <input type="number" min="0" [(ngModel)]="numberPages" autocomplete="off" (change)="validate()"/>
+                        </div>
+                    </div>
+                    <span>Total {{numpages}} Pages</span>
+                    <span class="error" *ngIf="currentPage === 0 || currentPage > numpages">Invalid page number.  Limit is {{numpages}}</span>
+                </div>
+                <div>
+                    <p>Page Dimensions</p>
+                    <div class="group">
+                        <div class="input">
+                            <span>Presets</span>
+                            <rx-select
+                            [options]="presetsOptions"
+                            [(selectedValue)]="selectedPresets"
+                            (selectionChange)="onPresetsSelectionChange($event)"
+                            ></rx-select>
+                        </div>
+                        <div
+                        *ngIf="selectedPresets != '4'"
+                        class="input"
+                        ></div>
+                        <div
+                        *ngIf="selectedPresets === '4'"
+                        class="input">
+                            <span>Units</span>
+                            <rx-select 
+                            [options]="unitsOptions" 
+                            [(selectedValue)]="selectedUnits"
+                            (selectionChange)="onUnitsSelectionChange($event)">
+                            </rx-select>
+                        </div>
+                    </div>
+                    <div
+                    class="group"
+                    *ngIf="selectedPresets === '4'"
+                    style="margin-top: 8px;">
+                        <div class="input">
+                            <span>Width</span>
+                            <input type="number" [(ngModel)]="customWidth" autocomplete="off" (change)="validate()"/>
+                        </div>
+                        <div class="input">
+                            <span>Height</span>
+                            <input type="number" [(ngModel)]="customHeight" autocomplete="off" (change)="validate()"/>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+            <rx-dnd-zone *ngIf="!isBlank" class="browse">
+                <div>
+                    <img src="/assets/images/files-img.svg" />
+                    <p>Drag & Drop your files here or</p>
+                    <button (click)="browseFiles()">CHOOSE ON COMPUTER</button>
+                </div>
+            </rx-dnd-zone>
+        </div>
+        <div class="footer">
+            <button 
+            [disabled]="isInvalid"
+            (click)="addPages()">Add Page(s)</button>
+        </div>
+    </div>
+</rx-modal-dialog>

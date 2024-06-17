@@ -59,10 +59,10 @@ export class PagesComponent implements OnInit {
     this.rxCoreService.guiPage$.subscribe(page => {
       this.selectedPageIndex = page.currentpage;
       document.getElementById(`page-${page.currentpage}`)?.scrollIntoView({
-      behavior: "instant",
-      block: "start",
-      inline: "start"
-    });
+        behavior: "instant",
+        block: "start",
+        inline: "start"
+      });
     });
 
     RXCore.onRotatePage((degree: number, pageIndex: number) => {

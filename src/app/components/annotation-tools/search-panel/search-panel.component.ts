@@ -1,10 +1,11 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild } from "@angular/core";
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, OnInit, SecurityContext, ViewChild } from "@angular/core";
 import { AnnotationToolsService } from '../annotation-tools.service';
 import { RXCore } from 'src/rxcore';
 import { RxCoreService } from "src/app/services/rxcore.service";
 import { CompareService } from "../../compare/compare.service";
 import { TopNavMenuService } from "../../top-nav-menu/top-nav-menu.service";
 import { DomSanitizer, SafeHtml } from "@angular/platform-browser";
+import Dompurify from 'dompurify'
 import { debounce } from "lodash-es";
 
 @Component({
@@ -41,6 +42,7 @@ export class SearchPanelComponent implements OnInit {
     isSearching: boolean = false;
     currentItem = null;
     scrollY = 0;
+    bDown: boolean = true;
 
     currentScrollItem: number = 0;
 
@@ -73,6 +75,7 @@ export class SearchPanelComponent implements OnInit {
             this.searchNumMatches = 0;
             let id = 0;
             this.pageIndex = []
+            console.log(matches[15])
             matches.forEach((match: any) => {
                 this.searchNumMatches += match.list.length;
                     match.list.forEach(item => {
@@ -86,7 +89,7 @@ export class SearchPanelComponent implements OnInit {
             this.searchCurrentMatches = 0;
             this.searchResult = matches;
 
-            this.splitedResult = this.searchResult.slice(0, Math.min(10, this.searchResult.length))
+            this.splitedResult = this.searchResult.slice(0, this.getPageNumFromId(Math.min(40, this.searchResult.length)))
             this.cdr.markForCheck()
         })
 
@@ -178,29 +181,59 @@ export class SearchPanelComponent implements OnInit {
     }
 
     onScroll(event: MouseEvent) {
-        const DELTA = 10;
-        const target = (event.target as HTMLDivElement)
-        let start = 0, end = 0
-        if(target.scrollTop <= DELTA) {
-            this.currentScrollItem -= 10;
-        }
-        else if (target.scrollTop + target.clientHeight >= target.scrollHeight - DELTA) {
-            this.currentScrollItem += 10;
+        try {
+            const DELTA = 0;
+            const target = (event.target as HTMLDivElement)
+            let start = 0, end = 0
+            this.bDown = target.scrollTop <= this.scrollY
+            console.log(this.bDown)
+            if(target.scrollTop <= DELTA) {
+                this.currentScrollItem -= 20;
+                if(this.currentScrollItem > 40) {
+                    target.scrollTop = target.clientHeight / 2
+                }
+            }
+            else if (target.scrollTop + target.clientHeight >= target.scrollHeight - DELTA) {
+                this.currentScrollItem += 20;
+            }
+            
+            this.currentScrollItem = Math.max(40, this.currentScrollItem);
+            this.currentScrollItem = Math.min(this.currentScrollItem, this.searchNumMatches);
+            
+            end = this.currentScrollItem
+            start = Math.max(0, end - 40)
+            console.log(this.getPageNumFromId(end), end, this.getPageNumFromId(start), start)
+            end = this.getPageNumFromId(end)
+            start = this.getPageNumFromId(start)
+            this.splitedResult = this.searchResult.slice(start, end)
+            this.scrollY = target.scrollTop;
+            this.cdr.markForCheck()
+        } catch (err) {
+            console.log(err)
         }
         
-        this.currentScrollItem = Math.max(20, this.currentScrollItem);
-        this.currentScrollItem = Math.min(this.currentScrollItem, this.searchResult.length);
-        
-        end = this.currentScrollItem
-        start = Math.max(0, end - 20)
-        this.splitedResult = this.searchResult.slice(start, end)
-        this.scrollY = target.scrollTop;
-        console.log(this.splitedResult)
-        this.cdr.markForCheck()
     }
 
+    removeDangerousTags(rootElement: HTMLElement, tags: string[]): void {
+        tags.forEach(tag => {
+            const elements = rootElement.getElementsByTagName(tag);
+            while (elements.length > 0) {
+            const element = elements[0];
+            while (element.firstChild) {
+                element.parentNode?.insertBefore(element.firstChild, element);
+            }
+            element.parentNode?.removeChild(element);
+            }
+        });
+    }
+
+
     sanitizeHtml(html: string): SafeHtml {
-        return this.sanitizer.bypassSecurityTrustHtml(html);
+        const div = document.createElement('div');
+        div.innerHTML = html;
+        
+        this.removeDangerousTags(div, ['script', 'img', 'iframe', 'object', 'embed', 'link', 'base', 'form', 'svg'])
+        return this.sanitizer.bypassSecurityTrustHtml(div.innerHTML);
     }
 
     onClose(): void {

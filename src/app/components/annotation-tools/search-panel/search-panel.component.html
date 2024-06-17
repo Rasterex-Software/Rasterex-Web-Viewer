@@ -27,7 +27,7 @@
 
         <div class="match-list" (scroll)="onScroll($event)">
             <div *ngFor="let page of splitedResult;">
-                <div class="page-match" *ngIf="page.list.length > 0">
+                <div class="page-match"  *ngIf="page.list.length > 0">
                     <span>Page {{page.pgindex + 1}}</span>
                     <div class="items">
                         <div *ngFor="let item of page.list;">

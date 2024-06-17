@@ -4,6 +4,7 @@ import { RXCore } from 'src/rxcore';
 import { TreeviewConfig } from '../../common/treeview/models/treeview-config';
 import { TreeviewItem } from '../../common/treeview/models/treeview-item';
 import { SideNavMenuService } from '../side-nav-menu.service';
+import { TopNavMenuService } from '../../top-nav-menu/top-nav-menu.service';
 
 type Action = 'move-top' | 'move-bottom' | 'rotate-r' | 'rotate-l' | 'page-insert' | 'page-replace' | 'page-copy' | 'page-paste' | 'page-extract' | 'page-delete'
 
@@ -25,6 +26,7 @@ export class PagesComponent implements OnInit {
   search: string;
   viewBookmarks: boolean = false;
   menuHeight: number = 435;
+  canPaste: boolean = false;
 
   // Context menu properties
 
@@ -39,7 +41,8 @@ export class PagesComponent implements OnInit {
 
   constructor(
     private readonly rxCoreService: RxCoreService,
-    private readonly sideNavMenuService: SideNavMenuService
+    private readonly sideNavMenuService: SideNavMenuService,
+    private readonly topMenuService: TopNavMenuService,
     ) {}
 
   ngOnInit(): void {
@@ -64,6 +67,10 @@ export class PagesComponent implements OnInit {
         inline: "start"
       });
     });
+
+    this.sideNavMenuService.copiedPage$.subscribe(value => {
+      this.canPaste = value;
+    })
 
     RXCore.onRotatePage((degree: number, pageIndex: number) => {
       
@@ -180,8 +187,14 @@ onDocumentClick(event: MouseEvent) {
         this.sideNavMenuService.toggleExtractModal(true)
         break;
       case 'page-copy':
+        RXCore.copyPage(this.rightClickedPageIndex)
+        this.sideNavMenuService.setCopy(true)
         break;
       case 'page-paste':
+        if(this.canPaste) {
+          RXCore.pastePage(this.rightClickedPageIndex)
+          this.sideNavMenuService.setCopy(false)
+        }
         break;
       case 'page-delete':
         RXCore.removePage(this.rightClickedPageIndex)

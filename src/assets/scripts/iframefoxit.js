@@ -1050,8 +1050,8 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
                     pageindex: pi + pageIndex, 
                     rendered: false, 
                     pagescale: null, 
-                    width: 0, 
-                    height: 0,
+                    width: width, 
+                    height: height,
                     rotation : 0, 
                     originalrotation : 0,
                     foxitscale: foxview.scale, 
@@ -1069,9 +1069,10 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
                 foxview.pagestates.splice(pageIndex + pi, 0, pageState)
             }
 
-            for(let i = 0; i < foxview.pagestates.length; i ++) {
-                foxview.pagestates[i].pageindex = i;
-            }
+            foxview.pagestates = foxview.pagestates.map((item, id) => ({
+                ...item,
+                pageindex: id
+            }))
 
             foxview.numpages += count
             const newArray = new Array(count).fill([pageIndex])
@@ -1342,17 +1343,43 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
     this.removePage = function(pageIndex) {
         foxview.pagestates.splice(pageIndex, 1)
 
-        for(let i = 0; i < foxview.pagestates.length; i ++) {
-            foxview.pagestates[i].pageindex = i;
-        }
+        foxview.pagestates = foxview.pagestates.map((item, id) => ({
+            ...item,
+            pageindex: id
+        }))
         return foxview.pdfViewer.getCurrentPDFDoc().removePage(pageIndex)
         // foxview.redraw = true;
         // foxview.pdfViewer.redraw()
     }
 
     this.movePageTo = function(pageIndex, destIndex) {
+        const state1 = foxview.pagestates[destIndex]
+        const state2 = foxview.pagestates[pageIndex]
+        foxview.pagestates[destIndex] = state2;
+        foxview.pagestates[pageIndex] = state1;
+        foxview.pagestates = foxview.pagestates.map((item, id) => ({
+            ...item,
+            pageindex: id
+        }))
         return foxview.pdfViewer.getCurrentPDFDoc().movePageTo(pageIndex, destIndex)
     }
+
+    this.copyPage = function(copyId, pasteId) {
+        return foxview.pdfViewer.getCurrentPDFDoc().extractPages([[copyId]]).then(page => {
+            const blob = new Blob(page, {type: 'application/pdf'});
+            foxview.pagestates.splice(pasteId, 0, foxview.pagestates[copyId])
+            foxview.pagestates = foxview.pagestates.map((item, id) => ({
+                ...item,
+                pageindex: id
+            }))
+            return foxview.pdfViewer.getCurrentPDFDoc().insertPages({
+                destIndex: pasteId,
+                file: blob,
+                startIndex: 0,
+                endIndex: 1
+            })
+        })
+    } 
 
 
     this.zoomToPoint = function (pagenum, factor, deltaf, mousepoint, offset, center, bIn ){

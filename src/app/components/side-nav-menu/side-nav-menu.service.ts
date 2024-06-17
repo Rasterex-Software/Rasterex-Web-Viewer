@@ -41,4 +41,10 @@ export class SideNavMenuService {
   setRightClickedPage(pageIndex: number) {
     this.rightClickedPage.next(pageIndex)
   }
+
+  private copiedPage: Subject<any> = new Subject<any>();
+  public copiedPage$: Observable<any> = this.copiedPage.asObservable();
+  setCopy(value: boolean) {
+    this.copiedPage.next(value)
+  }
 }

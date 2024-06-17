@@ -304,6 +304,14 @@ export class RXCore {
         RxCore.GUI_RotatePage.connect(callback)
     }
 
+    public static copyPage(page: number): void {
+        RxCore.copyPage(page)
+    }
+
+    public static pastePage(page: number): void {
+        RxCore.pastePage(page)
+    }
+
     public static refreshThumbnails(): void {
         RxCore.refreshThumbnails()
     }

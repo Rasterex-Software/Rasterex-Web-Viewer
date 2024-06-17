@@ -75,7 +75,6 @@ export class SearchPanelComponent implements OnInit {
             this.searchNumMatches = 0;
             let id = 0;
             this.pageIndex = []
-            console.log(matches[15])
             matches.forEach((match: any) => {
                 this.searchNumMatches += match.list.length;
                     match.list.forEach(item => {

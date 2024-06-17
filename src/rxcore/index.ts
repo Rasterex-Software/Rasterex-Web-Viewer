@@ -284,6 +284,74 @@ export class RXCore {
         RxCore.textSearch(text, direction, casesens);
     }
 
+    public static markupSearchResult(): void {
+        RxCore.forcetextsearchmarker()
+    }
+
+    public static documentTextSearch(text: string | undefined, casesens: boolean = false, wholetext: boolean = false): void {
+        RxCore.documentTextSearch(text, casesens, wholetext)
+    }
+
+    public static clearDocumentTextSearch() {
+        RxCore.clearDocumentTextSearch();
+    }
+
+    public static rotatePage(pageNum: number, clockwise: boolean) {
+        RxCore.rotatePage(pageNum, clockwise)
+    }
+
+    public static onRotatePage(callback: Function): void {
+        RxCore.GUI_RotatePage.connect(callback)
+    }
+
+    public static copyPage(page: number): void {
+        RxCore.copyPage(page)
+    }
+
+    public static pastePage(page: number): void {
+        RxCore.pastePage(page)
+    }
+
+    public static refreshThumbnails(): void {
+        RxCore.refreshThumbnails()
+    }
+
+    public static movePageTo (pageIndex, desIndex): void {
+        RxCore.movePageTo(pageIndex, desIndex)
+    }
+
+    public static removePage(pageNum: number) {
+        RxCore.removePage(pageNum)
+    }
+
+    public static extractPage(pageIndex: number, remove: boolean) {
+        RxCore.extractPage(pageIndex, remove)
+    }
+
+    public static insertBlankPages(startIndex: number, count: number, width: number, height: number) {
+        RxCore.insertBlankPages(startIndex, count, width, height)
+    }
+
+    public static getDPI() {
+        return RxCore.getDPI()
+    }
+
+    public static onGuiRemovePage(callback: Function): void {
+        RxCore.GUI_RemovePage.connect(callback)
+    }
+
+    public static toggleShowHighlightMarkups(value: boolean): void {
+        RxCore.toggleShowHighlightMarkups(value)
+    }
+
+    public static markupTextWithOrange(item) {
+        RxCore.markupTextWithOrange(item)
+    }
+
+    public static onGuiDocumentSearch(callback: Function): void {
+        RxCore.GUI_DocumentSearch.connect(callback);
+    }
+
     public static vectorLayersAll(onoff: boolean): void {
         RxCore.vectorLayersAll(onoff);
     }

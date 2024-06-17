@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve --watch",
+    "start": "ng serve --host 127.0.0.1 --watch",
     "build": "ng build",
     "test": "ng test",
     "lint": "ng lint",
@@ -12,6 +12,7 @@
   "private": true,
   "dependencies": {
     "@angular/animations": "^16.2.0",
+    "@angular/cdk": "^16.2.0",
     "@angular/common": "^16.2.0",
     "@angular/compiler": "^16.2.0",
     "@angular/core": "^16.2.0",
@@ -21,6 +22,7 @@
     "@angular/router": "^16.2.0",
     "angular2-draggable": "^16.0.0",
     "dayjs": "^1.11.9",
+    "dompurify": "^3.1.5",
     "hex-rgb": "^5.0.0",
     "leader-line": "^1.0.7",
     "lodash-es": "^4.17.21",

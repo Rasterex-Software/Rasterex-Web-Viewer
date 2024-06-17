@@ -902,9 +902,7 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
     this.getThumbnail = function (pagenum) {
         if (foxview.pdfViewer) {
             foxview.pdfViewer.getCurrentPDFDoc().getPageByIndex(pagenum).then(function (page) {
-                var pgindex = page.info.index;
                 page.getThumb(0, 1.5).then(function (thumbnail) {
-                    pgindex = page.info.index;
                     RxCore.setThumbnailFoxit(thumbnail, pagenum);
                     foxview.pagestates[pagenum].thumbadded = false;
                 });
@@ -912,23 +910,28 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
         }
     };
 
-    this.rotatePage = function (pagenum, nrotation){
-
-        /*Enumerator
-            rotation0 	0 degree rotation.
-            rotation1 	90 degree rotation.
-            rotation2 	180 degree rotation.
-            rotation3 	270 degree rotation.*/
-
-        var nfoxrot = 0;
-
-        if (nrotation == 0){nfoxrot = 0;}
-        if (nrotation == 90){nfoxrot = 1;}
-        if (nrotation == 180){nfoxrot = 2;}
-        if (nrotation == 270){nfoxrot = 3;}
+    this.getRotation = function (pagenum) {
+        if (foxview.pdfViewer) {
+            return foxview.pdfViewer.getCurrentPDFDoc().getPageByIndex(pagenum).then(function (page) {
+                return page.getRotation(); // Directly return the value from the inner promise
+            });
+        } else {
+            return Promise.resolve(0);
+        }
+    }
 
 
+    this.getNewThumbnail = async function (pagenum) {
+        if (foxview.pdfViewer) {
+            const page = await foxview.pdfViewer.getCurrentPDFDoc().getPageByIndex(pagenum);
+            const thumbnail = await page.getThumb(0, 1.5);
+            RxCore.setThumbnailFoxit(thumbnail, pagenum);
+            foxview.pagestates[pagenum].thumbadded = false;
+            return thumbnail
+        }
+    };
 
+    this.rotatePage = function (pagenum, clockwise){
         if (foxview.pdfViewer) {
 
             /*foxview.pdfViewer.rotateTo(nrotation).then(function(){
@@ -945,11 +948,17 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
 
             foxview.pdfViewer.getCurrentPDFDoc().getPageByIndex(pagenum).then(function (page) {
                 //var pgindex = page.info.index;
+                let rotation = page.getRotation();
+
+                if(clockwise) {
+                    rotation ++;
+                } else {
+                    rotation = (rotation + 3) % 4;
+                }
                 
-                page.setRotation(nfoxrot).then(function () {
-                        // rotation change success
-                        //console.log("rotate success");
+                page.setRotation(rotation).then(function () {
                         foxview.pagestates[pagenum].rendered = false;
+                        foxview.redraw = true;
                 });
                 
             });
@@ -966,6 +975,63 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
         //console.log('redraw');
 
     };
+
+    this.extractPage = function(pageIndex) {
+        if (foxview.pdfViewer) {
+            const pdfDoc = foxview.pdfViewer.getCurrentPDFDoc(); 
+            pdfDoc.extractPages([[pageIndex]]).then((extractedDoc) => {
+                console.log(extractedDoc)
+                this.exportCustomPDF(extractedDoc, pageIndex  + 1);
+            })
+        }
+    }
+
+    this.insertBlankPages = function (pageIndex, count, width, height) {
+        if (foxview.pdfViewer) {
+            const pdfDoc = foxview.pdfViewer.getCurrentPDFDoc();
+            for(let pi = 0; pi < count; pi ++) {
+                const pageState =  { 
+                    pageindex: pi + pageIndex, 
+                    rendered: false, 
+                    pagescale: null, 
+                    width: width, 
+                    height: height,
+                    rotation : 0, 
+                    originalrotation : 0,
+                    foxitscale: foxview.scale, 
+                    thumbadded: false, 
+                    doscroll: false, 
+                    scrollComplete: false, 
+                    scrollposx: 0, 
+                    scrollposy: 0, 
+                    rxscrollposx: 0, 
+                    rxscrollposy: 0, 
+                    scrollTop: 0, 
+                    scrollupdate: false, 
+                    scrollArr: [] 
+                }
+                foxview.pagestates.splice(pageIndex + pi, 0, pageState)
+            }
+
+            foxview.pagestates = foxview.pagestates.map((item, id) => ({
+                ...item,
+                pageindex: id
+            }))
+
+            foxview.numpages += count
+            const newArray = new Array(count).fill([pageIndex])
+            return pdfDoc.insertBlankPages(newArray, width, height)
+        }
+    }
+
+    this.exportCustomPDF = function (pdfDoc, pdfName) {
+        const blob = new Blob(pdfDoc, {type: 'application/pdf'});
+        const link = document.createElement('a');
+        link.href = window.URL.createObjectURL(blob);
+        link.download = pdfName  + ".pdf";
+        link.click();
+        link.remove()
+    }
 
     this.savePDF = function () {
 
@@ -1206,7 +1272,6 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
 
 
         foxview.scale = factor;
-
         //{pageIndex : pagenum, x : newpos.x, y : newpos.y};
         var position = {pageIndex : pagenum, x : newpos.x, y : newpos.y};
 
@@ -1218,6 +1283,47 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
         foxview.pdfViewer.zoomTo(foxview.scale, position);
 
     }; 
+
+    this.removePage = function(pageIndex) {
+        foxview.pagestates.splice(pageIndex, 1)
+
+        foxview.pagestates = foxview.pagestates.map((item, id) => ({
+            ...item,
+            pageindex: id
+        }))
+        return foxview.pdfViewer.getCurrentPDFDoc().removePage(pageIndex)
+        // foxview.redraw = true;
+        // foxview.pdfViewer.redraw()
+    }
+
+    this.movePageTo = function(pageIndex, destIndex) {
+        const state1 = foxview.pagestates[destIndex]
+        const state2 = foxview.pagestates[pageIndex]
+        foxview.pagestates[destIndex] = state2;
+        foxview.pagestates[pageIndex] = state1;
+        foxview.pagestates = foxview.pagestates.map((item, id) => ({
+            ...item,
+            pageindex: id
+        }))
+        return foxview.pdfViewer.getCurrentPDFDoc().movePageTo(pageIndex, destIndex)
+    }
+
+    this.copyPage = function(copyId, pasteId) {
+        return foxview.pdfViewer.getCurrentPDFDoc().extractPages([[copyId]]).then(page => {
+            const blob = new Blob(page, {type: 'application/pdf'});
+            foxview.pagestates.splice(pasteId, 0, foxview.pagestates[copyId])
+            foxview.pagestates = foxview.pagestates.map((item, id) => ({
+                ...item,
+                pageindex: id
+            }))
+            return foxview.pdfViewer.getCurrentPDFDoc().insertPages({
+                destIndex: pasteId,
+                file: blob,
+                startIndex: 0,
+                endIndex: 1
+            })
+        })
+    } 
 
 
     this.zoomToPoint = function (pagenum, factor, deltaf, mousepoint, offset, center, bIn ){
@@ -2736,12 +2842,9 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
     };
 
     this.onRenderSuccess = function (pdfViewer, ViewerEvents) {
-
         if (pdfViewer) {
             pdfViewer.eventEmitter.on(ViewerEvents.renderPageSuccess, function (pageRender) {
-
                 foxview.curpagerender = pageRender;
-                
                 //console.log('redraw event success');
 
                 //get page scale
@@ -2824,7 +2927,6 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
                 }*/
 
                 if (foxview.pagestates[pgindex].rendered && !foxview.redraw) {
-                    
                     
                     foxview.rendering = false;
                     return;
@@ -2917,7 +3019,7 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
                 //foxitpage = foxview.getAnnotCanvases(foxitpage);
 
                 foxview.pagestates[pgindex].scrollTop = foxitpage.pagepos.top;
-
+                
                 RxCore.setfoxitPageSize(foxitpage);
 
                 if (foxview.curpage == pgindex) {

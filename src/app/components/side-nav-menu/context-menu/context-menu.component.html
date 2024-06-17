@@ -1,0 +1,132 @@
+<div *ngIf="show" [ngStyle]="{'top.px': y, 'left.px': x}" class="context-menu">
+    <div>
+        <span class="title">Move pages</span>
+        <ul>
+            <li (click)="setAction('move-top')">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" clip-rule="evenodd"
+                        d="M12 11H9C8.44772 11 8 10.5523 8 10V7H4V18H12V11ZM2 6.5C2 5.67157 2.67157 5 3.5 5H8.37868C8.7765 5 9.15804 5.15804 9.43934 5.43934L13.5607 9.56066C13.842 9.84197 14 10.2235 14 10.6213V18.5C14 19.3284 13.3284 20 12.5 20H3.5C2.67157 20 2 19.3284 2 18.5V6.5Z"
+                        fill="#A4ABAE"></path>
+                    <path fill-rule="evenodd" clip-rule="evenodd" d="M22 14.75L19 11L16 14.75H18.25V20H19.75V14.75H22Z" fill="#A4ABAE">
+                    </path>
+                </svg>
+                <span>Move to Top</span>
+            </li>
+            <li (click)="setAction('move-bottom')">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" clip-rule="evenodd" d="M22 16.25L19 20L16 16.25H18.25V11H19.75V16.25H22Z" fill="#A4ABAE">
+                    </path>
+                    <path fill-rule="evenodd" clip-rule="evenodd"
+                        d="M12 11H9C8.44772 11 8 10.5523 8 10V7H4V18H12V11ZM2 6.5C2 5.67157 2.67157 5 3.5 5H8.37868C8.7765 5 9.15804 5.15804 9.43934 5.43934L13.5607 9.56066C13.842 9.84197 14 10.2235 14 10.6213V18.5C14 19.3284 13.3284 20 12.5 20H3.5C2.67157 20 2 19.3284 2 18.5V6.5Z"
+                        fill="#A4ABAE"></path>
+                </svg>
+                <span>Move to Bottom</span>
+            </li>
+        </ul>
+    </div>
+    <hr/>
+    <div>
+        <span class="title">Page Orientation</span>
+        <ul>
+            <li (click)="setAction('rotate-r')">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <defs>
+                        <style>
+                            .cls-1 {
+                                fill: #A4ABAE;
+                            }
+                        </style>
+                    </defs>
+                    <title>icon - header - page manipulation - page rotation - clockwise - line</title>
+                    <path class="cls-1"
+                        d="M22,7.83,18.67,12,15.33,7.83h2.43a5,5,0,0,0-4.93-4.16V2a6.64,6.64,0,0,1,6.61,5.83ZM14,12.2s0,0,0,.05V20.5A1.5,1.5,0,0,1,12.5,22h-9A1.5,1.5,0,0,1,2,20.5V8.5A1.5,1.5,0,0,1,3.5,7H8.8a.65.65,0,0,1,.19,0l.07,0a.86.86,0,0,1,.22.15l4.5,4.5a.66.66,0,0,1,.15.22s0,.05,0,.07A.65.65,0,0,1,14,12.2ZM12,20V13H8.75A.76.76,0,0,1,8,12.25V9H4V20Z">
+                    </path>
+                </svg>
+                <span>Rotate Clockwise</span>
+            </li>
+            <li (click)="setAction('rotate-l')">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <defs>
+                        <style>
+                            .cls-1 {
+                                fill: #A4ABAE;
+                            }
+                        </style>
+                    </defs>
+                    <title>icon - header - page manipulation - page rotation - counterclockwise - line</title>
+                    <path class="cls-1"
+                        d="M22.39,11.17H20.72a5,5,0,0,0-4.17-4.93V8.67L12.39,5.33,16.55,2V4.56a6.66,6.66,0,0,1,5.84,6.61Zm-8,1s0,0,0,.05V20.5a1.5,1.5,0,0,1-1.5,1.5h-9a1.5,1.5,0,0,1-1.5-1.5V8.5A1.5,1.5,0,0,1,3.89,7H9.18a.71.71,0,0,1,.2,0l.07,0a1.07,1.07,0,0,1,.22.15l4.5,4.5a.86.86,0,0,1,.15.22.19.19,0,0,0,0,.07A1.29,1.29,0,0,1,14.38,12.2Zm-2,7.8V13H9.14a.75.75,0,0,1-.75-.75V9h-4V20Z">
+                    </path>
+                </svg>
+                <span>Rotate CounterClockwise</span>
+            </li>
+        </ul>
+    </div>
+    <hr/>
+    <div>
+        <span class="title">Page Manipulation</span>
+        <ul>
+            <li (click)="setAction('page-insert')">
+                <svg viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                        d="M6 0C4.89543 0 4 0.89543 4 2V8.75H6V2H12V7H16.5V16.5H6V15.25H4V16.5C4 17.6046 4.89543 18.5 6 18.5H16.5C17.6046 18.5 18.5 17.6046 18.5 16.5V6.41421C18.5 5.88378 18.2893 5.37507 17.9142 5L13.5 0.58579C13.1249 0.21071 12.6162 0 12.0858 0H6Z"
+                        fill="#A4ABAE"></path>
+                    <path
+                        d="M2.5 9.5V8H0.5V9.5C0.5 11.433 2.067 13 4 13L8 13.0004V14.5004C8 14.7064 8.2352 14.824 8.4 14.7004L11.4667 12.4004C11.7333 12.2004 11.7333 11.8004 11.4667 11.6004L8.4 9.30045C8.2352 9.17685 8 9.29445 8 9.50045V11.0004H4C3.17157 11.0004 2.5 10.3284 2.5 9.5Z"
+                        fill="#A4ABAE"></path>
+                </svg>
+                <span>Insert</span>
+            </li>
+            <li (click)="setAction('page-replace')">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="enable-background:new 0 0 24 24"
+                    xml:space="preserve">
+                    <path
+                        d="M2 4a2 2 0 0 1 2-2h9a1 1 0 0 1 .707.293l2 2A1 1 0 0 1 16 5h1.812a2 2 0 0 1 1.425.597l2.188 2.222A2 2 0 0 1 22 9.222V20a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2H4a2 2 0 0 1-2-2V4zm10.586 0 1 1H10a2 2 0 0 0-2 2v7a1 1 0 0 1-1-1v-2H5v2a3 3 0 0 0 3 3v2H4V4h8.586zM10 16v4h10V10h-3V7h-7v7h2v-2.414L15.414 15 12 18.414V16h-2z"
+                        style="fill-rule:evenodd;clip-rule:evenodd" fill="#A4ABAE"></path>
+                </svg>
+                <span>Replace</span>
+            </li>
+            <li (click)="setAction('page-copy')">
+                <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 14 14">
+                    <path fill="none" stroke="#A4ABAE" stroke-linecap="round" stroke-linejoin="round"
+                        d="M8.5 3.5v-1a1 1 0 0 0-1-1h-1m-2.5 9H1.5a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1h1m10 4h-5a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h5a1 1 0 0 0 1-1v-6a1 1 0 0 0-1-1M6.75.5h-4.5l.41 1.62a.49.49 0 0 0 .48.38h2.72a.49.49 0 0 0 .48-.38zm1.75 8h3m-3 2h3" />
+                </svg>
+                <span>Copy</span>
+            </li>
+            <li (click)="setAction('page-paste')">
+                <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 16 16">
+                    <path fill="#A4ABAE"
+                        d="M3.626 3.533a.25.25 0 0 0-.126.217v9.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-9.5a.25.25 0 0 0-.126-.217a.75.75 0 0 1 .752-1.298c.541.313.874.89.874 1.515v9.5A1.75 1.75 0 0 1 12.25 15h-8.5A1.75 1.75 0 0 1 2 13.25v-9.5c0-.625.333-1.202.874-1.515a.75.75 0 0 1 .752 1.298M5.75 1h4.5a.75.75 0 0 1 .75.75v3a.75.75 0 0 1-.75.75h-4.5A.75.75 0 0 1 5 4.75v-3A.75.75 0 0 1 5.75 1m.75 3h3V2.5h-3Z" />
+                </svg>
+                <span>Paste</span>
+            </li>
+            <li (click)="setAction('page-extract')">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" clip-rule="evenodd"
+                        d="M16.4917 13.5493H18.325V9.25016C18.329 9.23204 18.329 9.21328 18.325 9.19516C18.324 9.11363 18.3084 9.03293 18.2792 8.95683V8.87433C18.2352 8.77231 18.1731 8.67913 18.0958 8.59933L12.5958 3.09933C12.518 3.02624 12.4281 2.9673 12.33 2.92516H12.2475L12 2.8335H5.49166C4.47914 2.8335 3.65833 3.65431 3.65833 4.66683V19.3335C3.65833 20.346 4.47914 21.1668 5.49166 21.1668H10.9917V19.3335H5.49166V4.66683H10.9917V9.25016C10.9917 9.75642 11.4021 10.1668 11.9083 10.1668H16.4917V13.5493Z"
+                        fill="#A4ABAE"></path>
+                    <path fill-rule="evenodd" clip-rule="evenodd"
+                        d="M20.25 17.5L17.0417 14.9975C16.9306 14.9085 16.7781 14.8919 16.6505 14.9547C16.5228 15.0175 16.4431 15.1486 16.4458 15.2908V16.895H12.7792V18.7283H16.4458V20.3417C16.4466 20.4823 16.5278 20.61 16.6547 20.6706C16.7816 20.7311 16.9319 20.7137 17.0417 20.6258L20.25 18.105C20.3461 18.0341 20.4028 17.9219 20.4028 17.8025C20.4028 17.6831 20.3461 17.5708 20.25 17.5Z"
+                        fill="#A4ABAE"></path>
+                </svg>
+                <span>Extract</span>
+            </li>
+            <li (click)="setAction('page-delete')">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <defs>
+                        <style>
+                            .cls-1 {
+                                fill: #A4ABAE;
+                            }
+                        </style>
+                    </defs>
+                    <title>icon - delete - line</title>
+                    <path class="cls-1"
+                        d="M18,6H17V4a2,2,0,0,0-2-2H9A2,2,0,0,0,7,4V6H3V8H5V20a2,2,0,0,0,2,2H17a2,2,0,0,0,2-2V8h2V6ZM9,4h6V6H9ZM7,20V8H17V20Zm6-10h2v8H13ZM9,10h2v8H9Z">
+                    </path>
+                </svg>
+                <span>Delete</span>
+            </li>
+        </ul>
+    </div>
+</div>

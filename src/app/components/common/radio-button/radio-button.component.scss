@@ -1,0 +1,52 @@
+@import "../../../../assets/scss/config.scss";
+
+.rx-radio-group {
+    display: flex;
+    column-gap: 16px;
+}
+
+.rx-radio {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    cursor: pointer;
+    margin-bottom: 8px;
+    position: relative;
+    user-select: none;
+    font-size: 13px;
+}
+
+.rx-radio input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+
+.rx-radio .rx-radio-button {
+    height: 14px;
+    width: 14px;
+    background-color: #fff;
+    border: 2px solid #ccc;
+    border-radius: 50%;
+    margin-right: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s, border-color 0.3s;
+}
+
+.rx-radio input:checked~.rx-radio-button {
+    background-color: var(--accent);
+    border-color: var(--accent);
+}
+
+.rx-radio input:checked~.rx-radio-button::after {
+    content: "";
+    display: block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: white;
+}

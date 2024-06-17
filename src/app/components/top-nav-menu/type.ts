@@ -1,0 +1,1 @@
+export type ActionType = "Comment" | "Search" | "None";

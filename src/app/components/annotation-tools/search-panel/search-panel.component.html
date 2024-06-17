@@ -1,0 +1,44 @@
+<rx-panel *ngIf="visible" [title]="'Search'" (onClose)="onClose()" [draggable]=false>
+    <div class="search-panel-container">
+        <div class="header-section">
+            <div class="search">
+                <img src="/assets/images/search-ico.svg" />
+                <input type="text" id="search" placeholder="Search for text..." [(ngModel)]="search" autocomplete="off"/>
+                <span class="btn-close" (click)="onReset()" *ngIf="search !== ''">&times;</span>
+            </div>
+            <div class="sort">
+                <rx-checkbox [label]="'Case sensitive'" [(value)]="searchCaseSensitive" />
+                <rx-checkbox [label]="'Whole word'" [(value)]="searchWholeWord" />
+                <button
+                [ngClass]="{'disabled':isSearching}"
+                 (click)="onSearch($event)" 
+                 [disabled]="isSearching" >Search</button>
+            </div>
+        </div>
+        <div class="search-toolbar-section">
+            <span>{{searchNumMatches}} matches found</span>
+            <div>
+                <img src="/assets/images/arrow-down.svg" style="rotate: 90deg;" [class.disabled]="searchCurrentMatches === 0"
+                    (click)="onTextSearchNavigate(false)" />
+                <img src="/assets/images/arrow-down.svg" style="rotate: -90deg;"
+                    [class.disabled]="searchCurrentMatches == searchNumMatches" (click)="onTextSearchNavigate(true)" />
+            </div>
+        </div>
+
+        <div class="match-list" (scroll)="onScroll($event)">
+            <div *ngFor="let page of splitedResult;">
+                <div class="page-match"  *ngIf="page.list.length > 0">
+                    <span>Page {{page.pgindex + 1}}</span>
+                    <div class="items">
+                        <div *ngFor="let item of page.list;">
+                            <div class="item" [class.current]="searchCurrentMatches === item.match.id"
+                                (click)="onSearchItemClick(item)">
+                                <p [innerHTML]="sanitizeHtml(item.match.sentence | highlight: search: searchCaseSensitive)"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</rx-panel>

@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { HttpClientModule } from '@angular/common/http';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { AppComponent } from './app.component';
@@ -68,6 +68,14 @@ import { BlocksComponent } from './components/side-nav-menu/blocks/blocks.compon
 import { AnnotationShapeIconComponent } from './components/annotation-tools/annotation-shape-icon/annotation-shape-icon.component';
 import { MeasureDetailPanelComponent } from './components/annotation-tools/measure-detail-panel/measure-detail-panel.component';
 import { ToastrModule } from 'ngx-toastr';
+import { SearchPanelComponent } from './components/annotation-tools/search-panel/search-panel.component';
+import { HighlightPipe } from './components/annotation-tools/search-panel/highligth.pipe';
+import { ContextMenuComponent } from './components/side-nav-menu/context-menu/context-menu.component';
+import { ExtractModalComponent } from './components/side-nav-menu/extract-modal/extract-modal.component';
+import { RadioButtonComponent } from './components/common/radio-button/radio-button.component';
+import { InsertModalComponent } from './components/side-nav-menu/insert-modal/insert-modal.component';
+import { SelectComponent } from './components/common/select/select.component';
+import { ReplaceModalComponent } from './components/side-nav-menu/replace-modal/replace-modal.component';
 
 
 @NgModule({
@@ -89,12 +97,14 @@ import { ToastrModule } from 'ngx-toastr';
     PropertiesPanelComponent,
     TextStyleSelectComponent,
     LineStyleSelectComponent,
+    SelectComponent,
     PanelComponent,
     SwitchComponent,
     VectorLayersComponent,
     ConfirmationModalComponent,
     ThreedPartsComponent,
     NotePanelComponent,
+    SearchPanelComponent,
     NotePopoverComponent,
     MultiSelectComponent,
     DatePickerComponent,
@@ -127,7 +137,12 @@ import { ToastrModule } from 'ngx-toastr';
     BlocksComponent,
     AnnotationShapeIconComponent,
     MeasureDetailPanelComponent,
-
+    ContextMenuComponent,
+    ExtractModalComponent,
+    RadioButtonComponent,
+    InsertModalComponent,
+    ReplaceModalComponent,
+    HighlightPipe
   ],
   imports: [
     BrowserModule,

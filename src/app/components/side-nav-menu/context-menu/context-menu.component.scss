@@ -8,6 +8,8 @@
     border: 1px solid var(--secondary);
     box-shadow: 0 0 3px var(--secondary);
     width: 200px;
+    max-height: 100vh;
+    overflow-y: auto;
 
     hr {
         margin-top: 12px;

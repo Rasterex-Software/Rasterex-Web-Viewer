@@ -110,6 +110,14 @@ export class RXCore {
         RxCore.rotate(cycle, szrotatetool);
     }
 
+    public static getAllThumbnailsFromFile(file: File): any {
+        return RxCore.getAllThumbnailsFromFile(file)
+    }
+
+    public static importPages(file: File, pageIndex: number, pageArray: number[][], isReplace: boolean, count: number): Promise<any> {
+        return RxCore.importPages(file, pageIndex, pageArray, isReplace, count)
+    }
+
     public static magnifyGlass(onoff: boolean): void {
         RxCore.magnifyGlass(onoff);
     }

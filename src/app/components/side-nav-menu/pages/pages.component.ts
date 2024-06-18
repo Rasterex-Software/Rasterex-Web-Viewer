@@ -121,6 +121,7 @@ onDocumentClick(event: MouseEvent) {
 
   onPageSelect(pageIndex: number): void {
     this.selectedPageIndex = pageIndex;
+    console.log("GOTO")
     RXCore.gotoPage(pageIndex);
   }
 
@@ -178,23 +179,19 @@ onDocumentClick(event: MouseEvent) {
         RXCore.rotatePage(this.rightClickedPageIndex, false)
         break;
       case 'page-insert':
-        this.sideNavMenuService.toggleInsertModal(true)
+        this.sideNavMenuService.toggleInsertModal('INSERT')
         break;
       case 'page-replace':
-        this.sideNavMenuService.toggleReplaceModal(true)
+        this.sideNavMenuService.toggleInsertModal('REPLACE')
         break;
       case 'page-extract':
         this.sideNavMenuService.toggleExtractModal(true)
         break;
       case 'page-copy':
         RXCore.copyPage(this.rightClickedPageIndex)
-        this.sideNavMenuService.setCopy(true)
         break;
       case 'page-paste':
-        if(this.canPaste) {
-          RXCore.pastePage(this.rightClickedPageIndex)
-          this.sideNavMenuService.setCopy(false)
-        }
+        RXCore.pastePage(this.rightClickedPageIndex)
         break;
       case 'page-delete':
         RXCore.removePage(this.rightClickedPageIndex)

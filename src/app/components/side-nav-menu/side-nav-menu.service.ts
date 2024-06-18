@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
 
+export type ModalType = 'INSERT' | 'REPLACE' | 'NONE'
+
 @Injectable({
   providedIn: 'root'
 })
@@ -21,18 +23,11 @@ export class SideNavMenuService {
     this.extractModalChanged.next(visible);
   }
 
-  private insertModalChanged: Subject<boolean> = new Subject<boolean>();
-  public insertModalChanged$: Observable<boolean> = this.insertModalChanged.asObservable();
+  private insertModalChanged: Subject<ModalType> = new Subject<ModalType>();
+  public insertModalChanged$: Observable<ModalType> = this.insertModalChanged.asObservable();
 
-  toggleInsertModal(visible: boolean): void {
-    this.insertModalChanged.next(visible);
-  }
-
-  private replaceModalChanged: Subject<boolean> = new Subject<boolean>();
-  public replaceModalChanged$: Observable<boolean> = this.replaceModalChanged.asObservable();
-
-  toggleReplaceModal(visible: boolean): void {
-    this.replaceModalChanged.next(visible);
+  toggleInsertModal(type: ModalType): void {
+    this.insertModalChanged.next(type);
   }
 
   private rightClickedPage: Subject<number> = new Subject<number>();

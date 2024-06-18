@@ -75,7 +75,7 @@ import { ExtractModalComponent } from './components/side-nav-menu/extract-modal/
 import { RadioButtonComponent } from './components/common/radio-button/radio-button.component';
 import { InsertModalComponent } from './components/side-nav-menu/insert-modal/insert-modal.component';
 import { SelectComponent } from './components/common/select/select.component';
-import { ReplaceModalComponent } from './components/side-nav-menu/replace-modal/replace-modal.component';
+import { ThumbnailDirective } from './components/side-nav-menu/insert-modal/thumbnail.directive';
 
 
 @NgModule({
@@ -115,6 +115,7 @@ import { ReplaceModalComponent } from './components/side-nav-menu/replace-modal/
     PagesComponent,
     ThreedPartInfoComponent,
     PageThumbnailDirective,
+    ThumbnailDirective,
     CountPanelComponent,
     CountTypeSelectComponent,
     NotificationComponent,
@@ -141,7 +142,6 @@ import { ReplaceModalComponent } from './components/side-nav-menu/replace-modal/
     ExtractModalComponent,
     RadioButtonComponent,
     InsertModalComponent,
-    ReplaceModalComponent,
     HighlightPipe
   ],
   imports: [

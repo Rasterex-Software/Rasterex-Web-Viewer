@@ -677,6 +677,7 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
     };    
 
     this.openPDFURL = function (url, filename) {
+        console.log(url, filename)
 
         if (foxview.useblobfromurl){
             foxview.getBlobfromURL(url, filename);
@@ -800,10 +801,12 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
             }
 
             return newViewer.openPDFByFile(pdf, { password: '', fdf: fdf? { file: fdf } : undefined }).then(async pdfDoc =>  {
-                console.log(pageArray)
                 const pages = await pdfDoc.extractPages(pageArray);
                 const blob = new Blob(pages, {type: 'application/pdf'});
                 const doc = foxview.pdfViewer.getCurrentPDFDoc();
+                if(isReplace) {
+                    await this.removePage(pageIndex)
+                }
                 await doc.insertPages({
                         destIndex: pageIndex,
                         file: blob,
@@ -811,10 +814,6 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
                         endIndex: pages.length - 1
                 });
                 foxview.pagestates.splice(pageIndex, 0, ...new Array(count).fill(foxview.pagestates[pageIndex]))
-                if(isReplace) {
-                    await this.removePage(pageIndex)
-                    foxview.pagestates.splice(pageIndex, 1)
-                }
                 foxview.pagestates = foxview.pagestates.map((item, id) => ({
                     ...item,
                     pageindex: id

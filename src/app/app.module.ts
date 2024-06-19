@@ -76,6 +76,7 @@ import { RadioButtonComponent } from './components/common/radio-button/radio-but
 import { InsertModalComponent } from './components/side-nav-menu/insert-modal/insert-modal.component';
 import { SelectComponent } from './components/common/select/select.component';
 import { ThumbnailDirective } from './components/side-nav-menu/insert-modal/thumbnail.directive';
+import { RecentFilesComponent } from './components/recent-files/recent-files.component';
 
 
 @NgModule({
@@ -142,6 +143,7 @@ import { ThumbnailDirective } from './components/side-nav-menu/insert-modal/thum
     ExtractModalComponent,
     RadioButtonComponent,
     InsertModalComponent,
+    RecentFilesComponent,
     HighlightPipe
   ],
   imports: [

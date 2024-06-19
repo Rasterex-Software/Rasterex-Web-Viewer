@@ -121,7 +121,6 @@ onDocumentClick(event: MouseEvent) {
 
   onPageSelect(pageIndex: number): void {
     this.selectedPageIndex = pageIndex;
-    console.log("GOTO")
     RXCore.gotoPage(pageIndex);
   }
 

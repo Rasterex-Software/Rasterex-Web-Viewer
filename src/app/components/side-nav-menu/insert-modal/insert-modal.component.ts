@@ -2,6 +2,7 @@ import { Component, ElementRef, EventEmitter, OnInit, Output, ViewChild } from "
 import { ModalType, SideNavMenuService } from "../side-nav-menu.service";
 import { RxCoreService } from "src/app/services/rxcore.service";
 import { RXCore } from "src/rxcore";
+import { RecentFilesService } from "../../recent-files/recent-files.service";
 
 type PDFLoadingStatus = 'NONE' | 'LOADING' | 'LOADED'
 
@@ -63,6 +64,7 @@ export class InsertModalComponent implements OnInit {
     constructor(
         private sideNavMenuService: SideNavMenuService,
         private rxCoreService: RxCoreService,
+        private recentFileService: RecentFilesService,
     ) {}
 
     ngOnInit(): void {
@@ -186,10 +188,6 @@ export class InsertModalComponent implements OnInit {
                 this.checkedPageList = new Array(value.length).fill(true);
             })
         }
-
-        // this.insertModalService.sendEventUploadFile();
-
-        // if (this.file) this.onUpload.emit();
     }
 
     clearData() {

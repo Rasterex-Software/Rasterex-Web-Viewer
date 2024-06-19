@@ -1,0 +1,7 @@
+<div *ngFor="let file of recentFiles">
+    <img [src]="file.thumbnail" alt="{{ file.name }}" />
+    <div>
+        <p>{{ file.name }}</p>
+        <p>{{ file.lastOpened | date:'short' }}</p>
+    </div>
+</div>

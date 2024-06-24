@@ -1567,8 +1567,18 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
 
     this.removePage = function(pageRange) {
         const doc = foxview.pdfViewer.getCurrentPDFDoc()
+
+        const newPageRange = pageRange.map(array => {
+            const newArray = [...array];
+            if(array.length === 1) {
+                return newArray;
+            } else {
+                newArray[newArray.length - 1] += 1;
+                return newArray; 
+            }
+        })
         
-        return doc.removePages(pageRange).then(() => {
+        return doc.removePages(newPageRange).then(() => {
             foxview.pagestates = this.removeItemsByIndices(foxview.pagestates, pageRange)
 
             foxview.pagestates = foxview.pagestates.map((item, id) => ({

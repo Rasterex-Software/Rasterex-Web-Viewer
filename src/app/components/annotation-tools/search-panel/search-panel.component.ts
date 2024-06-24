@@ -89,6 +89,7 @@ export class SearchPanelComponent implements OnInit {
             this.searchResult = matches;
 
             this.splitedResult = this.searchResult.slice(0, this.getPageNumFromId(Math.min(40, this.searchResult.length)))
+            console.log(matches)
             this.cdr.markForCheck()
         })
 

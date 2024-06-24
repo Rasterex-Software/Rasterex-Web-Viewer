@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { DragDropModule } from '@angular/cdk/drag-drop'
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { AppComponent } from './app.component';
@@ -77,6 +78,7 @@ import { InsertModalComponent } from './components/side-nav-menu/insert-modal/in
 import { SelectComponent } from './components/common/select/select.component';
 import { ThumbnailDirective } from './components/side-nav-menu/insert-modal/thumbnail.directive';
 import { RecentFilesComponent } from './components/recent-files/recent-files.component';
+import { SizeModalComponent } from './components/size-modal/size-modal.component';
 
 
 @NgModule({
@@ -144,7 +146,8 @@ import { RecentFilesComponent } from './components/recent-files/recent-files.com
     RadioButtonComponent,
     InsertModalComponent,
     RecentFilesComponent,
-    HighlightPipe
+    HighlightPipe,
+    SizeModalComponent
   ],
   imports: [
     BrowserModule,
@@ -152,6 +155,8 @@ import { RecentFilesComponent } from './components/recent-files/recent-files.com
     FormsModule,
     BrowserAnimationsModule,
     AccordionModule,
+    DragDropModule,
+    BrowserAnimationsModule,
     NgxSliderModule,
     ColorChromeModule,
     AngularDraggableModule,

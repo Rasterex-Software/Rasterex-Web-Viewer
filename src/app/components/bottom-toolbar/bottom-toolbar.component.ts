@@ -93,6 +93,10 @@ export class BottomToolbarComponent implements OnInit, AfterViewInit {
       }, 100);
     });
 
+    RXCore.onGuiPageCountChanged((value) => {
+      this.numpages = value;
+    })
+
     RXCore.onGuiBirdseye((pagenumber, thumbnail) => {
       this.onBirdseyeThumbnailReceived(pagenumber, thumbnail);
     });

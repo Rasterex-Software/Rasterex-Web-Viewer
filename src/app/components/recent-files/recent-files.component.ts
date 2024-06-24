@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, EventEmitter, OnInit, Output } from "@angular/core";
 import { RecentFilesService } from "./recent-files.service";
 
 @Component({
@@ -7,11 +7,19 @@ import { RecentFilesService } from "./recent-files.service";
     styleUrls: ['./recent-files.component.scss']
 })
 export class RecentFilesComponent implements OnInit {
-     recentFiles = [];
+    @Output('select') onSelect = new EventEmitter();
+
+     recentFiles: any[] = [];
 
     constructor(private recentFilesService: RecentFilesService) {}
 
     ngOnInit() {
-        this.recentFiles = this.recentFilesService.getRecentFiles();
+        this.recentFilesService.getRecentFiles().then(files => {
+            this.recentFiles = files
+        });
+    }
+
+    onSelectFile (item: any) {
+        this.onSelect.emit(item)
     }
 }

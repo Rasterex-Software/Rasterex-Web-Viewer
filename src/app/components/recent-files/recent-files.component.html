@@ -1,7 +1,8 @@
-<div *ngFor="let file of recentFiles">
-    <img [src]="file.thumbnail" alt="{{ file.name }}" />
-    <div>
-        <p>{{ file.name }}</p>
-        <p>{{ file.lastOpened | date:'short' }}</p>
+<div class="file-list">
+    <div 
+    (click)="onSelectFile(file)"
+    class="file" *ngFor="let file of recentFiles; index as i">
+        <canvas [thumbnail]="file.thumbnail"></canvas>
+        <span>{{file.name}}</span>
     </div>
 </div>

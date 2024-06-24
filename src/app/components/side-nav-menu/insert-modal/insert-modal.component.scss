@@ -206,6 +206,10 @@
                     font-weight: bold;
                 }
 
+                .radio-group {
+                    margin-top: 8px;
+                }
+
                 .group {
                     display: flex;
                     flex-direction: row;
@@ -309,6 +313,35 @@
     }
 
     .body {
+        .group-replace {
+            margin: 8px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: black;
+
+            span {
+                font-size: 13px;
+                font-weight: 600;
+                width: max-content;
+
+                .bold {
+                    font-weight: bold;
+                }
+            }
+            input {
+                outline: none;
+                border: 1px solid var(--main);
+                padding: 8px;
+                border-radius: 4px;
+                width: calc(100% - 18px);
+            
+                &:hover,
+                &:focus {
+                    border: 1px solid var(--accent);
+                }
+            }
+        }
         .group {
             display: flex;
             flex-direction: row;

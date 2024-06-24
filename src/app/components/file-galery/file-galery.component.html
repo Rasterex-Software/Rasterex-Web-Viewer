@@ -2,6 +2,7 @@
     <ul class="left-tabbed-menu">
         <li [class.active]="leftTabActiveIndex == 0" (click)="leftTabActiveIndex=0">File gallery</li>
         <li [class.active]="leftTabActiveIndex == 1" (click)="leftTabActiveIndex=1">Upload your file</li>
+        <li [class.active]="leftTabActiveIndex === 2" (click)="leftTabActiveIndex = 2">Recent Documents</li>
     </ul>
     <div class="main-content">
         <div class="rx-modal-dialog-header">
@@ -76,6 +77,9 @@
                         </div>
                     </div>
                 </ng-template>
+            </div>
+            <div *ngSwitchCase="2">
+                <rx-recent-files (select)="onSelectRecentFile($event)"></rx-recent-files>
             </div>
         </div>
     </div>

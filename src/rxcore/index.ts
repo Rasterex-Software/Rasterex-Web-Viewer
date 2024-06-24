@@ -110,12 +110,16 @@ export class RXCore {
         RxCore.rotate(cycle, szrotatetool);
     }
 
+    public static setPageSize(pageRange: number[][], width: number, height: number) {
+        RxCore.setPageSize(pageRange, width, height);
+    }
+
     public static getAllThumbnailsFromFile(file: File): any {
         return RxCore.getAllThumbnailsFromFile(file)
     }
 
-    public static importPages(file: File, pageIndex: number, pageArray: number[][], isReplace: boolean, count: number): Promise<any> {
-        return RxCore.importPages(file, pageIndex, pageArray, isReplace, count)
+    public static importPages(file: File, pageRange: number[][], pageArray: number[][], isReplace: boolean, count: number): Promise<any> {
+        return RxCore.importPages(file, pageRange, pageArray, isReplace, count)
     }
 
     public static magnifyGlass(onoff: boolean): void {
@@ -304,40 +308,40 @@ export class RXCore {
         RxCore.clearDocumentTextSearch();
     }
 
-    public static rotatePage(pageNum: number, clockwise: boolean) {
-        RxCore.rotatePage(pageNum, clockwise)
+    public static rotatePage(pageRange: number[][], clockwise: boolean) {
+        RxCore.rotatePage(pageRange, clockwise)
     }
 
     public static onRotatePage(callback: Function): void {
         RxCore.GUI_RotatePage.connect(callback)
     }
 
-    public static copyPage(page: number): void {
-        RxCore.copyPage(page)
+    public static copyPage(pageRange: number[][]): void {
+        RxCore.copyPage(pageRange)
     }
 
-    public static pastePage(page: number): void {
-        RxCore.pastePage(page)
+    public static pastePage(pasteId: number): void {
+        RxCore.pastePage(pasteId)
     }
 
     public static refreshThumbnails(): void {
         RxCore.refreshThumbnails()
     }
 
-    public static movePageTo (pageIndex, desIndex): void {
-        RxCore.movePageTo(pageIndex, desIndex)
+    public static movePageTo (pageRange: number[][], destIndex: number): void {
+        RxCore.movePageTo(pageRange, destIndex)
     }
 
-    public static removePage(pageNum: number) {
-        RxCore.removePage(pageNum)
+    public static removePage(pageRange: number[][]) {
+        RxCore.removePage(pageRange)
     }
 
-    public static extractPage(pageIndex: number, remove: boolean) {
-        RxCore.extractPage(pageIndex, remove)
+    public static extractPage(pageRange: number[][], remove: boolean) {
+        RxCore.extractPage(pageRange, remove)
     }
 
-    public static insertBlankPages(startIndex: number, count: number, width: number, height: number) {
-        RxCore.insertBlankPages(startIndex, count, width, height)
+    public static insertBlankPages(pageRange: number[][], count: number, width: number, height: number) {
+        RxCore.insertBlankPages(pageRange, count, width, height)
     }
 
     public static getDPI() {
@@ -617,7 +621,8 @@ export class RXCore {
 
 
     public static exportPDF(paperSize: string = "A4"): void {
-        RxCore.exportFile(false, "PDF", "0", paperSize, "1");
+        //RxCore.exportFile(false, "PDF", "0", paperSize, "1");
+        RxCore.exportPDF()
     }
 
     public static get markupChanged(): boolean {
@@ -755,6 +760,10 @@ export class RXCore {
         RxCore.GUI_Page.connect(callback);
     }
 
+    public static getCurrentFileInfo() {
+        return RxCore.getCurrentFileInfo();
+    }
+
     public static onGuiMarkup(callback: Function): void {
         RxCore.GUI_Markup.connect(callback);
     }
@@ -844,6 +853,10 @@ export class RXCore {
 
     public static onGuiMarkupLink(callback: Function): void {
         RxCore.GUI_MarkupLink.connect(callback);
+    }
+
+    public static onGuiPageCountChanged(callback: Function): void {
+        RxCore.GUI_PageCountChanged.connect(callback);
     }
 
     public static onGuiExportComplete(callback: Function): void {

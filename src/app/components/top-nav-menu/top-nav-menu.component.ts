@@ -119,10 +119,6 @@ export class TopNavMenuComponent implements OnInit {
       this.containBlocks = blocks.length > 0;
     });
 
-    this.service.activeFile$.subscribe(file => {
-        console.log(file)
-    })
-
     this.guiOnNoteSelected = this.rxCoreService.guiOnCommentSelect$.subscribe((value: boolean) => {
 
       if (value !== undefined){
@@ -348,6 +344,7 @@ export class TopNavMenuComponent implements OnInit {
   onExportClick(): void {
     if (this.state?.activefile) {
       this.burgerOpened = false;
+      console.log("EXPORT")
       RXCore.exportPDF();
     }
   }

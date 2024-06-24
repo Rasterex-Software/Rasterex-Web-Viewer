@@ -30,11 +30,18 @@ export class SideNavMenuService {
     this.insertModalChanged.next(type);
   }
 
-  private rightClickedPage: Subject<number> = new Subject<number>();
-  public rightClickedPage$: Observable<number> = this.rightClickedPage.asObservable();
+  private sizeModalChanged: Subject<boolean> = new Subject<boolean>();
+  public sizeModalChanged$: Observable<boolean> = this.sizeModalChanged.asObservable();
 
-  setRightClickedPage(pageIndex: number) {
-    this.rightClickedPage.next(pageIndex)
+  toggleSizeModal(type: boolean): void {
+    this.sizeModalChanged.next(type);
+  }
+
+  private pageRange: Subject<number[][]> = new Subject<number[][]>();
+  public pageRange$: Observable<number[][]> = this.pageRange.asObservable();
+
+  setPageRange(pageRange: number[][]) {
+    this.pageRange.next(pageRange)
   }
 
   private copiedPage: Subject<any> = new Subject<any>();

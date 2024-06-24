@@ -5,8 +5,9 @@ import { TreeviewConfig } from '../../common/treeview/models/treeview-config';
 import { TreeviewItem } from '../../common/treeview/models/treeview-item';
 import { SideNavMenuService } from '../side-nav-menu.service';
 import { TopNavMenuService } from '../../top-nav-menu/top-nav-menu.service';
+import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 
-type Action = 'move-top' | 'move-bottom' | 'rotate-r' | 'rotate-l' | 'page-insert' | 'page-replace' | 'page-copy' | 'page-paste' | 'page-extract' | 'page-delete'
+type Action = 'move-top' | 'move-bottom' | 'move-up' | 'move-down' | 'rotate-r' | 'rotate-l' | 'page-insert' | 'page-replace' | 'page-copy' | 'page-paste' | 'page-extract' | 'page-delete' | 'page-size'
 
 @Component({
   selector: 'rx-pages',
@@ -27,6 +28,11 @@ export class PagesComponent implements OnInit {
   viewBookmarks: boolean = false;
   menuHeight: number = 435;
   canPaste: boolean = false;
+
+
+  multiSelect: boolean = false;
+  checkList: boolean[] = [];
+  checkString: string = ""
 
   // Context menu properties
 
@@ -53,6 +59,8 @@ export class PagesComponent implements OnInit {
     this.rxCoreService.guiPageThumbs$.subscribe(data => {
       this.thumbnails = data;
       this.numpages = this.thumbnails.length;
+      this.checkList = new Array(this.numpages).fill(false);
+      this.checkList[this.selectedPageIndex] = true;
     });
 
     this.rxCoreService.guiPdfBookmarks$.subscribe(data => {
@@ -72,14 +80,191 @@ export class PagesComponent implements OnInit {
       this.canPaste = value;
     })
 
-    RXCore.onRotatePage((degree: number, pageIndex: number) => {
-      
-    })
-
     RXCore.onGuiRemovePage((pageIndex) => {
       this.numpages = this.thumbnails.length;
     })
   }
+
+  convertArray(arr: boolean[]) {
+    let result:number[][] = [];
+    let start = -1;
+
+    for (let i = 0; i < arr.length; i++) {
+        if (arr[i]) {
+            if (start === -1) {
+                start = i;
+            }
+        } else {
+            if (start !== -1) {
+                if (start === i - 1) {
+                    result.push([start]);
+                } else {
+                    result.push([start, i - 1]); 
+                }
+                start = -1; 
+            }
+        }
+    }
+
+    if (start !== -1) {
+        if (start === arr.length - 1) {
+            result.push([start]); 
+        } else {
+            result.push([start, arr.length - 1]); 
+        }
+    }
+
+    return result;
+}
+
+parseInputString(str) {
+    let numbers: any[] = [];
+
+    // Split the input string by commas
+    let parts = str.split(',');
+
+    parts.forEach(part => {
+        // Check if the part is a range
+        if (part.includes('-')) {
+            let [start, end] = part.split('-').map(Number);
+            // Add all numbers in the range to the numbers array
+            for (let i = start; i <= end; i++) {
+                numbers.push(i);
+            }
+        } else {
+            // Otherwise, add the single number to the numbers array
+            numbers.push(Number(part));
+        }
+    });
+
+    return numbers;
+}
+
+convertToRanges(numbers) {
+    // Sort the numbers
+    numbers.sort((a, b) => a - b);
+
+    let result: any[] = [];
+    let start = numbers[0];
+    let end = numbers[0];
+
+    for (let i = 1; i < numbers.length; i++) {
+        if (numbers[i] === end + 1) {
+            // If the current number is consecutive, extend the range
+            end = numbers[i];
+        } else {
+            // If the current number is not consecutive, push the current range
+            if (start === end) {
+                result.push(start.toString());
+            } else {
+                result.push(`${start}-${end}`);
+            }
+            // Start a new range
+            start = numbers[i];
+            end = numbers[i];
+        }
+    }
+
+    // Push the last range
+    if (start === end) {
+        result.push(start.toString());
+    } else {
+        result.push(`${start}-${end}`);
+    }
+
+    return result.join(',');
+}
+
+formatRanges(inputStr) {
+    let numbers = this.parseInputString(inputStr);
+    return this.convertToRanges(numbers);
+}
+
+convertToBooleanArray(inputStr: string) {
+  let numbers:any[] = [];
+    let parts = inputStr.split(',');
+
+    parts.forEach(part => {
+        if (part.includes('-')) {
+            let [start, end] = part.split('-').map(Number);
+            for (let i = start; i <= end; i++) {
+                numbers.push(i);
+            }
+        } else {
+            numbers.push(Number(part));
+        }
+    });
+    let maxNumber = Math.max(...numbers);
+    let boolArray = new Array(maxNumber + 1).fill(false);
+
+    numbers.forEach(num => {
+        boolArray[num] = true;
+    });
+
+    return boolArray;
+}
+
+convertBooleanArrayToString(boolArray) {
+    let result:any [] = [];
+    let start = -1;
+
+    for (let i = 0; i < boolArray.length; i++) {
+        if (boolArray[i]) {
+            if (start === -1) {
+                start = i;
+            }
+        } else {
+            if (start !== -1) {
+                if (start === i - 1) {
+                    result.push(`${start}`);
+                } else {
+                    result.push(`${start}-${i - 1}`);
+                }
+                start = -1;
+            }
+        }
+    }
+
+    // Handle the last range if the array ends with `true`
+    if (start !== -1) {
+        if (start === boolArray.length - 1) {
+            result.push(`${start}`);
+        } else {
+            result.push(`${start}-${boolArray.length - 1}`);
+        }
+    }
+
+    return result.join(',');
+}
+
+onBlurInputCheckString() {
+  this.checkString = this.formatRanges(this.checkString);
+  this.checkList = this.convertToBooleanArray(this.checkString);
+  this.multiSelect = true;
+}
+
+onChangeCheckString(value) {
+  this.checkString = this.convertBooleanArrayToString(this.checkList)
+}
+
+onClickChangeMultiSelectMode() {
+  this.multiSelect = !this.multiSelect;
+  if(!this.multiSelect) {
+    this.checkString = this.selectedPageIndex.toString();
+    this.checkList = this.convertToBooleanArray(this.checkString)
+  }
+}
+
+onDrop(event: CdkDragDrop<any[]>) {
+  const pageRange: number[][] = [];
+  if(this.multiSelect) {
+    pageRange.push(...this.convertArray(this.checkList))
+  } else {
+    pageRange.push([event.previousIndex])
+  }
+  moveItemInArray(this.thumbnails, event.previousIndex, event.currentIndex)
+  RXCore.movePageTo(pageRange, event.currentIndex)
+}
 
 @HostListener('document:click', ['$event'])
 onDocumentClick(event: MouseEvent) {
@@ -121,6 +306,7 @@ onDocumentClick(event: MouseEvent) {
 
   onPageSelect(pageIndex: number): void {
     this.selectedPageIndex = pageIndex;
+    this.checkString = this.selectedPageIndex.toString();
     RXCore.gotoPage(pageIndex);
   }
 
@@ -143,7 +329,7 @@ onDocumentClick(event: MouseEvent) {
 
     this.rightClickedPageIndex = pageIndex;
 
-    this.sideNavMenuService.setRightClickedPage(pageIndex);
+    this.sideNavMenuService.setPageRange([[pageIndex]]);
 
     const spaceBelow = window.innerHeight - event.clientY;
     const spaceAbove = event.clientY;
@@ -164,36 +350,55 @@ onDocumentClick(event: MouseEvent) {
   }
 
   onAction(action: Action) {
+    const pageRange: number[][] = [];
+    if(this.multiSelect) {
+      pageRange.push(...this.convertArray(this.checkList))
+    } else {
+      pageRange.push([this.rightClickedPageIndex])
+    }
     switch(action) {
       case 'move-top':
-        RXCore.movePageTo(this.rightClickedPageIndex, 0)
+        RXCore.movePageTo(pageRange, 0)
         break;
       case 'move-bottom':
-        RXCore.movePageTo(this.rightClickedPageIndex, this.numpages - 1)
+        RXCore.movePageTo(pageRange, this.numpages - 1)
+        break;
+      case 'move-up':
+        RXCore.movePageTo(pageRange, pageRange[0][0] > 0 ? pageRange[0][0] - 1: 0)
+        break;
+      case 'move-down':
+        RXCore.movePageTo(pageRange, pageRange[0][0] < this.numpages - 1 ? pageRange[0][0] + 1 : this.numpages - 1)
         break;
       case 'rotate-r':
-        RXCore.rotatePage(this.rightClickedPageIndex, true)
+        RXCore.rotatePage(pageRange, true)
         break;
       case 'rotate-l':
-        RXCore.rotatePage(this.rightClickedPageIndex, false)
+        RXCore.rotatePage(pageRange, false)
+        break;
+      case 'page-size':
+        this.sideNavMenuService.toggleSizeModal(true);
+        this.sideNavMenuService.setPageRange(pageRange)
         break;
       case 'page-insert':
-        this.sideNavMenuService.toggleInsertModal('INSERT')
+        this.sideNavMenuService.setPageRange(pageRange);
+        this.sideNavMenuService.toggleInsertModal('INSERT');
         break;
       case 'page-replace':
+        this.sideNavMenuService.setPageRange(pageRange);
         this.sideNavMenuService.toggleInsertModal('REPLACE')
         break;
       case 'page-extract':
-        this.sideNavMenuService.toggleExtractModal(true)
+        this.sideNavMenuService.setPageRange(pageRange);
+        this.sideNavMenuService.toggleExtractModal(true);
         break;
       case 'page-copy':
-        RXCore.copyPage(this.rightClickedPageIndex)
+        RXCore.copyPage(pageRange)
         break;
       case 'page-paste':
         RXCore.pastePage(this.rightClickedPageIndex)
         break;
       case 'page-delete':
-        RXCore.removePage(this.rightClickedPageIndex)
+        RXCore.removePage(pageRange)
     }
     this.showContextMenu = false;
   }

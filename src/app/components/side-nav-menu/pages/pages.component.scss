@@ -59,6 +59,50 @@
             }
         }
 
+        .page-multiselect {
+            display: flex;
+            padding: 0 12px;
+            align-items: center;
+            width: 100%;
+            box-sizing: border-box;
+            justify-content: space-between;
+
+            input[type="text"] {
+                background: transparent;
+                border: 1px solid #EDF1F2;
+                border-radius: 4px;
+                width: 200px;
+                height: 28px;
+                padding: 3px 8px;
+                text-align: left;
+                box-sizing: border-box;
+                outline: none;
+                transition: 0.3s;
+        
+                &:focus {
+                    border-color: $main;
+                }
+        
+                &::placeholder {
+                    color: #A4ABAE;
+                }
+            }
+
+            svg {
+                max-width: 24px;
+                max-height: 24px;
+                min-width: 24px;
+                min-height: 24px;
+                padding: 4px;
+                cursor: pointer;
+                border-radius: 4px;
+
+                &:hover {
+                    background-color: var(--accent-secondary);
+                }
+            }
+        }
+
         .pages-list {
             overflow: auto;
             max-height: calc(100vh - 228px);
@@ -71,67 +115,6 @@
             box-sizing: border-box;
             scrollbar-width: thin;
 
-            .page {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-                position: relative;
-                gap: 6px;
-                cursor: pointer;
-
-                button {
-                    background-color: var(--accent);
-                    position: absolute;
-                    top: 4px;
-                    right: 4px;
-                    border: none;
-                    min-width: 24px;
-                    min-height: 24px;
-                    padding: 0;
-                    border-radius: 100%;
-                    display: none;
-                    cursor: pointer;
-                    align-items: center;
-                    justify-content: center;
-
-                    &:hover {
-                        box-shadow: 0 0 4px var(--accent);
-                    }
-
-                    svg {
-                        width: 16px;
-                        height: 16px;
-                    }
-                }
-
-                canvas {
-                    box-shadow: 0px 0px 7px 2px rgba(72, 72, 72, 0.08);
-                    border-radius: 4px;
-                    border: 2px solid transparent;
-                    width: 100%;
-                }
-
-                span {
-                    font-size: 12px;
-                    color: #A4ABAE;
-                    white-space: nowrap;
-                }
-
-                &:hover,
-                &.selected {
-                    button {
-                        display: flex;
-                    }
-                    canvas {
-                        border-color: $accent;
-                    }
-
-                    span {
-                        color: $accent;
-                    }
-                }
-            }
         }
 
         .search-bookmarks-section {
@@ -262,4 +245,77 @@
             }
         }
     }
+}
+
+.page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    gap: 6px;
+    cursor: pointer;
+
+    button {
+        background-color: var(--accent);
+        position: absolute;
+        top: 4px;
+        right: 4px;
+        border: none;
+        min-width: 24px;
+        min-height: 24px;
+        padding: 0;
+        border-radius: 100%;
+        display: none;
+        cursor: pointer;
+        align-items: center;
+        justify-content: center;
+
+        &:hover {
+            box-shadow: 0 0 4px var(--accent);
+        }
+
+        svg {
+            width: 16px;
+            height: 16px;
+        }
+    }
+
+    canvas {
+        box-shadow: 0px 0px 7px 2px rgba(72, 72, 72, 0.08);
+        border-radius: 4px;
+        border: 2px solid transparent;
+        width: 100%;
+    }
+
+    .check {
+        position: absolute;
+        top: 8px;
+        left: 8px;
+    }
+
+    span {
+        font-size: 12px;
+        color: #A4ABAE;
+        white-space: nowrap;
+    }
+
+    &:hover,
+    &.selected {
+        button {
+            display: flex;
+        }
+
+        canvas {
+            border-color: $accent;
+        }
+
+        span {
+            color: $accent;
+        }
+    }
+}
+
+.cdk-drag-animating {
+    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
 }

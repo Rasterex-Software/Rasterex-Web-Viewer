@@ -11,7 +11,7 @@ export class ExtractModalComponent implements OnInit {
     @Output() closed = new EventEmitter<void>();
 
     visible: boolean = false;
-    pageIndex: number = 0;
+    pageRange: number[][] = [];
 
     constructor(
         private sideNavMenuService: SideNavMenuService
@@ -21,8 +21,8 @@ export class ExtractModalComponent implements OnInit {
         this.sideNavMenuService.extractModalChanged$.subscribe(value => {
             this.visible = value
         })
-        this.sideNavMenuService.rightClickedPage$.subscribe(value => {
-            this.pageIndex = value
+        this.sideNavMenuService.pageRange$.subscribe(value => {
+            this.pageRange = value
         })
     }
 
@@ -31,7 +31,7 @@ export class ExtractModalComponent implements OnInit {
     }
 
     extract(isDelete: boolean) {
-        RXCore.extractPage(this.pageIndex, isDelete);
+        RXCore.extractPage(this.pageRange, isDelete);
         this.cancel()
     }
 }

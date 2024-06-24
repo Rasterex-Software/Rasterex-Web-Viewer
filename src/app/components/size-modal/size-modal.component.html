@@ -1,0 +1,43 @@
+<rx-modal-dialog *ngIf="visible">
+    <div class="size-modal-container size-modal" >
+        <div class="body">
+            <div class="rx-modal-dialog-header">
+                <img class="close" src="/assets/images/close-modal-ico.svg" (click)="close()" />
+                <span class="title">Set page size</span>
+            </div>
+            <div class="insert-blank">
+                <div class="page-dimension">
+                    <p>Page Dimensions</p>
+                    <div class="group">
+                        <div class="input">
+                            <span>Presets</span>
+                            <rx-select [options]="presetsOptions" [(selectedValue)]="selectedPresets"
+                                (selectionChange)="onPresetsSelectionChange($event)"></rx-select>
+                        </div>
+                        <div *ngIf="selectedPresets != '6'" class="input"></div>
+                        <div *ngIf="selectedPresets === '6'" class="input">
+                            <span>Units</span>
+                            <rx-select [options]="unitsOptions" [(selectedValue)]="selectedUnits"
+                                (selectionChange)="onUnitsSelectionChange($event)">
+                            </rx-select>
+                        </div>
+                    </div>
+                    <div class="group" *ngIf="selectedPresets === '6'" style="margin-top: 8px;">
+                        <div class="input">
+                            <span>Width</span>
+                            <input type="number" [(ngModel)]="customWidth" autocomplete="off" (change)="validate()" />
+                        </div>
+                        <div class="input">
+                            <span>Height</span>
+                            <input type="number" [(ngModel)]="customHeight" autocomplete="off" (change)="validate()" />
+                        </div>
+                    </div>
+                </div>
+            
+                <div class="control">
+                    <button [disabled]="isInvalid" (click)="change()">Change</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</rx-modal-dialog>

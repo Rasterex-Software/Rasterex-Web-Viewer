@@ -29,6 +29,8 @@ export class InsertModalComponent implements OnInit {
 
     numpages: number = 0;
     currentPage: number = 0;
+    pageRangeStr: string = "";
+    checkedPageRangeStr: string = "";
     numberPages: number = 1;
 
     customWidth: number = 8.5;
@@ -38,16 +40,20 @@ export class InsertModalComponent implements OnInit {
 
     checkedPageList:boolean[] = []
 
+    pageRange: number[][] = [];
+
     radioOptions = [
         { label: 'Above Page', value: '1' },
         { label: 'Below Page', value: '2' },
     ];
 
     presetsOptions = [
-        { label: 'Letter', value: '1' },
-        { label: 'Half Letter', value: '2' },
-        { label: 'Junior Legal', value: '3' },
-        { label: 'Custom', value: '4' }
+        { label: 'A4', value: '1' },
+        { label: 'A3', value: '2' },
+        { label: 'Letter', value: '3' },
+        { label: 'Half Letter', value: '4' },
+        { label: 'Junior Legal', value: '5' },
+        { label: 'Custom', value: '6' }
     ]
 
     unitsOptions = [
@@ -76,46 +82,110 @@ export class InsertModalComponent implements OnInit {
         this.rxCoreService.guiState$.subscribe(state => {
             this.numpages = state.numpages;
         });
-        this.sideNavMenuService.rightClickedPage$.subscribe(value => {
-            this.currentPage = value + 1;
+        this.sideNavMenuService.pageRange$.subscribe(value => {
+            this.pageRange = value;
+            this.pageRangeStr = this.convertArrayToString(value)
+            this.currentPage = value[0][0] + 1;
         })
     }
 
+    onClickPage(id: number) {
+        this.checkedPageList[id] = !this.checkedPageList[id];
+        const checkedPages = this.convertArray(this.checkedPageList);
+        this.checkedPageRangeStr = this.convertArrayToString(checkedPages)
+        console.log(this.checkedPageRangeStr)
+    }
+
+    convertToBooleanArray(inputStr: string) {
+        let numbers:any[] = [];
+            let parts = inputStr.split(',');
+
+            parts.forEach(part => {
+                if (part.includes('-')) {
+                    let [start, end] = part.split('-').map(Number);
+                    for (let i = start; i <= end; i++) {
+                        numbers.push(i);
+                    }
+                } else {
+                    numbers.push(Number(part));
+                }
+            });
+            let maxNumber = Math.max(...numbers);
+            let boolArray = new Array(maxNumber + 1).fill(false);
+
+            numbers.forEach(num => {
+                boolArray[num] = true;
+            });
+
+            return boolArray;
+        }
+
+    onBlurCheckPageRange() {
+        this.checkedPageRangeStr = this.formatRanges(this.checkedPageRangeStr);
+        this.checkedPageList = this.convertToBooleanArray(this.checkedPageRangeStr)
+    }
+
     close() {
-        if (this.selectedFileName) this.clearData();
+        this.clearData();
         this.sideNavMenuService.toggleInsertModal('NONE')
+        this.loadingStatus = 'NONE';
+    }
+
+    parseStringToNumArray(input) {
+        return input.split(',').map(item => {
+            if (item.includes('-')) {
+                const [start, end] = item.split('-').map(Number);
+                return [start, end];
+            } else {
+                return [Number(item)];
+            }
+        });
     }
 
     addPages() {
-        let startIndex = this.currentPage;
-        if(this.selectedRadioValue === '1') {
-            startIndex --;
-        }
         let width = this.customWidth;
         let height = this.customHeight;
+
+        let pageRange = this.parseStringToNumArray(this.pageRangeStr)
+
+        if(this.selectedRadioValue === '2') {
+            pageRange = pageRange.map(array => {
+                return array.map(value => {
+                    return value + 1;
+                })
+            })
+        }
 
         const DPI = RXCore.getDPI()
 
         switch (this.selectedPresets) {
             case '1':
+                width = 8.27 * DPI.x;
+                height = 11.69 * DPI.y;
+                break;
+            case '2':
+                width = 11.69 * DPI.x;
+                height = 16.54 * DPI.y;
+                break;
+            case '3':
                 width = 8.5 * DPI.x;
                 height = 11 * DPI.y;
                 break;
-            case '2':
+            case '4':
                 width = 5.5 * DPI.x;
                 height = 8.5 * DPI.y;
                 break;
-            case '3':
+            case '5':
                 width = 5 * DPI.x;
                 height = 8 * DPI.y;
                 break;
             default:
                 switch(this.selectedUnits) {
-                    case '1':
+                    case '3':
                         width = this.customWidth * DPI.x;
                         height = this.customHeight * DPI.y;
                         break;
-                    case '2':
+                    case '4':
                         width = this.customWidth / 2.54 * DPI.x;
                         height = this.customHeight / 2.54 * DPI.y;
                         break;
@@ -125,8 +195,85 @@ export class InsertModalComponent implements OnInit {
                 }
         }
 
-        RXCore.insertBlankPages(startIndex, this.numberPages, width, height)
+        RXCore.insertBlankPages(pageRange, this.numberPages, width, height)
         this.close()
+    }
+
+    parseInputString(str) {
+        let numbers: any[] = [];
+
+        // Split the input string by commas
+        let parts = str.split(',');
+
+        parts.forEach(part => {
+            // Check if the part is a range
+            if (part.includes('-')) {
+                let [start, end] = part.split('-').map(Number);
+                // Add all numbers in the range to the numbers array
+                for (let i = start; i <= end; i++) {
+                    numbers.push(i);
+                }
+            } else {
+                // Otherwise, add the single number to the numbers array
+                numbers.push(Number(part));
+            }
+        });
+
+        return numbers;
+    }
+
+    convertToRanges(numbers) {
+        // Sort the numbers
+        numbers.sort((a, b) => a - b);
+
+        let result: any[] = [];
+        let start = numbers[0];
+        let end = numbers[0];
+
+        for (let i = 1; i < numbers.length; i++) {
+            if (numbers[i] === end + 1) {
+                // If the current number is consecutive, extend the range
+                end = numbers[i];
+            } else {
+                // If the current number is not consecutive, push the current range
+                if (start === end) {
+                    result.push(start.toString());
+                } else {
+                    result.push(`${start}-${end}`);
+                }
+                // Start a new range
+                start = numbers[i];
+                end = numbers[i];
+            }
+        }
+
+        // Push the last range
+        if (start === end) {
+            result.push(start.toString());
+        } else {
+            result.push(`${start}-${end}`);
+        }
+
+        return result.join(',');
+    }
+
+    convertArrayToString(array) {
+        return array.map(range => {
+            if (range.length === 2) {
+                return `${range[0]}-${range[1]}`;
+            } else {
+                return `${range[0]}`;
+            }
+        }).join(',');
+    }
+
+    formatRanges(inputStr) {
+        let numbers = this.parseInputString(inputStr);
+        return this.convertToRanges(numbers);
+    }
+
+    onBlurPageRange() {
+        this.pageRangeStr = this.formatRanges(this.pageRangeStr);
     }
 
     validate() {
@@ -186,7 +333,10 @@ export class InsertModalComponent implements OnInit {
                 this.thumbnails = value;
                 this.loadingStatus = 'LOADED';
                 this.checkedPageList = new Array(value.length).fill(true);
-            })
+                this.checkedPageRangeStr = `0-${value.length-1}`
+            }).catch(() => {
+                this.loadingStatus = 'NONE';
+            }) 
         }
     }
 
@@ -248,16 +398,22 @@ export class InsertModalComponent implements OnInit {
         }
 
         return result;
-}
+    }
 
     importPages() {
         const checkedPages = this.convertArray(this.checkedPageList);
-        let startIndex = this.currentPage;
-        if(this.selectedRadioValue === '1') {
-            startIndex --;
+        let newPageRange = this.pageRange;
+        console.log(this.selectedRadioValue)
+        if(this.selectedRadioValue === '2') {
+            newPageRange = newPageRange.map(array => {
+                return array.map(value => {
+                    return value + 1;
+                })
+            })
         }
+        
         this.loadingStatus = 'LOADING';
-        RXCore.importPages(this.file, startIndex, checkedPages, this.visible === 'REPLACE', this.selectedCount()).then(() => {
+        RXCore.importPages(this.file, newPageRange, checkedPages, this.visible === 'REPLACE', this.selectedCount()).then(() => {
             this.loadingStatus = 'NONE';
             this.visible = 'NONE'
         }).catch(() => {

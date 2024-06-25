@@ -35,6 +35,7 @@ export class PageThumbnailDirective implements OnInit {
     });
 
     RXCore.onRotatePage((degree: number, pageIndex: number) => {
+      console.log("ROTATED")
         var ctx = this.element.nativeElement.getContext('2d');
 
         this.element.nativeElement.width = this.pageThumbnail.thumbnailobj.thumbnail.width;

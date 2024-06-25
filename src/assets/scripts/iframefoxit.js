@@ -1523,47 +1523,37 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
 
     }; 
 
-    this.removeItemsByIndices = function(array, indicesRanges) {
+    // Helper function to convert ranges to a set of indices
+    function rangesToSet(indicesRanges) {
         const indicesToRemove = new Set();
         indicesRanges.forEach(range => {
             if (range.length === 1) {
-            indicesToRemove.add(range[0]);
+                indicesToRemove.add(range[0]);
             } else {
-            for (let i = range[0]; i <= range[1]; i++) {
-                indicesToRemove.add(i);
-            }
+                for (let i = range[0]; i <= range[1]; i++) {
+                    indicesToRemove.add(i);
+                }
             }
         });
+        return indicesToRemove;
+    }
+
+    this.removeItemsByIndices = function(array, indicesRanges) {
+        const indicesToRemove = rangesToSet(indicesRanges);
         return array.filter((item, index) => !indicesToRemove.has(index));
-    }
-
-    this.countItemsInRanges = function(indicesRanges) {
-        let count = 0;
-
-        indicesRanges.forEach(range => {
-            if (range.length === 1) {
-            count += 1;
-            } else if (range.length === 2) {
-            count += (range[1] - range[0] + 1);
-            }
-        });
-
-        return count;
-    }
+    };
 
     this.itemsInRange = function(array, indicesRanges) {
-        const indicesToRemove = new Set();
-        indicesRanges.forEach(range => {
-            if (range.length === 1) {
-            indicesToRemove.add(range[0]);
-            } else {
-            for (let i = range[0]; i <= range[1]; i++) {
-                indicesToRemove.add(i);
-            }
-            }
-        });
+        const indicesToRemove = rangesToSet(indicesRanges);
         return array.filter((item, index) => indicesToRemove.has(index));
-    }
+    };
+
+    this.countItemsInRanges = function(indicesRanges) {
+        return indicesRanges.reduce((count, range) => {
+            return count + (range.length === 1 ? 1 : range[1] - range[0] + 1);
+        }, 0);
+    };
+
 
     this.removePage = function(pageRange) {
         const doc = foxview.pdfViewer.getCurrentPDFDoc()
@@ -1576,7 +1566,7 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
                 newArray[newArray.length - 1] += 1;
                 return newArray; 
             }
-        })
+        });
         
         return doc.removePages(newPageRange).then(() => {
             foxview.pagestates = this.removeItemsByIndices(foxview.pagestates, pageRange)
@@ -1592,13 +1582,13 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
     }
 
     this.movePageTo = function(pageRange, destIndex) {
-        const itemsInRange = this.itemsInRange(foxview.pagestates, pageRange)
-        this.removeItemsByIndices(foxview.pagestates, pageRange)
-        foxview.pagestates.push(...itemsInRange)
-        foxview.pagestates = foxview.pagestates.map((item, id) => ({
-            ...item,
-            pageindex: id
-        }))
+        // const itemsInRange = this.itemsInRange(foxview.pagestates, pageRange)
+        // this.removeItemsByIndices(foxview.pagestates, pageRange)
+        // foxview.pagestates.push(...itemsInRange)
+        // foxview.pagestates = foxview.pagestates.map((item, id) => ({
+        //     ...item,
+        //     pageindex: id
+        // }))
         return foxview.pdfViewer.getCurrentPDFDoc().movePagesTo(pageRange, destIndex)
     }
 

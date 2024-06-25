@@ -86,43 +86,55 @@ export class InsertModalComponent implements OnInit {
             this.pageRange = value;
             this.pageRangeStr = this.convertArrayToString(value)
             this.currentPage = value[0][0] + 1;
-        })
+        });
+        this.leftTabIndex = 0;
     }
 
     onClickPage(id: number) {
         this.checkedPageList[id] = !this.checkedPageList[id];
         const checkedPages = this.convertArray(this.checkedPageList);
         this.checkedPageRangeStr = this.convertArrayToString(checkedPages)
-        console.log(this.checkedPageRangeStr)
     }
 
-    convertToBooleanArray(inputStr: string) {
-        let numbers:any[] = [];
-            let parts = inputStr.split(',');
+    convertToBooleanArray(inputStr: string): boolean[] {
+        const numberList: number[] = [];
+        const inputParts = inputStr.split(',');
 
-            parts.forEach(part => {
-                if (part.includes('-')) {
-                    let [start, end] = part.split('-').map(Number);
-                    for (let i = start; i <= end; i++) {
-                        numbers.push(i);
-                    }
-                } else {
-                    numbers.push(Number(part));
+        let maxNumber = -Infinity;
+        let minNumber = Infinity;
+
+        inputParts.forEach(part => {
+            if (part.includes('-')) {
+                let [start, end] = part.split('-').map(Number);
+                if (start === 0) start = 1; // Normalize range starting from 0 to start from 1
+                for (let i = start; i <= end; i++) {
+                    numberList.push(i);
                 }
-            });
-            let maxNumber = Math.max(...numbers);
-            let boolArray = new Array(maxNumber + 1).fill(false);
+                if (start < minNumber) minNumber = start;
+                if (end > maxNumber) maxNumber = end;
+            } else {
+                let num = Number(part);
+                if (num === 0) num = 1; // Normalize single number 0 to 1
+                numberList.push(num);
+                if (num < minNumber) minNumber = num;
+                if (num > maxNumber) maxNumber = num;
+            }
+        });
 
-            numbers.forEach(num => {
-                boolArray[num] = true;
-            });
+        // Fill the boolean array from minNumber to maxNumber
+        const booleanArray: boolean[] = new Array(maxNumber).fill(false);
 
-            return boolArray;
-        }
+        numberList.forEach(num => {
+            booleanArray[num - 1] = true;
+        });
+
+        return booleanArray;
+    }
+
 
     onBlurCheckPageRange() {
         this.checkedPageRangeStr = this.formatRanges(this.checkedPageRangeStr);
-        this.checkedPageList = this.convertToBooleanArray(this.checkedPageRangeStr)
+        this.checkedPageList = this.convertToBooleanArray(this.checkedPageRangeStr);
     }
 
     close() {
@@ -135,9 +147,9 @@ export class InsertModalComponent implements OnInit {
         return input.split(',').map(item => {
             if (item.includes('-')) {
                 const [start, end] = item.split('-').map(Number);
-                return [start, end];
+                return [start - 1, end - 1];
             } else {
-                return [Number(item)];
+                return [Number(item) - 1];
             }
         });
     }
@@ -147,6 +159,8 @@ export class InsertModalComponent implements OnInit {
         let height = this.customHeight;
 
         let pageRange = this.parseStringToNumArray(this.pageRangeStr)
+
+        console.log(pageRange)
 
         if(this.selectedRadioValue === '2') {
             pageRange = pageRange.map(array => {
@@ -199,72 +213,74 @@ export class InsertModalComponent implements OnInit {
         this.close()
     }
 
-    parseInputString(str) {
-        let numbers: any[] = [];
+    parseInputString(str: string): number[] {
+        const ranges: [number, number][] = [];
+        const inputParts = str.split(',');
 
-        // Split the input string by commas
-        let parts = str.split(',');
-
-        parts.forEach(part => {
-            // Check if the part is a range
-            if (part.includes('-')) {
-                let [start, end] = part.split('-').map(Number);
-                // Add all numbers in the range to the numbers array
-                for (let i = start; i <= end; i++) {
-                    numbers.push(i);
-                }
-            } else {
-                // Otherwise, add the single number to the numbers array
-                numbers.push(Number(part));
-            }
+        inputParts.forEach(part => {
+            let [start, end] = part.includes('-') ? part.split('-').map(Number) : [Number(part), Number(part)];
+            if (start === 0) start = 1; // Normalize range starting from 0 to start from 1
+            if (end === 0) end = 1; // Normalize single number 0 to 1
+            ranges.push([start, end]);
         });
 
-        return numbers;
+        ranges.sort((a, b) => a[0] - b[0]); // Sort ranges by their starting values
+
+        // Merge overlapping and adjacent ranges while filling numbers
+        const mergedNumbers: number[] = [];
+        let [currentStart, currentEnd] = ranges[0];
+
+        for (let i = 1; i < ranges.length; i++) {
+            const [start, end] = ranges[i];
+            if (start <= currentEnd + 1) {
+                currentEnd = Math.max(currentEnd, end);
+            } else {
+                for (let j = currentStart; j <= currentEnd; j++) {
+                    mergedNumbers.push(j);
+                }
+                currentStart = start;
+                currentEnd = end;
+            }
+        }
+
+        // Add the final merged range
+        for (let j = currentStart; j <= currentEnd; j++) {
+            mergedNumbers.push(j);
+        }
+
+        return mergedNumbers;
     }
 
-    convertToRanges(numbers) {
+    convertToRanges(numbers: number[]): string {
+        if (numbers.length === 0) return '';
+
         // Sort the numbers
         numbers.sort((a, b) => a - b);
 
-        let result: any[] = [];
+        const result: string[] = [];
         let start = numbers[0];
         let end = numbers[0];
 
         for (let i = 1; i < numbers.length; i++) {
             if (numbers[i] === end + 1) {
-                // If the current number is consecutive, extend the range
                 end = numbers[i];
             } else {
-                // If the current number is not consecutive, push the current range
-                if (start === end) {
-                    result.push(start.toString());
-                } else {
-                    result.push(`${start}-${end}`);
-                }
-                // Start a new range
+                result.push(start === end ? `${start}` : `${start}-${end}`);
                 start = numbers[i];
                 end = numbers[i];
             }
         }
 
-        // Push the last range
-        if (start === end) {
-            result.push(start.toString());
-        } else {
-            result.push(`${start}-${end}`);
-        }
+        // Add the final range
+        result.push(start === end ? `${start}` : `${start}-${end}`);
 
         return result.join(',');
     }
 
     convertArrayToString(array) {
-        return array.map(range => {
-            if (range.length === 2) {
-                return `${range[0]}-${range[1]}`;
-            } else {
-                return `${range[0]}`;
-            }
-        }).join(',');
+        return array.map(range => 
+            range.length === 2 ? `${range[0] + 1}-${range[1] + 1}` : `${range[0] + 1}`
+        ).join(',');
     }
 
     formatRanges(inputStr) {
@@ -333,7 +349,7 @@ export class InsertModalComponent implements OnInit {
                 this.thumbnails = value;
                 this.loadingStatus = 'LOADED';
                 this.checkedPageList = new Array(value.length).fill(true);
-                this.checkedPageRangeStr = `0-${value.length-1}`
+                this.checkedPageRangeStr = `1-${value.length}`
             }).catch(() => {
                 this.loadingStatus = 'NONE';
             }) 
@@ -357,44 +373,32 @@ export class InsertModalComponent implements OnInit {
     }
 
     selectedCount() {
-        let count = 0;
-        this.checkedPageList.forEach(value => {
-            if(value) count ++;
-        })
-        return count;
+        return this.checkedPageList.reduce((count, value) => count + (value ? 1 : 0), 0);
     }
 
     selectPages() {
-        this.checkedPageList = new Array(this.checkedPageList.length).fill(this.selectedCount() === 0)
+        const count = this.selectedCount();
+        this.checkedPageRangeStr = count === 0 ? `1-${this.checkedPageList.length}` : ``;  
+        this.checkedPageList = new Array(this.checkedPageList.length).fill(count === 0);
     }
 
-    convertArray(arr: boolean[]) {
-        let result:number[][] = [];
+    convertArray(arr: boolean[]): number[][] {
+        const result: number[][] = [];
         let start = -1;
 
         for (let i = 0; i < arr.length; i++) {
             if (arr[i]) {
-                if (start === -1) {
-                    start = i;
-                }
+                if (start === -1) start = i;
             } else {
                 if (start !== -1) {
-                    if (start === i - 1) {
-                        result.push([start]);
-                    } else {
-                        result.push([start, i - 1]); 
-                    }
-                    start = -1; 
+                    result.push(start === i - 1 ? [start] : [start, i - 1]);
+                    start = -1;
                 }
             }
         }
 
         if (start !== -1) {
-            if (start === arr.length - 1) {
-                result.push([start]); 
-            } else {
-                result.push([start, arr.length - 1]); 
-            }
+            result.push(start === arr.length - 1 ? [start] : [start, arr.length - 1]);
         }
 
         return result;
@@ -403,7 +407,7 @@ export class InsertModalComponent implements OnInit {
     importPages() {
         const checkedPages = this.convertArray(this.checkedPageList);
         let newPageRange = this.pageRange;
-        console.log(this.selectedRadioValue)
+
         if(this.selectedRadioValue === '2') {
             newPageRange = newPageRange.map(array => {
                 return array.map(value => {

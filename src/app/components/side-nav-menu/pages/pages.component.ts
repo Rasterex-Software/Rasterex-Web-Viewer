@@ -69,6 +69,7 @@ export class PagesComponent implements OnInit {
 
     this.rxCoreService.guiPage$.subscribe(page => {
       this.selectedPageIndex = page.currentpage;
+      this.checkString = (this.selectedPageIndex + 1).toString();
       document.getElementById(`page-${page.currentpage}`)?.scrollIntoView({
         behavior: "instant",
         block: "start",
@@ -85,94 +86,90 @@ export class PagesComponent implements OnInit {
     })
   }
 
-  convertArray(arr: boolean[]) {
-    let result:number[][] = [];
-    let start = -1;
+convertArray(arr: boolean[]): number[][] {
+  const result: number[][] = [];
+  let start = -1;
 
-    for (let i = 0; i < arr.length; i++) {
-        if (arr[i]) {
-            if (start === -1) {
-                start = i;
-            }
-        } else {
-            if (start !== -1) {
-                if (start === i - 1) {
-                    result.push([start]);
-                } else {
-                    result.push([start, i - 1]); 
-                }
-                start = -1; 
-            }
-        }
-    }
+  for (let i = 0; i < arr.length; i++) {
+      if (arr[i]) {
+          if (start === -1) start = i;
+      } else {
+          if (start !== -1) {
+              result.push(start === i - 1 ? [start] : [start, i - 1]);
+              start = -1;
+          }
+      }
+  }
 
-    if (start !== -1) {
-        if (start === arr.length - 1) {
-            result.push([start]); 
-        } else {
-            result.push([start, arr.length - 1]); 
-        }
-    }
+  if (start !== -1) {
+      result.push(start === arr.length - 1 ? [start] : [start, arr.length - 1]);
+  }
 
-    return result;
+  return result;
 }
 
-parseInputString(str) {
-    let numbers: any[] = [];
+parseInputString(str: string): number[] {
+  const ranges: [number, number][] = [];
+  const inputParts = str.split(',');
 
-    // Split the input string by commas
-    let parts = str.split(',');
+  inputParts.forEach(part => {
+      let [start, end] = part.includes('-') ? part.split('-').map(Number) : [Number(part), Number(part)];
+      if (start === 0) start = 1; // Normalize range starting from 0 to start from 1
+      if (end === 0) end = 1; // Normalize single number 0 to 1
+      ranges.push([start, end]);
+  });
 
-    parts.forEach(part => {
-        // Check if the part is a range
-        if (part.includes('-')) {
-            let [start, end] = part.split('-').map(Number);
-            // Add all numbers in the range to the numbers array
-            for (let i = start; i <= end; i++) {
-                numbers.push(i);
-            }
-        } else {
-            // Otherwise, add the single number to the numbers array
-            numbers.push(Number(part));
-        }
-    });
+  ranges.sort((a, b) => a[0] - b[0]); // Sort ranges by their starting values
 
-    return numbers;
+  // Merge overlapping and adjacent ranges while filling numbers
+  const mergedNumbers: number[] = [];
+  let [currentStart, currentEnd] = ranges[0];
+
+  for (let i = 1; i < ranges.length; i++) {
+      const [start, end] = ranges[i];
+      if (start <= currentEnd + 1) {
+          currentEnd = Math.max(currentEnd, end);
+      } else {
+          for (let j = currentStart; j <= currentEnd; j++) {
+              mergedNumbers.push(j);
+          }
+          currentStart = start;
+          currentEnd = end;
+      }
+  }
+
+  // Add the final merged range
+  for (let j = currentStart; j <= currentEnd; j++) {
+      mergedNumbers.push(j);
+  }
+
+  return mergedNumbers;
 }
 
-convertToRanges(numbers) {
-    // Sort the numbers
-    numbers.sort((a, b) => a - b);
+convertToRanges(numbers: number[]): string {
+  if (numbers.length === 0) return '';
 
-    let result: any[] = [];
-    let start = numbers[0];
-    let end = numbers[0];
+  // Sort the numbers
+  numbers.sort((a, b) => a - b);
 
-    for (let i = 1; i < numbers.length; i++) {
-        if (numbers[i] === end + 1) {
-            // If the current number is consecutive, extend the range
-            end = numbers[i];
-        } else {
-            // If the current number is not consecutive, push the current range
-            if (start === end) {
-                result.push(start.toString());
-            } else {
-                result.push(`${start}-${end}`);
-            }
-            // Start a new range
-            start = numbers[i];
-            end = numbers[i];
-        }
-    }
+  const result: string[] = [];
+  let start = numbers[0];
+  let end = numbers[0];
 
-    // Push the last range
-    if (start === end) {
-        result.push(start.toString());
-    } else {
-        result.push(`${start}-${end}`);
-    }
+  for (let i = 1; i < numbers.length; i++) {
+      if (numbers[i] === end + 1) {
+          end = numbers[i];
+      } else {
+          result.push(start === end ? `${start}` : `${start}-${end}`);
+          start = numbers[i];
+          end = numbers[i];
+      }
+  }
 
-    return result.join(',');
+  // Add the final range
+  result.push(start === end ? `${start}` : `${start}-${end}`);
+
+  return result.join(',');
 }
 
 formatRanges(inputStr) {
@@ -180,62 +177,61 @@ formatRanges(inputStr) {
     return this.convertToRanges(numbers);
 }
 
-convertToBooleanArray(inputStr: string) {
-  let numbers:any[] = [];
-    let parts = inputStr.split(',');
+convertToBooleanArray(inputStr: string): boolean[] {
+  const numberList: number[] = [];
+  const inputParts = inputStr.split(',');
 
-    parts.forEach(part => {
-        if (part.includes('-')) {
-            let [start, end] = part.split('-').map(Number);
-            for (let i = start; i <= end; i++) {
-                numbers.push(i);
-            }
-        } else {
-            numbers.push(Number(part));
-        }
-    });
-    let maxNumber = Math.max(...numbers);
-    let boolArray = new Array(maxNumber + 1).fill(false);
+  let maxNumber = -Infinity;
+  let minNumber = Infinity;
 
-    numbers.forEach(num => {
-        boolArray[num] = true;
-    });
+  inputParts.forEach(part => {
+      if (part.includes('-')) {
+          let [start, end] = part.split('-').map(Number);
+          if (start === 0) start = 1; // Normalize range starting from 0 to start from 1
+          for (let i = start; i <= end; i++) {
+              numberList.push(i);
+          }
+          if (start < minNumber) minNumber = start;
+          if (end > maxNumber) maxNumber = end;
+      } else {
+          let num = Number(part);
+          if (num === 0) num = 1; // Normalize single number 0 to 1
+          numberList.push(num);
+          if (num < minNumber) minNumber = num;
+          if (num > maxNumber) maxNumber = num;
+      }
+  });
 
-    return boolArray;
+  // Fill the boolean array from minNumber to maxNumber
+  const booleanArray: boolean[] = new Array(maxNumber).fill(false);
+
+  numberList.forEach(num => {
+      booleanArray[num - 1] = true;
+  });
+
+  return booleanArray;
 }
 
 convertBooleanArrayToString(boolArray) {
-    let result:any [] = [];
-    let start = -1;
+  let result: any[] = [];
+  let start = -1;
 
-    for (let i = 0; i < boolArray.length; i++) {
-        if (boolArray[i]) {
-            if (start === -1) {
-                start = i;
-            }
-        } else {
-            if (start !== -1) {
-                if (start === i - 1) {
-                    result.push(`${start}`);
-                } else {
-                    result.push(`${start}-${i - 1}`);
-                }
-                start = -1;
-            }
-        }
-    }
+  for (let i = 0; i < boolArray.length; i++) {
+      if (boolArray[i]) {
+          if (start === -1) start = i;
+      } else if (start !== -1) {
+          result.push(start === i - 1 ? `${start + 1}` : `${start + 1}-${i}`);
+          start = -1;
+      }
+  }
 
-    // Handle the last range if the array ends with `true`
-    if (start !== -1) {
-        if (start === boolArray.length - 1) {
-            result.push(`${start}`);
-        } else {
-            result.push(`${start}-${boolArray.length - 1}`);
-        }
-    }
+  if (start !== -1) {
+      result.push(start === boolArray.length - 1 ? `${start + 1}` : `${start + 1}-${boolArray.length}`);
+  }
 
-    return result.join(',');
+  return result.join(',');
 }
+
 
 onBlurInputCheckString() {
   this.checkString = this.formatRanges(this.checkString);
@@ -250,7 +246,7 @@ onChangeCheckString(value) {
 onClickChangeMultiSelectMode() {
   this.multiSelect = !this.multiSelect;
   if(!this.multiSelect) {
-    this.checkString = this.selectedPageIndex.toString();
+    this.checkString = (this.selectedPageIndex + 1).toString();
     this.checkList = this.convertToBooleanArray(this.checkString)
   }
 }
@@ -262,7 +258,6 @@ onDrop(event: CdkDragDrop<any[]>) {
   } else {
     pageRange.push([event.previousIndex])
   }
-  moveItemInArray(this.thumbnails, event.previousIndex, event.currentIndex)
   RXCore.movePageTo(pageRange, event.currentIndex)
 }
 
@@ -306,7 +301,9 @@ onDocumentClick(event: MouseEvent) {
 
   onPageSelect(pageIndex: number): void {
     this.selectedPageIndex = pageIndex;
-    this.checkString = this.selectedPageIndex.toString();
+    if(!this.multiSelect) {
+      this.checkString = (this.selectedPageIndex + 1).toString();
+    }
     RXCore.gotoPage(pageIndex);
   }
 
@@ -356,6 +353,7 @@ onDocumentClick(event: MouseEvent) {
     } else {
       pageRange.push([this.rightClickedPageIndex])
     }
+
     switch(action) {
       case 'move-top':
         RXCore.movePageTo(pageRange, 0)
@@ -367,7 +365,13 @@ onDocumentClick(event: MouseEvent) {
         RXCore.movePageTo(pageRange, pageRange[0][0] > 0 ? pageRange[0][0] - 1: 0)
         break;
       case 'move-down':
-        RXCore.movePageTo(pageRange, pageRange[0][0] < this.numpages - 1 ? pageRange[0][0] + 1 : this.numpages - 1)
+        let index = 0;
+        if(this.multiSelect) {
+          index = pageRange[pageRange.length - 1][pageRange[pageRange.length - 1].length - 1]
+        } else {
+          index = pageRange[0][0];
+        }
+        RXCore.movePageTo(pageRange, index < this.numpages - 1 ? index + 2 : this.numpages - 1)
         break;
       case 'rotate-r':
         RXCore.rotatePage(pageRange, true)

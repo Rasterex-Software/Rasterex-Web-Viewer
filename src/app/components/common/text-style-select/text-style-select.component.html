@@ -7,6 +7,7 @@
             (valueChange)="onFontFaceSelect($event)">
         </rx-dropdown>
         <rx-dropdown
+            *ngIf="!showFontSize"
             [options]="fontSizes"
             [value]="{label:value.size,value:value.size}"
             (valueChange)="onFontSizeSelect($event)">

@@ -3,5 +3,6 @@ export enum GuiMode {
     Annotate = "annotate",
     Measure = "measure",
     Signature = "signature",
+    Images = "images",
     Compare = "compare",
 }

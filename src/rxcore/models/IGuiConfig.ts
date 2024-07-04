@@ -2,6 +2,10 @@ export interface IGuiConfig {
     canAnnotate?: boolean;
     canConsolidate?: boolean;
     canSignature?: boolean;
+    disableImages?: boolean;
+    disableSymbol?: boolean;
+    disableLinks?: boolean;
+    disableSignature?: boolean;
     canFileOpen?: boolean;
     canCompare?: boolean;
     canPrint?: boolean;

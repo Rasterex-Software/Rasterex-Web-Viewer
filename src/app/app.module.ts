@@ -68,6 +68,11 @@ import { BlocksComponent } from './components/side-nav-menu/blocks/blocks.compon
 import { AnnotationShapeIconComponent } from './components/annotation-tools/annotation-shape-icon/annotation-shape-icon.component';
 import { MeasureDetailPanelComponent } from './components/annotation-tools/measure-detail-panel/measure-detail-panel.component';
 import { ToastrModule } from 'ngx-toastr';
+import { ImageLibraryComponent } from './components/image-library/image-library.component';
+import { ImageDragDropDirective } from './components/image-library/image-draggable.directive';
+import { SymbolsLibraryComponent } from './components/annotation-tools/symbols-library/symbols-library.component';
+import { LinksLibraryComponent } from './components/annotation-tools/links-library/links-library.component';
+import { LinkDragDropDirective } from './components/annotation-tools/links-library/link-draggable.directive';
 
 
 @NgModule({
@@ -127,6 +132,11 @@ import { ToastrModule } from 'ngx-toastr';
     BlocksComponent,
     AnnotationShapeIconComponent,
     MeasureDetailPanelComponent,
+    ImageLibraryComponent,
+    ImageDragDropDirective,
+    SymbolsLibraryComponent,
+    LinksLibraryComponent,
+    LinkDragDropDirective
 
   ],
   imports: [

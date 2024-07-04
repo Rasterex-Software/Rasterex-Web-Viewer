@@ -1,0 +1,27 @@
+<rx-panel [title]="'Images'" (onClose)="onPanelClose()">
+  <div class="library-panel-container">
+ 
+    
+    <section >
+      <div class="templates-list">
+        <div *ngFor="let template of images; let i = index" style="display: flex; align-items: center;" class="image-container">
+          <img
+          [imageTemplate]="template"
+          [src]="template.src"
+          [ngStyle]="{ 'width.px': template.width, 'height.px': template.height }" />
+          <button (click)="deleteImage(i)" style="border: none; background: none; cursor: pointer; padding: 0; margin-left: 8px;">
+            <img src="/assets/images/trash-ico.svg" />
+          </button>
+        </div> 
+      </div>
+    </section>
+    
+    <div>
+      <input type="file" #fileUpload (change)="handleImageUpload($event)" style="display: none;">
+      <button type="button" id="upload_button" class="btn btn-primary" (click)="fileUpload.click()">Upload Image</button>
+    </div>
+    
+  </div>
+</rx-panel>
+
+ 

@@ -1,75 +1,265 @@
 <rx-panel [title]="'Stamp'" (onClose)="onPanelClose()">
-  <div class="stamp-panel-container">
+    <div class="stamp-panel-container">
+      <!-- Tab Buttons -->
+      <div class="btn-group" id="tabs" role="group">
+        <button [class.selected]="activeIndexStamp === 0" (click)="activeIndexStamp = 0">Templates</button>
+        <button [class.selected]="activeIndexStamp === 1" (click)="activeIndexStamp = 1">Custom</button>
+        <button [class.selected]="activeIndexStamp === 2" (click)="activeIndexStamp = 2">Interactive</button>
+      </div>
+  
+      <!-- Templates Section -->
+      <section *ngIf="activeIndexStamp === 0">
+        <div class="templates-list">
+          <div *ngFor="let template of templates;">
+            <img [stampTemplate]="template" [src]="template.src" [ngStyle]="{ 'width.px': template.width, 'height.px': template.height }" />
+          </div>
+        </div>
+      </section>
+  
+      <!-- Custom Section -->
+      <section *ngIf="activeIndexStamp === 1">
+        <div class="templates-list">
+          <div *ngFor="let template of customStampes;let i = index" style="display: flex; align-items: center;">
+   
+            <img [stampTemplate]="template" [src]="template.src" [ngStyle]="{ 'width.px': template.width, 'height.px': template.height }" style="margin: 2px;">
+            <button (click)="deleteCustomStamp(i)" style="border: none; background: none; cursor: pointer; padding: 0; margin-left: 8px;">
+              <img src="/assets/images/trash-ico.svg" />
+            </button>
+          </div>
+        </div>
+        <div class="add-custom-stamp">
+          <button class="btn btn-primary" (click)="opened = true">Create Custom Stamp</button>
+        </div>
+      </section>
 
-    <rx-accordion [collapsing]="false">
-      <rx-accordion-item *ngIf="true" [title]="'Custom Stamps'">
-        <ng-template accordionContent>
-          <section>
-            <button type="button" class="btn btn-primary" (click)="opened = true">Add New</button>
-            <div class="templates-list">
-              <img *ngFor="let template of customTemplates;" [stampTemplate]="template" [src]="template.src"
-                [ngStyle]="{ 'width.px': template.width, 'height.px': template.height }" />
-            </div>
-          </section>
+      <!-- Interactive Section -->
+      <section *ngIf="activeIndexStamp === 2">
+        <div class="templates-list">
+          <div *ngFor="let template of interactiveStampes;let i = index" style="display: flex; align-items: center;" >
+            <img [stampTemplate]="template" [src]="template.src" [ngStyle]="{ 'width.px': template.width, 'height.px': template.height }" style="margin: 2px;">
+            <button (click)="deleteInteractiveStamp(i)" style="border: none; background: none; cursor: pointer; padding: 0; margin-left: 8px;">
+              <img src="/assets/images/trash-ico.svg" />
+            </button>
+          </div>
+        </div>
+        <div class="add-custom-stamp">
+          <button class="btn btn-primary" (click)="interactiveStampOpened = true">Create Interactive Stamp</button>
+        </div>
+      </section>
+      
+      
+    </div>
+  </rx-panel>
+  
 
-        </ng-template>
-      </rx-accordion-item>
-      <rx-accordion-item [title]="'Standard Stamps'">
-        <ng-template accordionContent>
-          <section>
-            <div class="templates-list">
-              <img *ngFor="let template of templates;" [stampTemplate]="template" [src]="template.src"
-                [ngStyle]="{ 'width.px': template.width, 'height.px': template.height }" />
-            </div>
-          </section>
-        </ng-template>
+  <rx-modal-dialog [opened]="opened" (onClose)="opened = false">
+    <div class="confirm-modal-container" id="confirmModal">
+      <div class="rx-modal-dialog-header">
+        <img (click)="opened = false;" class="close" id="close" src="/assets/images/close-modal-ico.svg" />
+        <span class="title">Add stamp</span>
+      </div>
+      <!-- Preview -->
+      <div id="preview">
+        <svg [attr.width]="svgWidth" [attr.height]="svgHeight">
+          <rect [attr.x]="strokeWidth / 2" [attr.y]="strokeWidth / 2" [attr.width]="svgWidth - strokeWidth" [attr.height]="svgHeight - strokeWidth" fill="none" [attr.stroke]="strokeColor" [attr.stroke-width]="strokeWidth" [attr.rx]="strokeRadius" [attr.ry]="strokeRadius"/>
+          <text [attr.x]="textX" [attr.y]="svgHeight / 2" text-anchor="middle" alignment-baseline="middle">
+            <tspan [attr.style]="textStyle">{{ stampText }}</tspan>
+            <tspan *ngIf="hasTimestampp" [attr.x]="textX" dy="2.2em" [attr.style]="subtleTextStyle">{{ timestampText }}</tspan>
+          </text>
+        </svg>
+      </div>
+  
+      <div id="body" class="body">
+        <div class="btn-group" role="group">
+          <button [class.selected]="activeIndex == 0" (click)="activeIndex = 0">Text</button>
+          <button [class.selected]="activeIndex == 1" (click)="activeIndex = 1">Stroke</button>
+        </div>
+        <div *ngIf="activeIndex == 0">
+          <label for="stampText">Stamp Text:</label>
+          <div id="stampText">
+            <input id="stampText" [(ngModel)]="stampText" (input)="updateSvg()"/>
+          </div>
+        </div>
+  
+        <rx-accordion  *ngIf="activeIndex == 0">
+          <rx-accordion-item  [title]="'Text Style'">
+              <ng-template accordionContent>
+                  <rx-text-style-select
+                  [value]="font"
+                  (valueChange)="onTextStyleSelect($event)"
+                  [showFontSize]="true"
+                  >
+              </rx-text-style-select>
+              </ng-template>
+          </rx-accordion-item>
+          <rx-accordion-item [title]="'Colors'">
+              <ng-template accordionContent>
+                  <rx-color-picker
+                      [value]="color"
+                      (valueChange)="onColorSelect($event)">
+                  </rx-color-picker>
+              </ng-template>
+          </rx-accordion-item>
+          <!-- <rx-accordion-item   [title]="'Opacity'">
+              <ng-template accordionContent>
+                  <div class="slider-container">
+                      <ngx-slider
+                          class="slider"
+                          [(value)]="fillOpacity"
+                          [options]="{floor: 0, ceil: 100, hideLimitLabels: true, hidePointerLabels: true, showSelectionBar: true }"
+                          (userChange)="onFillOpacityChange()">
+                      </ngx-slider>
+                      <span class="value">{{fillOpacity}}%</span>
+                  </div>
+              </ng-template>
+          </rx-accordion-item> -->
+          <rx-accordion-item   [title]="'TimeStamp Text'">
+            <ng-template accordionContent>
+              <div *ngIf="activeIndex == 0" id="custom-checkbox-container">
+                  <label for="username">Username:
+                      <input id="username" type="checkbox" [(ngModel)]="username" (change)="updateSvg()">
+                  </label>
+                  <label for="date">Date:
+                      <input id="date" type="checkbox" [(ngModel)]="date" (change)="updateSvg()">
+                  </label>
+                  <label for="time">Time:
+                      <input id="time" type="checkbox" [(ngModel)]="time" (change)="updateSvg()">
+                  </label>
+              </div>
+          </ng-template>          
+        </rx-accordion-item>
+
+      </rx-accordion>
+        <!-- <div *ngIf="activeIndex == 0">
+          <label for="fontStyle">Font Style:</label>
+          <div class="select-wrapper" style="width: 100%; margin: 5px;">
+            <select id="fontStyle" [(ngModel)]="selectedFontStyle" (change)="updateSvg()">
+              <option value="Arial">Arial</option>
+              <option value="Times New Roman">Times New Roman</option>
+              <option value="Verdana">Verdana</option>
+              <option value="Helvetica">Helvetica</option>
+              <option value="Tahoma">Tahoma</option>
+              <option value="Georgia">Georgia</option>
+              <option value="Courier New">Courier New</option>
+              <option value="Impact">Impact</option>
+              <option value="Comic Sans MS">Comic Sans MS</option>
+            </select>
+          </div>
+        </div>
+  
+        <div *ngIf="activeIndex == 0" class="custom-checkboxes" style="display: flex;">
+          <label for="bold" style="display: flex; align-items: center; margin-right: 5px;">
+            <input id="bold" type="checkbox" [(ngModel)]="isBold" (change)="updateSvg()">
+            <img src="/assets/bold.svg" alt="Bold" width="16" height="14" style="margin-left: 3px;">
+          </label>
+          <label for="italic" style="display: flex; align-items: center; margin-right: 5px;">
+            <input id="italic" type="checkbox" [(ngModel)]="isItalic" (change)="updateSvg()">
+            <img src="/assets/italic.svg" alt="Italic" width="16" height="24" style="margin-left: 3px;">
+          </label>
+          <label for="underline" style="display: flex; align-items: center; margin-right: 5px;">
+            <input id="underline" type="checkbox" [(ngModel)]="isUnderline" (change)="updateSvg()">
+            <img src="/assets/underlined.svg" alt="Underline" width="16" height="14" style="margin-left: 3px;">
+          </label>
+        </div> -->
+  
+    
+  
+        <div *ngIf="activeIndex == 1">
+          <label for="strokeWidth">Stroke Width:</label>
+          <input id="strokeWidth" type="number" [(ngModel)]="strokeWidth" (input)="updateSvg()" />
+        </div>
+         <div *ngIf="activeIndex == 1" class="form-group">
+          <label for="strokeRadius">Stroke Radius:</label>
+          <input id="strokeRadius" type="number" [(ngModel)]="strokeRadius" (input)="updateSvg()" />
+        </div>
+      <rx-accordion *ngIf="activeIndex == 1">
+        <rx-accordion-item [title]="'Colors'">
+          <ng-template id="color-picker" accordionContent>
+              <rx-color-picker
+                  [value]="color"
+                  (valueChange)="onStrokeColorSelect($event)">
+              </rx-color-picker>
+          </ng-template>
       </rx-accordion-item>
     </rx-accordion>
 
-  </div>
-</rx-panel>
+      </div>
+        <div class="footer">
+          <button (click)="opened = false;" class="btn btn-light">CANCEL</button>
+          <button (click)="uploadCustomStamp()" class="btn btn-primary">SAVE</button>
+        </div>
+    </div>
+  </rx-modal-dialog>
 
-<rx-modal-dialog #addDialog [opened]="opened">
-  <div class="confirm-modal-container" style="max-width: fit-content;">
-    <div class="rx-modal-dialog-header">
-      <img (click)="opened = false;" class="close" style="right: 14px; top: 10px;"
-        src="/assets/images/close-modal-ico.svg" />
-      <span class="title">Add stamp</span>
-    </div>
-    <div class="body" style="width: 364px; box-sizing: border-box;">
-      <!-- <div class="btn-group" role="group">
-        <button [class.selected]="activeIndex == 0" (click)="activeIndex=0">Text</button>
-        <button [class.selected]="activeIndex == 1" (click)="activeIndex=1">Stroke</button>
-        <button [class.selected]="activeIndex == 2" (click)="activeIndex=2">Fill</button>
-      </div> -->
-      <button class="btn btn-primary" [disabled]="!(height || width)"
-        onclick="document.getElementById('sampLoader').click();">Select Image
-      </button>
-      <br>
-      <img [src]="previewSrc" [style.height.px]="height" [style.width.px]="width" alt="Select Image" />
-      <div class="slider-container">
-        <span class="label">Height </span>
-        <ngx-slider class="slider" [(value)]="height"
-          [options]="{floor: 20, ceil: 150, hideLimitLabels: true, hidePointerLabels: true, showSelectionBar: true }">
-        </ngx-slider>
-        <span class="value">{{height}}px </span>
+  <rx-modal-dialog [opened]="interactiveStampOpened" (onClose)="interactiveStampOpened = false">
+    <div class="confirm-modal-container" id="confirmModal">
+      <div class="rx-modal-dialog-header">
+        <img (click)="interactiveStampOpened = false;" class="close" id="close" src="/assets/images/close-modal-ico.svg" />
+        <span class="title">Add Interactive Stamp</span>
       </div>
-      <div class="slider-container">
-        <span class="label">Width </span>
-        <ngx-slider class="slider" [(value)]="width"
-          [options]="{floor: 20, ceil: 150, hideLimitLabels: true, hidePointerLabels: true, showSelectionBar: true }">
-        </ngx-slider>
-        <span class="value">{{width}}px </span>
+  
+      <div id="stampText" class="body">
+        <div class="form-container">
+          <div class="header">
+            <div class="company-name">
+              <label for="companyName">Company Name</label>
+              <input type="text" id="companyName" [(ngModel)]="form.companyName">
+            </div>
+            <div class="company-logo">
+              <label >Company Logo</label>
+              <input  type="file" (change)="onLogoSelected($event)" />
+              <!-- <img *ngIf="form.companyLogo" [src]="form.companyLogo" alt="Company Logo" class="company-logo-image" /> -->
+            </div>
+          </div>
+          <div class="status">
+            <div>
+              <input type="checkbox" id="approved" [(ngModel)]="form.approved">
+              <label for="approved">APPROVED</label>
+            </div>
+            <div>
+              <input type="checkbox" id="revise" [(ngModel)]="form.revise">
+              <label for="revise">REVISE</label>
+            </div>
+            <div>
+              <input type="checkbox" id="rejected" [(ngModel)]="form.rejected">
+              <label for="rejected">REJECTED</label>
+            </div>
+          </div>
+          <div class="details">
+            <div class="row">
+              <div>
+                <label for="by">BY</label>
+                <input type="text" id="by" [(ngModel)]="form.by">
+              </div>
+              <div>
+                <label for="date">DATE</label>
+                <input type="date" id="date" [(ngModel)]="form.date">
+              </div>
+            </div>
+            <div class="row">
+              <div>
+                <label for="submittal">SUBMITTAL#</label>
+                <input type="text" id="submittal" [(ngModel)]="form.submittal">
+              </div>
+              <div>
+                <label for="spec">SPEC</label>
+                <input type="text" id="spec" [(ngModel)]="form.spec">
+              </div>
+            </div>
+          </div> 
+        </div>
       </div>
-      <!-- <input name="height" type="number" [(ngModel)]="height" />
-      <input name="height" type="number" [(ngModel)]="width" /> -->
-      <input type="file" id="sampLoader" name="sampLoader" (change)="handleImage($event)" accept="image/*"
-        style="display:none;" />
+  
+      <div class="footer">
+        <button (click)="interactiveStampOpened = false;" class="btn btn-light">CANCEL</button>
+        <button (click)="uploadInteractiveStamp()" class="btn btn-primary">SAVE</button>
+      </div>
     </div>
-    <div class="footer">
-      <button (click)="opened = false;" class="btn btn-light">CANCEL</button>
-      <button class="btn btn-primary" [disabled]="!(height && width && previewSrc)" (click)="addCustomStamp()">SAVE
-      </button>
-    </div>
-  </div>
-</rx-modal-dialog>
+  </rx-modal-dialog>
+  
+
+
+
+ 
+  
+  

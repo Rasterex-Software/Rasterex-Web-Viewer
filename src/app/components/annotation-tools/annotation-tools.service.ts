@@ -74,4 +74,19 @@ export class AnnotationToolsService {
     this._snapState.next(any);
   }
 
+  private _imagePanelState: BehaviorSubject<any> = new BehaviorSubject<any>({});
+  public imagePanelState$: Observable<any> = this._imagePanelState.asObservable();
+  public setImagePanelState(any): void {
+    this._imagePanelState.next(any);
+  }
+  private _symbolPanelState: BehaviorSubject<any> = new BehaviorSubject<any>({});
+  public symbolPanelState$: Observable<any> = this._symbolPanelState.asObservable();
+  public setSymbolPanelState(any): void {
+    this._symbolPanelState.next(any);
+  }
+  private _linkPanelState: BehaviorSubject<any> = new BehaviorSubject<any>({});
+  public linkPanelState$: Observable<any> = this._linkPanelState.asObservable();
+  public setLinksPanelState(any): void {
+    this._linkPanelState.next(any);
+  }
 }

@@ -393,6 +393,56 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
 
 
         
+        var fontMapsInfo = [
+            {
+                    "name": "Arial", //The font face name
+                    "style": 32 , //The font styles
+                    "charset": 0 //The charset of the font
+            },
+            {
+                    "name": "Arial bold", //The font face name
+                    "style": 32 , //The font styles
+                    "charset": 0 //The charset of the font
+            },
+            {
+                    "name": "Arial bold italic", //The font face name
+                    "style": 32 , //The font styles
+                    "charset": 0 //The charset of the font
+            },
+            {
+                    "name": "Arial italic", //The font face name
+                    "style": 32 , //The font styles
+                    "charset": 0 //The charset of the font
+            },
+            {
+                    "name": "Arial black", //The font face name
+                    "style": 32 , //The font styles
+                    "charset": 0 //The charset of the font
+            },
+            {
+                "name": "Times New Roman", //The font face name
+                "style": 32 , //The font styles
+                "charset": 0 //The charset of the font
+            },
+            {
+                "name": "Times New Roman bold", //The font face name
+                "style": 32 , //The font styles
+                "charset": 0 //The charset of the font
+            },
+            {
+                "name": "Times New Roman bold italic", //The font face name
+                "style": 32 , //The font styles
+                "charset": 0 //The charset of the font
+            },
+            {
+                "name": "Times New Roman italic", //The font face name
+                "style": 32 , //The font styles
+                "charset": 0 //The charset of the font
+            }
+
+
+        ]
+            
 
 
         foxview.pdfViewer = new foxview.PDFViewer({
@@ -411,6 +461,12 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
 
         foxview.pdfViewer.config.noJSFrame = true;
         foxview.pdfViewer.init(szdivhashid);
+
+        if (foxview.pdfViewer) {
+            foxview.pdfViewer.setJRFontMap(fontMaps).then(function (_) {
+                foxview.pdfViewer.addFontMaps(fontMapsInfo);
+            });
+        }
 
 
         if (foxview.pdfViewer) {

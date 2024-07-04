@@ -20,6 +20,7 @@ export class SignaturePanelComponent implements OnInit {
 
   onAddClick(): void {
     this.signatureService.adoptSignatureOpened.next({ opened: true, mode: 'create' });
+    console.log('Add button clicked!');
   }
 
   onEditClick(item: ISignatureData): void {

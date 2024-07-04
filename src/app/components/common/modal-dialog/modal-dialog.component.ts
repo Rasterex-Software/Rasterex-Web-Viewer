@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewEncapsulation, Input, ElementRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewEncapsulation, Input, ElementRef, EventEmitter, Output } from '@angular/core';
 
 @Component({
   selector: 'rx-modal-dialog',
@@ -8,6 +8,7 @@ import { Component, OnInit, OnDestroy, ViewEncapsulation, Input, ElementRef } fr
 export class ModalDialogComponent implements OnInit, OnDestroy {
   @Input() opened: boolean = true;
   @Input() position: { top, right };
+  @Output() onClose: EventEmitter<void> = new EventEmitter<void>();
 
   constructor(private element: ElementRef) { }
 
@@ -19,4 +20,7 @@ export class ModalDialogComponent implements OnInit, OnDestroy {
     this.element.nativeElement.remove();
   }
 
+  close(): void {
+    this.onClose.emit();
+  }
 }

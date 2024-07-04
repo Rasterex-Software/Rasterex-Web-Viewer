@@ -1,6 +1,7 @@
 <div class="annotation-tools-container">
-    <div *ngIf="opened$ | async" class="annotation-toolbar-menu-container">
-        <ul class="toolbar-menu">
+    <div *ngIf="opened$ | async" class="annotation-toolbar-menu-container"> 
+
+        <ul   class="toolbar-menu">
             <li
                 *ngIf="!(guiConfig$ | async).disableMarkupTextButton"
                 class="tooltip"
@@ -368,6 +369,42 @@
 
             </li>
 
+            <li *ngIf="!(guiConfig$ | async).disableImages" 
+            class="tooltip"
+            [class.selected]="isActionSelected['IMAGES_LIBRARY']"
+            (click)="onActionSelect('IMAGES_LIBRARY')">
+            <svg fill="#000000" height="20" width="20" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
+            viewBox="0 0 489.4 489.4" xml:space="preserve"><g><g><path d="M0,437.8c0,28.5,23.2,51.6,51.6,51.6h386.2c28.5,0,51.6-23.2,51.6-51.6V51.6c0-28.5-23.2-51.6-51.6-51.6H51.6
+                   C23.1,0,0,23.2,0,51.6C0,51.6,0,437.8,0,437.8z M437.8,464.9H51.6c-14.9,0-27.1-12.2-27.1-27.1v-64.5l92.8-92.8l79.3,79.3
+                   c4.8,4.8,12.5,4.8,17.3,0l143.2-143.2l107.8,107.8v113.4C464.9,452.7,452.7,464.9,437.8,464.9z M51.6,24.5h386.2
+                   c14.9,0,27.1,12.2,27.1,27.1v238.1l-99.2-99.1c-4.8-4.8-12.5-4.8-17.3,0L205.2,333.8l-79.3-79.3c-4.8-4.8-12.5-4.8-17.3,0
+                   l-84.1,84.1v-287C24.5,36.7,36.7,24.5,51.6,24.5z"/>
+               <path d="M151.7,196.1c34.4,0,62.3-28,62.3-62.3s-28-62.3-62.3-62.3s-62.3,28-62.3,62.3S117.3,196.1,151.7,196.1z M151.7,96
+                   c20.9,0,37.8,17,37.8,37.8s-17,37.8-37.8,37.8s-37.8-17-37.8-37.8S130.8,96,151.7,96z"/></g></g></svg>
+                <span class="tooltip-text tooltip-left">Images</span>
+            </li>
+            <li *ngIf="!(guiConfig$ | async).disableMarkupLockButton" 
+            class="tooltip"
+            [class.selected]="isActionSelected['LINKS_LIBRARY']"
+            (click)="onActionSelect('LINKS_LIBRARY')">
+            <svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="20" height="20" 
+            viewBox="0 0 457.03 457.03" style="enable-background:new 0 0 457.03 457.03;" xml:space="preserve">
+            <g><path d="M421.512,207.074l-85.795,85.767c-47.352,47.38-124.169,47.38-171.529,0c-7.46-7.439-13.296-15.821-18.421-24.465 l39.864-39.861c1.895-1.911,4.235-3.006,6.471-4.296c2.756,9.416,7.567,18.33,14.972,25.736c23.648,23.667,62.128,23.634,85.762,0 l85.768-85.765c23.666-23.664,23.666-62.135,0-85.781c-23.635-23.646-62.105-23.646-85.768,0l-30.499,30.532 c-24.75-9.637-51.415-12.228-77.373-8.424l64.991-64.989c47.38-47.371,124.177-47.371,171.557,0 C468.869,82.897,468.869,159.706,421.512,207.074z M194.708,348.104l-30.521,30.532c-23.646,23.634-62.128,23.634-85.778,0 c-23.648-23.667-23.648-62.138,0-85.795l85.778-85.767c23.665-23.662,62.121-23.662,85.767,0 c7.388,7.39,12.204,16.302,14.986,25.706c2.249-1.307,4.56-2.369,6.454-4.266l39.861-39.845 c-5.092-8.678-10.958-17.03-18.421-24.477c-47.348-47.371-124.172-47.371-171.543,0L35.526,249.96 c-47.366,47.385-47.366,124.172,0,171.553c47.371,47.356,124.177,47.356,171.547,0l65.008-65.003 C246.109,360.336,219.437,357.723,194.708,348.104z" fill="#333C4E"/></g></svg>
+        
+       
+                <span class="tooltip-text tooltip-left">Links and Attachments</span>
+            </li>
+            <li *ngIf="!(guiConfig$ | async).disableMarkupLockButton" 
+            class="tooltip"
+            [class.selected]="isActionSelected['SYMBOLS_LIBRARY']"
+            (click)="onActionSelect('SYMBOLS_LIBRARY')"> 
+            <svg width="20" height="20" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                <g id="🔍-Product-Icons" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                    <g id="ic_fluent_select_all_24_regular" fill="#212121" fill-rule="nonzero">
+                        <path d="M20.4961766,5.62668182 C21.3720675,5.93447702 22,6.76890777 22,7.75 L22,17.75 C22,20.0972102 20.0972102,22 17.75,22 L7.75,22 C6.76890777,22 5.93447702,21.3720675 5.62668182,20.4961766 L7.72396188,20.4995565 L17.75,20.5 C19.2687831,20.5 20.5,19.2687831 20.5,17.75 L20.5,7.75 L20.4960194,7.69901943 L20.4961766,5.62668182 Z M17.246813,2 C18.4894537,2 19.496813,3.00735931 19.496813,4.25 L19.496813,17.246813 C19.496813,18.4894537 18.4894537,19.496813 17.246813,19.496813 L4.25,19.496813 C3.00735931,19.496813 2,18.4894537 2,17.246813 L2,4.25 C2,3.00735931 3.00735931,2 4.25,2 L17.246813,2 Z M17.246813,3.5 L4.25,3.5 C3.83578644,3.5 3.5,3.83578644 3.5,4.25 L3.5,17.246813 C3.5,17.6610266 3.83578644,17.996813 4.25,17.996813 L17.246813,17.996813 C17.6610266,17.996813 17.996813,17.6610266 17.996813,17.246813 L17.996813,4.25 C17.996813,3.83578644 17.6610266,3.5 17.246813,3.5 Z M9.58114564,11.3581942 L13.4696699,7.46966991 C13.7625631,7.1767767 14.2374369,7.1767767 14.5303301,7.46966991 C14.7965966,7.73593648 14.8208027,8.15260016 14.6029482,8.44621165 L14.5303301,8.53033009 L10.0303301,13.0303301 C9.73449239,13.3261678 9.26134027,13.3189471 8.97360394,13.0344464 L8.9,12.95 L7.4,10.95 C7.15147186,10.6186292 7.21862915,10.1485281 7.55,9.9 C7.85124623,9.67406533 8.26714548,9.7090277 8.52699676,9.96621555 L8.6,10.05 L9.58114564,11.3581942 L13.4696699,7.46966991 L9.58114564,11.3581942 Z" id="🎨-Color">
+             </path></g></g></svg>
+                <span class="tooltip-text tooltip-left">Symbols</span>
+            </li>
             <li *ngIf="!(guiConfig$ | async).disableMarkupLockButton" 
             class="tooltip"
             [class.selected]="isActionSelected['MARKUP_LOCK']"
@@ -381,7 +418,7 @@
                 <span class="tooltip-text tooltip-left">Lock Annotations</span>
             </li>
         </ul>
-
+        <!-- <rx-signature-panel *ngIf="!(guiConfig$ | async).disableImages" ></rx-signature-panel> -->
         <ul *ngIf="!(guiConfig$ | async).disableMarkupUndoRedoButtons" class="toolbar-menu">
             <li
                 class="tooltip"
@@ -409,6 +446,9 @@
         <rx-erase-panel></rx-erase-panel>
         <rx-count-panel *ngIf="isActionSelected['COUNT']"></rx-count-panel>
         <rx-stamp-panel *ngIf="isActionSelected['STAMP']" (onClose)="onActionSelect('STAMP')"></rx-stamp-panel>
+        <rx-image-library *ngIf="isActionSelected['IMAGES_LIBRARY']" (onClose)="onActionSelect('IMAGES_LIBRARY')"></rx-image-library>
+        <rx-symbols-library *ngIf="isActionSelected['SYMBOLS_LIBRARY']" (onClose)="onActionSelect('SYMBOLS_LIBRARY')"></rx-symbols-library>
+        <rx-links-library *ngIf="isActionSelected['LINKS_LIBRARY']" (onClose)="onActionSelect('LINKS_LIBRARY')"></rx-links-library>
         <rx-measure-panel></rx-measure-panel>
         <rx-measure-detail-panel></rx-measure-detail-panel>
     </div>

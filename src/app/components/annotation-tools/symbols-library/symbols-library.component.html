@@ -1,0 +1,28 @@
+<rx-panel [title]="'Symbols'" (onClose)="onPanelClose()">
+  <div class="library-panel-container">
+    <!-- Tab Buttons -->
+    <div class="btn-group" role="group">
+    </div>
+    <section >
+      <div class="templates-list">
+        <div *ngFor="let template of symbols; let i=index" class="stamp-container"  style="display: flex; align-items: center;">
+          <img
+          [imageTemplate]="template"
+          [src]="template.src"
+          [ngStyle]="{ 'width.px': template.width, 'height.px': template.height }" />
+          <button (click)="deleteSymbol(i)" style="border: none; background: none; cursor: pointer; padding: 0; margin-left: 8px;">
+            <img src="/assets/images/trash-ico.svg" />
+          </button>
+        </div> 
+      </div>
+    </section>
+    
+    <div>
+      <input type="file" #fileUpload (change)="handleSymbolsUpload($event)" style="display: none;">
+      <button type="button" id="upload_button" class="btn btn-primary" (click)="fileUpload.click()">Upload Symbols</button>
+    </div>
+    
+  </div>
+</rx-panel>
+
+

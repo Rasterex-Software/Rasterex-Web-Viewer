@@ -203,7 +203,7 @@ export class TextStyleSelectComponent {
     font: 'Arial',
     size: 18
   };
-
+@Input() showFontSize :boolean =false;
   @Output() valueChange: EventEmitter<any> = new EventEmitter<any>();
 
   onFontStyleSelect(style: string): void {

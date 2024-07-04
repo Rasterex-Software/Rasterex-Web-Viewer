@@ -37,6 +37,9 @@ export class AnnotationToolsComponent implements OnInit {
     "COUNT": false,
     "STAMP": false,
     "SCALE_SETTING": false,
+    "IMAGES_LIBRARY": false,
+    "SYMBOLS_LIBRARY": false,
+    "LINKS_LIBRARY": false,
     "CALIBRATE": false,
     "MEASURE_LENGTH": false,
     "MEASURE_AREA": false,
@@ -103,9 +106,6 @@ export class AnnotationToolsComponent implements OnInit {
       if (operation.start) {
         this._deselectAllActions();
       }
-      
-
-      
     });
 
     this.rxCoreService.guiMarkup$.subscribe(({markup, operation}) => {
@@ -142,6 +142,15 @@ export class AnnotationToolsComponent implements OnInit {
         // this.onActionSelect('SCALE_SETTING');    
         this.isActionSelected['SCALE_SETTING'] = true;
       }*/  
+    });
+    this.service.imagePanelState$.subscribe(state => {
+      this.isActionSelected['IMAGES_LIBRARY'] = state.visible;
+    });
+    this.service.symbolPanelState$.subscribe(state => {
+      this.isActionSelected['SYMBOLS_LIBRARY'] = state.visible;
+    });
+    this.service.linkPanelState$.subscribe(state => {
+      this.isActionSelected['LINKS_LIBRARY'] = state.visible;
     });
 
 
@@ -283,6 +292,16 @@ export class AnnotationToolsComponent implements OnInit {
 
       case 'SCALE_SETTING':
           this.service.setMeasurePanelState({ visible: this.isActionSelected[actionName] });
+          break;
+
+      case 'IMAGES_LIBRARY':
+          this.service.setImagePanelState({ visible: this.isActionSelected[actionName] });
+          break;
+      case 'LINKS_LIBRARY':
+          this.service.setLinksPanelState({ visible: this.isActionSelected[actionName] });
+          break;
+      case 'SYMBOLS_LIBRARY':
+          this.service.setSymbolPanelState({ visible: this.isActionSelected[actionName] });
           break;
   
       /*case 'CALIBRATE':

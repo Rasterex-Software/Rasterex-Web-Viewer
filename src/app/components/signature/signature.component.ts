@@ -239,7 +239,7 @@ export class SignatureComponent implements OnInit {
       RXCore.deleteMarkUp();
     }
 
-    //RXCore.gotoPage(0);
+    RXCore.gotoPage(0);
 
     this.applyPanelOpened = false;
     this.confirmDismissOpened = false;

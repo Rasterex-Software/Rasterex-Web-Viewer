@@ -45,6 +45,7 @@ export class TopNavMenuComponent implements OnInit {
   selectedValue: any;
   options: Array<{ value: GuiMode, label: string, hidden?: boolean }> = [];
   canChangeSign: boolean = false;
+  // disableImages: boolean = false;
   containLayers: boolean = false;
   containBlocks: boolean = false;
   isActionSelected: boolean = false;
@@ -223,7 +224,11 @@ export class TopNavMenuComponent implements OnInit {
           disableMarkupShapeEllipseButton: true,
           disableMarkupShapeRoundedRectangleButton: true,
           disableMarkupShapePolygonButton: true,
-          enableGrayscaleButton: this.compareService.isComparisonActive
+          enableGrayscaleButton: this.compareService.isComparisonActive,
+          // disableImages: true,
+          // disableSignature: true,
+          // disableLinks: true,
+          // disableSymbol: true,
         });
       } else {
 
@@ -257,7 +262,11 @@ export class TopNavMenuComponent implements OnInit {
             disableMarkupShapeEllipseButton: false,
             disableMarkupShapeRoundedRectangleButton: false,
             disableMarkupShapePolygonButton: false,
-            enableGrayscaleButton: this.compareService.isComparisonActive
+            enableGrayscaleButton: this.compareService.isComparisonActive,
+            // disableImages: true,
+            // disableSignature: true,
+            // disableLinks: true,
+            // disableSymbol: true,
           });
         } else {
 
@@ -276,12 +285,17 @@ export class TopNavMenuComponent implements OnInit {
               disableMarkupPaintButton: true,
               disableMarkupArrowButton: true,
               disableMarkupCountButton: false,
-              disableMarkupMeasureButton: false
+              disableMarkupMeasureButton: false,
+              // disableImages: true,
+              // // disableSignature: true,
+              // disableLinks: true,
+              // disableSymbol: true,
             });
             this.annotationToolsService.setMeasurePanelState({ visible: true }); 
             
   
-          } else if(option.value === 'annotate'){
+          }
+          else if(option.value === 'annotate'){
             this.rxCoreService.setGuiConfig({
               disableMarkupTextButton: false,
               disableMarkupCalloutButton: false,
@@ -296,10 +310,35 @@ export class TopNavMenuComponent implements OnInit {
               disableMarkupPaintButton: false,
               disableMarkupArrowButton: false,
               disableMarkupCountButton: true,
-              disableMarkupMeasureButton: true
+              disableMarkupMeasureButton: true,
+              // disableImages: false, 
+              // disableLinks: false,
+              // disableSymbol: false,
             });
+            
+          }
+          // else if(option.value === 'images'){
+          //   this.rxCoreService.setGuiConfig({
+          //     disableMarkupTextButton: true,
+          //     disableMarkupCalloutButton: true,
+          //     disableMarkupEraseButton: true,
+          //     disableMarkupNoteButton: true,
+          //     disableMarkupShapeButton : true,
+          //     disableMarkupStampButton: true,
+          //     disableMarkupPaintButton: true,
+          //     disableMarkupArrowButton: true,
+          //     disableMarkupCountButton: true,
+          //     disableMarkupMeasureButton: true,
+          //     disableMarkupUndoRedoButtons: true, 
+          //     disableMarkupLockButton: true, 
+          //     // disableImages: true,
+          //     // disableSignature: true,
+          //     // disableLinks: true,
+          //     // disableSymbol: true
+          //   });
 
-          }else{
+          //           }
+                    else{
             this.rxCoreService.resetGuiConfig();
           }
   

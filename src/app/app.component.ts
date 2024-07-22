@@ -22,8 +22,9 @@ export class AppComponent implements AfterViewInit {
   eventUploadFile: boolean = false;
   lists: any[] = [];
   state: any;
-  bfoxitreadycalled : boolean = true;
+  bfoxitreadycalled : boolean = false;
   bguireadycalled : boolean = false;
+  binitfileopened : boolean = false;
   timeoutId: any;
   pasteStyle: { [key: string]: string } = { display: 'none' };
 
@@ -54,7 +55,7 @@ export class AppComponent implements AfterViewInit {
       }
     ];
 
-
+    
     RXCore.setJSONConfiguration(JSNObj);
 
     RXCore.usePanToMarkup(true);
@@ -71,42 +72,51 @@ export class AppComponent implements AfterViewInit {
     RXCore.setLineWidth(4);
     RXCore.setGlobalStyle(false);
 
+    RXCore.useNoScale(false);
+    RXCore.useFixedScale(false);
 
 
     RXCore.initialize({ offsetWidth: 0, offsetHeight: 0});
 
 
-    RXCore.onGuiReady(() => {
+    RXCore.onGuiReady((initialDoc: any) => {
 
       this.bguireadycalled = true;
+      this.bfoxitreadycalled = true;
+
       console.log('RxCore GUI_Ready.');
       console.log(`Read Only Mode - ${RXCore.getReadOnly()}.`);
       RXCore.setdisplayBackground(document.documentElement.style.getPropertyValue("--background") || '#D6DADC');
       RXCore.setrxprintdiv(document.getElementById('printdiv'));
-    });
 
-    RXCore.onGuiFoxitReady(() => {
 
-      /*if(!this.bguireadycalled){
+      
+
+      if(this.bfoxitreadycalled){
+        this.openInitFile(initialDoc);  
+      }
+      /*if(this.bguireadycalled){
         return;
       }*/
 
+      
+
+    });
+
+    RXCore.onGuiFoxitReady((initialDoc: any) => {
+
+
+      this.bfoxitreadycalled = true;
+
+      
+      if(this.bguireadycalled){
+        this.openInitFile(initialDoc);
+      }
+
+
+
       this.rxCoreService.guiFoxitReady.next();
 
-
-      /*if(this.bfoxitreadycalled){
-
-        this.bfoxitreadycalled = false;
-
-        let drawing : string = "C:\\\\Rasterex\\\\Upload\\\\2TOUR - Original.pdf";
-        let filename : string = "2TOUR - Original.pdf";
-
-        let drawingobj : any = {filepath : drawing, mime : null, cacheid : filename, displayname : null};
-
-        
-        RXCore.openFile(drawingobj);
-        
-      }*/
 
 
     });
@@ -143,6 +153,10 @@ export class AppComponent implements AfterViewInit {
     RXCore.onGuiFileLoadComplete(() => {
       this.rxCoreService.guiFileLoadComplete.next();
     });
+    
+    RXCore.onGuiScaleListLoadComplete(() => {
+      this.rxCoreService.guiScaleListLoadComplete.next();
+    });
 
     RXCore.onGuiMarkup((annotation: any, operation: any) => {
       console.log('RxCore GUI_Markup:', annotation, operation);
@@ -177,6 +191,7 @@ export class AppComponent implements AfterViewInit {
     });
 
     RXCore.onGuiMarkupList(list => {
+      
       this.rxCoreService.setGuiMarkupList(list);
       this.lists = list?.filter(markup => markup.type != MARKUP_TYPES.SIGNATURE.type && markup.subtype != MARKUP_TYPES.SIGNATURE.subType);
       this.lists?.forEach(list => {
@@ -185,6 +200,15 @@ export class AppComponent implements AfterViewInit {
         }, 100);
       });
     });
+
+    /*RXCore.onGuiMarkupPaths((pathlist) => {
+
+      for(var pi = 0;  pi < pathlist.length; pi++)[
+        //get each markup url here.
+      ]
+
+
+    });*/
 
     RXCore.onGuiTextInput((rectangle: any, operation: any) => {
       this.rxCoreService.setGuiTextInput(rectangle, operation);
@@ -247,6 +271,21 @@ export class AppComponent implements AfterViewInit {
     });
 
 
+  }
+
+  openInitFile(initialDoc){
+    if(initialDoc.open && !this.binitfileopened){
+
+
+      if(initialDoc.openfileobj != null){
+
+        this.binitfileopened = true;
+        RXCore.openFile(initialDoc.openfileobj);
+
+      }
+
+
+    }
   }
 
   handleChoiceFileClick() {

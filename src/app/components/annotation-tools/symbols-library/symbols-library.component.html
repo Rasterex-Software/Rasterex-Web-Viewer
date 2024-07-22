@@ -18,7 +18,7 @@
     </section>
     
     <div>
-      <input type="file" #fileUpload (change)="handleSymbolsUpload($event)" style="display: none;">
+      <input type="file" #fileUpload (change)="handleSymbolsUpload($event)" style="display: none;" multiple>
       <button type="button" id="upload_button" class="btn btn-primary" (click)="fileUpload.click()">Upload Symbols</button>
     </div>
     

@@ -338,6 +338,16 @@ export class PropertiesPanelComponent implements OnInit {
     this.fillColor = color;
     RXCore.changeFillColor(color);
     RXCore.markUpFilled();
+
+    let selectedMarkup = RXCore.getSelectedMarkup();
+ 
+    if((selectedMarkup.type === MARKUP_TYPES.SHAPE.RECTANGLE.type || 
+      selectedMarkup.type === MARKUP_TYPES.MEASURE.AREA.type) && 
+      (selectedMarkup as any).holes && 
+      (selectedMarkup as any).holes.length) {
+        this.fillOpacity = 35;
+        RXCore.changeTransp(this.fillOpacity);
+    }
   }
 
   onCountTypeChange(type: number): void {

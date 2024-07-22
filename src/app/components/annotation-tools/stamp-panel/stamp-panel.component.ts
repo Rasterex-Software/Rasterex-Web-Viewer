@@ -44,7 +44,7 @@ export class StampPanelComponent implements OnInit {
   strokeWidth: number = 1;
   strokeColor: string = '#000000';
   strokeRadius: number = 0;
-  activeIndexStamp: number = 0;
+  activeIndexStamp: number = 1;
   customStamps: any[] = [];
   svgContent: string = '';
   customStampes: StampData[] = [];

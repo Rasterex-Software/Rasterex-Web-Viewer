@@ -239,5 +239,7 @@ export class RxCoreService {
     this._guiOnCalibrateFinished.next({isFinished: isFinished, data: data});
   }
 
+  public guiScaleListLoadComplete: Subject<void> = new Subject<void>();
+  public guiScaleListLoadComplete$: Observable<void> = this.guiScaleListLoadComplete.asObservable();
 
 }

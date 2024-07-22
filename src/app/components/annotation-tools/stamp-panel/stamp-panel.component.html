@@ -1,20 +1,19 @@
 <rx-panel [title]="'Stamp'" (onClose)="onPanelClose()">
     <div class="stamp-panel-container">
       <!-- Tab Buttons -->
-      <div class="btn-group" id="tabs" role="group">
-        <button [class.selected]="activeIndexStamp === 0" (click)="activeIndexStamp = 0">Templates</button>
+      <div class="btn-group" id="tabs" role="group"> 
         <button [class.selected]="activeIndexStamp === 1" (click)="activeIndexStamp = 1">Custom</button>
         <button [class.selected]="activeIndexStamp === 2" (click)="activeIndexStamp = 2">Interactive</button>
       </div>
   
       <!-- Templates Section -->
-      <section *ngIf="activeIndexStamp === 0">
+      <!-- <section *ngIf="activeIndexStamp === 0">
         <div class="templates-list">
           <div *ngFor="let template of templates;">
             <img [stampTemplate]="template" [src]="template.src" [ngStyle]="{ 'width.px': template.width, 'height.px': template.height }" />
           </div>
         </div>
-      </section>
+      </section> -->
   
       <!-- Custom Section -->
       <section *ngIf="activeIndexStamp === 1">
@@ -36,7 +35,7 @@
       <section *ngIf="activeIndexStamp === 2">
         <div class="templates-list">
           <div *ngFor="let template of interactiveStampes;let i = index" style="display: flex; align-items: center;" >
-            <img [stampTemplate]="template" [src]="template.src" [ngStyle]="{ 'width.px': template.width, 'height.px': template.height }" style="margin: 2px;">
+            <img [interactiveStampTemplate]="template" [src]="template.src" [ngStyle]="{ 'width.px': template.width, 'height.px': template.height }" style="margin: 2px;">
             <button (click)="deleteInteractiveStamp(i)" style="border: none; background: none; cursor: pointer; padding: 0; margin-left: 8px;">
               <img src="/assets/images/trash-ico.svg" />
             </button>

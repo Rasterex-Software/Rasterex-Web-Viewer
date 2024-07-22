@@ -67,12 +67,14 @@ import { DropdownMenuComponent } from './components/common/dropdown-menu/dropdow
 import { BlocksComponent } from './components/side-nav-menu/blocks/blocks.component';
 import { AnnotationShapeIconComponent } from './components/annotation-tools/annotation-shape-icon/annotation-shape-icon.component';
 import { MeasureDetailPanelComponent } from './components/annotation-tools/measure-detail-panel/measure-detail-panel.component';
+import { ScaleDropdownComponent } from './components/annotation-tools/scale-dropdown/scale-dropdown.component';
 import { ToastrModule } from 'ngx-toastr';
 import { ImageLibraryComponent } from './components/image-library/image-library.component';
 import { ImageDragDropDirective } from './components/image-library/image-draggable.directive';
 import { SymbolsLibraryComponent } from './components/annotation-tools/symbols-library/symbols-library.component';
 import { LinksLibraryComponent } from './components/annotation-tools/links-library/links-library.component';
 import { LinkDragDropDirective } from './components/annotation-tools/links-library/link-draggable.directive';
+import { InteractiveStampTemplateDirective } from './components/annotation-tools/stamp-panel/interactive-stamp-template.directive ';
 
 
 @NgModule({
@@ -115,6 +117,7 @@ import { LinkDragDropDirective } from './components/annotation-tools/links-libra
     NotificationComponent,
     StampPanelComponent,
     StampTemplateDirective,
+    InteractiveStampTemplateDirective,
     MeasurePanelComponent,
     SignatureComponent,
     CheckboxComponent,
@@ -132,6 +135,7 @@ import { LinkDragDropDirective } from './components/annotation-tools/links-libra
     BlocksComponent,
     AnnotationShapeIconComponent,
     MeasureDetailPanelComponent,
+    ScaleDropdownComponent,
     ImageLibraryComponent,
     ImageDragDropDirective,
     SymbolsLibraryComponent,

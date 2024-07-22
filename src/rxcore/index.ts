@@ -37,6 +37,16 @@ export class RXCore {
         RxCore.useNoScale(onoff);
     }
 
+    public static setinitFile(fileUrl: any): void {
+        RxCore.setinitFile(fileUrl);
+    }
+
+    /*public static openFile(fileUrl: any): void {
+        RxCore.openFile(fileUrl);
+    }*/
+
+    
+
     public static setThumbnailSize(w:number, h:number): void {
         RxCore.setThumbnailSize(w,h);
     }
@@ -458,6 +468,10 @@ export class RXCore {
         RxCore.markupSymbol(onoff);
     }
 
+    public static markupLink(onoff: boolean): void {
+        RxCore.markupLink(onoff);
+    }
+
     public static getSymbolLibPNGData(num,sname): void {
         RxCore.getSymbolLibPNGData(num,sname);
     }
@@ -466,8 +480,16 @@ export class RXCore {
         RxCore.markUpDimension(onoff, type);
     }
 
-    public static markUpArea(onoff: boolean): void {
+    /*public static markUpArea(onoff: boolean): void {
         RxCore.markUpArea(onoff);
+    }*/
+
+    public static markUpArea(onoff: boolean, parentmarkupnumber = 0): void {
+        RxCore.markUpArea(onoff, parentmarkupnumber);
+    }
+
+    public static markUpAreaHole(onoff: boolean): void {
+        RxCore.markUpAreaHole(onoff);
     }
 
     public static markupMeasurePath(onoff: boolean): void {
@@ -530,6 +552,11 @@ export class RXCore {
     public static getmarkupobjByGUID(guid: string): -1 | IMarkup {
         return RxCore.getmarkupobjByGUID(guid);
     }
+
+    public static getmarkupbyNumber(no: number): -1 | IMarkup {
+        return RxCore.getmarkupbyNumber(no);
+    }
+
 
     public static restoreDefault(): void{
         RxCore.restoreDefault();
@@ -690,6 +717,11 @@ export class RXCore {
         RxCore.GUI_Markuplist.connect(callback);
     }
 
+    /*public static onGuiMarkupPaths(callback: (list: Array<any>) => void): void {
+        RxCore.GUI_MarkupPaths.connect(callback);
+    }*/
+
+
     public static onGuiMarkupHover(callback: (markup: IMarkup, x: number, y: number) => void): void {
         RxCore.GUI_MarkupHover.connect(callback);
     }
@@ -814,8 +846,33 @@ export class RXCore {
         return RxCore.getUnit();
     }
 
+    public static elementScale(scale: string): void {
+        RxCore.elementScale(scale);
+    }
+	public static elementMetricUnit(val: string): void {
+        RxCore.elementMetricUnit(val)
+    }
+	public static elementImperialUnit(unit: string): void {
+        RxCore.elementImperialUnit(unit);
+    }
+	public static setDimPrecisionForPage(value : number ): any {        
+        RxCore.setDimPrecisionForPage(value);
+    }
+ 
+    public static setElementDimPrecision(value: number): any {        
+        RxCore.setElementDimPrecision(value);
+    } 
+	public static getCurrentPageScaleValue(): any {
+        return RxCore.getCurrentPageScaleValue();
+    }
 
     
+    public static setElementUnit(value: number): void {
+        return RxCore.setElementUnit(value);
+    }
+
+    
+
 
     public static metricUnit(val: string): void {
         RxCore.metricUnit(val)
@@ -857,5 +914,35 @@ export class RXCore {
         RxCore.markupRectToAreaSwitch(markup);
     } 
 
+    public static getCurrentPageScaleLabel(): string {
+        return RxCore.getCurrentPageScaleLabel();
+    }
 
+    public static setScaleLabel(label: string): void {
+        RxCore.setScaleLabel(label);
+    } 
+    
+    public static setElementScaleLabel(label: string): void {
+        RxCore.setElementScaleLabel(label);
+    } 
+    
+    public static resetToDefaultScaleValueForMarkup(scaleLabel: string): void {
+        RxCore.resetToDefaultScaleValueForMarkup(scaleLabel);
+    } 
+
+    public static printDoc(): any {
+        return RxCore.printDoc();
+    }
+
+    public static useFixedScale(onoff: boolean): void {
+        RxCore.useFixedScale(onoff);
+    }
+
+    public static updateScaleList(scalesOptions: any[]): void {
+        RxCore.updateScaleList(scalesOptions);
+    }    
+    
+    public static onGuiScaleListLoadComplete(callback: Function): void {
+        RxCore.GUI_scaleListLoadComplete.connect(callback);
+    }
 }

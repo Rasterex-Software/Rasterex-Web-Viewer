@@ -1,0 +1,41 @@
+<div class="dropdown-container">
+  <div
+      class="dropdown-wrapper"
+      [class.focused]="opened || value"
+      [class.disabled]="disabled"
+      [class.opened]="opened"
+      [class.transparent]="transparent"
+      (click)="handleDropdown()">
+          <span *ngIf="value; else placeholderTemplate" class="value" [innerHTML]="(value || {})[displayField]"></span>
+          <ng-template #placeholderTemplate><span class="value placeholder">{{placeholder}}</span></ng-template>
+          <img src="/assets/images/arrow-down.svg" class="btn-dropdown" />
+  </div>
+  <div *ngIf="opened" class="options-container">
+      <div
+          class="options-wrapper"
+          [class.drop-position-top]="dropPosition == 'top'"
+          [class.align-right]="align == 'right'">
+          <ng-content></ng-content>
+          <ul class="options" role="listbox" aria-expanded="false">
+              <li
+                  *ngFor="let item of options"
+                  role="option"
+                  tabindex="0"
+                  [class.hidden]="item.hidden"
+                  [class.selected]="item.value && item.value == value?.value"
+                  (click)="handleSelect(item)">
+                      <span *ngIf="item.value && item.value == value?.value" class="selected"></span>
+                      <span [innerHTML]="item?.label"></span>
+                      <span *ngIf="showDelete" (click)="onDeleteClick($event, item)"
+                       class="delete-item">
+                        <img src="/assets/images/trash-ico.svg" height="22" /></span>
+              </li>
+          </ul>
+          <!-- <div *ngIf="!options.length"
+                class="unscaled">Unscaled</div> -->
+          <div *ngIf="showAddNew" 
+            (click)="showScaleSettings()"
+            class="show-addnew">Add New</div>
+      </div>
+  </div>
+</div>

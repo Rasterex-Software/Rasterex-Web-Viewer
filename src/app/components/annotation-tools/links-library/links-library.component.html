@@ -8,7 +8,7 @@
           <div *ngFor="let template of links; let i = index" style="display: flex; align-items: center;" id="link-container" class="link-container">
     
             <img
-            [imageTemplate]="template"
+            [linkTemplate]="template"
             [src]="template.src"
             [ngStyle]="{ 'width.px': template.width, 'height.px': template.height }" />
             <button (click)="deleteLink(i)" style="border: none; background: none; cursor: pointer; padding: 0; margin-left: 8px;">

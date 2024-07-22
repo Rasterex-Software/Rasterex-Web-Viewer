@@ -138,7 +138,7 @@
                 height: 28px;
                 background-color: #EDF1F2;
             }
-            li.snap-section.selected {
+            li.snap-section.selected, li.no-scale-section.selected {
                 
                 img{
                     filter: brightness(0) invert(1);

@@ -33,7 +33,7 @@
     <rx-annotation-tools></rx-annotation-tools>
     <rx-bottom-toolbar *ngIf="numOpenFiles$ | async" [(isVisible)]="isVisible" [lists]="lists"></rx-bottom-toolbar>
     <div *ngFor="let list of lists;">
-      <div *ngIf="list.linkURL !== ' ' && list.linkURL !== '' && isVisible" class="link" [ngStyle]="{ 'top.px' : list.rectangle?.y, 'left.px' : list.rectangle?.x}">
+      <div *ngIf="list.linkURL !== ' ' && list.linkURL !== '' && isVisible && list.type !== 20" class="link" [ngStyle]="{ 'top.px' : list.rectangle?.y, 'left.px' : list.rectangle?.x}">
         <img (click)="followLink = true; annotation = list;" src="/assets/images/link.svg" />
       </div>
     </div>

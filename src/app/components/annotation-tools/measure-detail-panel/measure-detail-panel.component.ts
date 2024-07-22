@@ -3,8 +3,9 @@ import { RXCore } from 'src/rxcore';
 import { AnnotationToolsService } from '../annotation-tools.service';
 import { Subscription } from 'rxjs';
 import { ColorHelper } from 'src/app/helpers/color.helper';
-import { MARKUP_TYPES } from 'src/rxcore/constants';
+import { MARKUP_TYPES, METRIC } from 'src/rxcore/constants';
 import { RxCoreService } from 'src/app/services/rxcore.service';
+import { MeasurePanelService } from '../measure-panel/measure-panel.service';
 
 @Component({
   selector: 'rx-measure-detail-panel',
@@ -26,14 +27,26 @@ export class MeasureDetailPanelComponent implements OnInit, OnDestroy {
   visible: boolean = false;
   measureData: any = {};
   markup: any;
+  scalesOptions: any = [];
+  selectedScale: any;
+  showScaleDropdownOnStartDrawing: boolean = false;
+  docObj: any;
+
+  private _setDefaults(): void { 
+    this.docObj = RXCore.printDoc();   
+    this.updateScaleList();
+    if(this.scalesOptions.length)
+      this.selectedScale = this.scalesOptions[0];
+  }
 
   constructor(
     private readonly rxCoreService: RxCoreService,
     private readonly annotationToolsService: AnnotationToolsService,
-    private readonly colorHelper: ColorHelper) {}
+    private readonly colorHelper: ColorHelper,
+    private readonly measurePanelService: MeasurePanelService) {}
 
   ngOnInit(): void {
-
+    this._setDefaults();
 
     this.stateSubscription = this.annotationToolsService.measurePanelDetailState$.subscribe(state => {
       this.visible = state.visible;
@@ -64,7 +77,13 @@ export class MeasureDetailPanelComponent implements OnInit, OnDestroy {
 
       }
 
-      
+      if(state.type === MARKUP_TYPES.MEASURE.LENGTH.type ||
+        state.type === MARKUP_TYPES.SHAPE.RECTANGLE.type ||
+        state.type === MARKUP_TYPES.MEASURE.AREA.type ||
+        state.type === MARKUP_TYPES.MEASURE.PATH.type
+      ) {
+        this.showScaleDropdownOnStartDrawing = true;
+      }      
 
       // this.created = Boolean(state.created);
       // if (this.created) {
@@ -72,6 +91,21 @@ export class MeasureDetailPanelComponent implements OnInit, OnDestroy {
       // }
     });
 
+    this.rxCoreService.guiPage$.subscribe((state) => {   
+      this.docObj = RXCore.printDoc();
+      this.scalesOptions = [];
+      this.selectedScale = null;
+      this.updateScaleList();
+      this.selectCurrentScale();
+    }); 
+
+    this.rxCoreService.guiScaleListLoadComplete$.subscribe(() => {
+      this.docObj = RXCore.printDoc();
+      this.scalesOptions = [];
+      this.selectedScale = null;
+      this.updateScaleList();
+      this.selectCurrentScale();
+    });
 
     this.guiMarkupMeasureRealTimeDataSubscription = this.rxCoreService.guiMarkupMeasureRealTimeData$.subscribe(({markup}) => {
       this.manageRealTimeBox(markup);
@@ -97,12 +131,24 @@ export class MeasureDetailPanelComponent implements OnInit, OnDestroy {
       this.manageRealTimeBox(markup);
     });
 
-    this.rxCoreService.guiMarkup$.subscribe(({markup, operation}) => {
+    this.rxCoreService.guiMarkup$.subscribe(({markup, operation} : any) => {
       //Hide real time box when one of measure tool deleted
       if(operation.deleted || markup === -1) {
         this.visible = false;
       }
-      
+
+      //save page scale to markup scale once created
+      if(operation.created &&
+        (markup.type === MARKUP_TYPES.MEASURE.LENGTH.type ||
+        markup.type === MARKUP_TYPES.SHAPE.RECTANGLE.type ||
+        markup.type === MARKUP_TYPES.MEASURE.AREA.type ||
+        markup.type === MARKUP_TYPES.MEASURE.PATH.type)) {        
+          RXCore.unSelectAllMarkup();
+          RXCore.selectMarkUpByIndex((markup as any).markupnumber);
+          if(this.selectedScale)
+            this.applyScale(this.selectedScale); 
+      }
+
       if(operation.modified) {
         this.manageRealTimeBox(markup);
       }
@@ -126,7 +172,36 @@ export class MeasureDetailPanelComponent implements OnInit, OnDestroy {
           break;
       }
 
-    });   
+    });  
+    
+    this.measurePanelService.scaleState$.subscribe(state => {
+
+      if(state.created) {
+        this.updateScaleList();
+
+        if(this.measureData.dimtext === "0.0") {
+          this.selectedScale = this.scalesOptions.find(item=>item.label === state.scaleLabel);
+        } else {
+          if(this.measureData.hasScale === false)
+            this.selectedScale = this.scalesOptions.find(item=>item.label === state.scaleLabel);
+        }
+
+      }
+      
+      if(state.deleted) {
+        this.updateScaleList();
+        if(!this.scalesOptions.length) {
+          this.selectedScale = null;
+          return;
+        }
+
+        let mrkUp:any = RXCore.getSelectedMarkup();
+        if(!mrkUp.isempty) {
+          RXCore.unSelectAllMarkup();
+          RXCore.selectMarkUpByIndex(mrkUp.markupnumber);
+        }
+      } 
+    });
 
   }
 
@@ -135,14 +210,32 @@ export class MeasureDetailPanelComponent implements OnInit, OnDestroy {
       
       if(markup !== -1) {
 
+        if(markup.type === MARKUP_TYPES.MEASURE.LENGTH.type ||
+          markup.type === MARKUP_TYPES.SHAPE.RECTANGLE.type ||
+          markup.type === MARKUP_TYPES.MEASURE.AREA.type ||
+          markup.type === MARKUP_TYPES.MEASURE.PATH.type
+        ) {
+          this.updateScaleList();
+          this.selectCurrentScale(markup);
+        }
+
         switch(markup.type){
           case MARKUP_TYPES.MEASURE.LENGTH.type :
             this.panelHeading = "Distance Measurement";
             this.measurementText = "Distance";
-            this.visible = true;
+            this.visible = true;            
             this.setMeasurementOnLength(markup);
           break;
           case MARKUP_TYPES.SHAPE.RECTANGLE.type :
+            if(markup.subtype !== MARKUP_TYPES.MEASURE.RECTANGLE.subType) {
+              this.visible = false;
+              break;
+            }
+            this.panelHeading = "Area Measurement";  
+            this.measurementText = "Area";
+            this.visible = true;
+            this.calculateArea(markup);
+            break;
           case MARKUP_TYPES.MEASURE.AREA.type :
             this.panelHeading = "Area Measurement";  
             this.measurementText = "Area";
@@ -150,6 +243,10 @@ export class MeasureDetailPanelComponent implements OnInit, OnDestroy {
             this.calculateArea(markup);
           break;
           case MARKUP_TYPES.MEASURE.PATH.type :
+            if(markup.subtype !== MARKUP_TYPES.MEASURE.PATH.subType) {
+              this.visible = false;
+              break;
+            }
             this.panelHeading = "Perimeter Measurement";
             this.measurementText = "Distance";
             this.visible = true;
@@ -159,7 +256,7 @@ export class MeasureDetailPanelComponent implements OnInit, OnDestroy {
             this.measurementText = "Count";
             this.panelHeading = "Count";
             this.visible = true;
-  
+            this.showScaleDropdownOnStartDrawing = false;
             break;
           default :
             this.visible = false;
@@ -171,9 +268,57 @@ export class MeasureDetailPanelComponent implements OnInit, OnDestroy {
       }
   }
 
+  /*calculateArea(markup: any) {
+    this.measureData = markup;
+    this.setDistanceOnArea(this.measureData); 
+  }*/
+
+  updateScaleList() {
+    if(this.docObj && this.docObj.scalesOptions && this.docObj.scalesOptions.length)
+      this.scalesOptions = this.docObj.scalesOptions;   
+  }
+
+  selectCurrentScale(markup?) {
+    if(!this.scalesOptions.length)
+      return;
+    //element scale
+    if(markup && markup.hasScale) {
+      this.selectedScale = this.scalesOptions.find(item=>item.label === markup.scaleObject.getScaleLabel());
+    } 
+    else {
+      //page scale
+      const scaleLabel = RXCore.getCurrentPageScaleLabel();
+      this.selectedScale = this.scalesOptions.find(item=>item.label === scaleLabel);      
+    }
+  }
+
   calculateArea(markup: any) {
     this.measureData = markup;
     this.setDistanceOnArea(this.measureData); 
+
+    let szmtxt =  this.measureData.dimtext.split(" ")[1];
+
+    let dimValue = this.measureData.dimarea;
+
+
+    for(let idx = 0; idx < this.measureData.holes.length; idx++) {
+
+      //let markupObj = RXCore.getmarkupbyNumber();
+
+      dimValue = this.measureData.holes[idx].dimarea;
+
+      dimValue = dimValue + this.measureData.dimarea;
+
+
+    }
+ 
+    //this.measureData.dimtextWithHole = dimValue;//.toFixed(2) + " " + this.measureData.dimtext.split(" ")[1];
+
+    if(this.measureData.dimarea < dimValue) {
+      this.measureData.dimtextWithHole = dimValue.toFixed(2) + " " + szmtxt;
+    } else {
+      this.measureData.dimtextWithHole = 0;
+    }
   }
 
   setDistanceOnArea(markup: any) {
@@ -226,6 +371,78 @@ export class MeasureDetailPanelComponent implements OnInit, OnDestroy {
     //this.measureData.yLength = Math.abs(yData[0]) + " " + yData[1];
 
     this.measureData.yLength = this.measureData.dimtexty;
+  }
+
+  onScaleChanged(event): void {
+    this.selectedScale = this.scalesOptions.find(item=>item.label === event.label);
+    if(this.measureData.dimtext === "0.0") {
+      this.applyScaleToPage(this.selectedScale);  
+    } else {
+      this.applyScale(this.selectedScale);    
+    }
+  }
+
+  updateMetric(metric: string): void {
+    switch (metric){
+      case '0' :
+        RXCore.setElementUnit(1);
+        break;
+      case '1' :
+        RXCore.setElementUnit(2);
+        break;
+    } 
+  };
+
+  updateMetricUnit(metric, metricUnit): void {    
+    if (metric === METRIC.UNIT_TYPES.METRIC ) {          
+        RXCore.elementMetricUnit(metricUnit); 
+
+    } else if (metric === METRIC.UNIT_TYPES.IMPERIAL ) {          
+        RXCore.elementImperialUnit(metricUnit);
+    }      
+  };
+
+  countDecimals(value) {
+    return value % 1?value.toString().split(".")[1].length:0;     
+  };
+
+  applyScale(selectedScaleObj: any) {    
+    this.updateMetric(selectedScaleObj.metric);
+    this.updateMetricUnit(selectedScaleObj.metric, selectedScaleObj.metricUnit);
+    RXCore.setElementDimPrecision(selectedScaleObj.dimPrecision);
+    RXCore.elementScale(selectedScaleObj.value);
+    RXCore.setElementScaleLabel(selectedScaleObj.label);
+
+    RXCore.markUpRedraw();
+    this.manageRealTimeBox(this.measureData);
+  }
+
+  updateMetricToPage(selectedMetric: string): void {
+    switch (selectedMetric){
+      case '0' :
+        RXCore.setUnit(1);
+        break;
+      case '1' :
+        RXCore.setUnit(2);
+        break;
+    } 
+  };
+
+  updateMetricUnitToPage(metric, metricUnit): void { 
+    if (metric === METRIC.UNIT_TYPES.METRIC ) {          
+        RXCore.metricUnit(metricUnit);          
+    } else if (metric === METRIC.UNIT_TYPES.IMPERIAL ) {          
+        RXCore.imperialUnit(metricUnit);
+    }      
+  };
+
+  applyScaleToPage(selectedScaleObj: any) {  
+    this.updateMetricToPage(selectedScaleObj.metric);
+    this.updateMetricUnitToPage(selectedScaleObj.metric, selectedScaleObj.metricUnit);
+    RXCore.setDimPrecisionForPage(selectedScaleObj.dimPrecision);
+    RXCore.scale(selectedScaleObj.value);
+    RXCore.setScaleLabel(selectedScaleObj.label);
+    this.measurePanelService.setMeasureScaleState({visible: true, value: selectedScaleObj.label});
   }
 
   ngOnDestroy(): void {

@@ -16,53 +16,60 @@ export class SymbolsLibraryComponent implements OnInit {
     this.onClose.emit();
   }
   handleSymbolsUpload(event: any) {
-    const file = event.target.files[0];
-    const reader = new FileReader();
+    const files = event.target.files;
+    const uploadPromises: Promise<any>[] = [];
   
-    reader.onload = (e) => {
-      const imageDataWithPrefix = e.target?.result as string;
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const reader = new FileReader();
   
-      // Dynamically determine the prefix and remove it
-      const base64Index = imageDataWithPrefix.indexOf('base64,') + 'base64,'.length;
-      const imageData = imageDataWithPrefix.substring(base64Index);
+      const uploadPromise = new Promise((resolve, reject) => {
+        reader.onload = (e) => {
+          const imageDataWithPrefix = e.target?.result as string;
   
-      const imageName = file.name;
-      const imageType = file.type;
+          // Dynamically determine the prefix and remove it
+          const base64Index = imageDataWithPrefix.indexOf('base64,') + 'base64,'.length;
+          const imageData = imageDataWithPrefix.substring(base64Index);
   
-      // Convert base64 string to byte array
-      const byteCharacters = window.atob(imageData);
-      const byteNumbers = new Array(byteCharacters.length);
-      for (let i = 0; i < byteCharacters.length; i++) {
-        byteNumbers[i] = byteCharacters.charCodeAt(i);
-      }
-      const byteArray = new Uint8Array(byteNumbers);
+          const imageName = file.name;
+          const imageType = file.type;
   
-      // Create an object to store in local storage
-      const imageObject = {
-        imageData: Array.from(byteArray), // Convert to a regular array for JSON compatibility
-        imageName: imageName,
-        imageType: imageType
-      };
-      const storedImages = JSON.parse(localStorage.getItem('UploadedSymbols') || '[]');
-      storedImages.push(imageObject);
-      localStorage.setItem('UploadedSymbols', JSON.stringify(storedImages));
+          // Convert base64 string to byte array
+          const byteCharacters = window.atob(imageData);
+          const byteNumbers = new Array(byteCharacters.length);
+          for (let i = 0; i < byteCharacters.length; i++) {
+            byteNumbers[i] = byteCharacters.charCodeAt(i);
+          }
+          const byteArray = new Uint8Array(byteNumbers);
+  
+          // Create an object to store in local storage
+          const imageObject = {
+            imageData: Array.from(byteArray), // Convert to a regular array for JSON compatibility
+            imageName: imageName,
+            imageType: imageType
+          };
+          const storedImages = JSON.parse(localStorage.getItem('UploadedSymbols') || '[]');
+          storedImages.push(imageObject);
+          localStorage.setItem('UploadedSymbols', JSON.stringify(storedImages));
+          this.getSymbols();
+        };
+  
+        reader.onerror = (error) => {
+          reject(error);
+        };
+  
+        reader.readAsDataURL(file);
+      });
+  
+      uploadPromises.push(uploadPromise);
+    }
+  
+    // Wait for all uploads to finish before refreshing the symbols list
+    Promise.all(uploadPromises).then(() => {
       this.getSymbols();
-  
-      // Upload image to the server
-      // this.imageUploadService.uploadImage(imageData, imageName, imageType).subscribe(
-      //   response => {
-      //     this.getImage();
-      //     console.log('Image uploaded successfully:', response);
-      //     // Handle success (e.g., display a success message)
-      //   },
-      //   error => {
-      //     console.error('Error uploading image:', error);
-      //     // Handle error (e.g., display an error message)
-      //   }
-      // );
-    };
-    reader.readAsDataURL(file);
+    });
   }
+  
   deleteSymbol(index: number): void {
     let symbols = JSON.parse(localStorage.getItem('UploadedSymbols') || '[]');
     

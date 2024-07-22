@@ -87,11 +87,18 @@ export const MARKUP_TYPES = {
             type: 1,
             subType: 3,
         },
+        RECTANGLE: {
+            type: 3,
+            subType: 6,
+        },
     },
     SIGNATURE: {
         type: 11,
         subType: 3,
     },
+    LINK: {
+        type: 20
+        },
 }
 export const METRIC = {
     UNIT_TYPES: {

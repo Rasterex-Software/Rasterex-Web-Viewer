@@ -4,7 +4,7 @@
     [ngStyle]="{ 'top.px' : rectangle.y, 'left.px' : rectangle.x }">
     <ul class="menu" [class.bottom]="rectangle.position == 'bottom'">
         <li
-            *ngIf="annotation.type != 11"
+            *ngIf="annotation.type != 11 && annotation.type != 20"
             (click)="onEditClick()">
                 <img id="quickActionsMenuEdit" src="/assets/images/pen-ico.svg" />
         </li>
@@ -12,7 +12,7 @@
             (click)="onDeleteClick()">
                 <img src="/assets/images/trash-ico.svg" />
         </li>
-        <li>
+        <li *ngIf="annotation.type != 20">
             <img src="/assets/images/copy-ico.svg" (click)="copyMarkUp()"/>
         </li>
 <!--         <li (click)="onNoteClick()">
@@ -42,10 +42,28 @@
         </li>
 
         <li
-            *ngIf="annotation.type === 8 || annotation.type === 3"
+            *ngIf="annotation.type == 20"
+            (click)="onRedirectClick()">
+                <img src="/assets/images/link.svg"  />
+        </li>
+
+        <li
+            *ngIf="(guiMode$ | async) == 'measure' && (annotation.type === 8 || annotation.type === 3)"
             (click)="onInsertClick()">
                 <img id="quickActionsMenuInsertPoint" src="/assets/images/insert-point.svg" height="48" />
         </li>
+        <li
+            *ngIf="(guiMode$ | async) == 'measure' && (annotation.type === 8 || annotation.type === 3) && annotation.parentmarkupnumber === 0"
+            (click)="onHoleClick()">
+            <img id="quickActionsHole" src="/assets/images/insert-area-hole.svg" height="28" />
+        </li>
+        
+        <li
+            *ngIf="(guiMode$ | async) == 'measure' && (annotation.type === 1 || annotation.type === 3 || annotation.type === 7 || annotation.type === 8)"
+            (click)="onShowHideLabelClick()">
+            <img id="quickActionsMenuShowHideLabel" src="/assets/images/label-remove.svg" height="23" />
+            <!-- <span class="tooltip-text tooltip-top">Hide Label</span> -->
+        </li>        
 
     </ul>
 </div>

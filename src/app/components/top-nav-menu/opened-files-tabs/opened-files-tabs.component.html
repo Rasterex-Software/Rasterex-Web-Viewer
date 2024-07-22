@@ -49,3 +49,19 @@
         <span class="close" (click)="handleCloseTab($event, file)">&times;</span>
     </div>
 </ng-template>
+
+<rx-modal-dialog [opened]="closeDocumentModal">
+    <div class="confirm-modal-container close-document-modal">
+        <div class="rx-modal-dialog-header">
+            <img (click)="closeDocumentModal = false;" class="close" src="/assets/images/close-modal-ico.svg" />
+            <span class="title"></span>
+        </div>
+        <div class="body">
+            <p>Do you want to save markup?</p>
+        </div>
+        <div class="footer">
+            <button (click)="closeDocumentModal = false;saveMarkupAndClose(false)" class="btn btn-light">No</button>
+            <button (click)="saveMarkupAndClose(true)" class="btn btn-primary">SAVE</button>
+        </div>
+    </div>
+</rx-modal-dialog>

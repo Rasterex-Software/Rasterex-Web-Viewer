@@ -151,6 +151,15 @@ export class QuickActionsMenuComponent implements OnInit, OnDestroy {
           y_1: yscaled - yoffset,
         };
         break;
+        case MARKUP_TYPES.LINK:
+          this.numbuttons = 2;
+          this.rectangle = {
+            x: xscaled - 5,
+            y: yscaled - 5,
+            x_1: xscaled + wscaled - 20,
+            y_1: yscaled - yoffset,
+          };
+          break;
       default:
 
       this.numbuttons = 4;
@@ -299,6 +308,7 @@ export class QuickActionsMenuComponent implements OnInit, OnDestroy {
   saveLink(): void {
     this.addLink = false;
     this.annotation.setLink(this.annotation.linkURL === '' ? ' ' : this.annotation.linkURL, this.annotation.linkURL !== '');
+    RXCore.markUpSave();
   }
 
   onSnapClick(): void {
@@ -341,6 +351,36 @@ export class QuickActionsMenuComponent implements OnInit, OnDestroy {
  
     RXCore.insertPoint();
     this.visible = false;
+  }
+
+  onShowHideLabelClick(): void {    
+    if (this.operation?.created) { RXCore.selectMarkUp(true); }
+    if(!this.annotation.hidevaluelabel) {
+      this.annotation.hidelabelmarkupobj();
+    }
+    else {
+      this.annotation.showlabelmarkupobj();
+    }
+    RXCore.markUpRedraw();
+    this.visible = false;
+  }
+ 
+  onHoleClick(): void { 
+    if(this.annotation.type === MARKUP_TYPES.SHAPE.RECTANGLE.type) {
+      RXCore.markupRectToAreaSwitch(this.annotation);
+    }   
+    if (this.operation?.created) { RXCore.selectMarkUp(true); }
+    this.annotationToolsService.setMeasurePanelDetailState({ visible: true, type: MARKUP_TYPES.MEASURE.AREA.type, created: true });
+    //RXCore.markUpArea(true, this.annotation.markupnumber);
+    RXCore.markUpAreaHole(true);
+
+    this.visible = false;
+  }
+
+  onRedirectClick(): void {
+    if (this.annotation.linkURL !== '') {
+      window.open(this.annotation.linkURL, '_blank');
+    }
   }
 
 }

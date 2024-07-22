@@ -127,6 +127,7 @@ export class ContextEditorComponent implements OnInit {
       if (markup.type == MARKUP_TYPES.MEASURE.PATH.type && markup.subtype == MARKUP_TYPES.MEASURE.PATH.subType) return;
       if (markup.type == MARKUP_TYPES.SHAPE.CLOUD.type && markup.subtype == MARKUP_TYPES.SHAPE.CLOUD.subtype) return;
       if (markup.type == MARKUP_TYPES.CALLOUT.type && markup.subtype == MARKUP_TYPES.CALLOUT.subType) return;
+      if (markup.type == MARKUP_TYPES.LINK.type) return;
 
       this._setDefaults();
       this._setPosition();

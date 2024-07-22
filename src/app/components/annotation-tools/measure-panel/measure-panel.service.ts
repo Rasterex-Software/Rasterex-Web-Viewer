@@ -13,4 +13,9 @@ export class MeasurePanelService {
     this._measureScaleState.next({visible:boolean, value: string});
   }
 
+  private _scaleState: BehaviorSubject<any> = new BehaviorSubject<any>({});
+  public scaleState$: Observable<any> = this._scaleState.asObservable();
+  public setScaleState(any): void {
+    this._scaleState.next(any);
+  }  
 }

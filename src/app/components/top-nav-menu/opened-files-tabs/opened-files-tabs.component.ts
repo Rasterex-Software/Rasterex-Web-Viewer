@@ -20,6 +20,7 @@ export class OpenedFilesTabsComponent implements OnInit {
   openedFiles: any = [];
   activeFile: any = null;
   droppableIndex: number | undefined = undefined;
+  closeDocumentModal: boolean = false;
 
   constructor(
     private readonly rxCoreService: RxCoreService,
@@ -43,6 +44,21 @@ export class OpenedFilesTabsComponent implements OnInit {
     });
   }
 
+  private _closeTabWithSaveConfirmModal(file): void {
+    if (!file) return;
+    const doc = RXCore.printDoc();
+
+    if(doc.bMarkupchanged) {
+      this.closeDocumentModal = true;
+    }
+
+    if(!this.closeDocumentModal) {
+      this._closeTab(file);
+    }
+
+    this.activeFile = file;
+  }
+
   private _closeTab(file): void {
     if (!file) return;
 
@@ -50,7 +66,7 @@ export class OpenedFilesTabsComponent implements OnInit {
       this.compareService.deleteComparison(file.comparison);
     }
 
-    RXCore.markupSaveCheck(false);
+    //RXCore.markupSaveCheck(false);    
     RXCore.closeDocument();
     RXCore.markupSaveCheck(true);
 
@@ -119,7 +135,8 @@ export class OpenedFilesTabsComponent implements OnInit {
     });
 
     this.topNavMenuService.closeTab$.subscribe((file) => {
-      this._closeTab(file);
+      // this._closeTab(file);
+      this._closeTabWithSaveConfirmModal(file);
     })
   }
 
@@ -130,7 +147,8 @@ export class OpenedFilesTabsComponent implements OnInit {
     if (file.comparison && RXCore.markupChanged) {
       this.compareService.onUnsavedChanges.next();
     } else {
-      this._closeTab(file);
+      // this._closeTab(file);
+      this._closeTabWithSaveConfirmModal(file);
     }
   }
 
@@ -154,5 +172,13 @@ export class OpenedFilesTabsComponent implements OnInit {
       this.compareService.showCreateCompareModal({ otherFileIndex: this.droppableIndex });
     }
     this.droppableIndex = undefined;
+  }
+
+  saveMarkupAndClose(saveMarkup: boolean): void {
+    if(!saveMarkup) {
+      RXCore.markupSaveCheck(false);
+    }
+    this._closeTab(this.activeFile);
+    this.closeDocumentModal = false;
   }
 }

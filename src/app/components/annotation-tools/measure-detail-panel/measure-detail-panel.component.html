@@ -8,11 +8,50 @@
         <!-- <span class="btn-close" (click)="onCloseClick()">&times;</span> -->
     </div>
     <div class="panel-body" [ngStyle]="{'max-height.px': maxHeight, 'overflow-y': 'auto'}">
+          
+          <div class="scale-list"
+              *ngIf="measureData.type === MARKUP_TYPES.MEASURE.LENGTH.type ||
+                  measureData.type === MARKUP_TYPES.SHAPE.RECTANGLE.type ||
+                  measureData.type === MARKUP_TYPES.MEASURE.AREA.type ||
+                  measureData.type === MARKUP_TYPES.MEASURE.PATH.type ||
+                  showScaleDropdownOnStartDrawing === true">
+              <div>
+                  Scale
+              </div>
+              
+              <div class="scale-dropdown-section">
+                
+                <rx-scale-dropdown
+                  class="select-scale"
+                  [placeholder]="scalesOptions.length?'Select scale...':'Unscaled'"
+                  [options]="scalesOptions"
+                  [value]="selectedScale ? selectedScale : null"
+                  [showAddNew] = "true"                  
+                  (valueChange)="onScaleChanged($event)"
+                  (valueDelete)="onScaleDeleted($event)">
+                </rx-scale-dropdown>
+                  <!-- <rx-dropdown
+                      class="select-scale"
+                      [placeholder]="'Select scale...'"
+                      [options]="scalesOptions"
+                      [value]="selectedScale"
+                      (valueChange)="onScaleChanged($event)">
+                  </rx-dropdown> -->
+              </div>
+          </div>  
+          
           <div class="measure-detail-section">           
             <section>               
                 <div class="row">
                   <div class="col">{{measurementText}}</div>
                   <div class="col">{{measureData?.dimtext}}</div>
+                </div>
+
+                <div class="row" 
+                  *ngIf="measureData?.dimtextWithHole && (measureData.type === MARKUP_TYPES.MEASURE.AREA.type ||
+                  measureData.type === MARKUP_TYPES.SHAPE.RECTANGLE.type)">
+                  <div class="col">Area total</div>
+                  <div class="col">{{measureData?.dimtextWithHole}}</div>
                 </div>
                                 
                 <div class="row" 

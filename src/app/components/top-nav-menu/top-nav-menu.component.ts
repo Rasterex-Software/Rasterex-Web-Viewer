@@ -45,7 +45,7 @@ export class TopNavMenuComponent implements OnInit {
   selectedValue: any;
   options: Array<{ value: GuiMode, label: string, hidden?: boolean }> = [];
   canChangeSign: boolean = false;
-  // disableImages: boolean = false;
+  disableImages: boolean = false;
   containLayers: boolean = false;
   containBlocks: boolean = false;
   isActionSelected: boolean = false;
@@ -225,10 +225,10 @@ export class TopNavMenuComponent implements OnInit {
           disableMarkupShapeRoundedRectangleButton: true,
           disableMarkupShapePolygonButton: true,
           enableGrayscaleButton: this.compareService.isComparisonActive,
-          // disableImages: true,
-          // disableSignature: true,
-          // disableLinks: true,
-          // disableSymbol: true,
+          disableImages: true,
+          disableSignature: true,
+          disableLinks: true,
+          disableSymbol: true,
         });
       } else {
 
@@ -263,10 +263,10 @@ export class TopNavMenuComponent implements OnInit {
             disableMarkupShapeRoundedRectangleButton: false,
             disableMarkupShapePolygonButton: false,
             enableGrayscaleButton: this.compareService.isComparisonActive,
-            // disableImages: true,
-            // disableSignature: true,
-            // disableLinks: true,
-            // disableSymbol: true,
+            disableImages: true,
+            disableSignature: true,
+            disableLinks: true,
+            disableSymbol: true,
           });
         } else {
 
@@ -286,10 +286,10 @@ export class TopNavMenuComponent implements OnInit {
               disableMarkupArrowButton: true,
               disableMarkupCountButton: false,
               disableMarkupMeasureButton: false,
-              // disableImages: true,
-              // // disableSignature: true,
-              // disableLinks: true,
-              // disableSymbol: true,
+              disableImages: true,
+              disableSignature: true,
+              disableLinks: true,
+              disableSymbol: true,
             });
             this.annotationToolsService.setMeasurePanelState({ visible: true }); 
             
@@ -311,9 +311,9 @@ export class TopNavMenuComponent implements OnInit {
               disableMarkupArrowButton: false,
               disableMarkupCountButton: true,
               disableMarkupMeasureButton: true,
-              // disableImages: false, 
-              // disableLinks: false,
-              // disableSymbol: false,
+              disableImages: false, 
+              disableLinks: false,
+              disableSymbol: false,
             });
             
           }

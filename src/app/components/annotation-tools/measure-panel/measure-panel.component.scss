@@ -52,9 +52,11 @@
         line-height: 16px;
         // color: #A4ABAE;  
         width: 380px;
+        overflow-y: visible !important;
         
         .current-scale {
             padding-top: 10px;
+            padding-bottom: 15px;
             display: flex;
             flex-direction: row;
             justify-content: space-evenly;
@@ -81,6 +83,81 @@
             
         }
 
+        .scale-list {
+            padding-top: 10px;
+            padding-bottom: 15px;
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+
+            .unscaled {
+                border: 1px solid #A4ABAE;
+                border-radius: 4px;
+                padding: 6px 10px 6px 10px;
+                display: flex;
+                align-items: center;
+                width: 250px;  
+                margin-left: 20px;              
+            }
+
+            .scale-dropdown-section {
+                width: 250px;
+                padding-left: 20px;
+                padding-right: 10px;
+            }
+        }
+
+        .scale-settings {
+            padding-top: 15px;
+            
+            .scale-input {
+                display: flex;
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;  
+                padding-bottom: 15px;            
+                
+                div {
+                    padding-left: 10px;
+
+                    &:first-child {
+                        padding-left: 0;
+                    }
+                }
+
+                input {
+                    padding: 10px 10px 10px 9px;
+                    border: 1px solid #EDF1F2;
+                    border-radius: 4px;                    
+                    width: 40px;
+
+                    &:focus {
+                        border: 1px solid #A4ABAE;
+                        outline: none;
+                    }
+                }
+            }
+
+            .scale-precision-section {
+                display: flex;
+                flex-direction: row;
+                // justify-content: space-between;
+                align-items: center;
+                padding-bottom: 15px;            
+                
+                div {
+                    padding-right: 24px;
+                }                
+            }
+
+            .btn-section {
+                display: flex;
+                justify-content: center;
+            }
+            
+        }
+
         .scale-container {
 
             .scale-precision-section {
@@ -95,7 +172,8 @@
         }
 
         .calibrate-container {
-            font-size: 12px;            
+            font-size: 12px;  
+            padding-bottom: 15px;          
         }
         
         .calibrate-container .settings {

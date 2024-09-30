@@ -99,6 +99,9 @@ export const MARKUP_TYPES = {
     LINK: {
         type: 20
         },
+    INTERACTIVESTAMP: {
+        type: 21
+        },
 }
 export const METRIC = {
     UNIT_TYPES: {

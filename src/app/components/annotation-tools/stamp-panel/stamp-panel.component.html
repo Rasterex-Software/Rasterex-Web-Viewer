@@ -4,6 +4,7 @@
       <div class="btn-group" id="tabs" role="group"> 
         <button [class.selected]="activeIndexStamp === 1" (click)="activeIndexStamp = 1">Custom</button>
         <button [class.selected]="activeIndexStamp === 2" (click)="activeIndexStamp = 2">Interactive</button>
+        <button [class.selected]="activeIndexStamp === 2" (click)="activeIndexStamp = 3">Editale Interactive</button>
       </div>
   
       <!-- Templates Section -->
@@ -42,10 +43,30 @@
           </div>
         </div>
         <div class="add-custom-stamp">
-          <button class="btn btn-primary" (click)="interactiveStampOpened = true">Create Interactive Stamp</button>
+          <input  type="file" id="uploadScript" (change)="uploadInteractiveStampScript($event)" accept=".js" hidden #uploadScript/> 
+          <button class="btn btn-primary" (click)="uploadScript.click()">Add Interactive Stamp</button>
         </div>
       </section>
-      
+
+      <section *ngIf="activeIndexStamp === 3">
+        <div class="templates-list">
+          <div *ngFor="let template of interactiveStampes; let i = index" style="display: flex; align-items: center;">
+            <div [innerHTML]="template.svgContent" 
+                 [style.width.px]="template.width" 
+                 [style.height.px]="template.height"
+                 style="display: inline-block;">
+            </div>
+            <button (click)="deleteInteractiveStamp(i)" 
+                    style="border: none; background: none; cursor: pointer; padding: 0; margin-left: 8px;">
+              <img src="/assets/images/trash-ico.svg" />
+            </button>
+          </div>
+        </div>
+        <div class="add-custom-stamp">
+          <input type="file" id="uploadScript" (change)="uploadInteractiveStampScript($event)" accept=".js" hidden #uploadScript/>
+          <button class="btn btn-primary" (click)="uploadScript.click()">Add Interactive Stamp</button>
+        </div>
+      </section>
       
     </div>
   </rx-panel>

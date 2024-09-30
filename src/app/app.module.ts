@@ -75,7 +75,7 @@ import { SymbolsLibraryComponent } from './components/annotation-tools/symbols-l
 import { LinksLibraryComponent } from './components/annotation-tools/links-library/links-library.component';
 import { LinkDragDropDirective } from './components/annotation-tools/links-library/link-draggable.directive';
 import { InteractiveStampTemplateDirective } from './components/annotation-tools/stamp-panel/interactive-stamp-template.directive ';
-
+import { SafeHtmlPipe } from './SafeHtmlPipe';
 
 @NgModule({
   declarations: [
@@ -140,8 +140,8 @@ import { InteractiveStampTemplateDirective } from './components/annotation-tools
     ImageDragDropDirective,
     SymbolsLibraryComponent,
     LinksLibraryComponent,
-    LinkDragDropDirective
-
+    LinkDragDropDirective,
+    SafeHtmlPipe
   ],
   imports: [
     BrowserModule,

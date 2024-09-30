@@ -13,7 +13,7 @@ export class InteractiveStampTemplateDirective {
 
     console.log(event.dataTransfer.effectAllowed);
 
-    RXCore.markupSymbol(true);
+    RXCore.markupinteractiveStamp(true);
     event.dataTransfer.effectAllowed = "move";
 
     
@@ -23,7 +23,7 @@ export class InteractiveStampTemplateDirective {
 
   @HostListener('dragend', ['$event'])
   onDragEnd(event: DragEvent): void {
-    RXCore.markupSymbol(false);
+    RXCore.markupinteractiveStamp(false);
   }
 
 }

@@ -25,6 +25,7 @@
     "leader-line": "^1.0.7",
     "lodash-es": "^4.17.21",
     "ngx-color": "^9.0.0",
+    "ngx-indexed-db": "^19.0.0",
     "ngx-slider-v2": "^16.0.2",
     "ngx-toastr": "^18.0.0",
     "rgb-hex": "^4.0.1",

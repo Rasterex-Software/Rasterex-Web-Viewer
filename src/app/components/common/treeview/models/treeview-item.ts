@@ -1,4 +1,4 @@
-import { isBoolean, isNil, isString } from 'lodash';
+import { isBoolean, isNil, isString } from 'lodash-es';
 import { TreeviewHelper } from '../helpers/treeview-helper';
 
 export interface TreeviewSelection {

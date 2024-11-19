@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { isNil } from 'lodash';
+import { isNil } from 'lodash-es';
 import { TreeviewItem } from '../models/treeview-item';
 import { TreeviewComponent } from '../components/treeview/treeview.component';
 

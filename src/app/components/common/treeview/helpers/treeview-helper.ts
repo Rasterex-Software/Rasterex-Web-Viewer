@@ -1,4 +1,4 @@
-import { concat, isNil, pull } from 'lodash';
+import { concat, isNil, pull } from 'lodash-es';
 import { TreeviewItem } from '../models/treeview-item';
 
 export const TreeviewHelper = {

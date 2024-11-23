@@ -1,5 +1,5 @@
 import { Component, Input, Output, EventEmitter, SimpleChanges, OnChanges, TemplateRef, OnInit } from '@angular/core';
-import { isNil, includes } from 'lodash-es';
+import { isNil, includes } from 'lodash';
 import { TreeviewItem, TreeviewSelection } from '../../models/treeview-item';
 import { TreeviewConfig } from '../../models/treeview-config';
 import { TreeviewHeaderTemplateContext } from '../../models/treeview-header-template-context';

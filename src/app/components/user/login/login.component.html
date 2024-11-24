@@ -1,0 +1,41 @@
+<!-- TODO: make login configurable -->
+<ng-container>
+    <div class="login-container">
+        <!-- If not logged in yet, show login button -->
+        <div *ngIf="!username && !isLoggingIn">
+            <button id="loginButton" class="login-button" (click)="openLoginDialog()">Login</button>
+        </div>
+        <!-- If logged in, show username -->
+        <div *ngIf="username && !isLoggingOut" class="welcome">
+            <div>Welcome {{ username }}</div>
+            <button id="logoutButton" class="login-button" (click)="onLogoutClick()">Logout</button>
+        </div>
+        <!-- Logging in -->
+        <div *ngIf="isLoggingIn">
+            <span>Logging in...</span>
+        </div>
+        <!-- Logging out -->
+        <div *ngIf="isLoggingOut">
+            <span>Logging out...</span>
+        </div>
+        <!-- Login failed -->
+        <div *ngIf="isLoginFailed">
+            <span>Failed to login...</span>
+        </div>
+        <!-- Login Dialog -->
+        <div *ngIf="loginPanelOpened" class="login-panel">
+            <div>
+                <label for="username" class="label">Username:</label>
+                <input type="text" id="username" class="input" [(ngModel)]="loginUsername">
+            </div>
+            <div>
+                <label for="password" class="label">Password:</label>
+                <input type="password" id="password" class="input" [(ngModel)]="loginPassword">
+            </div>
+            <div class="buttons">
+                <button id="login" class="button" [disabled]="!loginUsername || !loginPassword" (click)="onLogin()">Login</button>
+                <button id="cancel" class="button" (click)="closeLoginDialog()">Cancel</button>
+            </div>
+        </div>
+    </div>
+</ng-container>

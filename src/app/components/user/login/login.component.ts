@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { RxCoreService } from 'src/app/services/rxcore.service';
+import { RXCore } from 'src/rxcore';
 import { UserService } from '../user.service';
 
 @Component({
@@ -10,6 +11,7 @@ import { UserService } from '../user.service';
 export class LoginComponent implements OnInit {
   guiMode$ = this.rxCoreService.guiMode$;
   username = '';
+  displayName = '';
   isLoggingIn = false;
   isLoggingOut = false;
   isLoginFailed = false;
@@ -41,9 +43,15 @@ export class LoginComponent implements OnInit {
     this.userService.login(this.loginUsername, this.loginPassword).subscribe({
       next: (v) => {
         this.username = this.loginUsername;
+        this.displayName = v.displayName;
         this.isLoggingIn = false;
         this.loginPanelOpened = false;
+        // TODO: hard code projId to 1
+        this.userService.getPermissions(1, v.id);
+
         this.closeLoginDialog();
+
+        RXCore.setUser(v.username, v.displayName);
         console.log('Login success:', v);
       },
       error: (e) => {

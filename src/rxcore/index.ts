@@ -45,8 +45,6 @@ export class RXCore {
         RxCore.openFile(fileUrl);
     }*/
 
-    
-
     public static setThumbnailSize(w:number, h:number): void {
         RxCore.setThumbnailSize(w,h);
     }
@@ -1071,5 +1069,9 @@ export class RXCore {
     
     public static onGuiScaleListLoadComplete(callback: Function): void {
         RxCore.GUI_scaleListLoadComplete.connect(callback);
+    }
+
+    public static setUser(sign: string, uname: string) : void {
+        RxCore.setUser(sign, uname);
     }
 }

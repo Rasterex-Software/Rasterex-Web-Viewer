@@ -59,7 +59,7 @@ export class SignatureComponent implements OnInit {
     this.rxCoreService.guiState$.subscribe((state) => {
       this.visible = state.isPDF;
       this.numpages = state.numpages;
-      RXCore.lockMarkup(false);
+      //RXCore.lockMarkup(false);
       RXCore.singlePageScrollPan(this.visible);
     });
 

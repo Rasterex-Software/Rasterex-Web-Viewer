@@ -6,6 +6,7 @@ import { NotificationService } from './components/notification/notification.serv
 import { MARKUP_TYPES } from 'src/rxcore/constants';
 import { AnnotationToolsService } from './components/annotation-tools/annotation-tools.service';
 import { RecentFilesService } from './components/recent-files/recent-files.service';
+import { UserService } from './components/user/user.service';
 import { Title } from '@angular/platform-browser';
 
 @Component({
@@ -37,6 +38,7 @@ export class AppComponent implements AfterViewInit {
     private readonly rxCoreService: RxCoreService,
     private readonly fileGaleryService: FileGaleryService,
     private readonly notificationService: NotificationService,
+    private readonly userService: UserService,
     private titleService:Title) { }
 
   ngOnInit() {
@@ -48,7 +50,7 @@ export class AppComponent implements AfterViewInit {
         this.eventUploadFile = false;
       }
     });
-    
+
   }
 
   ngAfterViewInit(): void {
@@ -112,9 +114,7 @@ export class AppComponent implements AfterViewInit {
       /*if(this.bguireadycalled){
         return;
       }*/
-
       
-
     });
 
     RXCore.onGuiFoxitReady((initialDoc: any) => {
@@ -130,8 +130,6 @@ export class AppComponent implements AfterViewInit {
 
 
       this.rxCoreService.guiFoxitReady.next();
-
-
 
     });
 
@@ -165,8 +163,6 @@ export class AppComponent implements AfterViewInit {
     });
 
     RXCore.onGuiFileLoadComplete(() => {
-      
-
       let FileInfo = RXCore.getCurrentFileInfo();
 
       //this.title = FileInfo.name;
@@ -179,7 +175,15 @@ export class AppComponent implements AfterViewInit {
       this.rxCoreService.guiFileLoadComplete.next();
 
       
-      
+      // TODO: The settings are effective after the file is loaded completely.
+      this.userService.canUpdateAnnotation$.subscribe((canUpdate) => {
+        // By setting the markup lock, operations such as dragging the markup with the mouse are prohibited.
+        RXCore.lockMarkup(!canUpdate);
+      });
+
+      this.userService.canViewAnnotation$.subscribe((canView) => {
+        //RXCore.hideMarkUp();
+      });
 
     });
     

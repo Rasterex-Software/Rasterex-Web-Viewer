@@ -4,6 +4,8 @@ import { RXCore } from 'src/rxcore';
 import { RxCoreService } from 'src/app/services/rxcore.service';
 import { MARKUP_TYPES } from 'src/rxcore/constants';
 import { IGuiConfig } from 'src/rxcore/models/IGuiConfig';
+import { UserService } from '../user/user.service';
+import { firstValueFrom, lastValueFrom } from 'rxjs';
 
 @Component({
   selector: 'rx-annotation-tools',
@@ -76,10 +78,15 @@ export class AnnotationToolsComponent implements OnInit {
       || this.isActionSelected["MEASURE_AREA"]
       || this.isActionSelected["MEASURE_PATH"];
   };
+  
+  canAddAnnotation = this.userService.canAddAnnotation$;
+  canUpdateAnnotation = this.userService.canUpdateAnnotation$;
+  canDeleteAnnotation = this.userService.canDeleteAnnotation$;
 
   constructor(
     private readonly service: AnnotationToolsService,
-    private readonly rxCoreService: RxCoreService) { }
+    private readonly rxCoreService: RxCoreService,
+    private readonly userService: UserService) { }
 
   ngOnInit(): void {
     this.guiConfig$.subscribe(config => {

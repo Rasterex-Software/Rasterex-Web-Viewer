@@ -7,7 +7,7 @@
         </div>
         <!-- If logged in, show username -->
         <div *ngIf="username && !isLoggingOut" class="welcome">
-            <div>Welcome {{ username }}</div>
+            <div>Welcome {{ displayName || username }}</div>
             <button id="logoutButton" class="login-button" (click)="onLogoutClick()">Logout</button>
         </div>
         <!-- Logging in -->

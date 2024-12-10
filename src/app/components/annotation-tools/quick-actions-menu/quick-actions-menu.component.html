@@ -2,35 +2,36 @@
     *ngIf="((guiMode$ | async) == 'annotate' || (guiMode$ | async) == 'compare' || (guiMode$ | async) == 'measure' ) && visible"
     class="quick-actions-container"
     [ngStyle]="{ 'top.px' : rectangle.y, 'left.px' : rectangle.x }">
-    <ul class="menu" [class.bottom]="rectangle.position == 'bottom'">
+    <ul *ngIf="((canUpdateAnnotation | async) || (canDeleteAnnotation | async))"
+    class="menu" [class.bottom]="rectangle.position == 'bottom'">
         <li
-            *ngIf="annotation.type != 11 && annotation.type != 20"
+            *ngIf="(annotation.type != 11 && annotation.type != 20) && (canUpdateAnnotation | async)"
             (click)="onEditClick()">
                 <img id="quickActionsMenuEdit" src="/assets/images/pen-ico.svg" />
         </li>
-        <li
+        <li *ngIf="(canDeleteAnnotation | async)" 
             (click)="onDeleteClick()">
                 <img src="/assets/images/trash-ico.svg" />
         </li>
-        <li *ngIf="annotation.type != 20">
+        <li *ngIf="(annotation.type != 20) && (canUpdateAnnotation | async)">
             <img src="/assets/images/copy-ico.svg" (click)="copyMarkUp()"/>
         </li>
 <!--         <li (click)="onNoteClick()">
             <img src="/assets/images/comment-ico.svg" />
         </li>
  -->        <li
-            *ngIf="annotation.bCanHaveLink && !annotation.bhaveLink"
+            *ngIf="(annotation.bCanHaveLink && !annotation.bhaveLink) && (canUpdateAnnotation | async)"
             (click)="addLink = true;"
             [ngClass]="{'is-link': addLink}">
                 <img src="/assets/images/link-ico.svg" />
             </li>
         <li
-            *ngIf="annotation.bhaveLink"
+            *ngIf="annotation.bhaveLink && (canUpdateAnnotation | async)"
             (click)="addLink = true; message = 'Edit link'">
                 <img src="/assets/images/unlink.svg" />
         </li>
         <li
-            *ngIf="annotation.type == 6 && annotation.subtype < 4"
+            *ngIf="(annotation.type == 6 && annotation.subtype < 4) && (canUpdateAnnotation | async)"
             (click)="onSnapClick()"
             [class.is-link]="snap">
                 <img src="/assets/images/snap-ico.svg" />
@@ -41,7 +42,7 @@
                 <img src="/assets/images/markup-info-ico.svg" />
         </li>
 
-        <li *ngIf="annotation.type == 20" (click)="onRedirectClick()">
+        <li *ngIf="annotation.type == 20 && (canUpdateAnnotation | async)" (click)="onRedirectClick()">
             <img src="/assets/images/link.svg"  />
         </li>
 

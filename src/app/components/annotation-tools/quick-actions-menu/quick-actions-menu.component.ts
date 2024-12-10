@@ -4,6 +4,7 @@ import { RxCoreService } from 'src/app/services/rxcore.service';
 import { AnnotationToolsService } from '../annotation-tools.service';
 import { MARKUP_TYPES } from 'src/rxcore/constants';
 import { NotificationService } from '../../notification/notification.service';
+import { UserService } from '../../user/user.service';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -37,10 +38,14 @@ export class QuickActionsMenuComponent implements OnInit, OnDestroy {
   message: string = 'Add link';
   snap: boolean = false;
 
+  canUpdateAnnotation = this.userService.canUpdateAnnotation$;
+  canDeleteAnnotation = this.userService.canDeleteAnnotation$;
+
   constructor(
     private readonly rxCoreService: RxCoreService,
     private readonly annotationToolsService: AnnotationToolsService,
-    private readonly notificationService: NotificationService) {}
+    private readonly notificationService: NotificationService,
+    private readonly userService: UserService) {}
 
   private _setPosition(): void {
     const markup = this.annotation;
@@ -238,6 +243,10 @@ export class QuickActionsMenuComponent implements OnInit, OnDestroy {
     });
 
     this.rxCoreService.guiOnMarkupChanged.subscribe(({annotation, operation}) => {
+      this.visible = false;
+    });
+
+    this.userService.canDeleteAnnotation$.subscribe((hasPermission) => {
       this.visible = false;
     });
   }

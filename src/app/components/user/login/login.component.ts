@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { RxCoreService } from 'src/app/services/rxcore.service';
-import { UserService } from '../user.service';
 import { RXCore } from 'src/rxcore';
+import { User, UserService } from '../user.service';
 
 @Component({
   selector: 'rx-login',
@@ -11,6 +11,7 @@ import { RXCore } from 'src/rxcore';
 export class LoginComponent implements OnInit {
   guiMode$ = this.rxCoreService.guiMode$;
   username = '';
+  displayName = '';
   isLoggingIn = false;
   isLoggingOut = false;
   isLoginFailed = false;
@@ -39,37 +40,41 @@ export class LoginComponent implements OnInit {
 
   onLogin() {
     this.isLoggingIn = true;
-    this.userService.login(this.loginUsername, this.loginPassword).subscribe({
-      next: (v) => {
+    this.userService.login(this.loginUsername, this.loginPassword)
+      .then((user: User) => {
         this.username = this.loginUsername;
-        this.isLoggingIn = false;
+        this.displayName = user.displayName || '';
         this.loginPanelOpened = false;
         this.closeLoginDialog();
-        RXCore.setUser(this.username, this.username);
-        console.log('Login success:', v);
+        RXCore.setUser(user.username, user.displayName || user.username);
 
-        
-
-      },
-      error: (e) => {
+        console.log('Login success:', user);
+        // TODO: hard code projId to 1
+        this.userService.getPermissions(1, user.id).then(res => this.userService.setUserPermissions(res));
+        this.userService.getAnnotations(1).then(res => {
+          this.userService.setAnnotations(res);
+        });
+      }).catch((e) => {
         console.error('Login failed:', e.error);
         alert(e.error.message);
+      }).finally(() => {
         this.isLoggingIn = false;
-      },
-      complete: () => {
-      }
-    });
+      });
   }
 
   onLogoutClick() {
     this.isLoggingOut = true;
-    this.userService.logout().subscribe({
-      next: (v) => console.log(v),
-      error: (e) => console.error(e),
-      complete: () => {
+    this.userService.logout()
+      .then(() => {
+        this.userService.setUserPermissions(); // clear permissions
         this.username = '';
+        RXCore.setUser('', '');
+      })
+      .catch((e) => {
+        console.error('Logout failed:', e.error);
+      })
+      .finally(() => {
         this.isLoggingOut = false;
-      }
-    });
+      });
   }
 }

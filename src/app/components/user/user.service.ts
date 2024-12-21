@@ -236,11 +236,6 @@ export class UserService {
    * TODO: move this function out of user.service
    */
   setUserPermissions(perms?: ProjectUserPermission[]) {
-    if (Array.isArray(perms)) {
-      const permKeys = perms.map((item) => item.permission.key).join(',');
-      console.log('Permissions:', permKeys);
-    }
-
     let canViewAnnotation = false;
     let canAddAnnotation = false;
     let canUpdateAnnotation = false;

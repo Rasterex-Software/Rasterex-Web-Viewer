@@ -12,10 +12,13 @@ export class LoginComponent implements OnInit {
   guiMode$ = this.rxCoreService.guiMode$;
   username = '';
   displayName = '';
+  email = '';
+  permissions = '';
   isLoggingIn = false;
   isLoggingOut = false;
   isLoginFailed = false;
   loginPanelOpened = false;
+  userInfoPanelOpened = false;
   loginUsername = '';
   loginPassword = '';
 
@@ -38,19 +41,34 @@ export class LoginComponent implements OnInit {
     this.isLoggingIn = false;
   }
 
+  toggleUserInfoPanel() {
+    this.userInfoPanelOpened = !this.userInfoPanelOpened;
+  }
+
+  closeUserInfoPanel() {
+    this.userInfoPanelOpened = false;
+  }
+
   onLogin() {
     this.isLoggingIn = true;
     this.userService.login(this.loginUsername, this.loginPassword)
       .then((user: User) => {
         this.username = this.loginUsername;
         this.displayName = user.displayName || '';
+        this.email = user.email;
         this.loginPanelOpened = false;
         this.closeLoginDialog();
         RXCore.setUser(user.username, user.displayName || user.username);
 
         console.log('Login success:', user);
         // TODO: hard code projId to 1
-        this.userService.getPermissions(1, user.id).then(res => this.userService.setUserPermissions(res));
+        this.userService.getPermissions(1, user.id).then(res => {
+          this.userService.setUserPermissions(res);
+          if (Array.isArray(res)) {
+            const permKeys = res.map((item) => item.permission.key).join(', ');
+            this.permissions = permKeys;
+          }
+        });
         this.userService.getAnnotations(1).then(res => {
           this.userService.setAnnotations(res);
         });
@@ -68,6 +86,7 @@ export class LoginComponent implements OnInit {
       .then(() => {
         this.userService.setUserPermissions(); // clear permissions
         this.username = '';
+        this.email = '';
         RXCore.setUser('', '');
       })
       .catch((e) => {
@@ -75,6 +94,7 @@ export class LoginComponent implements OnInit {
       })
       .finally(() => {
         this.isLoggingOut = false;
+        this.userInfoPanelOpened = false;
       });
   }
 }

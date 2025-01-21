@@ -88,8 +88,18 @@ export class FileGaleryComponent implements OnInit {
       }
     });
 
-    
-
+    // If we can find the roomName and userName in the URL, we will create a collabService
+    // There maybe a better way to open a file, we may refactor this later
+    const parameters = window.location.search;
+    const urlParams = new URLSearchParams(parameters);
+    const userName = urlParams.get('userName');
+    const roomName = urlParams.get('roomName');
+    if (userName && roomName) {
+      // don't know why we need to wait for a while, there is console error if we call directly
+      setTimeout(() => {
+        this.handleFileSelect(this.groups[0].items[0]);
+      }, 1000);
+    }
   }
 
   

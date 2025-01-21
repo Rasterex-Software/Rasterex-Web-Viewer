@@ -9,6 +9,8 @@ import { RecentFilesService } from './components/recent-files/recent-files.servi
 import { UserService } from './components/user/user.service';
 import { Title } from '@angular/platform-browser';
 import { IGuiConfig } from 'src/rxcore/models/IGuiConfig';
+import { CollabService } from './services/collab.service';
+import { FileGaleryComponent } from './components/file-galery/file-galery.component';
 
 
 @Component({
@@ -40,7 +42,7 @@ export class AppComponent implements AfterViewInit {
   timeoutId: any;
   isUploadFile: boolean = false;
   pasteStyle: { [key: string]: string } = { display: 'none' };
-
+  collabService?: CollabService;
 
   constructor(
     private readonly recentfilesService: RecentFilesService,
@@ -69,7 +71,18 @@ export class AppComponent implements AfterViewInit {
         this.eventUploadFile = false;
       }
     });
-    
+
+    // if we can find the roomName and userName in the URL, we will create a collabService
+    const parameters = window.location.search;
+    const urlParams = new URLSearchParams(parameters);
+    const userName = urlParams.get('userName');
+    const roomName = urlParams.get('roomName');
+    if (userName && roomName) {
+      this.collabService = new CollabService(roomName, userName);
+      // We need to call openModal() here, so it can call handleFileSelect() in file-galery
+      // TODO: there should be a better logic to open a file!
+      this.fileGaleryService.openModal();
+    }
   }
   
 
@@ -237,6 +250,12 @@ export class AppComponent implements AfterViewInit {
       console.log('RxCore GUI_Markup:', annotation, operation);
       if (annotation !== -1 || this.rxCoreService.lastGuiMarkup.markup !== -1) {
         this.rxCoreService.setGuiMarkup(annotation, operation);
+
+        // If collab feature is enabled, send the markup message to the server
+        // Handle created/deleted here
+        if (annotation !== -1 && this.collabService && (operation.created || operation.deleted)) {
+          this.collabService.sendMarkupMessage(annotation.getJSON(), operation);
+        }
       }
 
     });
@@ -362,6 +381,12 @@ export class AppComponent implements AfterViewInit {
 
     RXCore.onGuiMarkupChanged((annotation, operation) => {
       this.rxCoreService.guiOnMarkupChanged.next({annotation, operation});
+
+      // Handle modified here
+      // This event will be triggered many times, we may avoid updating too friquently (TODO)
+      if (annotation !== -1 && this.collabService) {
+        this.collabService.sendMarkupMessage(annotation.getJSON(), { modified: true});
+      }
     });
 
     RXCore.onGuiPanUpdated((sx, sy, pagerect) => { 

@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>JS Document Collaboration Demo | Rasterex Viewer</title>
+  <base href="/">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <script type="text/javascript" src="assets/scripts/jquery-2.1.0.min.js"></script>
+  <style>
+    iframe {
+      position: absolute;
+      width: 50%;
+      height: 100%;
+      border: none;
+    }
+    #iframe1 {
+      left: 0px;
+    }
+    #iframe2 {
+      right: 0px;
+    }
+  </style>
+</head>
+
+<body>
+  <div>
+    <iframe id="iframe1" href=""></iframe>
+    <iframe id="iframe2" href=""></iframe>
+  </div>
+  <script>
+    const getUniqueRoomName = () => {
+      const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+      let roomName = 'Room_';
+      for (let i = 0; i < 8; i++) {
+        const randomIndex = Math.floor(Math.random() * characters.length);
+        roomName += characters[randomIndex];
+      }
+      return roomName;
+    }
+    const roomName = getUniqueRoomName();
+    const rootUrl = window.location.protocol + '//' + window.location.host;
+    const url1 = rootUrl + '?userName=user1&roomName=' + roomName;
+    const url2 = rootUrl + '?userName=user2&roomName=' + roomName;
+    console.log('[Collab] url1:', url1);
+    console.log('[Collab] url2:', url2);
+    $('#iframe1').attr('src', url1);
+    $('#iframe2').attr('src', url2);
+  </script>
+</body>
+</html>

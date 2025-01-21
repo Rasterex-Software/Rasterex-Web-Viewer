@@ -1157,4 +1157,8 @@ export class RXCore {
     public static onGuiScaleListLoadComplete(callback: Function): void {
         RxCore.GUI_scaleListLoadComplete.connect(callback);
     }
+
+    public static setMarkupfromJSON(markupJSON: any): void {
+        RxCore.setMarkupfromJSON(markupJSON);
+    }
 }

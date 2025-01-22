@@ -49,6 +49,9 @@ export class UserService {
 
   private accessToken = '';
 
+  private _currentUser = new BehaviorSubject<User | null>(null);
+  public currentUser$ = this._currentUser.asObservable();
+
   /** Permission-related */
   private _canViewAnnotation : BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   private _canAddAnnotation : BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
@@ -61,6 +64,7 @@ export class UserService {
 
   constructor(private http: HttpClient) {
     // when a user is not logged in, he can do everything
+    this._currentUser.next(null);
     this._canViewAnnotation.next(true);
     this._canAddAnnotation.next(true);
     this._canUpdateAnnotation.next(true);
@@ -77,6 +81,7 @@ export class UserService {
       this.http.post<any>(url, body, options).subscribe({
         next: (v: any) => {
           this.accessToken = v.accessToken;
+          this._currentUser.next(v.user);
           resolve(v.user);
         },
         error: (e: ResponseMessage) => {
@@ -94,6 +99,7 @@ export class UserService {
       this.http.get<any>(url, options).subscribe({
         next: (v: ResponseMessage) => {
           this.accessToken = '';
+          this._currentUser.next(null);
           console.log('logout result:', v);
           resolve();
         },
@@ -103,6 +109,13 @@ export class UserService {
         }
       });
     });
+  }
+
+  /**
+   * Gets current user.
+   */
+  getCurrentUser(): User | null {
+    return this._currentUser.value;
   }
 
   /**

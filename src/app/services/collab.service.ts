@@ -28,24 +28,28 @@ export class CollabService {
   private socket: Socket;
   // a user can only join one room now!
   private roomName: string;
+  private username: string;
 
-  constructor(roomName: string, userName?: string) {
-    console.log(`[Collab] userName: ${userName}, roomName: ${roomName}`);
-
+  constructor(roomName: string, username?: string) {
     const socket = io(this.apiUrl);
     this.socket = socket;
     this.roomName = roomName;
+    this.username = username || '';
 
     socket.on('connect', () => {
       this.joinRoom();
     });
     socket.on('disconnect', () => {
-      console.log(`[Collab] ${userName} disconnected`);
+      console.log(`[Collab] ${this.username} disconnected`);
     });
     socket.on(this.ROOM_MESSAGE, (msg) => {
-      console.log(`[Collab] ${userName} received message:`, msg);
+      console.log(`[Collab] ${this.username} received message:`, msg);
       this.handleMessage(msg);
     });
+  }
+
+  setUsername(username: string) {
+    this.username = username;
   }
 
   private sendMessage(msg: CollabMessage) {

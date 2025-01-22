@@ -72,13 +72,13 @@ export class AppComponent implements AfterViewInit {
       }
     });
 
-    // if we can find the roomName and userName in the URL, we will create a collabService
-    const parameters = window.location.search;
-    const urlParams = new URLSearchParams(parameters);
-    const userName = urlParams.get('userName');
-    const roomName = urlParams.get('roomName');
-    if (userName && roomName) {
-      this.collabService = new CollabService(roomName, userName);
+    // if we can find the roomName in the URL, we will create a collabService
+    const parameters = new URLSearchParams(window.location.search);
+    const roomName = parameters.get('roomName');
+    if (roomName) {
+      const user = this.userService.getCurrentUser();
+      const username = user?.username || '';
+      this.collabService = new CollabService(roomName, username);
       // We need to call openModal() here, so it can call handleFileSelect() in file-galery
       // TODO: there should be a better logic to open a file!
       this.fileGaleryService.openModal();
@@ -99,11 +99,12 @@ export class AppComponent implements AfterViewInit {
     RXCore.usePDFAnnotProxy(this.createPDFAnnotproxy);
     
 
+    const user = this.userService.getCurrentUser();
     let JSNObj = [
       {
           Command: "GetConfig",
-          UserName: "Demo",
-          DisplayName : "Demo User"
+          UserName: user?.username || "Demo",
+          DisplayName : user?.displayName || "Demo User"
           
       }
     ];
@@ -226,6 +227,22 @@ export class AppComponent implements AfterViewInit {
 
             
       this.rxCoreService.guiFileLoadComplete.next();
+
+      this.userService.currentUser$.subscribe((user) => {
+        const username = user?.username || '';
+        if (this.collabService) {
+          this.collabService.setUsername(username);
+        }
+
+        let JSNObj = [
+          {
+              Command: "GetConfig",
+              UserName: user?.username || "Demo",
+              DisplayName : user?.displayName || "Demo User"
+          }
+        ];
+        RXCore.setJSONConfiguration(JSNObj);
+      });
 
       // TODO: The settings are effective after the file is loaded completely.
       this.userService.canUpdateAnnotation$.subscribe((canUpdate) => {

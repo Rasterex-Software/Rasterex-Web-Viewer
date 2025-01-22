@@ -41,12 +41,10 @@
     }
     const roomName = getUniqueRoomName();
     const rootUrl = window.location.protocol + '//' + window.location.host;
-    const url1 = rootUrl + '?userName=user1&roomName=' + roomName;
-    const url2 = rootUrl + '?userName=user2&roomName=' + roomName;
-    console.log('[Collab] url1:', url1);
-    console.log('[Collab] url2:', url2);
-    $('#iframe1').attr('src', url1);
-    $('#iframe2').attr('src', url2);
+    const url = `${rootUrl}?roomName=${roomName}`;
+    console.log('[Collab] iframe.src:', url);
+    $('#iframe1').attr('src', url);
+    $('#iframe2').attr('src', url);
   </script>
 </body>
 </html>

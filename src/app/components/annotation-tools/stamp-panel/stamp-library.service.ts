@@ -7,8 +7,8 @@ import { StampStoreData, StampType } from './StampData';
   providedIn: 'root'
 })
 export class StampLibraryService {
-  //private apiUrl = 'http://viewserver.rasterex.com:8080/';
-  private apiUrl = 'http://localhost:8080/';
+  private apiUrl = 'http://viewserver.rasterex.com:8080/';
+  //private apiUrl = 'http://localhost:8080/';
 
   constructor(private http: HttpClient) { }
 

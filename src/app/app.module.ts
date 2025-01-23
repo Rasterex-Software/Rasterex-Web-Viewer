@@ -32,6 +32,7 @@ import { ColorHelper } from './helpers/color.helper';
 
 import { NgxSliderModule } from 'ngx-slider-v2';
 import { ColorChromeModule } from 'ngx-color/chrome';
+import { NgxIndexedDBModule, DBConfig } from 'ngx-indexed-db';
 import { AngularDraggableModule } from 'angular2-draggable';
 import { SwitchComponent } from './components/common/switch/switch.component';
 import { VectorLayersComponent } from './components/side-nav-menu/vector-layers/vector-layers.component';
@@ -97,7 +98,24 @@ import { CommentStatusIconComponent } from './components/annotation-tools/commen
 
 import { LoginComponent } from './components/user/login/login.component';
 
-
+const storeSchema = [
+  { name: 'name', keypath: 'name', options: { unique: false } },
+  { name: 'data', keypath: 'data', options: { unique: false } },
+];
+const dbConfig: DBConfig  = {
+  name: 'RasterXDb',
+  version: 1,
+  objectStoresMeta: [
+    { store: 'CustomStamp',
+      storeConfig: { keyPath: 'id', autoIncrement: true },
+      storeSchema 
+    },
+    { store: 'UploadStamp',
+      storeConfig: { keyPath: 'id', autoIncrement: true },
+      storeSchema 
+    }
+  ]
+};
 
 
 @NgModule({
@@ -187,6 +205,7 @@ import { LoginComponent } from './components/user/login/login.component';
     DragDropModule,
     BrowserAnimationsModule,
     NgxSliderModule,
+    NgxIndexedDBModule.forRoot(dbConfig),
     ColorChromeModule,
     AngularDraggableModule,
     TreeviewModule.forRoot(),

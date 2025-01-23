@@ -19,10 +19,10 @@
       <!-- Custom Section -->
       <section *ngIf="activeIndexStamp === 1">
         <div class="templates-list">
-          <div *ngFor="let template of customStampes;let i = index" style="display: flex; align-items: center;">
+          <div *ngFor="let template of customStamps;let i = index" style="display: flex; align-items: center;">
    
             <img [stampTemplate]="template" [src]="template.src" [ngStyle]="{ 'width.px': template.width, 'height.px': template.height }" style="margin: 2px;">
-            <button (click)="deleteCustomStamp(i)" style="border: none; background: none; cursor: pointer; padding: 0; margin-left: 8px;">
+            <button (click)="deleteCustomStamp(template.id)" style="border: none; background: none; cursor: pointer; padding: 0; margin-left: 8px;">
               <img src="/assets/images/trash-ico.svg" />
             </button>
           </div>

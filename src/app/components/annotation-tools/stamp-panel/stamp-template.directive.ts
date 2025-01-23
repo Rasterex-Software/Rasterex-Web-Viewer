@@ -17,6 +17,7 @@ export class StampTemplateDirective {
     //console.log(event.dataTransfer.effectAllowed);
     const blobUrl = this.svgToBlobUrl(this.svgString);
     this.stampTemplate.src = blobUrl;
+    this.stampTemplate.svgContent = this.svgString;
 
     //RXCore.markupSymbol(true);
     RXCore.markupImageStamp(true);

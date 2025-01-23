@@ -5,6 +5,7 @@ import { RXCore } from 'src/rxcore';
 import { RxCoreService } from 'src/app/services/rxcore.service';
 import { ColorHelper } from 'src/app/helpers/color.helper';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { StampStorageService } from './stamp-storage.service';
 
 @Component({
   selector: 'rx-stamp-panel',
@@ -36,11 +37,10 @@ export class StampPanelComponent implements OnInit {
   timeDefaultText: string;
   strokeWidth: number = 1;
   strokeColor: string = '#000000';
-  strokeRadius: number = 0;
+  strokeRadius: number = 8;
   activeIndexStamp: number = 1;
-  customStamps: any[] = [];
   svgContent: string = '';
-  customStampes: StampData[] = [];
+  customStamps: StampData[] = [];
   interactiveStampes: StampData[] = [];
   font: any;
   color: string;
@@ -58,7 +58,8 @@ export class StampPanelComponent implements OnInit {
   safeSvgContents: SafeHtml[] = [];
 
   constructor(  private readonly rxCoreService: RxCoreService, private cdr: ChangeDetectorRef,
-                private readonly colorHelper: ColorHelper,private sanitizer: DomSanitizer
+                private readonly colorHelper: ColorHelper,private sanitizer: DomSanitizer,
+                private readonly storageService: StampStorageService
   ) {}
   private _setDefaults(): void {
 
@@ -163,27 +164,37 @@ export class StampPanelComponent implements OnInit {
     this.getCustomStamps();
     this.getInteractiveStamps();
   }
- 
-  getCustomStamps() {
-    let stamps = JSON.parse(localStorage.getItem('CustomStamps') || '[]');
-    const stampPromises = stamps.map(async (item: any) => {
+
+  private async convertToStampData(item: any): Promise<StampData> {
       const blobUrl = await this.convertBase64ToBlobUrl(item.content);
+      const svgContent = atob(item.content);
+      const { width, height } = this.extractSvgDimensions(svgContent);
       return {
         id: item.id,
+        name: item.name,
         src: blobUrl,
-        height: 75, 
-        width: 210 
+        height: height || 75, 
+        width: width || 210 
       };
-    });
-  
-    // Resolve all promises to get the stamp data
-    Promise.all(stampPromises).then(resolvedStamps => {
-      this.customStampes = resolvedStamps;
-      console.log('Stamps retrieved successfully:', this.customStampes);
+  }
+ 
+  getCustomStamps() {
+    this.storageService.getAllCustomStamps().then((stamps: any[]) => {
+      const stampPromises = stamps.map(async (item: any) => {
+        return this.convertToStampData({id: item.id, ...JSON.parse(item.data)});
+      });
+
+      // Resolve all promises to get the stamp data
+      Promise.all(stampPromises).then(resolvedStamps => {
+        this.customStamps = resolvedStamps;
+        console.log('Stamps retrieved successfully:', this.customStamps);
+      }).catch(error => {
+        console.error('Failed to convert stamps:', error);
+      });;
+
     }).catch(error => {
       console.error('Error retrieving stamps:', error);
     });
-
   }
   getInteractiveStamps() {
     let stamps = JSON.parse(localStorage.getItem('InteractiveStamps') || '[]');
@@ -231,16 +242,17 @@ export class StampPanelComponent implements OnInit {
   }
 
   
-  deleteCustomStamp(index: number): void {
-    let stamps = JSON.parse(localStorage.getItem('CustomStamps') || '[]');
-    
-    if (index > -1 && index < stamps.length) {
-      stamps.splice(index, 1);
-      localStorage.setItem('CustomStamps', JSON.stringify(stamps));
-      this.getCustomStamps();
-    } else {
-      console.error('Invalid index for deleting Custom Stamp');
-    }
+  deleteCustomStamp(id: number): void {
+    this.storageService.deleteCustomStamp(id).then(() => {
+       for (let i = 0; i < this.customStamps.length; i++) {
+        if (this.customStamps[i].id === id) {
+          this.customStamps.splice(i, 1);
+          break;
+        }
+      }
+    }).catch(error => {
+      console.error('Error deleting stamp:', error);
+    });
   }
   deleteInteractiveStamp(index: number): void {
     let stamps = JSON.parse(localStorage.getItem('InteractiveStamps') || '[]');
@@ -342,7 +354,7 @@ getSvgData(): string {
     this.svgContent = this.getSvgData();
     
     const svgBase64 = btoa(this.svgContent);
-    const stampName = 'custom-stamp.svg';
+    const stampName = 'custom-stamp_' + new Date().getTime();
     const stampType = 'image/svg+xml';
 
     const newStamp = {
@@ -350,11 +362,18 @@ getSvgData(): string {
       type: stampType,
       content: svgBase64
     };
-    let stamps = JSON.parse(localStorage.getItem('CustomStamps') || '[]');
-    stamps.push(newStamp);
-    localStorage.setItem('CustomStamps', JSON.stringify(stamps));
-    this.opened = false;
-    this.getCustomStamps();
+    // let stamps = JSON.parse(localStorage.getItem('CustomStamps') || '[]');
+    // stamps.push(newStamp);
+    // localStorage.setItem('CustomStamps', JSON.stringify(stamps));
+    this.storageService.addCustomStamp(newStamp).then(async (item: any) => {
+      console.log('Custom stamp added successfully:', item);
+      const stampData = await this.convertToStampData({id: item.id, ...newStamp});
+      this.customStamps.push(stampData);
+      this.opened = false;
+    }).catch(error => {
+      console.error('Error adding custom stamp:', error);
+    });
+   
     // const link = document.createElement('a');
     // link.href = 'data:image/svg+xml;base64,' + svgBase64;
     // link.download = 'custom-stamp.svg';

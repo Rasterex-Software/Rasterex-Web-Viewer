@@ -52,7 +52,7 @@
         </div>
     </div>
     <div class="top-nav-item button burger" #burger>
-        <div class="dropdown" [class.opened]="burgerOpened" (click)="burgerOpened = !burgerOpened">
+        <div class="dropdown" [class.opened]="burgerOpened" [class.disabled]="isCollabActive" (click)="handleOpenBurgerMenu()">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M13.25 5.24805H2.75C2.325 5.24805 2 4.92241 2 4.49658C2 4.07075 2.325 3.74512 2.75 3.74512H13.25C13.675 3.74512 14 4.07075 14 4.49658C14 4.92241 13.675 5.24805 13.25 5.24805Z" fill="#333C4E"/>
                 <path d="M13.25 8.75195H2.75C2.325 8.75195 2 8.42611 2 8C2 7.57389 2.325 7.24805 2.75 7.24805H13.25C13.675 7.24805 14 7.57389 14 8C14 8.42611 13.675 8.75195 13.25 8.75195Z" fill="#333C4E"/>
@@ -157,7 +157,7 @@
             </div>
         </div>
     </div>
-    <div class="top-nav-item pages">
+    <div class="top-nav-item pages" [class.disable]="isCollabActive">
         <rx-opened-files-tabs></rx-opened-files-tabs>
     </div>
 

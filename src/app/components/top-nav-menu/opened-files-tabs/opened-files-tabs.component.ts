@@ -9,6 +9,7 @@ import { AnnotationToolsService } from '../../annotation-tools/annotation-tools.
 import { SideNavMenuService } from '../../side-nav-menu/side-nav-menu.service';
 import { GuiMode } from 'src/rxcore/enums/GuiMode';
 import { MeasurePanelService } from '../../annotation-tools/measure-panel/measure-panel.service';
+import { CollabService } from 'src/app/services/collab.service';
 
 declare var bringIframeToFront;
 declare var hideAllIframes;
@@ -24,6 +25,7 @@ export class OpenedFilesTabsComponent implements OnInit {
   activeFile: any = null;
   droppableIndex: number | undefined = undefined;
   closeDocumentModal: boolean = false;
+  isCollabActive: boolean = false;
 
   constructor(
     private readonly rxCoreService: RxCoreService,
@@ -33,7 +35,8 @@ export class OpenedFilesTabsComponent implements OnInit {
     private readonly compareService: CompareService,
     private readonly measurePanelService: MeasurePanelService,
     private readonly annotationToolsService: AnnotationToolsService,
-    private readonly sideNavMenuService: SideNavMenuService
+    private readonly sideNavMenuService: SideNavMenuService,
+    private readonly collabService: CollabService
     ) {}
 
   private _getOpenFilesList(): Array<any> {
@@ -163,11 +166,17 @@ export class OpenedFilesTabsComponent implements OnInit {
       // this._closeTab(file);
       this._closeTabWithSaveConfirmModal(file);
     })
+
+    this.collabService.isCollabActive$.subscribe(isActive=>{
+      this.isCollabActive = isActive;
+    });
   }
 
   handleCloseTab(event, file): void {
     event.preventDefault();
     event.stopPropagation();
+
+    if(this.isCollabActive) return;
 
     if (file.comparison && RXCore.markupChanged) {
       this.compareService.onUnsavedChanges.next();

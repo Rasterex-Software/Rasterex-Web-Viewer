@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { RXCore } from 'src/rxcore';
 // import { RxCoreService } from './rxcore.service';
 import { io, Socket } from 'socket.io-client';
+import { BehaviorSubject, Observable } from 'rxjs';
 
 const MessageId = {
   JoinRoom: "JoinRoom",
@@ -30,7 +31,14 @@ export class CollabService {
   private roomName: string;
   private username: string;
 
-  constructor(roomName: string, username?: string) {
+  private _isActive: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  public isCollabActive$: Observable<boolean> = this._isActive.asObservable();
+
+  constructor() {
+  }
+
+  public connect(roomName: string, username?: string){
+
     const socket = io(this.apiUrl);
     this.socket = socket;
     this.roomName = roomName;
@@ -46,6 +54,8 @@ export class CollabService {
       console.log(`[Collab] ${this.username} received message:`, msg);
       this.handleMessage(msg);
     });
+
+    this._isActive.next(true);
   }
 
   setUsername(username: string) {

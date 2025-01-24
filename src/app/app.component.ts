@@ -42,7 +42,6 @@ export class AppComponent implements AfterViewInit {
   timeoutId: any;
   isUploadFile: boolean = false;
   pasteStyle: { [key: string]: string } = { display: 'none' };
-  collabService?: CollabService;
 
   constructor(
     private readonly recentfilesService: RecentFilesService,
@@ -50,6 +49,7 @@ export class AppComponent implements AfterViewInit {
     private readonly fileGaleryService: FileGaleryService,
     private readonly notificationService: NotificationService,
     private readonly userService: UserService,
+    private readonly collabService: CollabService,
     private titleService:Title) { }
 
   ngOnInit() {
@@ -78,7 +78,7 @@ export class AppComponent implements AfterViewInit {
     if (roomName) {
       const user = this.userService.getCurrentUser();
       const username = user?.username || '';
-      this.collabService = new CollabService(roomName, username);
+      this.collabService.connect(roomName, username);
       // We need to call openModal() here, so it can call handleFileSelect() in file-galery
       // TODO: there should be a better logic to open a file!
       this.fileGaleryService.openModal();

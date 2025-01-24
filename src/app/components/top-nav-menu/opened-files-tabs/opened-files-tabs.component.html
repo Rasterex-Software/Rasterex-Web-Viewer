@@ -46,7 +46,7 @@
                 </span>
             </div>
         </ng-template>
-        <span class="close" (click)="handleCloseTab($event, file)">&times;</span>
+        <span class="close" [class.disabled]="isCollabActive" (click)="handleCloseTab($event, file)">&times;</span>
     </div>
 </ng-template>
 

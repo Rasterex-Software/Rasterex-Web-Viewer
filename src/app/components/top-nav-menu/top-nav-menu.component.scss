@@ -79,6 +79,10 @@
             &.opened {
                 background-color: #EDF1F2;
             }
+            &.disabled {
+                cursor: not-allowed;
+                opacity: .5;
+            }
         }
 
         .options-container {

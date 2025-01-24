@@ -12,6 +12,7 @@ import { Subscription } from 'rxjs';
 import { SideNavMenuService } from '../side-nav-menu/side-nav-menu.service';
 import { MeasurePanelService } from '../annotation-tools/measure-panel/measure-panel.service';
 import { ActionType } from './type';
+import { CollabService } from 'src/app/services/collab.service';
 
 
 @Component({
@@ -55,6 +56,7 @@ export class TopNavMenuComponent implements OnInit {
   private guiOnNoteSelected: Subscription;
   currentScaleValue: string;
   fileLength: number = 0;
+  isCollabActive: boolean = false;
   
   constructor(
     private readonly fileGaleryService: FileGaleryService,
@@ -64,7 +66,8 @@ export class TopNavMenuComponent implements OnInit {
     private readonly compareService: CompareService,
     private readonly service: TopNavMenuService,
     private readonly sideNavMenuService: SideNavMenuService,
-    private readonly measurePanelService: MeasurePanelService
+    private readonly measurePanelService: MeasurePanelService,
+    private readonly collabService: CollabService
     ) {
   }
 
@@ -156,7 +159,9 @@ export class TopNavMenuComponent implements OnInit {
       this.fileLength = length;
     });
 
-
+    this.collabService.isCollabActive$.subscribe(isActive => {
+      this.isCollabActive = isActive;
+    })
   }
 
   /* Listeners */
@@ -527,5 +532,8 @@ export class TopNavMenuComponent implements OnInit {
     this.guiOnNoteSelected.unsubscribe();
   }
 
-
+  handleOpenBurgerMenu() {
+    if(!this.burgerOpened && this.isCollabActive) return;
+    this.burgerOpened = !this.burgerOpened;
+  }
 }

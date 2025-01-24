@@ -29,6 +29,11 @@
             .close {
                 cursor: pointer;
                 font-size: 18px;
+
+                &.disabled {
+                    cursor: not-allowed;
+                    opacity: .5;
+                }
             }
 
             &.comparison {

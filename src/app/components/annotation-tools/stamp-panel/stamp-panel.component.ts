@@ -18,9 +18,7 @@ export class StampPanelComponent implements OnInit {
   formConfig: any[];
   @Output() onClose: EventEmitter<void> = new EventEmitter<void>();
   @ViewChild('stampPreview', { static: false }) stampPreview: ElementRef<HTMLDivElement>;
-  templates: any = STAMP_TEMPLATES;
   opened: boolean = false;
-  interactiveStampOpened: boolean = false;
   activeIndex: number = 0;
 
   stampText: string = 'Draft';
@@ -32,6 +30,8 @@ export class StampPanelComponent implements OnInit {
   username: boolean = false;
   date: boolean = false;
   time: boolean = false;
+  subTextFontSize = 6;
+  textOffset = this.subTextFontSize;
   usernameDefaultText: string = 'Demo';
   dateDefaultText: string;
   timeDefaultText: string;
@@ -40,10 +40,12 @@ export class StampPanelComponent implements OnInit {
   strokeRadius: number = 8;
   activeIndexStamp: number = 1;
   svgContent: string = '';
+  templates: any = STAMP_TEMPLATES;
   customStamps: StampData[] = [];
-  interactiveStampes: StampData[] = [];
+  uploadImageStamps: StampData[] = [];
   font: any;
   color: string;
+  fillColor = "#ffffff";
   snap: boolean = false;
   isTextAreaVisible: boolean = false;
   fillOpacity: number = 0;
@@ -98,7 +100,7 @@ export class StampPanelComponent implements OnInit {
   }
   
   get subtleTextStyle(): string {
-    let style = `font-family: ${this.selectedFontStyle}; font-size: 6px; fill: ${this.textColor};`;
+    let style = `font-family: ${this.selectedFontStyle}; font-size: ${this.subTextFontSize}px; fill: ${this.textColor};`;
     if (this.isBold) style += ` font-weight: bold;`;
     if (this.isItalic) style += ` font-style: italic;`;
     return style;
@@ -108,10 +110,6 @@ export class StampPanelComponent implements OnInit {
     const date = this.date ? this.dateDefaultText : '';
     const time = this.time ? this.timeDefaultText : '';
     return `${userName} ${date} ${time}`.trim();
-  }
-
-  get hasTimestampp(): boolean {
-    return this.username || this.date || this.time;
   }
 
   get textX(): number {
@@ -162,19 +160,22 @@ export class StampPanelComponent implements OnInit {
       }; 
     });
     this.getCustomStamps();
-    this.getInteractiveStamps();
+    this.getUploadImageStamps();
   }
 
   private async convertToStampData(item: any): Promise<StampData> {
-      const blobUrl = await this.convertBase64ToBlobUrl(item.content);
-      const svgContent = atob(item.content);
-      const { width, height } = this.extractSvgDimensions(svgContent);
+      const blobUrl = await this.convertBase64ToBlobUrl(item.content, item.type);
+      // const svgContent = atob(item.content);
+      // const { width, height } = this.extractSvgDimensions(svgContent);
+      const width = 210;
+      const height = 75;
       return {
         id: item.id,
         name: item.name,
         src: blobUrl,
-        height: height || 75, 
-        width: width || 210 
+        type: item.type,
+        height: height, 
+        width: width
       };
   }
  
@@ -187,7 +188,7 @@ export class StampPanelComponent implements OnInit {
       // Resolve all promises to get the stamp data
       Promise.all(stampPromises).then(resolvedStamps => {
         this.customStamps = resolvedStamps;
-        console.log('Stamps retrieved successfully:', this.customStamps);
+        console.log('Custom stamps retrieved successfully:', this.customStamps);
       }).catch(error => {
         console.error('Failed to convert stamps:', error);
       });;
@@ -196,30 +197,26 @@ export class StampPanelComponent implements OnInit {
       console.error('Error retrieving stamps:', error);
     });
   }
-  getInteractiveStamps() {
-    let stamps = JSON.parse(localStorage.getItem('InteractiveStamps') || '[]');
-    const stampPromises = stamps.map(async (item: any) => {
-      const blobUrl = await this.convertBase64ToBlobUrl(item.content);
-      const svgContent = await this.fetchSvgContent(blobUrl);
-      const { width, height } = this.extractSvgDimensions(svgContent);
-      return {
-        id: item.id,
-        src: blobUrl,
-        height: height || 200,  
-        width: width || 400, 
-        svgContent: this.sanitizer.bypassSecurityTrustHtml(svgContent),
-      };
-    });
-  
-    // Resolve all promises to get the stamp data
-    Promise.all(stampPromises).then(resolvedStamps => {
-      this.interactiveStampes = resolvedStamps;
-      console.log('Interactive Stampes retrieved successfully:', this.interactiveStampes);
+
+  getUploadImageStamps() {
+    this.storageService.getAllUploadImageStamps().then((stamps: any[]) => {
+      const stampPromises = stamps.map(async (item: any) => {
+        return this.convertToStampData({id: item.id, ...JSON.parse(item.data)});
+      });
+
+      // Resolve all promises to get the stamp data
+      Promise.all(stampPromises).then(resolvedStamps => {
+        this.uploadImageStamps = resolvedStamps;
+        console.log('Upload image stamps retrieved successfully:', this.uploadImageStamps);
+      }).catch(error => {
+        console.error('Failed to convert stamps:', error);
+      });;
+
     }).catch(error => {
       console.error('Error retrieving stamps:', error);
     });
-
   }
+ 
    extractSvgDimensions(svgContent: string): { width: number, height: number } {
     const parser = new DOMParser();
     const svgDoc = parser.parseFromString(svgContent, 'image/svg+xml');
@@ -254,24 +251,13 @@ export class StampPanelComponent implements OnInit {
       console.error('Error deleting stamp:', error);
     });
   }
-  deleteInteractiveStamp(index: number): void {
-    let stamps = JSON.parse(localStorage.getItem('InteractiveStamps') || '[]');
-    
-    if (index > -1 && index < stamps.length) {
-      stamps.splice(index, 1);
-      localStorage.setItem('InteractiveStamps', JSON.stringify(stamps));
-      this.getInteractiveStamps();
-    } else {
-      console.error('Invalid index for deleting interactive stamp');
-    }
-  }
   
-  async convertBase64ToBlobUrl(base64Data: string): Promise<string> {
-    const blob = await this.convertBase64ToBlob(base64Data);
+  async convertBase64ToBlobUrl(base64Data: string, type: string): Promise<string> {
+    const blob = await this.convertBase64ToBlob(base64Data, type);
     return URL.createObjectURL(blob);
   }
   
-  convertBase64ToBlob(base64Data: string): Promise<Blob> {
+  convertBase64ToBlob(base64Data: string, type: string): Promise<Blob> {
     return new Promise((resolve, reject) => {
       const byteCharacters = atob(base64Data);
       const byteNumbers = new Array(byteCharacters.length);
@@ -279,12 +265,20 @@ export class StampPanelComponent implements OnInit {
         byteNumbers[i] = byteCharacters.charCodeAt(i);
       }
       const byteArray = new Uint8Array(byteNumbers);
-      resolve(new Blob([byteArray], { type: 'image/svg+xml' }));
+      resolve(new Blob([byteArray], { type }));
     });
   }
+
+  onChangeSubTitle() {
+    this.textOffset = this.hasTimestamp() ? 0 : this.subTextFontSize;
+  }
+
   onColorSelect(color: string): void {
     this.textColor = color;
     this.color = color;
+  }
+  onFillColorSelect(color: string): void {
+    this.fillColor = color;
   }
   onTextStyleSelect(font): void {
     this.font = font;
@@ -336,8 +330,8 @@ getSvgData(): string {
 
   return `
     <svg xmlns="http://www.w3.org/2000/svg" width="${svgWidth}" height="${svgHeight}">
-      <rect x="${strokeWidth / 2}" y="${strokeWidth / 2}" width="${svgWidth - strokeWidth}" height="${svgHeight - strokeWidth}" fill="none" stroke="${this.strokeColor}" stroke-width="${strokeWidth}" rx="${cornerRadius}" ry="${cornerRadius}"/>
-      <text x="${textX}" y="${textY}" text-anchor="middle" alignment-baseline="middle" font-size="${fontSize}" style="font-family: ${this.selectedFontStyle}; fill: ${this.textColor};">
+      <rect x="${strokeWidth / 2}" y="${strokeWidth / 2}" width="${svgWidth - strokeWidth}" height="${svgHeight - strokeWidth}" fill="${this.fillColor}" stroke="${this.strokeColor}" stroke-width="${strokeWidth}" rx="${cornerRadius}" ry="${cornerRadius}"/>
+      <text x="${textX}" y="${textY + this.subTextFontSize}" text-anchor="middle" alignment-baseline="middle" font-size="${fontSize}" style="font-family: ${this.selectedFontStyle}; fill: ${this.textColor};">
         <tspan>${this.stampText}</tspan>
         ${this.hasTimestamp()? `<tspan x="${textX}" dy="2.2em" style="${timestampStyle}">${this.timestampText}</tspan>` : ''}
       </text>
@@ -345,11 +339,6 @@ getSvgData(): string {
   `;
 }
 
-
-
-
-
-  
   uploadCustomStamp(): void {
     this.svgContent = this.getSvgData();
     
@@ -380,164 +369,76 @@ getSvgData(): string {
     // link.click();
   }
  
+  
+  
+handleImageUpload(event: any) {
+  const files = event.target.files;
+  const uploadPromises: Promise<void>[] = [];
 
-  uploadInteractiveStampScript(event: Event): void {
-    const file = (event.target as HTMLInputElement).files?.[0];
-    if (file) {
-      const reader = new FileReader();
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i];
+    const reader = new FileReader();
+
+    const uploadPromise = new Promise<void>((resolve, reject) => {
       reader.onload = (e) => {
-        const fileContent = reader.result as string;
-  
-        // Extract the JSON-like part from the file content
-        const configMatch = fileContent.match(/const\s+form\s*=\s*(\[[\s\S]*?\]);/);
-        if (configMatch && configMatch[1]) {
-          try {
-            // Evaluate the configuration part
-            const config = eval('(' + configMatch[1] + ')');
-            this.form = config;
-  
-            // Update the form with default values
-            this.uploadInteractiveStamp();
-          } catch (error) {
-            console.error('Error parsing configuration:', error);
-          }
-        } else {
-          console.error('Configuration data not found in the file.');
-        }
-      };
-      reader.readAsText(file);
-    }
-  }
-  
-  uploadInteractiveStamp(): void {
-    const svgContent = this.getInteractiveSvgData();
-    const svgBase64 = btoa(unescape(encodeURIComponent(svgContent)));
-    const stampName = 'interactive-stamp-form.svg';
-    const stampType = 'image/svg+xml';
-  
-    const newStamp = {
-      name: stampName,
-      type: stampType,
-      content: svgBase64
-    };
-  
-    let stamps = JSON.parse(localStorage.getItem('InteractiveStamps') || '[]');
-    stamps.push(newStamp);
-    localStorage.setItem('InteractiveStamps', JSON.stringify(stamps));
-    this.interactiveStampOpened = false;
-    this.getInteractiveStamps();
-  }
-  
-  getInteractiveSvgData(): string {
-    const itemWidth = 130; // Width for each radio button group
-    const itemSpacing = 10; // Space between radio buttons
-    const fieldWidth = 170; // Width for each input field
-    const fieldHeight = 40; // Height for each input field
-    const lineHeight = 50; // Height for each line
-    const padding = 10; // Padding for elements
-    const heightpadding = 70; // Padding for elements
-    
-    // Create radio button content
-    let radioButtons = '';
-    let radioYPosition = padding;
-    let radioXPosition = padding;
-    let totalHeight = heightpadding; // Start with padding
-  
-    this.form.forEach((item: any, index: number) => {
-      if (item.radioButtons) {
-        item.radioButtons.forEach((button: any, btnIndex: number) => {
-          const col = btnIndex % 3; // Determine column index
-          const row = Math.floor(btnIndex / 3); // Determine row index
-          radioXPosition = padding + (itemWidth + itemSpacing) * col;
-          radioYPosition = padding + row * lineHeight;
-          radioButtons += `
-            <foreignObject x="${radioXPosition}" y="${radioYPosition}" width="${itemWidth}" height="30">
-              <body xmlns="http://www.w3.org/1999/xhtml">
-                <div class="editable">
-                  <input type="radio" class="radio-btn" id="radio-${index}-${btnIndex}" name="radio-group-${index}" />
-                  <label for="radio-${index}-${btnIndex}">${button.description}</label>
-                </div>
-              </body>
-            </foreignObject>
-          `;
+        const imageDataWithPrefix = e.target?.result as string;
+
+        // Dynamically determine the prefix and remove it
+        const base64Index = imageDataWithPrefix.indexOf('base64,') + 'base64,'.length;
+        const imageData = imageDataWithPrefix.substring(base64Index);
+
+        const imageName = file.name + '_' + new Date().getTime();
+        const imageType = file.type;
+
+        const imageObject = {
+          content: imageData,
+          name: imageName,
+          type: imageType
+        };
+        
+        this.storageService.addUploadImageStamp(imageObject).then(async (item: any) => {
+          console.log('Upload image stamp added successfully:', item);
+          const stampData = await this.convertToStampData({id: item.id, ...imageObject});
+          this.uploadImageStamps.push(stampData);
+
+          resolve(); // Resolve the promise after storing the image
+
+        }).catch(error => {
+          reject(error);
         });
-        // Update total height after radio buttons
-        totalHeight = Math.max(totalHeight, radioYPosition + lineHeight);
-      }
+
+      };
+
+      reader.onerror = (error) => {
+        reject(error); // Reject the promise if there's an error
+      };
+
+      // Read the file as data URL
+      reader.readAsDataURL(file);
     });
-  
-    // Adjust yPosition to the next section after radio buttons
-    let yPosition = totalHeight + padding;
-  
-    // Create field content with labels and input boxes
-    let fields = '';
-    this.form.forEach((item: any, index: number) => {
-      if (item.field) {
-        const col = index % 2; //column index
-        const row = Math.floor(index / 2); // row index
-        const fieldXPosition = padding + (fieldWidth + padding) * col;
-        const fieldYPosition = yPosition + row * lineHeight;
-  
-        fields += `
-          <text x="${fieldXPosition}" y="${fieldYPosition + 12}" font-size="12" font-family="Arial">${item.description}:</text>
-          <foreignObject x="${fieldXPosition}" y="${fieldYPosition + 20}" width="${fieldWidth}" height="${fieldHeight}">
-            <body xmlns="http://www.w3.org/1999/xhtml">
-              <div class="editable">
-                <input type="text" placeholder="${item.description}" style="width: 100%; height: 100%;" />
-              </div>
-            </body>
-          </foreignObject>
-        `;
-  
-        // Update total height after each field
-        totalHeight = Math.max(totalHeight, fieldYPosition + fieldHeight + padding);
-      }
-    });
-  
-    // Increase SVG height based on content height and add 20% extra space
-    const svgHeight = (totalHeight + padding) * 1.2;
-  
-    // Generate SVG content
-    return `
-      <svg xmlns="http://www.w3.org/2000/svg" width="400" height="${svgHeight}">
-        <rect x="0" y="0" width="400" height="${svgHeight - 35}" fill="none" stroke="black" stroke-width="2" rx="5" ry="5"/>
-        
-        <!-- Dynamic radio buttons -->
-        ${radioButtons}
-        
-        <!-- Dynamic labels and input boxes -->
-        ${fields}
-      </svg>
-    `;
-}
 
-updateStampContent(id: string): void {
-  let stamps = JSON.parse(localStorage.getItem('InteractiveStamps') || '[]');
-  const updatedStamps = stamps.map((stamp: any) => {
-      if (stamp.id === id) {
-          // Extract updated SVG content here
-          const updatedSvgContent = this.extractUpdatedSvgContent(id);
-          return { ...stamp, content: updatedSvgContent };
-      }
-      return stamp;
-  });
-  localStorage.setItem('InteractiveStamps', JSON.stringify(updatedStamps));
-  this.getInteractiveStamps();
-}
-
-
-extractUpdatedSvgContent(id: string): string {
-  const element = document.getElementById(id);
-  if (element instanceof SVGSVGElement) {
-      return new XMLSerializer().serializeToString(element);
-  } else {
-      console.error('Element with the given ID is not an SVGSVGElement');
-      return '';
+    uploadPromises.push(uploadPromise); // Push the upload promise to the array
   }
+
+  Promise.all(uploadPromises).then(() => {
+     console.log('Image stamps uploaded successfully');
+  });
+}
+
+deleteImageStamp(id: number): void {
+  this.storageService.deleteUploadImageStamp(id).then(() => {
+     for (let i = 0; i < this.uploadImageStamps.length; i++) {
+      if (this.uploadImageStamps[i].id === id) {
+        this.uploadImageStamps.splice(i, 1);
+        break;
+      }
+    }
+  }).catch(error => {
+    console.error('Error deleting image stamp:', error);
+  });
 }
 
 
-  
   onLogoSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files[0]) {

@@ -6,20 +6,20 @@ import { RXCore } from 'src/rxcore';
 })
 export class StampTemplateDirective {
   @Input() stampTemplate: any;
-  private svgString = '';
 
   @HostListener('dragstart', ['$event'])
   onDragStart(event: DragEvent): void {
     if (!event.dataTransfer) return;
 
-    this.svgString = this.replaceDateTimeInSvg(this.convertBlobUrlToSvgString(this.stampTemplate.src));
+    if (this.stampTemplate.type === 'image/svg+xml') {
+      const svgString = this.replaceDateTimeInSvg(this.convertBlobUrlToSvgString(this.stampTemplate.src));
 
-    //console.log(event.dataTransfer.effectAllowed);
-    const blobUrl = this.svgToBlobUrl(this.svgString);
-    this.stampTemplate.src = blobUrl;
-    this.stampTemplate.svgContent = this.svgString;
+      //console.log(event.dataTransfer.effectAllowed);
+      const blobUrl = this.svgToBlobUrl(svgString);
+      this.stampTemplate.src = blobUrl;
+      this.stampTemplate.svgContent = svgString;
+    }
 
-    //RXCore.markupSymbol(true);
     RXCore.markupImageStamp(true);
     event.dataTransfer.effectAllowed = "move";
 

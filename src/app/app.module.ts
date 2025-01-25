@@ -81,7 +81,6 @@ import { ImageDragDropDirective } from './components/image-library/image-draggab
 import { SymbolsLibraryComponent } from './components/annotation-tools/symbols-library/symbols-library.component';
 import { LinksLibraryComponent } from './components/annotation-tools/links-library/links-library.component';
 import { LinkDragDropDirective } from './components/annotation-tools/links-library/link-draggable.directive';
-import { InteractiveStampTemplateDirective } from './components/annotation-tools/stamp-panel/interactive-stamp-template.directive ';
 import { SafeHtmlPipe } from './SafeHtmlPipe';
 
 import { SearchPanelComponent } from './components/annotation-tools/search-panel/search-panel.component';
@@ -161,7 +160,6 @@ const dbConfig: DBConfig  = {
     NotificationComponent,
     StampPanelComponent,
     StampTemplateDirective,
-    InteractiveStampTemplateDirective,
     MeasurePanelComponent,
     SignatureComponent,
     CheckboxComponent,

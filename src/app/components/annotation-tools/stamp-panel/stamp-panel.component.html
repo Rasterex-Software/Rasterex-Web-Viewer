@@ -2,25 +2,25 @@
     <div class="stamp-panel-container">
       <!-- Tab Buttons -->
       <div class="btn-group" id="tabs" role="group"> 
-        <button [class.selected]="activeIndexStamp === 1" (click)="activeIndexStamp = 1">Custom</button>
-        <button [class.selected]="activeIndexStamp === 2" (click)="activeIndexStamp = 2">Interactive</button>
-        <button [class.selected]="activeIndexStamp === 2" (click)="activeIndexStamp = 3">Editable Interactive</button>
+        <button [class.selected]="activeIndexStamp === 1" (click)="activeIndexStamp = 1">Standard</button>
+        <button [class.selected]="activeIndexStamp === 2" (click)="activeIndexStamp = 2">Custom</button>
+        <button [class.selected]="activeIndexStamp === 3" (click)="activeIndexStamp = 3">UploadImage</button>
       </div>
   
-      <!-- Templates Section -->
-      <!-- <section *ngIf="activeIndexStamp === 0">
-        <div class="templates-list">
-          <div *ngFor="let template of templates;">
-            <img [stampTemplate]="template" [src]="template.src" [ngStyle]="{ 'width.px': template.width, 'height.px': template.height }" />
-          </div>
-        </div>
-      </section> -->
-  
-      <!-- Custom Section -->
+      <!-- Standard Section -->
       <section *ngIf="activeIndexStamp === 1">
         <div class="templates-list">
-          <div *ngFor="let template of customStamps;let i = index" style="display: flex; align-items: center;">
+          <div *ngFor="let template of templates;let i = index" style="display: flex; align-items: center;">
    
+            <img [stampTemplate]="template" [src]="template.src" [ngStyle]="{ 'width.px': template.width, 'height.px': template.height }" style="margin: 2px;">
+          </div>
+        </div>
+      </section>
+
+      <!-- Custom Section -->
+      <section *ngIf="activeIndexStamp === 2">
+        <div class="templates-list">
+          <div *ngFor="let template of customStamps;let i = index" style="display: flex; align-items: center;" >
             <img [stampTemplate]="template" [src]="template.src" [ngStyle]="{ 'width.px': template.width, 'height.px': template.height }" style="margin: 2px;">
             <button (click)="deleteCustomStamp(template.id)" style="border: none; background: none; cursor: pointer; padding: 0; margin-left: 8px;">
               <img src="/assets/images/trash-ico.svg" />
@@ -31,41 +31,23 @@
           <button class="btn btn-primary" (click)="opened = true">Create Custom Stamp</button>
         </div>
       </section>
-
-      <!-- Interactive Section -->
-      <section *ngIf="activeIndexStamp === 2">
-        <div class="templates-list">
-          <div *ngFor="let template of interactiveStampes;let i = index" style="display: flex; align-items: center;" >
-            <img [interactiveStampTemplate]="template" [src]="template.src" [ngStyle]="{ 'width.px': template.width, 'height.px': template.height }" style="margin: 2px;">
-            <button (click)="deleteInteractiveStamp(i)" style="border: none; background: none; cursor: pointer; padding: 0; margin-left: 8px;">
-              <img src="/assets/images/trash-ico.svg" />
-            </button>
-          </div>
-        </div>
-        <div class="add-custom-stamp">
-          <input  type="file" id="uploadScript" (change)="uploadInteractiveStampScript($event)" accept=".js" hidden #uploadScript/>
-          <!-- <button class="btn btn-primary" (click)="interactiveStampOpened = true">Create Interactive Stamp</button> -->
-          <button class="btn btn-primary" (click)="uploadScript.click()">Add Interactive Stamp</button>
-        </div>
-      </section>
       
+      <!-- UploadImage Section -->
       <section *ngIf="activeIndexStamp === 3">
         <div class="templates-list">
-          <div *ngFor="let template of interactiveStampes; let i = index" style="display: flex; align-items: center;">
-            <div [innerHTML]="template.svgContent" 
-                 [style.width.px]="template.width" 
-                 [style.height.px]="template.height"
-                 style="display: inline-block;">
-            </div>
-            <button (click)="deleteInteractiveStamp(i)" 
-                    style="border: none; background: none; cursor: pointer; padding: 0; margin-left: 8px;">
+          <div *ngFor="let template of uploadImageStamps; let i = index" style="display: flex; align-items: center;" class="image-container">
+            <img
+            [stampTemplate]="template"
+            [src]="template.src"
+            [ngStyle]="{ 'width.px': template.width, 'height.px': template.height }" />
+            <button (click)="deleteImageStamp(template.id)" style="border: none; background: none; cursor: pointer; padding: 0; margin-left: 8px;">
               <img src="/assets/images/trash-ico.svg" />
             </button>
-          </div>
+          </div>   
         </div>
         <div class="add-custom-stamp">
-          <input type="file" id="uploadScript" (change)="uploadInteractiveStampScript($event)" accept=".js" hidden #uploadScript/>
-          <button class="btn btn-primary" (click)="uploadScript.click()">Add Interactive Stamp</button>
+          <input type="file" #fileUpload (change)="handleImageUpload($event)" style="display: none;" multiple>
+          <button type="button" id="upload_button" class="btn btn-primary" (click)="fileUpload.click()">Upload Image Stamp</button>
           
         </div>
       </section>
@@ -84,10 +66,10 @@
       <!-- Preview -->
       <div id="preview">
         <svg [attr.width]="svgWidth" [attr.height]="svgHeight">
-          <rect [attr.x]="strokeWidth / 2" [attr.y]="strokeWidth / 2" [attr.width]="svgWidth - strokeWidth" [attr.height]="svgHeight - strokeWidth" fill="none" [attr.stroke]="strokeColor" [attr.stroke-width]="strokeWidth" [attr.rx]="strokeRadius" [attr.ry]="strokeRadius"/>
-          <text [attr.x]="textX" [attr.y]="svgHeight / 2" text-anchor="middle" alignment-baseline="middle">
+          <rect [attr.x]="strokeWidth / 2" [attr.y]="strokeWidth / 2" [attr.width]="svgWidth - strokeWidth" [attr.height]="svgHeight - strokeWidth" [attr.fill]="fillColor" [attr.stroke]="strokeColor" [attr.stroke-width]="strokeWidth" [attr.rx]="strokeRadius" [attr.ry]="strokeRadius"/>
+          <text [attr.x]="textX" [attr.y]="svgHeight / 2 + textOffset" text-anchor="middle" alignment-baseline="middle">
             <tspan [attr.style]="textStyle">{{ stampText }}</tspan>
-            <tspan *ngIf="hasTimestampp" [attr.x]="textX" dy="2.2em" [attr.style]="subtleTextStyle">{{ timestampText }}</tspan>
+            <tspan *ngIf="hasTimestamp()" [attr.x]="textX" dy="2.2em" [attr.style]="subtleTextStyle">{{ timestampText }}</tspan>
           </text>
         </svg>
       </div>
@@ -100,7 +82,7 @@
         <div *ngIf="activeIndex == 0">
           <label for="stampText">Stamp Text:</label>
           <div id="stampText">
-            <input id="stampText" [(ngModel)]="stampText" (input)="updateSvg()"/>
+            <input id="stampText" [(ngModel)]="stampText"/>
           </div>
         </div>
   
@@ -123,6 +105,14 @@
                   </rx-color-picker>
               </ng-template>
           </rx-accordion-item>
+          <rx-accordion-item [title]="'Fill Colors'">
+            <ng-template accordionContent>
+                <rx-color-picker
+                    [value]="fillColor"
+                    (valueChange)="onFillColorSelect($event)">
+                </rx-color-picker>
+            </ng-template>
+        </rx-accordion-item>
           <!-- <rx-accordion-item   [title]="'Opacity'">
               <ng-template accordionContent>
                   <div class="slider-container">
@@ -140,13 +130,13 @@
             <ng-template accordionContent>
               <div *ngIf="activeIndex == 0" id="custom-checkbox-container">
                   <label for="username">Username:
-                      <input id="username" type="checkbox" [(ngModel)]="username" (change)="updateSvg()">
+                      <input id="username" type="checkbox" [(ngModel)]="username" (change)="onChangeSubTitle()">
                   </label>
                   <label for="date">Date:
-                      <input id="date" type="checkbox" [(ngModel)]="date" (change)="updateSvg()">
+                      <input id="date" type="checkbox" [(ngModel)]="date" (change)="onChangeSubTitle()">
                   </label>
                   <label for="time">Time:
-                      <input id="time" type="checkbox" [(ngModel)]="time" (change)="updateSvg()">
+                      <input id="time" type="checkbox" [(ngModel)]="time" (change)="onChangeSubTitle()">
                   </label>
               </div>
           </ng-template>          
@@ -189,11 +179,11 @@
   
         <div *ngIf="activeIndex == 1">
           <label for="strokeWidth">Stroke Width:</label>
-          <input id="strokeWidth" type="number" [(ngModel)]="strokeWidth" (input)="updateSvg()" />
+          <input id="strokeWidth" type="number" [(ngModel)]="strokeWidth" />
         </div>
          <div *ngIf="activeIndex == 1" class="form-group">
           <label for="strokeRadius">Stroke Radius:</label>
-          <input id="strokeRadius" type="number" [(ngModel)]="strokeRadius" (input)="updateSvg()" />
+          <input id="strokeRadius" type="number" [(ngModel)]="strokeRadius" />
         </div>
       <rx-accordion *ngIf="activeIndex == 1">
         <rx-accordion-item [title]="'Colors'">
@@ -213,76 +203,3 @@
         </div>
     </div>
   </rx-modal-dialog>
-
-  <rx-modal-dialog [opened]="interactiveStampOpened" (onClose)="interactiveStampOpened = false">
-    <div class="confirm-modal-container" id="confirmModal">
-      <div class="rx-modal-dialog-header">
-        <img (click)="interactiveStampOpened = false;" class="close" id="close" src="/assets/images/close-modal-ico.svg" />
-        <span class="title">Add Interactive Stamp</span>
-      </div>
-  
-      <div id="stampText" class="body">
-        <div class="form-container">
-          <div class="header">
-            <div class="company-name">
-              <label for="companyName">Company Name</label>
-              <input type="text" id="companyName" [(ngModel)]="form.companyName">
-            </div>
-            <div class="company-logo">
-              <label >Company Logo</label>
-              <input  type="file" (change)="onLogoSelected($event)" />
-              <!-- <img *ngIf="form.companyLogo" [src]="form.companyLogo" alt="Company Logo" class="company-logo-image" /> -->
-            </div>
-          </div>
-          <div class="status">
-            <div>
-              <input type="checkbox" id="approved" [(ngModel)]="form.approved">
-              <label for="approved">APPROVED</label>
-            </div>
-            <div>
-              <input type="checkbox" id="revise" [(ngModel)]="form.revise">
-              <label for="revise">REVISE</label>
-            </div>
-            <div>
-              <input type="checkbox" id="rejected" [(ngModel)]="form.rejected">
-              <label for="rejected">REJECTED</label>
-            </div>
-          </div>
-          <div class="details">
-            <div class="row">
-              <div>
-                <label for="by">BY</label>
-                <input type="text" id="by" [(ngModel)]="form.by">
-              </div>
-              <div>
-                <label for="date">DATE</label>
-                <input type="date" id="date" [(ngModel)]="form.date">
-              </div>
-            </div>
-            <div class="row">
-              <div>
-                <label for="submittal">SUBMITTAL#</label>
-                <input type="text" id="submittal" [(ngModel)]="form.submittal">
-              </div>
-              <div>
-                <label for="spec">SPEC</label>
-                <input type="text" id="spec" [(ngModel)]="form.spec">
-              </div>
-            </div>
-          </div> 
-        </div>
-      </div>
-  
-      <div class="footer">
-        <button (click)="interactiveStampOpened = false;" class="btn btn-light">CANCEL</button>
-        <button (click)="uploadInteractiveStamp()" class="btn btn-primary">SAVE</button>
-      </div>
-    </div>
-  </rx-modal-dialog>
-  
-
-
-
- 
-  
-  

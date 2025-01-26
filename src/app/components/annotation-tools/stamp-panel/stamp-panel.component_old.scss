@@ -1,36 +1,165 @@
 @import "../../../../assets/scss/config.scss";
 
 .stamp-panel-container {
-    padding: 0 12px 12px 12px;
-    box-sizing: border-box;
+  padding: 0 12px 12px 12px;
+  box-sizing: border-box;
+  overflow: scroll;
+  max-height: 500px;
 
-    section {
-        h4 {
-            margin: 12px 0;
-            color: #A4ABAE;
-            font-size: 12px;
-            font-style: normal;
-            font-weight: 700;
-            line-height: 16px;
-        }
+  section {
+    h4 {
+      margin: 12px 0;
+      color: #a4abae;
+      font-size: 12px;
+      font-style: normal;
+      font-weight: 700;
+      line-height: 16px;
     }
+  }
 
-    .templates-list {
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
+  .templates-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .add-custom-stamp {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 12px 0;
+    font-size: 12px;
+    color: $main;
+
+    img {
+      cursor: pointer;
     }
-
-    .add-custom-stamp {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        margin: 12px 0;
-        font-size: 12px;
-        color: $main;
-
-        img {
-            cursor: pointer;
-        }
-    }
+  }
 }
+
+#body {
+  width: 364px;
+  box-sizing: border-box;
+}
+
+#stampText {
+  width: 100%;
+  margin: 5px;
+}
+
+#stampText input {
+  width: 90%;
+}
+
+#close {
+  right: 14px;
+  top: 10px;
+}
+
+#confirmModal {
+  max-width: fit-content;
+}
+
+#preview {
+  height: 150px;
+  background-color: #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 8px;
+  min-width: 360px;
+}
+
+#custom-checkbox-container {
+  display: flex;
+  margin: 5px !important;
+}
+
+#custom-checkbox-container label {
+  display: flex;
+  align-items: center;
+  margin-right: 5px;
+  font-size: 12px;
+}
+
+#custom-checkbox-container input {
+  width: auto !important;
+  margin: 5px !important;
+  padding: 6px;
+}
+
+.form-container {
+  background-color: #c0c0c0;
+  padding: 10px;
+  border: 2px solid black;
+  border-radius: 5px;
+  width: 400px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.company-logo {
+  margin-right: 20px;
+}
+
+.company-logo img {
+  max-width: 100px;
+  max-height: 100px;
+  margin-top: 10px;
+}
+
+.company-name {
+  flex-grow: 1;
+}
+
+.status {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.status div {
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.details {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 10px;
+}
+
+.details .row {
+  display: flex;
+  justify-content: space-between;
+}
+
+.details .row div {
+  flex: 1;
+  margin-right: 10px;
+}
+
+.details .row div:last-child {
+  margin-right: 0;
+}
+
+.footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+#tabs{
+  margin-bottom: 10px;
+}
+.file-upload {
+  margin-bottom: 20px;
+}
+
+//.add-custom-stamp {
+  // Your styling here
+//}

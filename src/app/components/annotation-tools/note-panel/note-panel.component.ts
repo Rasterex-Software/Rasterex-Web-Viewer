@@ -1530,9 +1530,8 @@ export class NotePanelComponent implements OnInit {
           markup.subtype === MARKUP_TYPES.MEASURE.AREA.subType) ||
         (markup.type === MARKUP_TYPES.MEASURE.PATH.type &&
           markup.subtype === MARKUP_TYPES.MEASURE.PATH.subType) ||
-        (markup.type === MARKUP_TYPES.MEASURE.RECTANGLE.type &&
-          markup.subtype === MARKUP_TYPES.MEASURE.RECTANGLE.subType) ||
-        markup.type === MARKUP_TYPES.SIGNATURE.type
+        (markup.type === MARKUP_TYPES.MEASURE.RECTANGLE.type && markup.subtype === MARKUP_TYPES.MEASURE.RECTANGLE.subType)
+        //markup.type === MARKUP_TYPES.SIGNATURE.type
       ),
       onoff
     );

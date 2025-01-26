@@ -18,6 +18,7 @@ var UIConfig = (function() {
                 "canLogin" : false,
                 "showmarkupZoom" : false,
                 "showAnnotationsOnLoad" : true,
+                "localStoreStamp" : true,
                 "logoUrl": "/assets/images/logo.svg"
             
         },

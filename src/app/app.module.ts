@@ -32,6 +32,7 @@ import { ColorHelper } from './helpers/color.helper';
 
 import { NgxSliderModule } from 'ngx-slider-v2';
 import { ColorChromeModule } from 'ngx-color/chrome';
+import { NgxIndexedDBModule, DBConfig } from 'ngx-indexed-db';
 import { AngularDraggableModule } from 'angular2-draggable';
 import { SwitchComponent } from './components/common/switch/switch.component';
 import { VectorLayersComponent } from './components/side-nav-menu/vector-layers/vector-layers.component';
@@ -80,7 +81,7 @@ import { ImageDragDropDirective } from './components/image-library/image-draggab
 import { SymbolsLibraryComponent } from './components/annotation-tools/symbols-library/symbols-library.component';
 import { LinksLibraryComponent } from './components/annotation-tools/links-library/links-library.component';
 import { LinkDragDropDirective } from './components/annotation-tools/links-library/link-draggable.directive';
-import { InteractiveStampTemplateDirective } from './components/annotation-tools/stamp-panel/interactive-stamp-template.directive ';
+//import { InteractiveStampTemplateDirective } from './components/annotation-tools/stamp-panel/interactive-stamp-template.directive ';
 import { SafeHtmlPipe } from './SafeHtmlPipe';
 
 import { SearchPanelComponent } from './components/annotation-tools/search-panel/search-panel.component';
@@ -97,7 +98,24 @@ import { CommentStatusIconComponent } from './components/annotation-tools/commen
 
 import { LoginComponent } from './components/user/login/login.component';
 
-
+const storeSchema = [
+  { name: 'name', keypath: 'name', options: { unique: false } },
+  { name: 'data', keypath: 'data', options: { unique: false } },
+];
+const dbConfig: DBConfig  = {
+  name: 'RasterXDb',
+  version: 1,
+  objectStoresMeta: [
+    { store: 'CustomStamp',
+      storeConfig: { keyPath: 'id', autoIncrement: true },
+      storeSchema 
+    },
+    { store: 'UploadStamp',
+      storeConfig: { keyPath: 'id', autoIncrement: true },
+      storeSchema 
+    }
+  ]
+};
 
 
 @NgModule({
@@ -143,7 +161,7 @@ import { LoginComponent } from './components/user/login/login.component';
     NotificationComponent,
     StampPanelComponent,
     StampTemplateDirective,
-    InteractiveStampTemplateDirective,
+    //InteractiveStampTemplateDirective,
     MeasurePanelComponent,
     SignatureComponent,
     CheckboxComponent,
@@ -187,6 +205,7 @@ import { LoginComponent } from './components/user/login/login.component';
     DragDropModule,
     BrowserAnimationsModule,
     NgxSliderModule,
+    NgxIndexedDBModule.forRoot(dbConfig),
     ColorChromeModule,
     AngularDraggableModule,
     TreeviewModule.forRoot(),

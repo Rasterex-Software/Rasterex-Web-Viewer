@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
-import { NgxIndexedDBService } from 'ngx-indexed-db';
+import { NgxIndexedDBService, ObjectStoreMeta } from 'ngx-indexed-db';
+//import { NgxIndexedDBService } from 'ngx-indexed-db';
 //import { NgxIndexedDBModule } from 'ngx-indexed-db';
 import { Observable } from 'rxjs';
 

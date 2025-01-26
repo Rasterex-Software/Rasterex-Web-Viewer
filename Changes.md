@@ -1,3 +1,14 @@
+January 25, 2025
+
+### 1. Implemented new stamp panel with 3 tabs, Standard, Custom and UploadImage.
+### 2. Added around 11 pre-defined stamps.
+### 3. Implemented customized stamps and uploading an image as a stamp.
+### 4. Enable stamps to be saved ti indexeddb.
+### 5. Fixed stamp drag/drop problem.
+
+Component Path: `src\app\components\annotation-tools\stamp-panel`
+
+
 January 21, 2025
 
 ### 1. Added new GUIConfig setting showAnnotationsOnLoad, when false no annotations are displayed until the display is turned on using the comment list switches or selecting either the annotation or measure menu.

@@ -1,3 +1,15 @@
+January 26, 2025
+
+### 1. Added document collaboration page, which contains two viewers that opens the same document.
+### 2. Implemented real time collaboration between the two viewers.
+### 3. Added new GUIConfig setting canCollaborate, when true, real time collaboration will be enabled.
+
+Modfied files
+src\app\app.component.ts
+src\app\services\collab.service.ts
+src\document-collaboration.html
+
+
 January 21, 2025
 
 ### 1. Added new GUIConfig setting showAnnotationsOnLoad, when false no annotations are displayed until the display is turned on using the comment list switches or selecting either the annotation or measure menu.

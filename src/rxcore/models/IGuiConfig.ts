@@ -2,6 +2,7 @@ export interface IGuiConfig {
     canAnnotate?: boolean;
     canConsolidate?: boolean;
     canLogin?: boolean;
+    canCollaborate?: boolean;
     convertPDFAnnots?: boolean;
     createPDFAnnotproxy?: boolean;
     showmarkupZoom? : boolean;

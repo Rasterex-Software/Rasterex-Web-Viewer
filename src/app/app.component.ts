@@ -10,7 +10,7 @@ import { UserService } from './components/user/user.service';
 import { Title } from '@angular/platform-browser';
 import { IGuiConfig } from 'src/rxcore/models/IGuiConfig';
 import { CollabService } from './services/collab.service';
-import { FileGaleryComponent } from './components/file-galery/file-galery.component';
+// import { FileGaleryComponent } from './components/file-galery/file-galery.component';
 
 
 @Component({
@@ -33,6 +33,7 @@ export class AppComponent implements AfterViewInit {
   convertPDFAnnots : boolean | undefined = false;
   createPDFAnnotproxy : boolean | undefined = false;
   showAnnotationsOnLoad : boolean | undefined = false;
+  canCollaborate : boolean | undefined = false;
   eventUploadFile: boolean = false;
   lists: any[] = [];
   state: any;
@@ -60,6 +61,7 @@ export class AppComponent implements AfterViewInit {
       this.convertPDFAnnots = this.guiConfig.convertPDFAnnots;
       this.createPDFAnnotproxy = this.guiConfig.createPDFAnnotproxy;
       this.showAnnotationsOnLoad = this.guiConfig.showAnnotationsOnLoad;
+      this.canCollaborate = this.guiConfig.canCollaborate;
       RXCore.markupDisplayOnload(this.showAnnotationsOnLoad);
 
     });
@@ -75,7 +77,7 @@ export class AppComponent implements AfterViewInit {
     // if we can find the roomName in the URL, we will create a collabService
     const parameters = new URLSearchParams(window.location.search);
     const roomName = parameters.get('roomName');
-    if (roomName) {
+    if (this.canCollaborate && roomName) {
       const user = this.userService.getCurrentUser();
       const username = user?.username || '';
       this.collabService.connect(roomName, username);
@@ -230,7 +232,7 @@ export class AppComponent implements AfterViewInit {
 
       this.userService.currentUser$.subscribe((user) => {
         const username = user?.username || '';
-        if (this.collabService) {
+        if (this.canCollaborate) {
           this.collabService.setUsername(username);
         }
 
@@ -270,7 +272,7 @@ export class AppComponent implements AfterViewInit {
 
         // If collab feature is enabled, send the markup message to the server
         // Handle created/deleted here
-        if (annotation !== -1 && this.collabService && (operation.created || operation.deleted)) {
+        if (annotation !== -1 && this.canCollaborate && (operation.created || operation.deleted)) {
           this.collabService.sendMarkupMessage(annotation.getJSON(), operation);
         }
       }
@@ -401,7 +403,7 @@ export class AppComponent implements AfterViewInit {
 
       // Handle modified here
       // This event will be triggered many times, we may avoid updating too friquently (TODO)
-      if (annotation !== -1 && this.collabService) {
+      if (annotation !== -1 && this.canCollaborate) {
         this.collabService.sendMarkupMessage(annotation.getJSON(), { modified: true});
       }
     });

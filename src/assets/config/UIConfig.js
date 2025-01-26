@@ -16,6 +16,7 @@ var UIConfig = (function() {
                 "convertPDFAnnots" : false,
                 "createPDFAnnotproxy" : false,
                 "canLogin" : false,
+                "canCollaborate": false,
                 "showmarkupZoom" : false,
                 "showAnnotationsOnLoad" : true,
                 "localStoreStamp" : true,

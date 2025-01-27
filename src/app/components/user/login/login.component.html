@@ -30,7 +30,13 @@
             <div class="inputs">
                 <div>
                     <label for="username" class="label">Username:</label>
-                    <input type="text" id="username" class="input" [(ngModel)]="loginUsername">
+                    <input *ngIf="!useBuildinUser" type="text" id="username" class="input" [(ngModel)]="loginUsername">
+                    <select *ngIf="useBuildinUser" id="usernameSelect" class="input" [(ngModel)]="selectedBuildinUsername" (change)="onBuildinUsernameChange()">
+                        <option value="">Type a username</option>
+                        <option value="bob" default>bob</option>
+                        <option value="archi">archi</option>
+                        <option value="owen">owen</option>
+                    </select>
                 </div>
                 <div>
                     <label for="password" class="label">Password:</label>

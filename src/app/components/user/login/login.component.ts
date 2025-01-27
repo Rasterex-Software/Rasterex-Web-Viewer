@@ -40,6 +40,7 @@ export class LoginComponent implements OnInit {
     // Use buildin user by default, and set 'bob' the selected option, and, fill in password
     this.useBuildinUser = true;
     this.selectedBuildinUsername = 'bob';
+    this.loginUsername = this.selectedBuildinUsername;
     this.loginPassword = '123456';
   }
 

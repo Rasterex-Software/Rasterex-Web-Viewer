@@ -5,6 +5,7 @@ var RxConfig = (function() {
     var gui360URL = "rxweb/";
 
     var baseURL = "http://viewserver.rasterex.com/";
+    var apiBaseURL = "http://viewserver.rasterex.com:8080/";
 
     var baseURLBin = baseURL + "RxBinWeb/";
     var baseURLWeb = baseURL + "rxweb/";
@@ -70,8 +71,9 @@ var RxConfig = (function() {
     var getInitial = baseURLBin + "RxCSISAPI.dll?WebClientGetInitial";
 
     return {
+        apiBaseURL: apiBaseURL,
         xmlurl: xmlurl,
-	      xmlurldirect : xmlurldirect,
+        xmlurldirect : xmlurldirect,
         xmlurlmarkup : xmlurlmarkup,
         opensessionurl: opensessionurl,
           openUsessionurl : openUsessionurl,

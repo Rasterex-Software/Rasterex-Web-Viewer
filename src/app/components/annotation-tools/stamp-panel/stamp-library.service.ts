@@ -2,13 +2,13 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, catchError, throwError } from 'rxjs';
 import { StampStoreData, StampType } from './StampData';
+import { RXCore } from 'src/rxcore';
 
 @Injectable({
   providedIn: 'root'
 })
 export class StampLibraryService {
-  private apiUrl = 'http://viewserver.rasterex.com:8080/';
-  //private apiUrl = 'http://localhost:8080/';
+  private apiUrl =  RXCore.Config.apiBaseURL;
 
   constructor(private http: HttpClient) { }
 

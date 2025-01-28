@@ -1,6 +1,7 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, firstValueFrom, Observable } from 'rxjs';
+import { RXCore } from 'src/rxcore';
 
 // TODO: may move it to constants
 export const PERMISSION_KEYS = {
@@ -44,8 +45,7 @@ export interface Annotation {
   providedIn: 'root'
 })
 export class UserService {
-  private apiUrl = 'http://viewserver.rasterex.com:8080/';
-  //private apiUrl = 'http://localhost:8080/';
+  private apiUrl =  RXCore.Config.apiBaseURL;
 
   private accessToken = '';
 

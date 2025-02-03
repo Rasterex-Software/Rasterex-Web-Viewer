@@ -1,3 +1,12 @@
+February 3, 2025
+
+### 1. Fixed a bug that date in stamp doesn't update properly.
+### 2. When creating a stamp with username, dynamically replace with display username if a user logged in.
+
+Modified files
+src\app\components\annotation-tools\stamp-panel\stamp-template.directive.ts
+
+
 January 31, 2025
 
 ### 1. Minor fixes for annotation move and scale.

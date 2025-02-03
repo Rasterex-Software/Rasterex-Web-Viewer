@@ -1,5 +1,6 @@
 import { Directive, Input, HostListener } from '@angular/core';
 import { RXCore } from 'src/rxcore';
+import { UserService } from '../../user/user.service';
 
 @Directive({
   selector: '[stampTemplate]'
@@ -7,14 +8,18 @@ import { RXCore } from 'src/rxcore';
 export class StampTemplateDirective {
   @Input() stampTemplate: any;
 
+  constructor(private userService: UserService) {}
+
   @HostListener('dragstart', ['$event'])
   onDragStart(event: DragEvent): void {
     if (!event.dataTransfer) return;
-    
+
     const newStampTemplate = { ...this.stampTemplate };
 
     if (this.stampTemplate.type === 'image/svg+xml') {
-      const svgString = this.replaceDateTimeInSvg(this.convertBlobUrlToSvgString(this.stampTemplate.src));
+      let svgString = this.replaceDateTimeInSvg(this.convertBlobUrlToSvgString(this.stampTemplate.src));
+
+      svgString = this.replaceUsernameInSvg(svgString);
 
       //console.log(event.dataTransfer.effectAllowed);
       const blobUrl = this.svgToBlobUrl(svgString);
@@ -29,7 +34,7 @@ export class StampTemplateDirective {
     RXCore.markupImageStamp(true);
     event.dataTransfer.effectAllowed = "move";
 
-    
+
 
     //event.dataTransfer.setData('Text', JSON.stringify(this.stampTemplate));
     event.dataTransfer.setData('Text', JSON.stringify(newStampTemplate));
@@ -43,7 +48,7 @@ export class StampTemplateDirective {
   private convertBlobUrlToSvgString(blobUrl: string): string {
     let svgString = '';
     const xhr = new XMLHttpRequest();
-    xhr.open('GET', blobUrl, false); 
+    xhr.open('GET', blobUrl, false);
     xhr.onreadystatechange = function () {
       if (xhr.readyState === 4 && xhr.status === 200) {
         svgString = xhr.responseText;
@@ -58,24 +63,38 @@ export class StampTemplateDirective {
     const currentDate = new Date().toLocaleDateString();
     const currentTime = new Date().toLocaleTimeString();
 
-    //const updatedSvgContent = svgContent.replace(/(\d{1,2}\/\d{1,2}\/\d{4} \d{1,2}:\d{2}:\d{2} (AM|PM))/, `${currentDate} ${currentTime}`);
+    let updatedSvgContent = svgContent;
 
-    //return updatedSvgContent;
-
-
-    if (svgContent.match(/(\d{4}\/\d{1,2}\/\d{1,2})/)) {
-      svgContent = svgContent.replace(/(\d{4}\/\d{1,2}\/\d{1,2})/, `${currentDate}`);
-    } else {
-      svgContent = svgContent.replace(/(\d{1,2}\/\d{1,2}\/\d{4})/, `${currentDate}`);
+    const dateFormats = [
+      /(\d{4}\/\d{1,2}\/\d{1,2})/, // YYYY/MM/DD
+      /(\d{1,2}\/\d{1,2}\/\d{4})/, // MM/DD/YYYY
+      /(\d{1,2}\.\d{1,2}\.\d{4})/, // DD.MM.YYYY
+    ];
+    for (const format of dateFormats) {
+      if (updatedSvgContent.match(format)) {
+        updatedSvgContent = updatedSvgContent.replace(format, currentDate);
+        break;
+      }
     }
 
-    const updatedTimeContent = svgContent.replace(/(\d{1,2}:\d{2}:\d{2}( )?(AM|PM)?)/, `${currentTime}`);
-
-    return updatedTimeContent;
-
-
+    updatedSvgContent = updatedSvgContent.replace(/(\d{1,2}:\d{2}:\d{2}( )?(AM|PM)?)/, `${currentTime}`);
+    return updatedSvgContent;
   }
 
+  private replaceUsernameInSvg(svgContent: string): string {
+    const user = this.userService.getCurrentUser();
+    // if not logged in, do nothing
+    if (!user || !user.displayName) {
+      return svgContent;
+    }
+
+    let updatedSvgContent = svgContent;
+
+    // The username in svg is always 'Demo' for now, this is not a strict solution but should be ok for now
+    const usernameFormat = /Demo/;
+    updatedSvgContent = updatedSvgContent.replace(usernameFormat, `${user.displayName}`);
+    return updatedSvgContent;
+  }
 
   @HostListener('dragend', ['$event'])
   onDragEnd(event: DragEvent): void {

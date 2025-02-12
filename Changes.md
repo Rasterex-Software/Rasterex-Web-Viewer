@@ -1,3 +1,11 @@
+February 12, 2025
+
+### 1. Implement block info and search panel
+
+Modified files
+src\app\components\side-nav-menu\blocks\blocks.component.ts
+src\app\components\side-nav-menu\blocks\blocks.component.html
+
 February 7, 2025
 
 ### 1. Fixed page range rotation problem.

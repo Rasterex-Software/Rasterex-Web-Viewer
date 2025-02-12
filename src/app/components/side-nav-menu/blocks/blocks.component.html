@@ -1,23 +1,37 @@
 <div class="vector-layers-container">
     <div class="layers-visibility-section">
         <span>Blocks visibility:</span>
-        <div class="btn-group" role="group">
-            <button [class.selected]="vectorBlocksAll" (click)="onVectorBlocksAllSelect(true)">
-                <img src="/assets/images/show-on-ico.svg" />
+        <div class="buttons">
+            <button (click)="onVectorBlocksAllSelect(!vectorBlocksAll)">
+                <img *ngIf="vectorBlocksAll" src="/assets/images/show-on-ico.svg"/>
+                <img *ngIf="!vectorBlocksAll" src="/assets/images/show-off-ico.svg"/>
             </button>
-            <button [class.selected]="!vectorBlocksAll" (click)="onVectorBlocksAllSelect(false)">
-                <img src="/assets/images/show-off-ico.svg" />
+            <button (click)="onOpenSearchBlock()">
+                <img src="/assets/images/search-ico.svg" />
             </button>
         </div>
     </div>
     <div *ngIf="vectorBlocks?.length; else emptyBlocks" class="list-wrapper">
-        <ul class="list">
-            <li *ngFor="let block of vectorBlocks" [class.show-off]="!block?.state" (click)="onVectorBlockClick(block)">
-                <span style="flex-grow: 1;">{{block?.name}}</span>
-                <img *ngIf="block?.state == 1" src="/assets/images/show-on-ico.svg" />
-                <img *ngIf="block?.state == 0" src="/assets/images/show-off-ico.svg" />
-
-
+        <ul class="tree">
+            <li *ngFor="let subBlocks of vectorBlocks" class="tree-item">
+                <span [title]="subBlocks[0]?.name">{{subBlocks[0]?.name}} ({{subBlocks?.length}})</span>
+                <!-- TODO: should define a flag for the group's visibility, rather than using the first element's -->
+                <div class="tree-operation">
+                    <img *ngIf="subBlocks[0]?.state == 1" src="/assets/images/show-on-ico.svg" (click)="toggleSubList($event, subBlocks, 0)"/>
+                    <img *ngIf="subBlocks[0]?.state == 0" src="/assets/images/show-off-ico.svg" (click)="toggleSubList($event, subBlocks, 1)"/>
+                    <img *ngIf="subBlocks[0]?.fold == 0" src="/assets/images/tree-unfold.svg" (click)="foldSubList($event, subBlocks, 1)"/>
+                    <img *ngIf="subBlocks[0]?.fold == 1" src="/assets/images/tree-fold.svg" (click)="foldSubList($event, subBlocks, 0)"/>
+                </div>
+                <ul class="tree" *ngIf="subBlocks[0]?.fold == 1">
+                    <li class="tree-item" *ngFor="let block of subBlocks" [class.select-item]="block.selected" (click)="onSelectBlock(block)" (dblclick)="onVectorBlockDbClick(block)">
+                        <span [title]="block?.name">{{block?.name}}</span>
+                        <div class="tree-operation">
+                            <img *ngIf="block?.state == 1" src="/assets/images/show-on-ico.svg" (click)="onVectorBlockClick(block)"/>
+                            <img *ngIf="block?.state == 0" src="/assets/images/show-off-ico.svg" (click)="onVectorBlockClick(block)" />
+                            <img *ngIf="block?.hasAttribute == true" src="/assets/images/info-ico.svg" (click)="onVectorBlockInfoClick($event, block)" (dblclick)="onVectorBlockInfoDbClick($event)"/>
+                        </div>
+                    </li>
+                </ul>
             </li>
         </ul>
     </div>
@@ -27,3 +41,62 @@
         </div>
     </ng-template>
 </div>
+
+<rx-panel
+    *ngIf="infoPanelVisible"
+    class="info-panel"
+    style="z-index: 9"
+    [title]="'Block info'"
+    [maxHeight]="312"
+    (onClose)="infoPanelVisible = false">
+    <div class="info-container-wrapper">
+        <div class="info-container">
+            <div class="header">Attribute</div><div class="header">Value</div>
+            <ng-container *ngFor="let item of infoData | keyvalue">
+                <div class="row-header">{{item.key}}</div>
+                <div class="attribute-value">{{item.value}}</div>
+            </ng-container>
+        </div>
+    </div>
+</rx-panel>
+
+<rx-panel
+    *ngIf="searchPanelVisible"
+    class="info-panel"
+    style="z-index: 9"
+    [title]="'Search for Block Attributes'"
+    [maxHeight]="312"
+    (onClose)="searchPanelVisible = false">
+    <div class="info-container-wrapper">
+        <div class="search-container">
+            <div class="search-item">
+                <div class="search-name">Attribute Name:</div>
+                <div class="search-input">
+                    <input type="text" placeholder="Search..." [(ngModel)]="searchAttriName" [class.invalid]="!getSearchRegex(searchAttriName)">
+                    <button class="search-btn" [disabled]="!isSearchCretiriaValid()" (click)="searchBlockAttributes(searchBlockName, searchAttriName)">Find</button>
+                </div>
+            </div>
+            <div class="search-item">
+                <div class="search-name">Block Name:</div>
+                <div class="search-input">
+                    <input type="text" placeholder="Search..." [(ngModel)]="searchBlockName" [class.invalid]="!getSearchRegex(searchBlockName)">
+                </div>
+                <div *ngIf="searchResultInfo" class="search-result">
+                    {{searchResultInfo}}
+                </div>
+            </div>
+        </div>
+        <div class="search-list">
+            <div class="header">Block Name</div>
+            <div class="header">Attribute Name</div>
+            <div class="header">Value</div>
+            <ng-container *ngFor="let data of searchListData">
+                <div class="row-header">{{data.blockName}}</div>
+                <div class="row-header">{{data.attributeName}}</div>
+                <div class="attribute-value">
+                    {{data.attributeValue}}
+                </div>
+            </ng-container>
+        </div>
+    </div>
+</rx-panel>

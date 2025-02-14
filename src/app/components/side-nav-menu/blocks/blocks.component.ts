@@ -183,8 +183,6 @@ export class BlocksComponent implements OnInit {
   }
 
   getSearchRegex(input: string): RegExp | null {
-    // input = input.replaceAll('*', '\\*');
-    // input = input.replaceAll('.', '\\.');
     // Any special char in the input string will be taken as a common char
     const specialChars = /[\-\[\]\/\{\}\(\)\*\+\?\.^\$\|\\]/g;
     input = input.replace(specialChars, '\\$&');

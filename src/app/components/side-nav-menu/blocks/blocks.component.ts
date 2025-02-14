@@ -23,6 +23,7 @@ export class BlocksComponent implements OnInit {
   searchBlockName: string;
   searchListData: any[] = [];
   searchResultInfo: string;
+  isSearchResultDirty = false; // used when search criteria is changed and search result is not updated yet
 
   constructor(private readonly rxCoreService: RxCoreService) {}
 
@@ -58,9 +59,9 @@ export class BlocksComponent implements OnInit {
 
   onOpenSearchBlock() {
     this.searchPanelVisible = true;
-    this.searchBlockName = "*";
     this.searchAttriName = "";
-    this.searchBlockAttributes(this.searchBlockName, this.searchAttriName);
+    this.searchBlockName = "";
+    this.searchBlockAttributes(this.searchAttriName, this.searchBlockName);
   }
 
   toggleSubList(event: Event, subBlocks: Array<IVectorBlock>, state: number) {
@@ -137,13 +138,17 @@ export class BlocksComponent implements OnInit {
      RXCore.zoomToBlockInsert(block.index);
   }
 
-  searchBlockAttributes(block: string, attribute: string) {
+  onSearchTextChange() {
+    this.isSearchResultDirty = true;
+  }
+
+  searchBlockAttributes(attributeName: string, blockName: string) {
     
     this.searchListData = [];
     this.searchResultInfo = '';
 
-    const blockRegex = this.getSearchRegex(block);
-    const attributeRegex = this.getSearchRegex(attribute);
+    const attributeRegex = this.getSearchRegex(attributeName);
+    const blockRegex = this.getSearchRegex(blockName);
     if (!blockRegex || !attributeRegex) {
       return;
     }
@@ -174,11 +179,18 @@ export class BlocksComponent implements OnInit {
 
     this.searchListData = attributeResults;
     this.searchResultInfo = `${this.searchListData.length} item(s)`;
+    this.isSearchResultDirty = false;
   }
 
   getSearchRegex(input: string): RegExp | null {
+    // input = input.replaceAll('*', '\\*');
+    // input = input.replaceAll('.', '\\.');
+    // Any special char in the input string will be taken as a common char
+    const specialChars = /[\-\[\]\/\{\}\(\)\*\+\?\.^\$\|\\]/g;
+    input = input.replace(specialChars, '\\$&');
+
     let regexStr = '.*' + input + '.*';
-    if (input === '' || input === '*') {
+    if (input === ''/* || input === '*'*/) {
       regexStr = '.*';
     }
     try {
@@ -189,13 +201,14 @@ export class BlocksComponent implements OnInit {
   }
 
   isSearchCretiriaValid(): boolean {
-    if (!this.searchBlockName || !this.searchAttriName) {
+    // if searchAttriName or searchBlockName is empty, it means for searching all.
+    // if (!this.searchAttriName || !this.searchBlockName) {
+    //   return false;
+    // }
+    if (!this.getSearchRegex(this.searchAttriName)) {
       return false;
     }
     if (!this.getSearchRegex(this.searchBlockName)) {
-      return false;
-    }
-    if (!this.getSearchRegex(this.searchAttriName)) {
       return false;
     }
     return true;

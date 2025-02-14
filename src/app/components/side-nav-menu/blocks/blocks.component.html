@@ -72,17 +72,17 @@
             <div class="search-item">
                 <div class="search-name">Attribute Name:</div>
                 <div class="search-input">
-                    <input type="text" placeholder="Search..." [(ngModel)]="searchAttriName" [class.invalid]="!getSearchRegex(searchAttriName)">
-                    <button class="search-btn" [disabled]="!isSearchCretiriaValid()" (click)="searchBlockAttributes(searchBlockName, searchAttriName)">Find</button>
+                    <input type="text" placeholder="Search..." [(ngModel)]="searchAttriName" [class.invalid]="!getSearchRegex(searchAttriName)" (input)="onSearchTextChange()">
+                    <button class="search-btn" [disabled]="!isSearchCretiriaValid()" (click)="searchBlockAttributes(searchAttriName, searchBlockName)">Find</button>
                 </div>
             </div>
             <div class="search-item">
                 <div class="search-name">Block Name:</div>
                 <div class="search-input">
-                    <input type="text" placeholder="Search..." [(ngModel)]="searchBlockName" [class.invalid]="!getSearchRegex(searchBlockName)">
+                    <input type="text" placeholder="Search..." [(ngModel)]="searchBlockName" [class.invalid]="!getSearchRegex(searchBlockName)"  (input)="onSearchTextChange()">
                 </div>
                 <div *ngIf="searchResultInfo" class="search-result">
-                    {{searchResultInfo}}
+                    {{searchResultInfo}}<span *ngIf="isSearchResultDirty" title="Click 'Find' button to erase dirty flag"> *</span>
                 </div>
             </div>
         </div>

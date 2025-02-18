@@ -668,6 +668,10 @@ export class RXCore {
         RxCore.markupDisplayOnload(onoff);
     }
 
+    public static markVectorBlock(blockid: number): void {
+        RxCore.markVectorBlock(blockid);
+    }
+
 
     public static getReadOnly(): boolean {
         return RxCore.getReadOnly();

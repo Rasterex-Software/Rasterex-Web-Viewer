@@ -1,8 +1,13 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, Pipe } from '@angular/core';
 import { RxCoreService } from 'src/app/services/rxcore.service';
 import { RXCore } from 'src/rxcore';
 import { IVectorBlock } from 'src/rxcore/models/IVectorBlock';
-import { IVectorLayer } from 'src/rxcore/models/IVectorLayer';
+// import { IVectorLayer } from 'src/rxcore/models/IVectorLayer';
+
+interface IBlockAttribute {
+  name: string;
+  value: string | number;
+}
 
 @Component({
   selector: 'rx-blocks',
@@ -15,7 +20,7 @@ export class BlocksComponent implements OnInit {
 
   lastSelectBlock?: IVectorBlock;
 
-  infoData: any = {};
+  infoData: Array<IBlockAttribute> = [];
   infoPanelVisible: boolean = false;
 
   searchPanelVisible = false;
@@ -23,8 +28,13 @@ export class BlocksComponent implements OnInit {
   searchBlockName: string;
   searchListData: any[] = [];
   searchResultInfo: string;
+  isSearchResultDirty = false; // used when search criteria is changed and search result is not updated yet
 
-  constructor(private readonly rxCoreService: RxCoreService) {}
+  constructor(private readonly rxCoreService: RxCoreService, private ref: ChangeDetectorRef) {}
+
+  get sortVectorBlocks():Array<Array<IVectorBlock>> {
+    return this.vectorBlocks.sort((a, b) => a[0].name.localeCompare(b[0].name));
+  }
 
   ngOnInit(): void {
     this.rxCoreService.guiVectorBlocks$.subscribe((blocks) => {
@@ -32,7 +42,8 @@ export class BlocksComponent implements OnInit {
       this.vectorBlocks = [];
       blocks.forEach((block) => {
         const attributes = RXCore.getBlockAttributes(block.index);
-        if (attributes && attributes.length > 0) {
+        // @ts-ignore
+        if (block.insert || (attributes && attributes.length > 0)) {
           // @ts-ignore
           block.hasAttribute = true;
         }
@@ -53,35 +64,53 @@ export class BlocksComponent implements OnInit {
           this.vectorBlocks.push([block]);
         }
       });
+
+      this.vectorBlocks.sort((a: IVectorBlock[], b: IVectorBlock[]) =>{
+          if (a.length > 0 && b.length > 0) {
+            const str1 = a[0].name;
+            const str2 = b[0].name;
+            return str1.toLowerCase() >= str2.toLowerCase() ? 1: -1;
+          }
+          return 0;
+      });
+    });
+
+    // enable to select a block
+    RXCore.getBlockInsert(true);
+    RXCore.onGui2DBlock((block: IVectorBlock) => {
+      // console.log("Block clicked:", block);
+      this.onSelectBlock(block);
     });
   }
 
   onOpenSearchBlock() {
     this.searchPanelVisible = true;
-    this.searchBlockName = "*";
     this.searchAttriName = "";
-    this.searchBlockAttributes(this.searchBlockName, this.searchAttriName);
+    this.searchBlockName = "";
+    this.searchBlockAttributes(this.searchAttriName, this.searchBlockName);
   }
 
-  toggleSubList(event: Event, subBlocks: Array<IVectorBlock>, state: number) {
+  areAllBlocksChecked(subBlocks: Array<IVectorBlock>): boolean {
+    return subBlocks.every((item) => item.state == 1);
+  }
+
+  setBlocksVisible(event: Event, subBlocks: Array<IVectorBlock>, visible: boolean) {
     event.stopPropagation(); // Prevent the click event from propagating to the parent
     if (subBlocks.length > 0) {
+      const newState = Number(visible);
       subBlocks.forEach((block: IVectorBlock) => {
-        block.state = state;
+        block.state = newState;
         RXCore.changeVectorBlock(block.index);
       });
+      this.ref.markForCheck();
+      this.ref.detectChanges();
     }
   }
 
-  foldSubList(event: Event, subBlocks: Array<IVectorBlock>, fold: number) {
+  foldSubList(event: Event, subBlocks: Array<IVectorBlock>) {
     event.stopPropagation(); // Prevent the click event from propagating to the parent
-    if (subBlocks.length > 0) {
-      subBlocks.forEach((block: IVectorBlock) => {
-        // @ts-ignore
-        block.fold = fold;
-        RXCore.changeVectorBlock(block.index);
-      });
-    }
+    // @ts-ignore
+    subBlocks[0].fold = Number(!subBlocks[0].fold);
   }
 
   onVectorBlocksAllSelect(onoff: boolean): void {
@@ -91,12 +120,23 @@ export class BlocksComponent implements OnInit {
 
   onSelectBlock(block: IVectorBlock) {
     if (this.lastSelectBlock) {
+      // if select the same block, then unselect it
+      if (block && block.index === this.lastSelectBlock.index) {
+        // @ts-ignore
+        this.lastSelectBlock.selected = false;
+        this.lastSelectBlock = undefined;
+        return;
+      }
       // @ts-ignore
       this.lastSelectBlock.selected = false;
+      this.lastSelectBlock = undefined;
     }
-    // @ts-ignore
-    block.selected = true;
-    this.lastSelectBlock = block;
+    if (block) {
+      // @ts-ignore
+      block.selected = true;
+      this.lastSelectBlock = block;
+      RXCore.markVectorBlock(block.index);
+    }
   }
 
   onVectorBlockClick(block: IVectorBlock): void {
@@ -109,23 +149,42 @@ export class BlocksComponent implements OnInit {
     RXCore.changeVectorBlock(block?.index);
   }
 
+  private getBlockAttributes(block: IVectorBlock): Array<IBlockAttribute> {
+     // @ts-ignore
+     if (block.hasAttribute !== true) {
+      return [];
+     }
+
+     const arr: Array<IBlockAttribute> = [];
+
+    const attributes = RXCore.getBlockAttributes(block.index);
+    for (let i = 0; i < attributes.length; i++) {
+      const attribute = attributes[i];
+      arr.push({name: attribute.name, value: attribute.value});
+    }
+    // @ts-ignore
+    const insert = block.insert;
+    if (insert) {
+      arr.push({ name: "Handle", value: insert.blockhandleHigh > 0 ? insert.blockhandleHigh.toString(16).toUpperCase() : '' + insert.blockhandleLow.toString(16).toUpperCase() });
+      arr.push({ name: "Insert", value: `(${insert.insertX}, ${insert.insertY}, ${insert.insertZ})` });
+      arr.push({ name: "Scale", value: `(${insert.insertscaleX}, ${insert.insertscaleY}, ${insert.insertscaleZ})` });
+      arr.push({ name: "Rotation", value: insert.insertRot });
+    }
+
+    return arr;
+  }
+
   onVectorBlockInfoClick(event: Event, block: IVectorBlock): void {
     event.stopPropagation();
 
-    const attributes = RXCore.getBlockAttributes(block.index);
-    if (!attributes || attributes.length === 0) {
-      this.infoData = {};
+    // @ts-ignore
+    if (block.hasAttribute !== true) {
+      this.infoData = [];
       return;
     }
-
-    const newObjs = {};
-    for (let i = 0; i < attributes.length; i++) {
-      const attribute = attributes[i];
-      newObjs[attribute.name] = attribute.value;
-    }
-
+    
     this.infoPanelVisible = true;
-    this.infoData = newObjs;
+    this.infoData = this.getBlockAttributes(block);
   }
 
   onVectorBlockInfoDbClick(event: Event): void {
@@ -137,13 +196,17 @@ export class BlocksComponent implements OnInit {
      RXCore.zoomToBlockInsert(block.index);
   }
 
-  searchBlockAttributes(block: string, attribute: string) {
+  onSearchTextChange() {
+    this.isSearchResultDirty = true;
+  }
+
+  searchBlockAttributes(attributeName: string, blockName: string) {
     
     this.searchListData = [];
     this.searchResultInfo = '';
 
-    const blockRegex = this.getSearchRegex(block);
-    const attributeRegex = this.getSearchRegex(attribute);
+    const attributeRegex = this.getSearchRegex(attributeName);
+    const blockRegex = this.getSearchRegex(blockName);
     if (!blockRegex || !attributeRegex) {
       return;
     }
@@ -154,17 +217,13 @@ export class BlocksComponent implements OnInit {
         const vectorBlock = blocks[i];
         // @ts-ignore
         if (vectorBlock.hasAttribute === true && blockRegex.test(vectorBlock.name)) {
-          const attributes = RXCore.getBlockAttributes(vectorBlock.index);
-          if (!attributes || attributes.length === 0) {
-             continue;
-          }
-
-          attributes.forEach((key) => {
-              if (attributeRegex.test(key.name)) {
+          const attributes = this.getBlockAttributes(vectorBlock);
+          Object.entries(attributes).forEach(([key, value]) => {
+              if (attributeRegex.test(key)) {
                 attributeResults.push({
                   blockName: vectorBlock.name,
-                  attributeName: key.name,
-                  attributeValue: key.value,
+                  attributeName: key,
+                  attributeValue: value,
                 });
               }
             });
@@ -174,11 +233,15 @@ export class BlocksComponent implements OnInit {
 
     this.searchListData = attributeResults;
     this.searchResultInfo = `${this.searchListData.length} item(s)`;
+    this.isSearchResultDirty = false;
   }
 
   getSearchRegex(input: string): RegExp | null {
+    // Any special char in the input string will be taken as a common char
+    const specialChars = /[\-\[\]\/\{\}\(\)\*\+\?\.^\$\|\\]/g;
+    input = input.replace(specialChars, '\\$&');
     let regexStr = '.*' + input + '.*';
-    if (input === '' || input === '*') {
+    if (input === ''/* || input === '*'*/) {
       regexStr = '.*';
     }
     try {
@@ -189,13 +252,14 @@ export class BlocksComponent implements OnInit {
   }
 
   isSearchCretiriaValid(): boolean {
-    if (!this.searchBlockName || !this.searchAttriName) {
+    // if searchAttriName or searchBlockName is empty, it means for searching all.
+    // if (!this.searchAttriName || !this.searchBlockName) {
+    //   return false;
+    // }
+    if (!this.getSearchRegex(this.searchAttriName)) {
       return false;
     }
     if (!this.getSearchRegex(this.searchBlockName)) {
-      return false;
-    }
-    if (!this.getSearchRegex(this.searchAttriName)) {
       return false;
     }
     return true;

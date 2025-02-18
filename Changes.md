@@ -1,4 +1,13 @@
 
+February 18, 2025
+
+### 1. Refine block panel, block info and search panel
+
+Modified files
+src\app\components\side-nav-menu\blocks\blocks.component.ts
+src\app\components\side-nav-menu\blocks\blocks.component.html
+
+
 February 14, 2025
 
 ### 1. Fixed issues for machines using non 1:1 screen resolution

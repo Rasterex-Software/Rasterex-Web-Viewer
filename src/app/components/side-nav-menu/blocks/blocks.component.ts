@@ -73,6 +73,10 @@ export class BlocksComponent implements OnInit {
           }
           return 0;
       });
+
+      // close panels when switch docs
+      this.infoPanelVisible = false;
+      this.searchPanelVisible = false;
     });
 
     // enable to select a block
@@ -212,7 +216,6 @@ export class BlocksComponent implements OnInit {
   }
 
   searchBlockAttributes(attributeName: string, blockName: string) {
-    
     this.searchListData = [];
     this.searchResultInfo = '';
 
@@ -229,18 +232,42 @@ export class BlocksComponent implements OnInit {
         // @ts-ignore
         if (vectorBlock.hasAttribute === true && blockRegex.test(vectorBlock.name)) {
           const attributes = this.getBlockAttributes(vectorBlock);
-          Object.entries(attributes).forEach(([key, value]) => {
-              if (attributeRegex.test(key)) {
-                attributeResults.push({
-                  blockName: vectorBlock.name,
-                  attributeName: key,
-                  attributeValue: value,
-                });
-              }
-            });
+          attributes.forEach((attribute) => {
+            if (attributeRegex.test(attribute.name)) {
+              attributeResults.push({
+                blockName: vectorBlock.name,
+                attributeName: attribute.name,
+                attributeValue: attribute.value,
+              });
+            }
+          });
         }
       }
     }
+
+    attributeResults.sort((a, b) => {
+      const blockName1 = a.blockName.toLowerCase();
+      const blockName2 = b.blockName.toLowerCase();
+      const attributeName1 = a.attributeName.toLowerCase();
+      const attributeName2 = b.attributeName.toLowerCase();
+      if (blockName1 > blockName2) {
+        return 1;
+      } else if (blockName1 < blockName2) {
+        return -1;
+      }
+      if (attributeName1 > attributeName2) {
+        return 1;
+      } else if (attributeName1 < attributeName2) {
+        return -1;
+      }
+      if (typeof(a.attributeValue) === 'number' && typeof(b.attributeValue) === 'number') {
+        return a - b;
+      }
+      if (typeof(a.attributeValue) === 'string' && typeof(b.attributeValue) === 'string') {
+        return a.attributeValue.toLowerCase() > b.attributeValue.toLowerCase() ? 1 : -1;
+      }
+      return 0;
+    });
 
     this.searchListData = attributeResults;
     this.searchResultInfo = `${this.searchListData.length} item(s)`;

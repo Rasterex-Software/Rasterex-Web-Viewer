@@ -1,6 +1,17 @@
 
 February 19, 2025
 
+### 1. Implemented block list activate on block selection
+### 2. Added more information into block panel and search panel
+
+Modified files
+src\app\components\side-nav-menu\blocks\blocks.component.ts
+src\app\components\side-nav-menu\blocks\blocks.component.html
+src\app\components\side-nav-menu\blocks\blocks.component.scss
+
+
+February 19, 2025
+
 ### 1. Refine block panel, block info and search panel
 
 Modified files

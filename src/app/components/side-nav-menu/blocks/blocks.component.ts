@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit, Pipe } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, NgZone, OnDestroy, OnInit, Pipe, QueryList, ViewChild } from '@angular/core';
 import { RxCoreService } from 'src/app/services/rxcore.service';
 import { RXCore } from 'src/rxcore';
 import { IVectorBlock } from 'src/rxcore/models/IVectorBlock';
@@ -14,11 +14,12 @@ interface IBlockAttribute {
   templateUrl: './blocks.component.html',
   styleUrls: ['./blocks.component.scss'],
 })
-export class BlocksComponent implements OnInit {
+export class BlocksComponent implements OnInit, OnDestroy {
   vectorBlocksAll: boolean = true;
   vectorBlocks: Array<Array<IVectorBlock>> = [];
 
   lastSelectBlock?: IVectorBlock;
+  lastSubBlockndex?: number;
 
   infoData: Array<IBlockAttribute> = [];
   infoPanelVisible: boolean = false;
@@ -30,11 +31,8 @@ export class BlocksComponent implements OnInit {
   searchResultInfo: string;
   isSearchResultDirty = false; // used when search criteria is changed and search result is not updated yet
 
-  constructor(private readonly rxCoreService: RxCoreService, private ref: ChangeDetectorRef) {}
 
-  get sortVectorBlocks():Array<Array<IVectorBlock>> {
-    return this.vectorBlocks.sort((a, b) => a[0].name.localeCompare(b[0].name));
-  }
+  constructor(private readonly rxCoreService: RxCoreService, private el: ElementRef) {}
 
   ngOnInit(): void {
     this.rxCoreService.guiVectorBlocks$.subscribe((blocks) => {
@@ -73,14 +71,20 @@ export class BlocksComponent implements OnInit {
           }
           return 0;
       });
+
+      // close panels when switch docs
+      this.infoPanelVisible = false;
+      this.searchPanelVisible = false;
     });
 
-    // enable to select a block
     RXCore.getBlockInsert(true);
     RXCore.onGui2DBlock((block: IVectorBlock) => {
-      // console.log("Block clicked:", block);
-      this.onSelectBlock(block);
+      this.onSelectBlock(block, true);
     });
+  }
+
+  ngOnDestroy() {
+    RXCore.getBlockInsert(false);
   }
 
   onOpenSearchBlock() {
@@ -90,19 +94,12 @@ export class BlocksComponent implements OnInit {
     this.searchBlockAttributes(this.searchAttriName, this.searchBlockName);
   }
 
-  toggleSubList(event: Event, subBlocks: Array<IVectorBlock>, state: number) {
-    event.stopPropagation(); // Prevent the click event from propagating to the parent
-    if (subBlocks.length > 0) {
-      subBlocks.forEach((block: IVectorBlock) => {
-        block.state = state;
-        RXCore.changeVectorBlock(block.index);
-      });
-    }
-  }
-
-
   areAllBlocksChecked(subBlocks: Array<IVectorBlock>): boolean {
     return subBlocks.every((item) => item.state == 1);
+  }
+
+  getBlockCount(): number {
+    return this.vectorBlocks.reduce((acc, subBlocks) => acc + subBlocks.length, 0);
   }
 
   setBlocksVisible(event: Event, subBlocks: Array<IVectorBlock>, visible: boolean) {
@@ -113,8 +110,6 @@ export class BlocksComponent implements OnInit {
         block.state = newState;
         RXCore.changeVectorBlock(block.index);
       });
-      this.ref.markForCheck();
-      this.ref.detectChanges();
     }
   }
 
@@ -129,7 +124,7 @@ export class BlocksComponent implements OnInit {
     RXCore.vectorBlocksAll(onoff);
   }
 
-  onSelectBlock(block: IVectorBlock) {
+  onSelectBlock(block: IVectorBlock, isTriggeredFromCanvas = false) {
     if (this.lastSelectBlock) {
       // if select the same block, then unselect it
       if (block && block.index === this.lastSelectBlock.index) {
@@ -137,6 +132,10 @@ export class BlocksComponent implements OnInit {
         this.lastSelectBlock.selected = false;
         this.lastSelectBlock = undefined;
         return;
+      }
+      if (isTriggeredFromCanvas) {
+        // @ts-ignore
+        this.vectorBlocks[this.lastSubBlockndex][0].fold = 0;
       }
       // @ts-ignore
       this.lastSelectBlock.selected = false;
@@ -146,7 +145,47 @@ export class BlocksComponent implements OnInit {
       // @ts-ignore
       block.selected = true;
       this.lastSelectBlock = block;
-      RXCore.markVectorBlock(block.index);
+      if (isTriggeredFromCanvas) {
+        this.vectorBlocks.forEach((subBlocks, i) => {
+          subBlocks.forEach(b => {
+            if (b === block) {
+              this.lastSubBlockndex = i;
+              return;
+            }
+          })
+        })
+        if (this.lastSubBlockndex && this.vectorBlocks[this.lastSubBlockndex]) {
+          // @ts-ignore
+          this.vectorBlocks[this.lastSubBlockndex][0].fold = 1;
+        }
+        setTimeout(() => {
+          if (this.lastSelectBlock) {
+            this.scrollToBlockItem(this.lastSelectBlock);
+          }
+        }, 0);
+      } else {
+       RXCore.markVectorBlock(block.index);
+      }
+    }
+  }
+
+  private scrollToBlockItem(block: IVectorBlock) {
+    // The scroolbar is in side-nav-menu, the div with class ".toggleable-panel-body",
+    // we'll find it by parentElement
+    let listContainer = this.el.nativeElement.querySelector(".vector-blocks-container");
+    listContainer = listContainer?.parentElement?.parentElement;
+    if (!listContainer) {
+      console.warn("Failed to find scrool-able element!");
+      return;
+    }
+    const blockDom = listContainer.querySelector(`li[data-index='${block.index}']`);
+    if (blockDom) {
+      const topOffset = (blockDom as HTMLElement).offsetTop - listContainer.offsetTop;
+      listContainer.scrollTo({
+        left: 0,
+        top: topOffset,
+        behavior: "smooth"
+      })
     }
   }
 
@@ -204,7 +243,7 @@ export class BlocksComponent implements OnInit {
   }
 
   onVectorBlockDbClick(block: IVectorBlock): void {
-     RXCore.zoomToBlockInsert(block.index);
+    RXCore.zoomToBlockInsert(block.index);
   }
 
   onSearchTextChange() {
@@ -229,21 +268,50 @@ export class BlocksComponent implements OnInit {
         // @ts-ignore
         if (vectorBlock.hasAttribute === true && blockRegex.test(vectorBlock.name)) {
           const attributes = this.getBlockAttributes(vectorBlock);
-          Object.entries(attributes).forEach(([key, value]) => {
-              if (attributeRegex.test(key)) {
-                attributeResults.push({
-                  blockName: vectorBlock.name,
-                  attributeName: key,
-                  attributeValue: value,
-                });
-              }
-            });
+          attributes.forEach((attribute) => {
+            if (attributeRegex.test(attribute.name)) {
+              attributeResults.push({
+                blockName: vectorBlock.name,
+                attributeName: attribute.name,
+                attributeValue: attribute.value,
+                index: vectorBlock.index, // used for counting unique blocks
+              });
+            }
+          });
         }
       }
     }
 
+    attributeResults.sort((a, b) => {
+      const blockName1 = a.blockName.toLowerCase();
+      const blockName2 = b.blockName.toLowerCase();
+      const attributeName1 = a.attributeName.toLowerCase();
+      const attributeName2 = b.attributeName.toLowerCase();
+      if (blockName1 > blockName2) {
+        return 1;
+      } else if (blockName1 < blockName2) {
+        return -1;
+      }
+      if (attributeName1 > attributeName2) {
+        return 1;
+      } else if (attributeName1 < attributeName2) {
+        return -1;
+      }
+      if (typeof(a.attributeValue) === 'number' && typeof(b.attributeValue) === 'number') {
+        return a - b;
+      }
+      if (typeof(a.attributeValue) === 'string' && typeof(b.attributeValue) === 'string') {
+        return a.attributeValue.toLowerCase() > b.attributeValue.toLowerCase() ? 1 : -1;
+      }
+      return 0;
+    });
+
     this.searchListData = attributeResults;
-    this.searchResultInfo = `${this.searchListData.length} item(s)`;
+    const uniqueBlockIndices = new Set();
+    this.searchListData.forEach((item) => {
+      uniqueBlockIndices.add(item.index);
+    });
+    this.searchResultInfo = `${this.searchListData.length} items from ${uniqueBlockIndices.size} blocks`;
     this.isSearchResultDirty = false;
   }
 

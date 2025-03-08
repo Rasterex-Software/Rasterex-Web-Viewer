@@ -341,8 +341,9 @@ getSvgData(): string {
 
   uploadCustomStamp(): void {
     this.svgContent = this.getSvgData();
-    
-    const svgBase64 = btoa(this.svgContent);
+
+    // const svgBase64 = btoa(this.svgContent);
+    const svgBase64 = btoa(unescape(encodeURIComponent(this.svgContent)));
     const stampName = 'custom-stamp_' + new Date().getTime();
     const stampType = 'image/svg+xml';
 

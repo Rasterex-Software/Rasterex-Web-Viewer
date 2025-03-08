@@ -79,9 +79,7 @@ export class LoginComponent implements OnInit {
             this.permissions = permKeys;
           }
         });
-        this.userService.getAnnotations(1).then(res => {
-          this.userService.setAnnotations(res);
-        });
+        
       }).catch((e) => {
         console.error('Login failed:', e.error);
         alert(e.error.message);

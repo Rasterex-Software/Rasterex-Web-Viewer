@@ -20,6 +20,7 @@ var UIConfig = (function() {
                 "showmarkupZoom" : false,
                 "showAnnotationsOnLoad" : false,
                 "localStoreStamp" : true,
+                "localStoreAnnotation": false,
                 "disable2DVectorInfoButton" : false,
                 "logoUrl": "/assets/images/logo.svg"
             

@@ -10,6 +10,7 @@ import { UserService } from './components/user/user.service';
 import { Title } from '@angular/platform-browser';
 import { IGuiConfig } from 'src/rxcore/models/IGuiConfig';
 import { CollabService } from './services/collab.service';
+import { AnnotationStorageService } from './services/annotation-storage.service';
 
 
 
@@ -55,7 +56,8 @@ export class AppComponent implements AfterViewInit {
     private readonly fileGaleryService: FileGaleryService,
     private readonly notificationService: NotificationService,
     private readonly userService: UserService,
-    private readonly collabService: CollabService,  
+    private readonly collabService: CollabService, 
+    private readonly annotationStorageService: AnnotationStorageService, 
     private titleService:Title) { }
 
   ngOnInit() {
@@ -68,7 +70,6 @@ export class AppComponent implements AfterViewInit {
       this.showAnnotationsOnLoad = this.guiConfig.showAnnotationsOnLoad;
       this.canCollaborate = this.guiConfig.canCollaborate;
       RXCore.markupDisplayOnload(this.showAnnotationsOnLoad);
-
     });
 
     this.titleService.setTitle(this.title);
@@ -247,7 +248,7 @@ export class AppComponent implements AfterViewInit {
     });
 
     RXCore.onGuiState((state: any) => {
-      //console.log('RxCore GUI_State:', state);
+      console.log('RxCore GUI_State:', state);
       //console.log('RxCore GUI_State:', state.source);
 
       this.state = state;
@@ -317,7 +318,19 @@ export class AppComponent implements AfterViewInit {
       });
       
      
-      
+      console.log('RxCore onGuiFileLoadComplete:');
+      const path = RXCore.getOriginalPath();
+      if (this.guiConfig?.localStoreAnnotation === false && path) {
+        this.annotationStorageService.getAnnotations(1, path).then((annotations)=>{
+          annotations.forEach((annotation)=>{
+            RXCore.setMarkupfromJSON(annotation.data);
+            const markup = RXCore.getLastMarkup();
+            if (markup) {
+              (markup as any).dbUniqueID = annotation.id;
+            }
+          })   
+        });
+      }
 
     });
     
@@ -330,6 +343,23 @@ export class AppComponent implements AfterViewInit {
       if (annotation !== -1 || this.rxCoreService.lastGuiMarkup.markup !== -1) {
         this.rxCoreService.setGuiMarkup(annotation, operation);
 
+        // Handle addition, deletion, and modification
+        const path = RXCore.getOriginalPath();
+        if (this.guiConfig?.localStoreAnnotation === false && annotation !== -1 && path) {
+          const user = this.userService.getCurrentUser();
+          if (operation.created) {
+            this.annotationStorageService.createAnnotation(1, path, annotation.getJSON(),user?.id).then((result)=>{
+              // Retain the returned unique ID.
+              annotation.dbUniqueID = result.id;
+            });
+          } else if (operation.modified && annotation.dbUniqueID != null) {
+            this.annotationStorageService.updateAnnotation(annotation.dbUniqueID, annotation.getJSON());
+          } else if (operation.deleted && annotation.dbUniqueID != null) {
+            this.annotationStorageService.deleteAnnotation(annotation.dbUniqueID);
+          }
+        }
+
+        
         // If collab feature is enabled, send the markup message to the server
         // Handle created/deleted here
 
@@ -444,9 +474,20 @@ export class AppComponent implements AfterViewInit {
     });*/
 
     RXCore.onGuiTextInput((rectangle: any, operation: any) => {
+      console.log('RxCore onGuiTextInput:', rectangle, operation);
       this.rxCoreService.setGuiTextInput(rectangle, operation);
 
-      if(operation.start){
+      if (operation.start) {
+        const path = RXCore.getOriginalPath();
+        if (this.guiConfig?.localStoreAnnotation === false && operation.markup && path) {
+          const user = this.userService.getCurrentUser();
+          const annotation = operation.markup;
+          this.annotationStorageService.createAnnotation(1, path, annotation.getJSON(),user?.id).then((result)=>{
+            // Retain the returned unique ID.
+            annotation.dbUniqueID = result.id;
+          });
+        }
+
         if (operation.markup && this.canCollaborate) {
 
                     //&& (operation.created || operation.deleted)

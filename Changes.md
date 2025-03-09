@@ -1,3 +1,15 @@
+March 9, 2025
+
+### 1. Add annotation storage service.
+### 2. Store annotations to bakcend db.
+
+Modified files
+src\app\app.component.ts
+src\app\components\user\login\login.component.ts
+src\app\components\user\user.service.ts
+src\app\services\annotation-storage.service.ts
+
+
 March 4, 2025
 
 ### 1. Added block select and marking for rotated page.

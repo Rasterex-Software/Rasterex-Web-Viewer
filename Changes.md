@@ -1,3 +1,29 @@
+March 11, 2025
+
+### 1. Implemented Real-time Collaboration. Enable login user to join a room for each doc.
+### 2. Added room panel to list participants.
+### 3. Enabled a user to join more than one rooms.
+### 4. Enabled admin to add/delete standard stamps
+### 5. Stored images into IndexedDB
+
+Modified files
+src\app\app.component.ts
+src\app\app.module.ts
+src\app\components\annotation-tools\annotation-tools.component.html
+src\app\components\annotation-tools\stamp-panel\StampData.ts
+src\app\components\annotation-tools\stamp-panel\stamp-library.service.ts
+src\app\components\annotation-tools\stamp-panel\stamp-panel.component.html
+src\app\components\annotation-tools\stamp-panel\stamp-panel.component.ts
+src\app\components\annotation-tools\stamp-panel\stamp-storage.service.ts
+src\app\components\annotation-tools\stamp-panel\stamp-templates.ts
+src\app\components\annotation-tools\symbols-library\symbols-library.component.html
+src\app\components\collab\room-panel.component.html
+src\app\components\collab\room-panel.component.ts
+src\app\components\top-nav-menu\top-nav-menu.component.html
+src\app\components\top-nav-menu\top-nav-menu.component.ts
+src\app\components\user\user.service.ts
+src\app\services\collab.service.ts
+
 March 10, 2025
 
 ### 1. Added watermark functionality (addWatermarkToPage, addWatermarkToAllPages and removeWatermarkFromAllPages)

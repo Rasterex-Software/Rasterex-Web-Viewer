@@ -1,11 +1,11 @@
 import { Component, Output, EventEmitter, OnInit, ElementRef, ViewChild, AfterViewInit, ChangeDetectorRef } from '@angular/core';
-import { STAMP_TEMPLATES } from './stamp-templates';
-import { StampData } from './StampData';
+import { StampData, StampType } from './StampData';
 import { RXCore } from 'src/rxcore';
 import { RxCoreService } from 'src/app/services/rxcore.service';
 import { ColorHelper } from 'src/app/helpers/color.helper';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { StampStorageService } from './stamp-storage.service';
+import { UserService } from '../../user/user.service';
 
 @Component({
   selector: 'rx-stamp-panel',
@@ -20,6 +20,8 @@ export class StampPanelComponent implements OnInit {
   @ViewChild('stampPreview', { static: false }) stampPreview: ElementRef<HTMLDivElement>;
   opened: boolean = false;
   activeIndex: number = 0;
+
+ remoteImageUrl: string = '';
 
   stampText: string = 'Draft';
   textColor: string = '#000000';
@@ -40,7 +42,7 @@ export class StampPanelComponent implements OnInit {
   strokeRadius: number = 8;
   activeIndexStamp: number = 1;
   svgContent: string = '';
-  templates: any = STAMP_TEMPLATES;
+  templates: StampData[] = [];
   customStamps: StampData[] = [];
   uploadImageStamps: StampData[] = [];
   font: any;
@@ -61,7 +63,8 @@ export class StampPanelComponent implements OnInit {
 
   constructor(  private readonly rxCoreService: RxCoreService, private cdr: ChangeDetectorRef,
                 private readonly colorHelper: ColorHelper,private sanitizer: DomSanitizer,
-                private readonly storageService: StampStorageService
+                private readonly storageService: StampStorageService,
+                private readonly userService: UserService
   ) {}
   private _setDefaults(): void {
 
@@ -140,6 +143,11 @@ export class StampPanelComponent implements OnInit {
     const strokeWidth = this.strokeWidth || 1;
     return textHeight + (2 * borderMargin) + strokeWidth + 20;
   }
+
+  get isAdmin() {
+    return this.userService.isAdmin();
+  }
+
   ngOnInit(): void {
     // this.loadSvg();
     const now = new Date();
@@ -159,6 +167,7 @@ export class StampPanelComponent implements OnInit {
           font: markup.font.fontName
       }; 
     });
+    this.getStandardStamps();
     this.getCustomStamps();
     this.getUploadImageStamps();
   }
@@ -167,8 +176,8 @@ export class StampPanelComponent implements OnInit {
       const blobUrl = await this.convertBase64ToBlobUrl(item.content, item.type);
       // const svgContent = atob(item.content);
       // const { width, height } = this.extractSvgDimensions(svgContent);
-      const width = 210;
-      const height = 75;
+      const width = item.width ? item.width : 210;
+      const height = item.height ? item.height :75;
       return {
         id: item.id,
         name: item.name,
@@ -177,6 +186,25 @@ export class StampPanelComponent implements OnInit {
         height: height, 
         width: width
       };
+  }
+
+  getStandardStamps() {
+    this.storageService.getAllStandardStamps().then((stamps: any[]) => {
+      const stampPromises = stamps.map(async (item: any) => {
+        return this.convertToStampData({id: item.id, ...JSON.parse(item.data)});
+      });
+
+      // Resolve all promises to get the stamp data
+      Promise.all(stampPromises).then(resolvedStamps => {
+        this.templates = resolvedStamps;
+        console.log('Standard stamps retrieved successfully:', this.templates);
+      }).catch(error => {
+        console.error('Failed to convert stamps:', error);
+      });;
+
+    }).catch(error => {
+      console.error('Error retrieving stamps:', error);
+    });
   }
  
   getCustomStamps() {
@@ -250,6 +278,70 @@ export class StampPanelComponent implements OnInit {
     }).catch(error => {
       console.error('Error deleting stamp:', error);
     });
+  }
+
+  deleteStandardStamp(id: number): void {
+    this.storageService.deleteStandardStamp(id).then(() => {
+       for (let i = 0; i < this.templates.length; i++) {
+        if (this.templates[i].id === id) {
+          this.templates.splice(i, 1);
+          break;
+        }
+      }
+    }).catch(error => {
+      console.error('Error deleting stamp:', error);
+    });
+  }
+
+  async convertToStandardStamp(type: StampType, id: number) {
+    let currentStamp;
+    if (type ===  StampType.CustomStamp) {
+      currentStamp = this.customStamps.find(d => d.id === id);
+      this.deleteCustomStamp(id);
+    } else if (type=== StampType.UploadStamp) {
+      currentStamp = this.uploadImageStamps.find(d => d.id === id);
+      this.deleteImageStamp(id);
+    }
+    const imageData = await this.convertUrlToBase64Data(currentStamp.src);
+    const newStamp = {
+      name: currentStamp.name,
+      type: StampType.StandardStamp,
+      width: currentStamp.width,
+      height: currentStamp.height,
+      content: imageData
+    };
+    this.storageService.addStandardStamp(newStamp).then(() => {
+      // refresh standard list
+      this.getStandardStamps();
+    }).catch(error => {
+      console.error('Error add standard stamp:', error);
+    });
+  }
+
+  private convertUrlToBase64Data(url: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const img = new Image()
+      const canvas = document.createElement('canvas');
+      img.crossOrigin = '*';
+      img.onload = function () {
+          const width = img.width, height = img.height;
+          canvas.width = width;
+          canvas.height = height;
+  
+          const ctx = canvas.getContext('2d')!;
+          ctx.fillStyle = 'white';
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          ctx.drawImage(img, 0, 0, width, height);
+          const base64 = canvas.toDataURL();
+          const base64Index = base64.indexOf('base64,') + 'base64,'.length;
+          const imageData = base64.substring(base64Index);
+          resolve(imageData);
+      };
+      img.onerror = function () {
+          reject(new Error('Error convert to base64'));
+      };
+      img.src = url;
+    })
   }
   
   async convertBase64ToBlobUrl(base64Data: string, type: string): Promise<string> {
@@ -370,7 +462,27 @@ getSvgData(): string {
     // link.click();
   }
  
-  
+  async handleUploadImageUrl() {
+    if (!this.remoteImageUrl) return;
+    try {
+      const imageData = await this.convertUrlToBase64Data(this.remoteImageUrl);
+      const newStamp = {
+        name: this.remoteImageUrl,
+        type: StampType.StandardStamp,
+        content: imageData
+      };
+      this.storageService.addUploadImageStamp(newStamp).then(async (item: any) => {
+        console.log('Upload image stamp added successfully:', item);
+        const stampData = await this.convertToStampData({id: item.id, ...newStamp});
+        this.uploadImageStamps.push(stampData);
+      }).catch(error => {
+        console.error('Error adding image stamp:', error);
+      });
+      
+    } catch (error) {
+      console.log(error);
+    }
+  }
   
 handleImageUpload(event: any) {
   const files = event.target.files;

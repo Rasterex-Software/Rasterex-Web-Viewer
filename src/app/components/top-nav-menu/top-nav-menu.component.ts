@@ -55,6 +55,7 @@ export class TopNavMenuComponent implements OnInit {
   private guiOnNoteSelected: Subscription;
   currentScaleValue: string;
   fileLength: number = 0;
+  collabPanelOpened: boolean = false;
   
   constructor(
     private readonly fileGaleryService: FileGaleryService,
@@ -449,6 +450,9 @@ export class TopNavMenuComponent implements OnInit {
     this.onActionSelect("Comment")
   }
 
+  onCollabPanelSelect (): void {
+    this.collabPanelOpened = !this.collabPanelOpened;
+  }
 
   onActionSelect(actionType: ActionType): void {
     

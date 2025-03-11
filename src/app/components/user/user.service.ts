@@ -113,12 +113,21 @@ export class UserService {
     });
   }
 
-    /**
+  /**
    * Gets current user.
    */
-    getCurrentUser(): User | null {
-      return this._currentUser.value;
+  getCurrentUser(): User | null {
+    return this._currentUser.value;
+  }
+
+  isAdmin() {
+    const user = this.getCurrentUser();
+    if (!user) {
+      return false;
     }
+
+    return user.username === 'admin';
+  }
   
 
   /**

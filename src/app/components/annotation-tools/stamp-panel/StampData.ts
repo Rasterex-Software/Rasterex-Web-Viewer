@@ -1,7 +1,7 @@
 
 export interface StampData {
     id: number;
-    name: string;// unique name of stamp
+    name: string;
     src: string;
     type: string;// 'image/svg+xml'
     height: number;
@@ -9,12 +9,13 @@ export interface StampData {
   }
 
 export interface StampStoreData {
-  name: string;// unique name of stamp
+  name: string;
   type: string;
   content: string;
 }
 
 export enum StampType {
+  StandardStamp = 'StandardStamp',
   CustomStamp = 'CustomStamp',
   UploadStamp = 'UploadStamp'
 }  

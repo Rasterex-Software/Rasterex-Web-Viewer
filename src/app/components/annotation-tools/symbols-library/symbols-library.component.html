@@ -1,10 +1,12 @@
 <rx-panel [title]="'Symbols'" (onClose)="onPanelClose()">
-  <div class="library-panel-container">
-    <!-- Tab Buttons -->
-    <div class="btn-group" role="group">
-    </div>
+  <div class="library-panel-container" >
     <section >
-      <div class="templates-list">
+      <div class="add-custom-stamp">
+        <input type="file" #fileUpload (change)="handleSymbolsUpload($event)" style="display: none;" multiple>
+        <button type="button" id="upload_button" class="btn btn-primary" (click)="fileUpload.click()">Upload Symbols</button>
+      </div>
+      
+      <div class="templates-list" style="height: 390px;">
         <div *ngFor="let template of symbols; let i=index" class="stamp-container"  style="display: flex; align-items: center;">
           <img
           [imageTemplate]="template"
@@ -16,12 +18,6 @@
         </div> 
       </div>
     </section>
-    
-    <div>
-      <input type="file" #fileUpload (change)="handleSymbolsUpload($event)" style="display: none;" multiple>
-      <button type="button" id="upload_button" class="btn btn-primary" (click)="fileUpload.click()">Upload Symbols</button>
-    </div>
-    
   </div>
 </rx-panel>
 

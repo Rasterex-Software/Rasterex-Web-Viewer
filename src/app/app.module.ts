@@ -97,6 +97,7 @@ import { SizeModalComponent } from './components/size-modal/size-modal.component
 import { CommentStatusIconComponent } from './components/annotation-tools/comment-status-icon/comment-status-icon.component';
 
 import { LoginComponent } from './components/user/login/login.component';
+import { RoomPanelComponent } from './components/collab/room-panel.component';
 
 const storeSchema = [
   { name: 'name', keypath: 'name', options: { unique: false } },
@@ -194,7 +195,8 @@ const dbConfig: DBConfig  = {
     SizeModalComponent,
     SafeHtmlPipe,
     CommentStatusIconComponent,
-    LoginComponent
+    LoginComponent,
+    RoomPanelComponent,
   ],
   imports: [
     BrowserModule,

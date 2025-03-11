@@ -19,7 +19,6 @@ var UIConfig = (function() {
                 "canLogin" : false,
                 "showmarkupZoom" : false,
                 "showAnnotationsOnLoad" : false,
-                "localStoreStamp" : true,
                 "localStoreAnnotation": true,
                 "disable2DVectorInfoButton" : false,
                 "watermarkdemo" : false,

@@ -7,6 +7,7 @@ import { BehaviorSubject, Observable } from 'rxjs';
 const MessageId = {
   JoinRoom: "JoinRoom",
   LeaveRoom: "LeaveRoom",
+  GetRoomParticipants: "GetRoomParticipants",
   ChatMessage: "ChatMessage",
   AddMarkup: "AddMarkup",
   UpdateMarkup: "UpdateMarkup",
@@ -15,7 +16,27 @@ const MessageId = {
 
 export interface CollabMessage {
   id: string;
-  body: any;
+  roomName: string;
+  body: {
+    senderSocketId?: string;
+    senderUsername?: string;
+    senderDisplayName?: string;
+    participants?: Participant[];
+    text?: string;
+    annotation?: any;
+    operation?: any;
+  };
+}
+
+export interface Participant {
+  socketId: string;
+  username: string;
+  displayName: string;
+}
+
+export interface RoomParticipants {
+  roomName?: string;
+  participants?: Participant[];
 }
 
 @Injectable({
@@ -27,48 +48,86 @@ export class CollabService {
   private ROOM_MESSAGE = "roomMessage";
 
   private socket: Socket;
-  // a user can only join one room now!
-  private roomName: string;
   private username: string;
+  private displayName: string;
 
-  private _isActive: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
-  public isCollabActive$: Observable<boolean> = this._isActive.asObservable();
-
+  // used to avoid re-entry
+  private initPromise: Promise<boolean> | undefined = undefined;
+  // private _isActive: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  // public isCollabActive$: Observable<boolean> = this._isActive.asObservable();
+  private _roomParticipantsChange: BehaviorSubject<RoomParticipants> = new BehaviorSubject<RoomParticipants>({});
+  public roomParticipantsChange$: Observable<RoomParticipants> = this._roomParticipantsChange.asObservable();
 
   constructor() {
   }
 
-  //constructor(roomName: string, username?: string) {
-    
-  public connect(roomName: string, username?: string){    
-    const socket = io(this.apiUrl);
+  private async init(): Promise<boolean> {
+    // avoid re-entry
+    if (this.initPromise) {
+      return this.initPromise;
+    }
+    if (this.socket && this.socket.connected) {
+      return Promise.resolve(true);
+    }
+
+    const socket = io(this.apiUrl, {
+      reconnection: true,
+      reconnectionAttempts: 3,
+      reconnectionDelay: 1000 // 1 second
+    });
     this.socket = socket;
-    this.roomName = roomName;
-    this.username = username || '';
 
-
-
-    socket.on('connect', () => {
-      this.joinRoom();
+    this.initPromise = new Promise((resolve, reject) => {
+      socket.on('connect', () => {
+        console.log(`[Collab] ${this.username} connected`);
+        resolve(true);
+        this.initPromise = undefined;
+      });
+      socket.on('connect_timeout', (timeout) => {
+        console.error(`[Collab] Connection timed out after ${timeout}ms`);
+        reject(new Error('Connection timed out'));
+        this.initPromise = undefined;
+      });
+      socket.on('error', (error) => {
+        console.error(`[Collab] An error occurred: ${error.message}`);
+        reject(error);
+        this.initPromise = undefined;
+      });
+      socket.on('connect_error', (error) => {
+        console.error(`[Collab] Connection failed: ${error.message}`);
+        reject(error);
+        this.initPromise = undefined;
+      });
+      socket.on('disconnect', () => {
+        console.log(`[Collab] ${this.username} disconnected`);
+      });
+      socket.on(this.ROOM_MESSAGE, (msg) => {
+        console.log(`[Collab] ${this.username} received message:`, msg);
+        this.handleMessage(msg);
+      });
     });
-    socket.on('disconnect', () => {
-      console.log(`[Collab] ${this.username} disconnected`);
-    });
-    socket.on(this.ROOM_MESSAGE, (msg) => {
-      console.log(`[Collab] ${this.username} received message:`, msg);
-      this.handleMessage(msg);
-    });
 
-    this._isActive.next(true);
+    return this.initPromise;
   }
 
-  setUsername(username: string) {
+  setUsername(username: string, displayName = '') {
     this.username = username;
+    this.displayName = displayName;
   }
 
-  private sendMessage(msg: CollabMessage) {
+  get socketId() {
+    return this.socket?.id || '';
+  }
+
+  private async sendMessage(msg: CollabMessage): Promise<void> {
+    if (!this.socket || !this.socket.connected) {
+      await this.init();
+    }
     if (this.socket.connected) {
-      this.socket.emit(this.ROOM_MESSAGE, this.roomName, msg);
+      msg.body.senderSocketId = this.socket.id;
+      msg.body.senderUsername = this.username;
+      msg.body.senderDisplayName = this.displayName;
+      this.socket.emit(this.ROOM_MESSAGE, msg);
     }
   }
 
@@ -76,8 +135,15 @@ export class CollabService {
     const msgId = message.id;
     const msgBody = message.body;
 
-    if (msgId === MessageId.ChatMessage) {
-        console.log(`[Collab] ChatMessage: ${msgBody.text}`);
+    if (msgId === MessageId.GetRoomParticipants) {
+      // console.log(`[Collab] GetRoomParticipants: ${msgBody.participants}`)
+      const roomParticipants = {
+        roomName: message.roomName,
+        participants: msgBody.participants,
+      }
+      this._roomParticipantsChange.next(roomParticipants);
+    } else if (msgId === MessageId.ChatMessage) {
+      console.log(`[Collab] ChatMessage: ${msgBody.text}`);
     } else if (
       msgId === MessageId.AddMarkup ||
       msgId === MessageId.UpdateMarkup ||
@@ -101,22 +167,44 @@ export class CollabService {
     }
   }
 
-  private joinRoom() {
-    const senderSocketId = this.socket.id;
-    this.sendMessage({ id: MessageId.JoinRoom, body: { senderSocketId }});
+  public async joinRoom(roomName: string): Promise<boolean> {
+    if (!this.socket || !this.socket.connected) {
+      const result = await this.init();
+      if (!result) {
+        return Promise.resolve(false);
+      }
+    }
+    this.sendMessage({ id: MessageId.JoinRoom, roomName, body: { }});
+    return Promise.resolve(true);
   }
 
-  private leaveRoom() {
-    const senderSocketId = this.socket.id;
-    this.sendMessage({ id: MessageId.LeaveRoom, body: { senderSocketId }});
+  public async leaveRoom(roomName: string): Promise<boolean> {
+    if (!this.socket || !this.socket.connected) {
+      const result = await this.init();
+      if (!result) {
+        return Promise.resolve(false);
+      }
+    }
+    this.sendMessage({ id: MessageId.LeaveRoom, roomName, body: { }});
+    return Promise.resolve(true);
   }
 
-  private sendChatMessage(text: string) {
-    const senderSocketId = this.socket.id;
-    this.sendMessage({ id: MessageId.ChatMessage, body: { senderSocketId, text }});
+  public async getRoomParticipants(roomName: string): Promise<boolean> {
+    if (!this.socket || !this.socket.connected) {
+      const result = await this.init();
+      if (!result) {
+        return Promise.resolve(false);
+      }
+    }
+    this.sendMessage({ id: MessageId.GetRoomParticipants, roomName, body: { }});
+    return Promise.resolve(true);
   }
 
-  public sendMarkupMessage(annotation: any, operation: any) {
+  private sendChatMessage(roomName: string, text: string) {
+    this.sendMessage({ id: MessageId.ChatMessage, roomName, body: { text }});
+  }
+
+  public sendMarkupMessage(roomName: string, annotation: any, operation: any) {
     let id = '';
     if (operation.created) {
       id = MessageId.AddMarkup;
@@ -128,6 +216,6 @@ export class CollabService {
       console.warn(`[Collab] Unknown operation:`, operation);
       return;
     }
-    this.sendMessage({ id, body: { annotation, operation }});
+    this.sendMessage({ id, roomName, body: { annotation, operation }});
   }
 }

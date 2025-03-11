@@ -1,4 +1,4 @@
-<rx-panel [title]="'Stamp'" (onClose)="onPanelClose()">
+<rx-panel [title]="'Stamp'" (onClose)="onPanelClose()" overflow-y="none">
     <div class="stamp-panel-container">
       <!-- Tab Buttons -->
       <div class="btn-group" id="tabs" role="group"> 
@@ -13,42 +13,63 @@
           <div *ngFor="let template of templates;let i = index" style="display: flex; align-items: center;">
    
             <img [stampTemplate]="template" [src]="template.src" [ngStyle]="{ 'width.px': template.width, 'height.px': template.height }" style="margin: 2px;">
+            <button title="trash" *ngIf="isAdmin" (click)="deleteStandardStamp(template.id)" style="border: none; background: none; cursor: pointer; padding: 0; margin-left: 8px;">
+              <img src="/assets/images/trash-ico.svg" />
+            </button>
           </div>
         </div>
       </section>
 
       <!-- Custom Section -->
       <section *ngIf="activeIndexStamp === 2">
-        <div class="templates-list">
+        <div class="add-custom-stamp">
+          <button class="btn btn-primary" (click)="opened = true">Create Custom Stamp</button>
+        </div>
+        <div class="templates-list" style="height: 390px;">
           <div *ngFor="let template of customStamps;let i = index" style="display: flex; align-items: center;" >
             <img [stampTemplate]="template" [src]="template.src" [ngStyle]="{ 'width.px': template.width, 'height.px': template.height }" style="margin: 2px;">
-            <button (click)="deleteCustomStamp(template.id)" style="border: none; background: none; cursor: pointer; padding: 0; margin-left: 8px;">
+            <button title="convert to standard" *ngIf="isAdmin" (click)="convertToStandardStamp('CustomStamp', template.id)" style="border: none; background: none; cursor: pointer; padding: 0; margin-left: 8px;">
+              <img src="/assets/images/convert-standard.svg" />
+            </button>
+            <button title="trash" (click)="deleteCustomStamp(template.id)" style="border: none; background: none; cursor: pointer; padding: 0; margin-left: 8px;">
               <img src="/assets/images/trash-ico.svg" />
             </button>
           </div>
-        </div>
-        <div class="add-custom-stamp">
-          <button class="btn btn-primary" (click)="opened = true">Create Custom Stamp</button>
         </div>
       </section>
       
       <!-- UploadImage Section -->
       <section *ngIf="activeIndexStamp === 3">
-        <div class="templates-list">
+        <div class="add-custom-stamp">
+          <input type="file" #fileUpload (change)="handleImageUpload($event)" style="display: none;" multiple>
+          <button type="button" id="upload_button" class="btn btn-primary" (click)="fileUpload.click()">Upload Image Stamp</button>
+        </div>
+        <div class="input-group" style="width: auto;margin: 0 7px;">
+          <input
+              type="text"
+              placeholder="Remote image url"
+              [(ngModel)]="remoteImageUrl"
+          />
+          <button
+           class="btn"
+           style="background-color: var(--accent);"
+              (click)="handleUploadImageUrl()">
+              Upload
+          </button>
+      </div>
+        <div class="templates-list" style="height: 390px;">
           <div *ngFor="let template of uploadImageStamps; let i = index" style="display: flex; align-items: center;" class="image-container">
             <img
             [stampTemplate]="template"
             [src]="template.src"
             [ngStyle]="{ 'width.px': template.width, 'height.px': template.height }" />
-            <button (click)="deleteImageStamp(template.id)" style="border: none; background: none; cursor: pointer; padding: 0; margin-left: 8px;">
+            <button *ngIf="isAdmin" title="convert to standard" (click)="convertToStandardStamp('UploadStamp', template.id)" style="border: none; background: none; cursor: pointer; padding: 0; margin-left: 8px;">
+              <img src="/assets/images/convert-standard.svg" />
+            </button>
+            <button title="trash" (click)="deleteImageStamp(template.id)" style="border: none; background: none; cursor: pointer; padding: 0; margin-left: 8px;">
               <img src="/assets/images/trash-ico.svg" />
             </button>
           </div>   
-        </div>
-        <div class="add-custom-stamp">
-          <input type="file" #fileUpload (change)="handleImageUpload($event)" style="display: none;" multiple>
-          <button type="button" id="upload_button" class="btn btn-primary" (click)="fileUpload.click()">Upload Image Stamp</button>
-          
         </div>
       </section>
 

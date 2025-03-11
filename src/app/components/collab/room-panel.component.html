@@ -1,0 +1,24 @@
+<rx-panel
+  *ngIf="canCollaborate && visible"
+  [title]="'Room'"
+  style="z-index: 9"
+  class="room-panel"
+  [maxHeight]="312"
+  (onClose)="onClose()">
+  <div class="room-panel-container">
+    <div class="header-section">
+      <span *ngIf="!user">Please login first!</span>
+      <button *ngIf="user && !joinedRoom" (click)="joinRoom()">Join room</button>
+      <button *ngIf="user && joinedRoom" (click)="leaveRoom()">Leave room</button>
+    </div>
+    <div class="main-section">
+      <p>Participants ({{ participants.length }})</p>
+      <ul>
+        <li *ngFor="let participant of participants">
+          <span title="{{ participant.username }} ({{ participant.socketId }})">{{ participant.displayName }}</span>
+          <span *ngIf="socketId && participant.socketId == socketId"> (You)</span>
+        </li>
+      </ul>
+    </div>
+  </div>
+</rx-panel>

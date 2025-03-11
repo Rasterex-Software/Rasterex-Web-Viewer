@@ -8,8 +8,8 @@ import { RXCore } from 'src/rxcore';
   providedIn: 'root'
 })
 export class StampLibraryService {
-  private apiUrl =  RXCore.Config.apiBaseURL;
-  //private apiUrl = 'http://localhost:8080/';
+  //private apiUrl =  RXCore.Config.apiBaseURL;
+  private apiUrl = 'http://localhost:8080/';
 
   constructor(private http: HttpClient) { }
 
@@ -26,7 +26,7 @@ export class StampLibraryService {
     );
   }
 
-  deleteStamp(stampType: StampType, stampId: number): Observable<any> {
+  deleteStamp(stampId: number): Observable<any> {
     return this.http.delete<any>(`${this.apiUrl}api/stamp/templates/${stampId}`).pipe();
   }
 

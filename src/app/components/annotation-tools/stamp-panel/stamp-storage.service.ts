@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { IndexedDbService } from 'src/app/services/indexed-db.service';
-import { RxCoreService } from 'src/app/services/rxcore.service';
 import { StampLibraryService } from './stamp-library.service';
 import { StampStoreData, StampType } from './StampData';
 
@@ -9,18 +8,10 @@ import { StampStoreData, StampType } from './StampData';
 })
 
 export class StampStorageService {
-
-  private localStoreStamp: boolean = true;
-  private guiConfig$ = this.rxCoreService.guiConfig$;
   constructor(
-    private readonly rxCoreService: RxCoreService,
     private indexedDbService: IndexedDbService,
     private stampLibraryService: StampLibraryService
 ) { 
-    this.guiConfig$.subscribe(config => {
-        this.localStoreStamp = !!config.localStoreStamp;
-        console.log(`localStoreStamp: ${this.localStoreStamp}`);
-    });
 }
 
 private addStamp(stamp: StampStoreData, type: StampType): Promise<any> {
@@ -34,19 +25,25 @@ private addStamp(stamp: StampStoreData, type: StampType): Promise<any> {
                 reject(e);
             }
         };
-        if (this.localStoreStamp) {
-            this.indexedDbService.addItem(type, { 'name': stamp.name, 'data': JSON.stringify(stamp)}).subscribe(callbackObj);
+        if (type == StampType.StandardStamp) {
+            this.stampLibraryService.addStamp(type, stamp).subscribe(callbackObj);
         }
         else {
-            this.stampLibraryService.addStamp(type, stamp).subscribe(callbackObj);
+            this.indexedDbService.addItem(type, { 'name': stamp.name, 'data': JSON.stringify(stamp)}).subscribe(callbackObj);
         }      
     });
 }
-  // Add a new item to db
+
+  addStandardStamp(stamp: StampStoreData): Promise<any> {
+    return this.addStamp(stamp, StampType.StandardStamp);
+  }
+
+  // Add a new item to indexed-db
   addCustomStamp(stamp: StampStoreData): Promise<any> {
     return this.addStamp(stamp, StampType.CustomStamp);
   }
 
+  // Add a new item to indexed-db
   addUploadImageStamp(stamp: StampStoreData): Promise<any> {
     return this.addStamp(stamp, StampType.UploadStamp);
   }
@@ -62,13 +59,17 @@ private addStamp(stamp: StampStoreData, type: StampType): Promise<any> {
                 reject(e);
             }
         };
-        if (this.localStoreStamp) {
-            this.indexedDbService.deleteItem(type, stampId).subscribe(callbackObj);
+        if (type == StampType.StandardStamp) {
+            this.stampLibraryService.deleteStamp(stampId).subscribe(callbackObj);
         }
         else {
-            this.stampLibraryService.deleteStamp(type, stampId).subscribe(callbackObj);
+            this.indexedDbService.deleteItem(type, stampId).subscribe(callbackObj);
         }      
     });
+  }
+
+  deleteStandardStamp(stampId: number): Promise<any> {
+    return this.deleteStamp(stampId, StampType.StandardStamp);
   }
 
   deleteCustomStamp(stampId: number): Promise<any> {
@@ -90,13 +91,18 @@ private addStamp(stamp: StampStoreData, type: StampType): Promise<any> {
                 reject(e);
             }
         };
-        if (this.localStoreStamp) {
-            this.indexedDbService.getAllItems(type).subscribe(callbackObj);
+        if (type == StampType.StandardStamp) {
+            this.stampLibraryService.getAllStamps(type).subscribe(callbackObj);
         }
         else {
-            this.stampLibraryService.getAllStamps(type).subscribe(callbackObj);
+            this.indexedDbService.getAllItems(type).subscribe(callbackObj);
         }      
     });
+  }
+
+  // Get all items from db
+  getAllStandardStamps(): Promise<any[]> {
+    return this.getStampsByType(StampType.StandardStamp);
   }
 
   // Get all items from db

@@ -48,6 +48,9 @@ export class AppComponent implements AfterViewInit {
   timeoutId: any;
   isUploadFile: boolean = false;
   pasteStyle: { [key: string]: string } = { display: 'none' };
+  // This roomName is only used for document-collaboration.html page, in which, it generates
+  // a random roomName.
+  roomName: string = '';
 
 
   constructor(
@@ -83,11 +86,13 @@ export class AppComponent implements AfterViewInit {
 
     // if we can find the roomName in the URL, we will create a collabService
     const parameters = new URLSearchParams(window.location.search);
-    const roomName = parameters.get('roomName');
-    if (this.canCollaborate && roomName) {
+    this.roomName = parameters.get('roomName') || '';
+    if (this.canCollaborate && this.roomName) {
       const user = this.userService.getCurrentUser();
       const username = user?.username || '';
-      this.collabService.connect(roomName, username);
+      const displayName = user?.displayName || '';
+      this.collabService.setUsername(username, displayName);
+      this.collabService.joinRoom(this.roomName);
       // We need to call openModal() here, so it can call handleFileSelect() in file-galery
       // TODO: there should be a better logic to open a file!
       this.fileGaleryService.openModal();
@@ -293,8 +298,9 @@ export class AppComponent implements AfterViewInit {
 
       this.userService.currentUser$.subscribe((user) => {
         const username = user?.username || '';
+        const displayName = user?.displayName || '';
         if (this.canCollaborate) {
-          this.collabService.setUsername(username);
+          this.collabService.setUsername(username, displayName);
         }
 
         let JSNObj = [
@@ -374,15 +380,19 @@ export class AppComponent implements AfterViewInit {
 
         // If collab feature is enabled, send the markup message to the server
         // Handle created/deleted here
-
-        if (annotation !== -1 && this.canCollaborate && (operation.created || operation.deleted)) {
+        const roomName = this.getRoomName();
+        if (annotation !== -1 && roomName && this.canCollaborate && (operation.created || operation.deleted)) {
+          // Text with an arrow. Handles it in the onGuiTextInput callback.
+          if (operation.created && ((annotation.type == MARKUP_TYPES.TEXT.type && annotation.bhasArrow) || (annotation.type == MARKUP_TYPES.CALLOUT.type && annotation.bisTextArrow))) {
+            return;
+          }
 
           let cs = this.collabService;
           annotation.getJSONUniqueID(operation).then(function(jsondata){
 
             //const data = JSON.parse(jsondata);
             //data.operation = operation;
-            cs.sendMarkupMessage(jsondata, operation);
+            cs.sendMarkupMessage(roomName, jsondata, operation);
 
           });
 
@@ -489,7 +499,7 @@ export class AppComponent implements AfterViewInit {
       this.rxCoreService.setGuiTextInput(rectangle, operation);
 
       if(operation.start){
-
+        const roomName = this.getRoomName();
         const path = RXCore.getOriginalPath();
         if (this.guiConfig?.localStoreAnnotation === false && operation.markup && path) {
           const user = this.userService.getCurrentUser();
@@ -504,19 +514,16 @@ export class AppComponent implements AfterViewInit {
             }
           });
         }
-
-
-        if (operation.markup && this.canCollaborate) {
-
-                    //&& (operation.created || operation.deleted)
-                    let cs = this.collabService;
-                    operation.markup.getJSONUniqueID({ created: true}).then(function(jsondata){
-          
-                      //const data = JSON.parse(jsondata);
-                      //data.operation = operation;
-                      cs.sendMarkupMessage(jsondata, { created: true});
-          
-                    });
+        if (operation.markup && roomName && this.canCollaborate) {
+            //&& (operation.created || operation.deleted)
+            let cs = this.collabService;
+            operation.markup.getJSONUniqueID({ created: true}).then(function(jsondata){
+  
+              //const data = JSON.parse(jsondata);
+              //data.operation = operation;
+              cs.sendMarkupMessage(roomName, jsondata, { created: true});
+  
+            });
           
         }
 
@@ -572,24 +579,21 @@ export class AppComponent implements AfterViewInit {
     });
 
     RXCore.onGuiMarkupChanged((annotation, operation) => {
+      console.log('RxCore onGuiMarkupChanged:', annotation, operation);
       this.rxCoreService.guiOnMarkupChanged.next({annotation, operation});
 
-            // Handle text modification
-            const path = RXCore.getOriginalPath();
-            if (this.guiConfig?.localStoreAnnotation === false && annotation !== -1 && path) {
-              const user = this.userService.getCurrentUser();
-              if (operation === 0 && annotation.dbUniqueID != null) {
-                console.log('RxCore onGuiMarkupChanged:', annotation, operation);
-                this.annotationStorageService.updateAnnotation(annotation.dbUniqueID, annotation.getJSON());
-              }
-      
-            }
-      
-
-      if (annotation !== -1 && this.canCollaborate) {
-
+      const roomName = this.getRoomName();
+      // Handle text modification
+      const path = RXCore.getOriginalPath();
+      if (this.guiConfig?.localStoreAnnotation === false && annotation !== -1 && path) {
+        const user = this.userService.getCurrentUser();
+        if (operation === 0 && annotation.dbUniqueID != null) {
+          console.log('RxCore onGuiMarkupChanged:', annotation, operation);
+          this.annotationStorageService.updateAnnotation(annotation.dbUniqueID, annotation.getJSON());
+        }
+      }
+      if (annotation !== -1 && this.canCollaborate && roomName) {
         let cs = this.collabService;
-
         if(annotation.type == 8 && annotation.subtype == 2){
 
           if(annotation.parent){
@@ -599,7 +603,7 @@ export class AppComponent implements AfterViewInit {
               //const data = JSON.parse(jsondata);
               //data.operation = { modified: true};
               //jsondata = JSON.stringify(data);
-              cs.sendMarkupMessage(jsondata, { modified: true});
+              cs.sendMarkupMessage(roomName, jsondata, { modified: true});
               //this.collabService.sendMarkupMessage(annotation.getJSON(), { modified: true});
     
             });
@@ -614,7 +618,7 @@ export class AppComponent implements AfterViewInit {
             //const data = JSON.parse(jsondata);
             //data.operation = { modified: true};
             //jsondata = JSON.stringify(data);
-            cs.sendMarkupMessage(jsondata, { modified: true});
+            cs.sendMarkupMessage(roomName, jsondata, { modified: true});
             //this.collabService.sendMarkupMessage(annotation.getJSON(), { modified: true});
 
           });
@@ -695,7 +699,14 @@ export class AppComponent implements AfterViewInit {
 
   }
 
-
+  getRoomName() {
+    let roomName = this.roomName;
+    if (!this.roomName) {
+      const fileInfo = RXCore.getCurrentFileInfo();
+      roomName = fileInfo.name;
+    }
+    return roomName;
+  }
 
 
   openInitFile(initialDoc){

@@ -1,6 +1,7 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { UserService } from '../components/user/user.service';
+import { RXCore } from 'src/rxcore';
 
 export interface Annotation {
   id: number;
@@ -15,8 +16,7 @@ export interface Annotation {
   providedIn: 'root'
 })
 export class AnnotationStorageService {
-  //private apiUrl =  RXCore.Config.apiBaseURL;
-  private apiUrl = 'http://localhost:8080/';
+  private apiUrl =  RXCore.Config.apiBaseURL;
 
   constructor(private http: HttpClient,
     private readonly userService: UserService

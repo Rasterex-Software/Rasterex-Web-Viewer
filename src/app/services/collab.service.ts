@@ -44,7 +44,6 @@ export interface RoomParticipants {
 })
 export class CollabService {
   private apiUrl =  RXCore.Config.apiBaseURL;
-  //private apiUrl = 'http://localhost:8080/';
   private ROOM_MESSAGE = "roomMessage";
 
   private socket: Socket;

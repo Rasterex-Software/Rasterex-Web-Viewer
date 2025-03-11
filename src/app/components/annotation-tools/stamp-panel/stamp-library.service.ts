@@ -8,8 +8,7 @@ import { RXCore } from 'src/rxcore';
   providedIn: 'root'
 })
 export class StampLibraryService {
-  //private apiUrl =  RXCore.Config.apiBaseURL;
-  private apiUrl = 'http://localhost:8080/';
+  private apiUrl =  RXCore.Config.apiBaseURL;
 
   constructor(private http: HttpClient) { }
 

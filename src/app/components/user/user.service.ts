@@ -46,7 +46,6 @@ export interface Annotation {
 })
 export class UserService {
   private apiUrl =  RXCore.Config.apiBaseURL;
-  //private apiUrl = 'http://localhost:8080/';
 
   public accessToken = '';
 

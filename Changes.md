@@ -1,8 +1,9 @@
 March 12, 2025
 
-### 1. Fixed a bug that symbol cannot be deleted proerly.
-### 2. Fixed a bug about image aspect ratio.
-### 3. Fixed a bug that room participants don't refresh when switch doc.
+### 1. Optimized code and merged the common logic for backend storage and synchronization of Annotations.
+### 2. Fixed the problems of failed storage and synchronization of Stamp and Symbol.
+### 3. Fixed the aspect ratio and deletion issues of Symbol.
+### 4. Fixed a bug that room participants don't refresh when switch doc.
 
 Modified files
 src\app\app.component.ts

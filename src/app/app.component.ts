@@ -53,7 +53,6 @@ export class AppComponent implements AfterViewInit {
   roomName: string = '';
 
 
-
   constructor(
     private readonly recentfilesService: RecentFilesService,
     private readonly rxCoreService: RxCoreService,
@@ -331,9 +330,19 @@ export class AppComponent implements AfterViewInit {
       if (this.guiConfig?.localStoreAnnotation === false && path) {
         this.annotationStorageService.getAnnotations(1, path).then((annotations)=>{
           annotations.forEach((annotation)=>{
-            RXCore.setMarkupfromJSON(annotation.data);
-            const lastMarkup = RXCore.getLastMarkup();
-            if (lastMarkup) {
+            if (RXCore.setUniqueMarkupfromJSON) {
+              RXCore.setUniqueMarkupfromJSON(annotation.data, null);
+            }
+            const markupObj = JSON.parse(annotation.data);
+            const markupUniqueID = !markupObj.Entity.UniqueID ? null : markupObj.Entity.UniqueID;
+            let lastMarkup;
+            if (markupUniqueID) {
+              lastMarkup = RXCore.getmarkupobjByGUID(markupUniqueID);
+            } else {
+              lastMarkup = RXCore.getLastMarkup();
+            }
+
+            if (lastMarkup && lastMarkup != -1) {
               const markup = lastMarkup as any;
               markup.dbUniqueID = annotation.id;
 
@@ -360,50 +369,40 @@ export class AppComponent implements AfterViewInit {
       if (annotation !== -1 || this.rxCoreService.lastGuiMarkup.markup !== -1) {
         this.rxCoreService.setGuiMarkup(annotation, operation);
 
-                // Handle addition, deletion, and modification
-                const path = RXCore.getOriginalPath();
-                if (this.guiConfig?.localStoreAnnotation === false && annotation !== -1 && path) {
-                  const user = this.userService.getCurrentUser();
-                  if (operation.created && annotation.dbUniqueID == null) {
-                    // Text with an arrow. Handles it in the onGuiTextInput callback.
-                    if (!((annotation.type == MARKUP_TYPES.TEXT.type && annotation.bhasArrow) || (annotation.type == MARKUP_TYPES.CALLOUT.type && annotation.bisTextArrow))) {
-                      this.annotationStorageService.createAnnotation(1, path, annotation.getJSON(),user?.id).then((result)=>{
-                        // Retain the returned unique ID.
-                        annotation.dbUniqueID = result.id;
-                      });
-                    }
-                  } else if (operation.modified && annotation.dbUniqueID != null) {
-                    this.annotationStorageService.updateAnnotation(annotation.dbUniqueID, annotation.getJSON());
-                  } else if (operation.deleted && annotation.dbUniqueID != null) {
-                    this.annotationStorageService.deleteAnnotation(annotation.dbUniqueID);
-                  }
-                }
-        
+        if (annotation !== -1 && (operation.created || operation.deleted)) {
+          // Handle addition, deletion
+          const path = RXCore.getOriginalPath();
+          const storageAnnotation = this.guiConfig?.localStoreAnnotation === false && path != '';
 
-        // If collab feature is enabled, send the markup message to the server
-        // Handle created/deleted here
-
-        const roomName = this.getRoomName();
-
-
-        if (annotation !== -1 && roomName && this.canCollaborate && (operation.created || operation.deleted)) {
+          // If collab feature is enabled, send the markup message to the server
+          const roomName = this.getRoomName();
+          const collaboration = roomName && this.canCollaborate;
           // Text with an arrow. Handles it in the onGuiTextInput callback.
-          if (operation.created && ((annotation.type == MARKUP_TYPES.TEXT.type && annotation.bhasArrow) || (annotation.type == MARKUP_TYPES.CALLOUT.type && annotation.bisTextArrow))) {
-            return;
-          }
+          if ((storageAnnotation || collaboration) && !(operation.created && ((annotation.type == MARKUP_TYPES.TEXT.type && annotation.bhasArrow) || (annotation.type == MARKUP_TYPES.CALLOUT.type && annotation.bisTextArrow)))) {
+            
+            annotation.getJSONUniqueID(operation).then((jsonData)=>{
 
-          let cs = this.collabService;
-          annotation.getJSONUniqueID(operation).then(function(jsondata){
+              if (storageAnnotation) {
+                const user = this.userService.getCurrentUser();
+                if (operation.created && annotation.dbUniqueID == null) {
+                    this.annotationStorageService.createAnnotation(1, path, jsonData,user?.id).then((result)=>{
+                      // Retain the returned unique ID.
+                      annotation.dbUniqueID = result.id;
+                    });
+                } else if (operation.deleted && annotation.dbUniqueID != null) {
+                  this.annotationStorageService.deleteAnnotation(annotation.dbUniqueID);
+                }
+              }
 
-            //const data = JSON.parse(jsondata);
-            //data.operation = operation;
-            cs.sendMarkupMessage(roomName, jsondata, operation);
+              if (collaboration) {
+                  let cs = this.collabService;
+                  cs.sendMarkupMessage(roomName, jsonData, operation);
+              }
 
-          });
-
-
-          
+            });
         }
+
+      }
 
         /*if (annotation !== -1 || this.rxCoreService.lastGuiMarkup.markup !== -1) {
       if (annotation !== -1) {
@@ -502,22 +501,38 @@ export class AppComponent implements AfterViewInit {
 
     RXCore.onGuiTextInput((rectangle: any, operation: any) => {
       this.rxCoreService.setGuiTextInput(rectangle, operation);
+      console.log('onGuiTextInput:', rectangle, operation);
+      if(operation.start && operation.markup){
 
-      if(operation.start){
+        const path = RXCore.getOriginalPath();
+        const storageAnnotation = this.guiConfig?.localStoreAnnotation === false && path != '';
 
         const roomName = this.getRoomName();
-        const path = RXCore.getOriginalPath();
-        if (this.guiConfig?.localStoreAnnotation === false && operation.markup && path) {
-          const user = this.userService.getCurrentUser();
+        const collaboration = roomName && this.canCollaborate;
+
+        if (storageAnnotation || collaboration) {
+
           const annotation = operation.markup;
-          this.annotationStorageService.createAnnotation(1, path, annotation.getJSON(),user?.id).then((result)=>{
-            // Retain the returned unique ID.
-            annotation.dbUniqueID = result.id;
-            if (annotation.bhasArrow && annotation.markupArrowConnected) {
-              annotation.markupArrowConnected.dbUniqueID = annotation.dbUniqueID;
-            } else if (annotation.bisTextArrow && annotation.textBoxConnected) {
-              annotation.textBoxConnected.dbUniqueID = annotation.dbUniqueID;
+          annotation.getJSONUniqueID({ created: true}).then((jsonData)=>{
+
+            if (storageAnnotation) {
+              const user = this.userService.getCurrentUser();
+              this.annotationStorageService.createAnnotation(1, path, jsonData, user?.id).then((result)=>{
+                // Retain the returned unique ID.
+                annotation.dbUniqueID = result.id;
+                if (annotation.bhasArrow && annotation.markupArrowConnected) {
+                  annotation.markupArrowConnected.dbUniqueID = annotation.dbUniqueID;
+                } else if (annotation.bisTextArrow && annotation.textBoxConnected) {
+                  annotation.textBoxConnected.dbUniqueID = annotation.dbUniqueID;
+                }
+              });
             }
+
+            if (collaboration) {
+              const cs = this.collabService;
+              cs.sendMarkupMessage(roomName, jsonData, { created: true});
+            }
+
           });
         }
 
@@ -538,8 +553,6 @@ export class AppComponent implements AfterViewInit {
 
 
       }
-
-
 
     });
 
@@ -588,89 +601,55 @@ export class AppComponent implements AfterViewInit {
     });
 
     RXCore.onGuiMarkupChanged((annotation, operation) => {
-      console.log('RxCore onGuiMarkupChanged:', annotation, operation);
+      //console.log('RxCore onGuiMarkupChanged:', annotation, operation);
       this.rxCoreService.guiOnMarkupChanged.next({annotation, operation});
-            const roomName = this.getRoomName();
-            // Handle text modification
-            const path = RXCore.getOriginalPath();
-            if (this.guiConfig?.localStoreAnnotation === false && annotation !== -1 && path) {
-              const user = this.userService.getCurrentUser();
-              if (operation === 0 && annotation.dbUniqueID != null) {
-                console.log('RxCore onGuiMarkupChanged:', annotation, operation);
+
+      if (annotation !== -1) {
+      
+        const path = RXCore.getOriginalPath();
+        const storageAnnotation = this.guiConfig?.localStoreAnnotation === false && path != '';
+
+        const roomName = this.getRoomName();
+        const collaboration = roomName && this.canCollaborate;
+
+        if (storageAnnotation || collaboration) {
+
+          const updateAnnotation = (jsonData)=>{
+            if (storageAnnotation) {
+              if (annotation.dbUniqueID != null) {
+                //console.log('RxCore onGuiMarkupChanged:', annotation, operation);
                 this.annotationStorageService.updateAnnotation(annotation.dbUniqueID, annotation.getJSON());
               }
-      
             }
-      
-            if (annotation !== -1 && this.canCollaborate && roomName) {
-      
-
-              let cs = this.collabService;
-
-              if(annotation.type == 8 && annotation.subtype == 2){
-
-                if(annotation.parent){
             
-                  annotation.parent.getJSONUniqueID({ modified: true}).then(function(jsondata){
+            if (collaboration) {
+              this.collabService.sendMarkupMessage(roomName, jsonData, { modified: true});
+            }
+          };
+          
+          if(annotation.type == 8 && annotation.subtype == 2){
+
+            if(annotation.parent){
+              
+              annotation.parent.getJSONUniqueID({ modified: true}).then((jsonData) => {
+
+                updateAnnotation(jsonData);
+                
+              });
     
-                    //const data = JSON.parse(jsondata);
-                    //data.operation = { modified: true};
-                    //jsondata = JSON.stringify(data);
-                    cs.sendMarkupMessage(roomName, jsondata, { modified: true});
-                    //this.collabService.sendMarkupMessage(annotation.getJSON(), { modified: true});
-      
-                  });
-  
-                }
-  
-          
-              }else{
-          
-                annotation.getJSONUniqueID({ modified: true}).then(function(jsondata){
-
-                  //const data = JSON.parse(jsondata);
-                  //data.operation = { modified: true};
-                  //jsondata = JSON.stringify(data);
-                  cs.sendMarkupMessage(roomName, jsondata, { modified: true});
-                  //this.collabService.sendMarkupMessage(annotation.getJSON(), { modified: true});
-
-                });
-              }
-
-              /*let cs = this.collabService;
-              annotation.getJSONUniqueID({ modified: true}).then(function(jsondata){
-
-                //const data = JSON.parse(jsondata);
-                //data.operation = { modified: true};
-                //jsondata = JSON.stringify(data);
-                cs.sendMarkupMessage(jsondata, { modified: true});
-                //this.collabService.sendMarkupMessage(annotation.getJSON(), { modified: true});
-
-              });*/
-
-
-        
             }
 
-      /*if (annotation !== -1 || this.rxCoreService.lastGuiMarkup.markup !== -1) {
-      if (annotation !== -1) {
-        var ws = this.websocketService;
+          } else {
+            
+            annotation.getJSONUniqueID({ modified: true}).then((jsonData) =>{
 
-        annotation.getJSONUniqueID(operation).then(function(jsondata){
+              updateAnnotation(jsonData);
 
-          const data = JSON.parse(jsondata);
+            });
+          }
+        }
 
-          data.operation = operation;
-
-          console.log(data.operation);
-
-          ws.broadcastGuiMarkup({ annotation: JSON.stringify(data) });
-
-        });
-
-      }
-      
-    }*/
+    }
 
 
 

@@ -97,12 +97,13 @@ export class SymbolsLibraryComponent implements OnInit {
         return {
           id: index, // Or use a more sophisticated ID generation method if needed
           src: imageSrc,
-          height: 150,
-          width: 200
+          height: 75,
+          width: 210
         };
       });
       console.log('Images retrieved successfully:', this.symbols);
     } else {
+      this.symbols = [];
       console.log('No images found in local storage.');
     }
   

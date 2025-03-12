@@ -1,3 +1,16 @@
+March 12, 2025
+
+### 1. Fixed a bug that symbol cannot be deleted proerly.
+### 2. Fixed a bug about image aspect ratio.
+### 3. Fixed a bug that room participants don't refresh when switch doc.
+
+Modified files
+src\app\app.component.ts
+app\components\annotation-tools\symbols-library\symbols-library.component.ts
+src\app\components\user\user.service.ts
+src\assets\scripts\rxcorefunctions.js
+
+
 March 11, 2025
 
 ### 1. Implemented Real-time Collaboration. Enable login user to join a room for each doc.

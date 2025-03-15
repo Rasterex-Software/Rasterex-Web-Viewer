@@ -1,3 +1,17 @@
+March 15, 2025
+
+### 1. Fixed the bug that svg stamp become blur when zoom in.
+### 2. Fixed symbol aspect ratio.
+### 3. Adjusted room panel style a bit.
+
+Modified files
+src\app\components\annotation-tools\stamp-panel\stamp-panel.component.html
+src\app\components\annotation-tools\stamp-panel\stamp-panel.component.ts
+src\app\components\annotation-tools\symbols-library\symbols-library.component.html
+src\app\components\annotation-tools\symbols-library\symbols-library.component.ts
+src\assets\scripts\rxcorefunctions.js
+
+
 March 12, 2025
 
 ### 1. Optimized code and merged the common logic for backend storage and synchronization of Annotations.

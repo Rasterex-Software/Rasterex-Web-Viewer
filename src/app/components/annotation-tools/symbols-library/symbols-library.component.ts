@@ -15,6 +15,34 @@ export class SymbolsLibraryComponent implements OnInit {
   onPanelClose(): void {
     this.onClose.emit();
   }
+  private convertUrlToBase64Data(url: string, newWidth?: number): Promise<any> {
+    return new Promise((resolve, reject) => {
+      const img = new Image()
+      const canvas = document.createElement('canvas');
+      img.crossOrigin = '*';
+      img.onload = () => {
+          const originalWidth = img.width, originalHeight = img.height;
+          const aspectRatio = originalWidth / originalHeight;
+          const width = newWidth || originalWidth, height = newWidth ? newWidth / aspectRatio : originalHeight;
+          canvas.width = width;
+          canvas.height = height;
+  
+          const ctx = canvas.getContext('2d')!;
+          ctx.fillStyle = 'white';
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          ctx.drawImage(img, 0, 0, width, height);
+          const base64 = canvas.toDataURL();
+          const base64Index = base64.indexOf('base64,') + 'base64,'.length;
+          const imageData = base64.substring(base64Index);
+          resolve({imageData, width, height});
+      };
+      img.onerror = function () {
+          reject(new Error('Error convert to base64'));
+      };
+      img.src = url;
+    })
+  }
+
   handleSymbolsUpload(event: any) {
     const files = event.target.files;
     const uploadPromises: Promise<any>[] = [];
@@ -24,12 +52,10 @@ export class SymbolsLibraryComponent implements OnInit {
       const reader = new FileReader();
   
       const uploadPromise = new Promise((resolve, reject) => {
-        reader.onload = (e) => {
+        reader.onload = async (e) => {
           const imageDataWithPrefix = e.target?.result as string;
   
-          // Dynamically determine the prefix and remove it
-          const base64Index = imageDataWithPrefix.indexOf('base64,') + 'base64,'.length;
-          const imageData = imageDataWithPrefix.substring(base64Index);
+          const {imageData, width, height} = await this.convertUrlToBase64Data(imageDataWithPrefix, 210);
   
           const imageName = file.name;
           const imageType = file.type;
@@ -46,7 +72,9 @@ export class SymbolsLibraryComponent implements OnInit {
           const imageObject = {
             imageData: Array.from(byteArray), // Convert to a regular array for JSON compatibility
             imageName: imageName,
-            imageType: imageType
+            imageType: imageType,
+            width, 
+            height
           };
           const storedImages = JSON.parse(localStorage.getItem('UploadedSymbols') || '[]');
           storedImages.push(imageObject);
@@ -83,24 +111,24 @@ export class SymbolsLibraryComponent implements OnInit {
   }
   getSymbols() {
     const storedImages = JSON.parse(localStorage.getItem('UploadedSymbols') || '[]');
+    this.symbols = storedImages.map((imageObject, index) => {
+      const byteArray = new Uint8Array(imageObject.imageData);
+
+      // Create a Blob from the byte array
+      const blob = new Blob([byteArray], { type: imageObject.imageType });
+
+      // Create an object URL for the Blob
+      const imageSrc = URL.createObjectURL(blob);
+
+      // Create an image object with required properties
+      return {
+        id: index, // Or use a more sophisticated ID generation method if needed
+        src: imageSrc,
+        height: imageObject.height,
+        width: imageObject.width
+      };
+    });
     if (storedImages.length > 0) {
-      this.symbols = storedImages.map((imageObject, index) => {
-        const byteArray = new Uint8Array(imageObject.imageData);
-  
-        // Create a Blob from the byte array
-        const blob = new Blob([byteArray], { type: imageObject.imageType });
-  
-        // Create an object URL for the Blob
-        const imageSrc = URL.createObjectURL(blob);
-  
-        // Create an image object with required properties
-        return {
-          id: index, // Or use a more sophisticated ID generation method if needed
-          src: imageSrc,
-          height: 75,
-          width: 210
-        };
-      });
       console.log('Images retrieved successfully:', this.symbols);
     } else {
       this.symbols = [];

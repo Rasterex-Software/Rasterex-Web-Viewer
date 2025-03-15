@@ -8,8 +8,8 @@
   <div class="room-panel-container">
     <div class="header-section">
       <span *ngIf="!user">Please login first!</span>
-      <button *ngIf="user && !joinedRoom" (click)="joinRoom()">Join room</button>
-      <button *ngIf="user && joinedRoom" (click)="leaveRoom()">Leave room</button>
+      <button *ngIf="user && !joinedRoom" (click)="joinRoom()">Join Room</button>
+      <button *ngIf="user && joinedRoom" (click)="leaveRoom()">Leave Room</button>
     </div>
     <div class="main-section">
       <p>Participants ({{ participants.length }})</p>

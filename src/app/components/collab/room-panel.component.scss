@@ -12,21 +12,20 @@
       border-bottom: 1px solid #edf1f2;
       padding: 12px;
       text-align: center;
+      span {
+        line-height: 29px;
+      }
       button {
-        border: 0px;
-        background-color: #00000000;
+        border-radius: 30px;
+        padding: 6px 24px;
+        background-color: var(--accent);
+        border: 1px solid var(--accent);
+        color: #FFFFFF;
         cursor: pointer;
-        &:hover {
-            background-color: #EDF1F2;
-        }
       }
     }
 
-    .main-section {
-      max-height: calc(100% - 200px);
-      overflow-y: scroll;
-      scrollbar-width: thin;
-      min-height: 200px;
-    }
+    // .main-section {
+    // }
   }
 }

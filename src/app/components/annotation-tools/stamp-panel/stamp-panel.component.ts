@@ -302,12 +302,12 @@ export class StampPanelComponent implements OnInit {
       currentStamp = this.uploadImageStamps.find(d => d.id === id);
       this.deleteImageStamp(id);
     }
-    const imageData = await this.convertUrlToBase64Data(currentStamp.src);
+    const {imageData, width, height} = await this.convertUrlToBase64Data(currentStamp.src);
     const newStamp = {
       name: currentStamp.name,
       type: StampType.StandardStamp,
-      width: currentStamp.width,
-      height: currentStamp.height,
+      width: width,
+      height: height,
       content: imageData
     };
     this.storageService.addStandardStamp(newStamp).then(() => {
@@ -318,13 +318,15 @@ export class StampPanelComponent implements OnInit {
     });
   }
 
-  private convertUrlToBase64Data(url: string): Promise<string> {
+  private convertUrlToBase64Data(url: string, newWidth?: number): Promise<any> {
     return new Promise((resolve, reject) => {
       const img = new Image()
       const canvas = document.createElement('canvas');
       img.crossOrigin = '*';
-      img.onload = function () {
-          const width = img.width, height = img.height;
+      img.onload = () => {
+          const originalWidth = img.width, originalHeight = img.height;
+          const aspectRatio = originalWidth / originalHeight;
+          const width = newWidth || originalWidth, height = newWidth ? newWidth / aspectRatio : originalHeight;
           canvas.width = width;
           canvas.height = height;
   
@@ -335,7 +337,7 @@ export class StampPanelComponent implements OnInit {
           const base64 = canvas.toDataURL();
           const base64Index = base64.indexOf('base64,') + 'base64,'.length;
           const imageData = base64.substring(base64Index);
-          resolve(imageData);
+          resolve({imageData, width, height});
       };
       img.onerror = function () {
           reject(new Error('Error convert to base64'));
@@ -465,11 +467,13 @@ getSvgData(): string {
   async handleUploadImageUrl() {
     if (!this.remoteImageUrl) return;
     try {
-      const imageData = await this.convertUrlToBase64Data(this.remoteImageUrl);
+      const {imageData, width, height} = await this.convertUrlToBase64Data(this.remoteImageUrl);
       const newStamp = {
         name: this.remoteImageUrl,
         type: StampType.StandardStamp,
-        content: imageData
+        content: imageData,
+        width, 
+        height
       };
       this.storageService.addUploadImageStamp(newStamp).then(async (item: any) => {
         console.log('Upload image stamp added successfully:', item);
@@ -493,12 +497,13 @@ handleImageUpload(event: any) {
     const reader = new FileReader();
 
     const uploadPromise = new Promise<void>((resolve, reject) => {
-      reader.onload = (e) => {
+      reader.onload = async (e) => {
         const imageDataWithPrefix = e.target?.result as string;
 
-        // Dynamically determine the prefix and remove it
-        const base64Index = imageDataWithPrefix.indexOf('base64,') + 'base64,'.length;
-        const imageData = imageDataWithPrefix.substring(base64Index);
+        // // Dynamically determine the prefix and remove it
+        // const base64Index = imageDataWithPrefix.indexOf('base64,') + 'base64,'.length;
+        // const imageData = imageDataWithPrefix.substring(base64Index);
+        const {imageData, width, height} = await this.convertUrlToBase64Data(imageDataWithPrefix, 210);
 
         const imageName = file.name + '_' + new Date().getTime();
         const imageType = file.type;
@@ -506,7 +511,9 @@ handleImageUpload(event: any) {
         const imageObject = {
           content: imageData,
           name: imageName,
-          type: imageType
+          type: imageType,
+          width, 
+          height
         };
         
         this.storageService.addUploadImageStamp(imageObject).then(async (item: any) => {

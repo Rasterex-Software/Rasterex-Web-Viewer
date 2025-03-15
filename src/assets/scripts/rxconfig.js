@@ -5,7 +5,8 @@ var RxConfig = (function() {
     var gui360URL = "rxweb/";
 
     var baseURL = "https://test.rasterex.com/";
-    var apiBaseURL = "https://rxserver.rasterex.com/";
+    // var apiBaseURL = "https://rxserver.rasterex.com/";
+    var apiBaseURL = "http://localhost:8080/";
 
     var baseURLBin = baseURL + "RxBinWeb/";
     var baseURLWeb = baseURL + "rxweb/";

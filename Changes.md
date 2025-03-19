@@ -20,6 +20,19 @@ Modified file src\app\components\top-nav-menu\top-nav-menu.component.ts
 
 March 12, 2025
 
+### 1. Fixed the bug that failed to login when no file opened
+### 2. Fixed the bug that text and callaout annoations are not saved during collab process
+
+RxCore version is now 35.79
+
+Modified files
+src\app\app.component.ts
+src\app\components\user\login\login.component.ts
+src\assets\scripts\rxcorefunctions.js
+
+
+March 12, 2025
+
 ### 1. Optimized code and merged the common logic for backend storage and synchronization of Annotations.
 ### 2. Fixed the problems of failed storage and synchronization of Stamp and Symbol.
 ### 3. Fixed the aspect ratio and deletion issues of Symbol.

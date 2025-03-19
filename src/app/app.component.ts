@@ -547,20 +547,6 @@ export class AppComponent implements AfterViewInit {
           });
         }
 
-        if (operation.markup && roomName && this.canCollaborate) {
-
-            //&& (operation.created || operation.deleted)
-            let cs = this.collabService;
-            operation.markup.getJSONUniqueID({ created: true}).then(function(jsondata){
-  
-              //const data = JSON.parse(jsondata);
-              //data.operation = operation;
-              cs.sendMarkupMessage(roomName, jsondata, { created: true});
-  
-            });
-          
-        }
-
       }
 
     });

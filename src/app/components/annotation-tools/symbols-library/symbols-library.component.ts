@@ -58,7 +58,8 @@ export class SymbolsLibraryComponent implements OnInit {
           const {imageData, width, height} = await this.convertUrlToBase64Data(imageDataWithPrefix, 210);
   
           const imageName = file.name;
-          const imageType = file.type;
+          // const imageType = file.type;
+          const imageType = "image/png";
   
           // Convert base64 string to byte array
           const byteCharacters = window.atob(imageData);

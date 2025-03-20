@@ -53,6 +53,9 @@ export class RoomPanelComponent implements OnInit {
     });
 
     this.userService.currentUser$.subscribe((user) => {
+      if (!this.canCollaborate) {
+        return;
+      }
       const roomInfo = this.roomInfoArray.find(info => info.docId === this.activeDocId);
       // If user changed or logout, leave room first
       if (roomInfo && roomInfo.joinedRoom) {
@@ -65,6 +68,9 @@ export class RoomPanelComponent implements OnInit {
     });
 
     this.collabService.roomParticipantsChange$.subscribe((roomParticipants: RoomParticipants) => {
+      if (!this.canCollaborate) {
+        return;
+      }
       // if the change is for active doc, then handle it. Otherwise, ignore it.
       const roomInfo = this.roomInfoArray.find(info => info.docId === this.activeDocId);
       if (roomInfo) {
@@ -144,6 +150,10 @@ export class RoomPanelComponent implements OnInit {
   }
 
   updateRoomByCurrentFile() {
+    if (!this.canCollaborate) {
+      return;
+    }
+
     let fileInfo = RXCore.getCurrentFileInfo();
 
     if(fileInfo != undefined){

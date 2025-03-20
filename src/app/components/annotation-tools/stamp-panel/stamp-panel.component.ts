@@ -506,7 +506,8 @@ handleImageUpload(event: any) {
         const {imageData, width, height} = await this.convertUrlToBase64Data(imageDataWithPrefix, 210);
 
         const imageName = file.name + '_' + new Date().getTime();
-        const imageType = file.type;
+        // const imageType = file.type;
+        const imageType = "image/png";
 
         const imageObject = {
           content: imageData,

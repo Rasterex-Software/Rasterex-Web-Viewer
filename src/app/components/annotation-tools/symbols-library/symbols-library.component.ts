@@ -125,8 +125,8 @@ export class SymbolsLibraryComponent implements OnInit {
       return {
         id: index, // Or use a more sophisticated ID generation method if needed
         src: imageSrc,
-        height: imageObject.height,
-        width: imageObject.width
+        height: imageObject.height || 210,
+        width: imageObject.width || 210
       };
     });
     if (storedImages.length > 0) {

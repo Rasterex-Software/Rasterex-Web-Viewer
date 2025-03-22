@@ -62,7 +62,7 @@
             <img
             [stampTemplate]="template"
             [src]="template.src"
-            style="width: 210px; height: 75px;object-fit: cover;"
+            style="width: 210px; height: 75px;object-fit: contain;"
              />
             <button *ngIf="isAdmin" title="convert to standard" (click)="convertToStandardStamp('UploadStamp', template.id)" style="border: none; background: none; cursor: pointer; padding: 0; margin-left: 8px;">
               <img src="/assets/images/convert-standard.svg" />

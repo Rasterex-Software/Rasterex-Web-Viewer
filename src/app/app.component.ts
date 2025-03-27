@@ -1,4 +1,4 @@
-import { AfterViewInit, Component } from '@angular/core';
+import { AfterViewInit, Component, ElementRef } from '@angular/core';
 import { FileGaleryService } from './components/file-galery/file-galery.service';
 import { RxCoreService } from './services/rxcore.service';
 import { RXCore } from 'src/rxcore';
@@ -62,7 +62,8 @@ export class AppComponent implements AfterViewInit {
     private readonly userService: UserService,
     private readonly collabService: CollabService,  
     private readonly annotationStorageService: AnnotationStorageService,
-    private titleService:Title) { }
+    private titleService:Title,
+  private el: ElementRef) { }
 
   ngOnInit() {
 
@@ -173,46 +174,102 @@ export class AppComponent implements AfterViewInit {
     
     RXCore.onGui2DEntityInfo((vectorinfo : any, screenmouse :any, pathindex : any) => {
 
-      if(pathindex.index){
+      // if(pathindex.index){
 
-        //partlistAll = {Index : partindex, Block : foundblock, Layername : foundlayer, Entity : entity} 
-
-
-        let messagetext : string = 'Handle : ' + vectorinfo.Entity.handle + '\n' +
-        'Type : ' +  vectorinfo.Entity.typename + '\n' +
-        'Block : ' + vectorinfo.Block.name + '\n' +
-        'Layer : ' + vectorinfo.Layername; 
+      //   //partlistAll = {Index : partindex, Block : foundblock, Layername : foundlayer, Entity : entity} 
 
 
-        if(vectorinfo.Block.listed){
-          messagetext = 'Handle : ' + vectorinfo.Entity.handle + '\n' +
-          'Type : ' +  vectorinfo.Entity.typename + '\n' +
-          'Block : ' + vectorinfo.Block.name + '\n' +
-          'Layer : ' + vectorinfo.Layername; 
+      //   let messagetext : string = 'Handle : ' + vectorinfo.Entity.handle + '\n' +
+      //   'Type : ' +  vectorinfo.Entity.typename + '\n' +
+      //   'Block : ' + vectorinfo.Block.name + '\n' +
+      //   'Layer : ' + vectorinfo.Layername; 
+
+
+      //   if(vectorinfo.Block.listed){
+      //     messagetext = 'Handle : ' + vectorinfo.Entity.handle + '\n' +
+      //     'Type : ' +  vectorinfo.Entity.typename + '\n' +
+      //     'Block : ' + vectorinfo.Block.name + '\n' +
+      //     'Layer : ' + vectorinfo.Layername; 
   
-        }else{
-          messagetext = 'Handle : ' + vectorinfo.Entity.handle + '\n' +
-          'Type : ' +  vectorinfo.Entity.typename + '\n' +
-          'Layer : ' + vectorinfo.Layername;
+      //   }else{
+      //     messagetext = 'Handle : ' + vectorinfo.Entity.handle + '\n' +
+      //     'Type : ' +  vectorinfo.Entity.typename + '\n' +
+      //     'Layer : ' + vectorinfo.Layername;
   
-        }
+      //   }
         
 
-        //listed
+      //   //listed
         
-        this.notificationService.notification({message: messagetext, type: 'info', duration : 10000});
+      //   this.notificationService.notification({message: messagetext, type: 'info', duration : 10000});
 
 
         
-      }else{
-        //console.log("nothing found");
-      }
+      // }else{
+      //   //console.log("nothing found");
+      // }
 
     });
 
+    const tootipEle = document.createElement("div");
+    tootipEle.id = "entity-tooltip";
+    tootipEle.style.cssText += `white-space: nowrap;
+    background-color: var(--main);
+    color: #fff;
+    font-size: 12px;
+    text-align: left;
+    border-radius: 6px;
+    padding: 0px 12px;`
+    document.body.querySelector("#rxcontainer")?.appendChild(tootipEle);
+
+    document.body.querySelector("#imageTemp")?.addEventListener("mouseout", () => {
+      tootipEle.style.display = "none";
+    })  
+
     RXCore.onGui2DEntityInfoScreen((vectorinfo : any, screenmouse :any, pathindex : any) => {
       // to use with vector entity selection tool mouse over.
+      if(pathindex.index){
 
+        let messagetext : string = 'Handle: <span style="color: grey;">' + vectorinfo.Entity.handle + '</span></br>' +
+        'Type: <span style="color: grey;">' +  vectorinfo.Entity.typename + '</span></br>' +
+        'Block: <span style="color: grey;">' + vectorinfo.Block.name + '</span></br>' +
+        'Layer: <span style="color: grey;">' + vectorinfo.Layername + '</span>'; 
+
+        if(vectorinfo.Block.listed){
+          messagetext = 'Handle: <span style="color: grey;">' + vectorinfo.Entity.handle + '</span></br>' +
+          'Type: <span style="color: grey;">' +  vectorinfo.Entity.typename + '</span></br>' +
+          'Block: <span style="color: grey;">' + vectorinfo.Block.name + '</span></br>' +
+          'Layer: <span style="color: grey;">' + vectorinfo.Layername + '</span>';
+        }else{
+          messagetext = 'Handle: <span style="color: grey;">' + vectorinfo.Entity.handle + '</span></br>' +
+          'Type: <span style="color: grey;">' +  vectorinfo.Entity.typename + '</span></br>' +
+          'Layer: <span style="color: grey;">' + vectorinfo.Layername + '</span>';
+        }
+
+        tootipEle.style.display = "block";
+        tootipEle.style.position = "absolute";
+        const isLeft = screenmouse.x < window.innerWidth / 2;
+        const isTop = screenmouse.y < window.innerHeight / 2;
+        let offsetX = 0;
+        let offsetY = 0;
+        if (isLeft) {
+          offsetX = 10;
+        } else {
+          offsetX = -100;
+        }
+        if (isTop) {
+          offsetY = 40;
+        } else {
+          offsetY = -100;
+        }  
+        tootipEle.style.left = `${screenmouse.x / window.devicePixelRatio + offsetX}px`;
+        tootipEle.style.top = `${screenmouse.y / window.devicePixelRatio + offsetY}px`;
+        tootipEle.innerHTML = `<p>${messagetext}</p>`;
+        
+      }else{
+        //console.log("nothing found");
+        tootipEle.style.display = "none";
+      }
     });
 
     RXCore.onGuiReady((initialDoc: any) => {
@@ -698,6 +755,10 @@ export class AppComponent implements AfterViewInit {
     });*/
   
 
+  }
+
+  ngOnDestroy() {
+    document.body.querySelector("#entity-tooltip")?.remove();
   }
 
   getRoomName() {

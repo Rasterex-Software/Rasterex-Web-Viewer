@@ -957,6 +957,10 @@ export class RXCore {
         RxCore.GUI_2DBlockHover.connect(callback);
     }
 
+    public static onGui2DBlockHoverEvent(callback: Function) {
+        RxCore.GUI_2DBlockHover.blockHoverCallback = callback;
+    }
+
     
     
 

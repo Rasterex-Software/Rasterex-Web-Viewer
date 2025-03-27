@@ -19,7 +19,7 @@ export class BlocksComponent implements OnInit, OnDestroy {
   vectorBlocks: Array<Array<IVectorBlock>> = [];
 
   lastSelectBlock?: IVectorBlock;
-  lastSubBlockndex?: number;
+  lastSubBlockIndex?: number;
 
   infoData: Array<IBlockAttribute> = [];
   infoPanelVisible: boolean = false;
@@ -41,7 +41,7 @@ export class BlocksComponent implements OnInit, OnDestroy {
       blocks.forEach((block) => {
         const attributes = RXCore.getBlockAttributes(block.index);
         // @ts-ignore
-        if (block.insert || (attributes && attributes.length > 0)) {
+        if (attributes && attributes.length > 0) {
           // @ts-ignore
           block.hasAttribute = true;
         }
@@ -79,12 +79,58 @@ export class BlocksComponent implements OnInit, OnDestroy {
 
     RXCore.getBlockInsert(true);
     RXCore.onGui2DBlock((block: IVectorBlock) => {
+      console.log('onGui2DBlock');
       this.onSelectBlock(block, true);
     });
+
+    const tootipEle = document.createElement("div");
+    tootipEle.id = "block-tooltip";
+    tootipEle.style.cssText += `white-space: nowrap;
+    background-color: var(--main);
+    color: #fff;
+    font-size: 12px;
+    text-align: center;
+    border-radius: 6px;
+    padding: 0px 12px;`
+    document.body.querySelector("#rxcontainer")?.appendChild(tootipEle);
+
+    document.body.querySelector("#imageTemp")?.addEventListener("mouseout", () => {
+      tootipEle.style.display = "none";
+    })  
+
+    RXCore.onGui2DBlockHoverEvent((result, mouse) => {
+      if (!result) {
+        tootipEle.style.display = "none";
+      } else {
+        const insert = result.insert;
+        const handle = insert.blockhandleHigh > 0 ? insert.blockhandleHigh.toString(16).toUpperCase() : '' + insert.blockhandleLow.toString(16).toUpperCase()
+        tootipEle.style.display = "block";
+        tootipEle.style.position = "absolute";
+        const isLeft = mouse.x < window.innerWidth / 2;
+        const isTop = mouse.y < window.innerHeight / 2;
+        let offsetX = 0;
+        let offsetY = 0;
+        if (isLeft) {
+          offsetX = 37;
+        } else {
+          offsetX = -37;
+        }
+        if (isTop) {
+          offsetY = 40;
+        } else {
+          offsetY = -100;
+        }  
+        tootipEle.style.left = `${mouse.x / window.devicePixelRatio + offsetX}px`;
+        tootipEle.style.top = `${mouse.y / window.devicePixelRatio + offsetY}px`;
+        tootipEle.innerHTML = `<p>name: ${result.name}</p><p>handle: ${handle}</p>`;
+      }
+
+    })
   }
 
   ngOnDestroy() {
     RXCore.getBlockInsert(false);
+    document.body.querySelector("#block-tooltip")?.remove();
   }
 
   onOpenSearchBlock() {
@@ -117,6 +163,18 @@ export class BlocksComponent implements OnInit, OnDestroy {
     event.stopPropagation(); // Prevent the click event from propagating to the parent
     // @ts-ignore
     subBlocks[0].fold = Number(!subBlocks[0].fold);
+    // @ts-ignore
+    if (this.lastSelectBlock && subBlocks[0].fold == 0) {
+      for(const b of subBlocks) {
+        if (b === this.lastSelectBlock) {
+          // @ts-ignore
+          this.lastSelectBlock.selected = false;
+          this.lastSelectBlock = undefined;
+          RXCore.markUpRedraw();
+          break;
+        }
+      }
+    }
   }
 
   onVectorBlocksAllSelect(onoff: boolean): void {
@@ -132,12 +190,17 @@ export class BlocksComponent implements OnInit, OnDestroy {
         this.lastSelectBlock.selected = false;
         this.lastSelectBlock = undefined;
         RXCore.markUpRedraw();
+
+        if (this.infoPanelVisible) {
+          this.onVectorBlockInfoClick(undefined, undefined);
+        }
+
         return;
       }
-      if (isTriggeredFromCanvas && this.lastSubBlockndex != undefined) {
+      if (isTriggeredFromCanvas && this.lastSubBlockIndex != undefined) {
         // @ts-ignore
         
-        this.vectorBlocks[this.lastSubBlockndex][0].fold = 0;
+        this.vectorBlocks[this.lastSubBlockIndex][0].fold = 0;
       }
       // @ts-ignore
       this.lastSelectBlock.selected = false;
@@ -151,14 +214,14 @@ export class BlocksComponent implements OnInit, OnDestroy {
         this.vectorBlocks.forEach((subBlocks, i) => {
           subBlocks.forEach(b => {
             if (b === block) {
-              this.lastSubBlockndex = i;
+              this.lastSubBlockIndex = i;
               return;
             }
           })
-        })
-        if (this.lastSubBlockndex && this.vectorBlocks[this.lastSubBlockndex]) {
+        });
+        if (this.lastSubBlockIndex && this.vectorBlocks[this.lastSubBlockIndex]) {
           // @ts-ignore
-          this.vectorBlocks[this.lastSubBlockndex][0].fold = 1;
+          this.vectorBlocks[this.lastSubBlockIndex][0].fold = 1;
         }
         setTimeout(() => {
           if (this.lastSelectBlock) {
@@ -170,6 +233,10 @@ export class BlocksComponent implements OnInit, OnDestroy {
        RXCore.selectVectorBlock(block.index);
        RXCore.markUpRedraw();
        
+      }
+
+      if (this.infoPanelVisible) {
+        this.onVectorBlockInfoClick(undefined, block);
       }
     }
   }
@@ -218,23 +285,17 @@ export class BlocksComponent implements OnInit, OnDestroy {
       const attribute = attributes[i];
       arr.push({name: attribute.name, value: attribute.value});
     }
-    // @ts-ignore
-    const insert = block.insert;
-    if (insert) {
-      arr.push({ name: "Handle", value: insert.blockhandleHigh > 0 ? insert.blockhandleHigh.toString(16).toUpperCase() : '' + insert.blockhandleLow.toString(16).toUpperCase() });
-      arr.push({ name: "Insert", value: `(${insert.insertX}, ${insert.insertY}, ${insert.insertZ})` });
-      arr.push({ name: "Scale", value: `(${insert.insertscaleX}, ${insert.insertscaleY}, ${insert.insertscaleZ})` });
-      arr.push({ name: "Rotation", value: insert.insertRot });
-    }
 
     return arr;
   }
 
-  onVectorBlockInfoClick(event: Event, block: IVectorBlock): void {
-    event.stopPropagation();
+  onVectorBlockInfoClick(event: Event | undefined, block: IVectorBlock | undefined): void {
+    if (event) {
+      event.stopPropagation();
+    }
 
     // @ts-ignore
-    if (block.hasAttribute !== true) {
+    if (!block || block.hasAttribute !== true) {
       this.infoData = [];
       return;
     }

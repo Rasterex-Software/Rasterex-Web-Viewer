@@ -178,7 +178,8 @@ export class AppComponent implements AfterViewInit {
     font-size: 12px;
     text-align: left;
     border-radius: 6px;
-    padding: 0px 12px;`
+    padding: 0px 12px;
+    z-index: 9999;`
     document.body.querySelector("#rxcontainer")?.appendChild(tootipEle);
 
     document.body.querySelector("#imageTemp")?.addEventListener("mouseout", () => {
@@ -206,7 +207,7 @@ export class AppComponent implements AfterViewInit {
           'Layer: <span style="color: grey;">' + vectorinfo.Layername + '</span>';
         }
         //entity = {type : vectorobj.entityType.type, handle : vectorobj.entityType.handleLow, typename : getvectorType(vectorobj.entityType.type), startp : startpoint, endp : endpoint, length : length};
-        if(vectorinfo.Entity.length != undefined){
+        if(vectorinfo.Entity.length != undefined && !isNaN(vectorinfo.Entity.length)){
           messagetext = messagetext + '</span></br>' +
           'Length: <span style="color: grey;">' + vectorinfo.Entity.length.toFixed(2) + '</span>';
           

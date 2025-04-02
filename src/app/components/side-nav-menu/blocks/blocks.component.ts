@@ -91,7 +91,8 @@ export class BlocksComponent implements OnInit, OnDestroy {
     font-size: 12px;
     text-align: center;
     border-radius: 6px;
-    padding: 0px 12px;`
+    padding: 0px 12px;
+    z-index: 9999;`
     document.body.querySelector("#rxcontainer")?.appendChild(tootipEle);
 
     document.body.querySelector("#imageTemp")?.addEventListener("mouseout", () => {

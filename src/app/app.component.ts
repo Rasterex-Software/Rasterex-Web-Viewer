@@ -170,50 +170,54 @@ export class AppComponent implements AfterViewInit {
       console.log(blockobj);
     });
 
-    const tootipEle = document.createElement("div");
-    tootipEle.id = "entity-tooltip";
-    tootipEle.style.cssText += `white-space: nowrap;
-    background-color: var(--main);
-    color: #fff;
-    font-size: 12px;
-    text-align: left;
-    border-radius: 6px;
-    padding: 0px 12px;`
-    document.body.querySelector("#rxcontainer")?.appendChild(tootipEle);
+    const tooltipEle = document.createElement("div");
+    tooltipEle.id = "entity-tooltip";
+    tooltipEle.style.position = "absolute";
+    tooltipEle.innerHTML = `<div class="notification info">
+    <div class="image"><img src="/assets/images/inform-ico.svg" alt="icon" /></div>
+    <div class="text">
+        <p class="title">Information</p>
+        <p class="message"></p>
+    </div>
+    </div>`
+    document.body.querySelector("#rxcontainer")?.appendChild(tooltipEle);
 
-    document.body.querySelector("#imageTemp")?.addEventListener("mouseout", () => {
-      tootipEle.style.display = "none";
-    })  
-    
-
+    const delay = 3000;
+    let timer, lastHandle;
     RXCore.onGui2DEntityInfoScreen((vectorinfo : any, screenmouse :any, pathindex : any) => {
       // to use with vector entity selection tool mouse over.
+      const notification = tooltipEle.querySelector(".notification");
       if(pathindex.index){
 
-        let messagetext : string = 'Handle: <span style="color: grey;">' + vectorinfo.Entity.handle + '</span></br>' +
-        'Type: <span style="color: grey;">' +  vectorinfo.Entity.typename + '</span></br>' +
-        'Block: <span style="color: grey;">' + vectorinfo.Block.name + '</span></br>' +
-        'Layer: <span style="color: grey;">' + vectorinfo.Layername + '</span>'; 
+
+        if (notification && notification?.classList.contains("is-notification") && lastHandle !== vectorinfo.Entity.handle) {
+          notification?.classList.remove("is-notification");
+          return;
+        }
+
+        let messagetext : string = 'Handle: ' + vectorinfo.Entity.handle + '\n' +
+        'Type: ' +  vectorinfo.Entity.typename + '\n' +
+        'Block: ' + vectorinfo.Block.name + '\n' +
+        'Layer: ' + vectorinfo.Layername;
 
         if(vectorinfo.Block.listed){
-          messagetext = 'Handle: <span style="color: grey;">' + vectorinfo.Entity.handle + '</span></br>' +
-          'Type: <span style="color: grey;">' +  vectorinfo.Entity.typename + '</span></br>' +
-          'Block: <span style="color: grey;">' + vectorinfo.Block.name + '</span></br>' +
-          'Layer: <span style="color: grey;">' + vectorinfo.Layername + '</span>';
+          messagetext = 'Handle: ' + vectorinfo.Entity.handle + '\n' +
+          'Type: ' +  vectorinfo.Entity.typename + '\n' +
+          'Block: ' + vectorinfo.Block.name + '\n' +
+          'Layer: ' + vectorinfo.Layername;
+
         }else{
-          messagetext = 'Handle: <span style="color: grey;">' + vectorinfo.Entity.handle + '</span></br>' +
-          'Type: <span style="color: grey;">' +  vectorinfo.Entity.typename + '</span></br>' +
-          'Layer: <span style="color: grey;">' + vectorinfo.Layername + '</span>';
+          messagetext = 'Handle: ' + vectorinfo.Entity.handle + '\n' +
+          'Type: ' +  vectorinfo.Entity.typename + '\n' +
+          'Layer: ' + vectorinfo.Layername;
+  
         }
         //entity = {type : vectorobj.entityType.type, handle : vectorobj.entityType.handleLow, typename : getvectorType(vectorobj.entityType.type), startp : startpoint, endp : endpoint, length : length};
-        if(vectorinfo.Entity.length != undefined){
-          messagetext = messagetext + '</span></br>' +
-          'Length: <span style="color: grey;">' + vectorinfo.Entity.length.toFixed(2) + '</span>';
+        if(vectorinfo.Entity.length != undefined && !isNaN(vectorinfo.Entity.length)){
+          messagetext = messagetext + '\n Length: ' + vectorinfo.Entity.length.toFixed(2);
           
         }
 
-        tootipEle.style.display = "block";
-        tootipEle.style.position = "absolute";
         const isLeft = screenmouse.x < window.innerWidth / 2;
         const isTop = screenmouse.y < window.innerHeight / 2;
         let offsetX = 0;
@@ -221,20 +225,29 @@ export class AppComponent implements AfterViewInit {
         if (isLeft) {
           offsetX = 10;
         } else {
-          offsetX = -100;
+          offsetX = -430;
         }
         if (isTop) {
           offsetY = 40;
         } else {
           offsetY = -100;
         }  
-        tootipEle.style.left = `${screenmouse.x / window.devicePixelRatio + offsetX}px`;
-        tootipEle.style.top = `${screenmouse.y / window.devicePixelRatio + offsetY}px`;
-        tootipEle.innerHTML = `<p>${messagetext}</p>`;
-        
+        tooltipEle.style.left = `${screenmouse.x / window.devicePixelRatio + offsetX}px`;
+        tooltipEle.style.top = `${screenmouse.y / window.devicePixelRatio + offsetY}px`;
+        tooltipEle.querySelector(".message")!.innerHTML = messagetext;
+
+        if (timer) clearTimeout(timer);
+        timer = setTimeout(() => {
+          notification?.classList.remove("is-notification");
+        }, delay);
+
+        notification?.classList.add("is-notification");
+
+        lastHandle = vectorinfo.Entity.handle;
       }else{
         //console.log("nothing found");
-        tootipEle.style.display = "none";
+        // tooltipEle.style.display = "none";
+        notification?.classList.remove("is-notification");
       }      
 
     });

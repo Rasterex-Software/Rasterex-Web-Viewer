@@ -83,46 +83,58 @@ export class BlocksComponent implements OnInit, OnDestroy {
       this.onSelectBlock(block, true);
     });
 
-    const tootipEle = document.createElement("div");
-    tootipEle.id = "block-tooltip";
-    tootipEle.style.cssText += `white-space: nowrap;
-    background-color: var(--main);
-    color: #fff;
-    font-size: 12px;
-    text-align: center;
-    border-radius: 6px;
-    padding: 0px 12px;`
-    document.body.querySelector("#rxcontainer")?.appendChild(tootipEle);
+    const tooltipEle = document.createElement("div");
+    tooltipEle.id = "block-tooltip";
+    tooltipEle.style.position = "absolute";
+    tooltipEle.innerHTML = `<div class="notification info">
+    <div class="image"><img src="/assets/images/inform-ico.svg" alt="icon" /></div>
+    <div class="text">
+        <p class="title">Information</p>
+        <p class="message"></p>
+    </div>
+    </div>`
+    document.body.querySelector("#rxcontainer")?.appendChild(tooltipEle);
 
-    document.body.querySelector("#imageTemp")?.addEventListener("mouseout", () => {
-      tootipEle.style.display = "none";
-    })  
-
+    const delay = 3000;
+    let timer, lastHandle;
     RXCore.onGui2DBlockHoverEvent((result, mouse) => {
+      const notification = tooltipEle.querySelector(".notification");
       if (!result) {
-        tootipEle.style.display = "none";
+        notification?.classList.remove("is-notification");
       } else {
         const insert = result.insert;
         const handle = insert.blockhandleHigh > 0 ? insert.blockhandleHigh.toString(16).toUpperCase() : '' + insert.blockhandleLow.toString(16).toUpperCase()
-        tootipEle.style.display = "block";
-        tootipEle.style.position = "absolute";
+        
+        if (notification && notification?.classList.contains("is-notification") && lastHandle !== handle) {
+          notification?.classList.remove("is-notification");
+          return;
+        }
+
         const isLeft = mouse.x < window.innerWidth / 2;
         const isTop = mouse.y < window.innerHeight / 2;
         let offsetX = 0;
         let offsetY = 0;
         if (isLeft) {
-          offsetX = 37;
+          offsetX = 10;
         } else {
-          offsetX = -37;
+          offsetX = -430;
         }
         if (isTop) {
           offsetY = 40;
         } else {
           offsetY = -100;
         }  
-        tootipEle.style.left = `${mouse.x / window.devicePixelRatio + offsetX}px`;
-        tootipEle.style.top = `${mouse.y / window.devicePixelRatio + offsetY}px`;
-        tootipEle.innerHTML = `<p>name: ${result.name}</p><p>handle: ${handle}</p>`;
+        tooltipEle.style.left = `${mouse.x / window.devicePixelRatio + offsetX}px`;
+        tooltipEle.style.top = `${mouse.y / window.devicePixelRatio + offsetY}px`;
+        tooltipEle.querySelector(".message")!.innerHTML = `Name: ${result.name} Handle: ${handle}`;
+
+        if (timer) clearTimeout(timer);
+        timer = setTimeout(() => {
+          notification?.classList.remove("is-notification");
+        }, delay);
+
+        notification?.classList.add("is-notification");
+        lastHandle = handle;
       }
 
     })

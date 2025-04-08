@@ -1,3 +1,15 @@
+April 8, 2025
+
+### 1. Refined entity and block tooltip styles.
+
+RxCore version is now 35.82
+
+src\app\app.component.ts
+src\app\components\side-nav-menu\blocks\blocks.component.scss
+src\app\components\side-nav-menu\blocks\blocks.component.ts
+src\styles.scss
+
+
 March 28, 2025
 
 ### 1. Added Length to callback for vector entity on hover.

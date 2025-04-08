@@ -871,3 +871,55 @@ input[type="radio"] {
               user-select: none; /* Non-prefixed version, currently
                                     supported by Chrome, Edge, Opera and Firefox */
 }
+
+.notification {
+    width: 430px;
+    height: 64px;
+    border: 1px solid;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    z-index: 10000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+
+    .image {
+        width: 15%;
+        text-align: center;
+        margin-top: 6px;
+    }
+
+    .text {
+        width: 85%;
+
+        p {
+            margin: 6px 0;
+        }
+
+        .title {
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .message {
+            color: $main;
+            font-size: 12px;
+            font-weight: 400;
+        }
+    }
+}
+
+.info {
+    border-color: #359EFF;
+    background: #E3EFFD;
+
+    .title {
+        color: #359EFF;
+    }
+}
+
+.is-notification {
+    opacity: 1;
+    visibility: visible;
+}

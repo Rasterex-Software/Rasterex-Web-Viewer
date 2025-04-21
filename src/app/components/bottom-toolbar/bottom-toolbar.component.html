@@ -114,6 +114,10 @@
                     </svg>
                     <span class="tooltip-text tooltip-top">Vector information</span>
                 </li>
+                <li *ngIf="!(guiState$ | async).isPDF && !(guiConfig$ | async).disable2DVectorInfoButton" (click)="onActionSelect('BLOCKINFO')" [class.selected]="state?.isActionSelected['BLOCKINFO']" class="tooltip"> 
+                    <svg t="1745205971668" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="11522" width="24" height="24"><path d="M884.48 296.106667l-5.973333-10.666667a90.88 90.88 0 0 0-31.146667-29.44l-201.386667-116.48a85.333333 85.333333 0 0 0-42.666666-11.52h-11.946667a81.92 81.92 0 0 0-42.666667 11.52L176.64 354.986667a85.333333 85.333333 0 0 0-31.146667 31.146666l-5.973333 10.666667a85.333333 85.333333 0 0 0-11.52 42.666667v245.76a85.333333 85.333333 0 0 0 11.52 42.666666l5.973333 10.666667a90.88 90.88 0 0 0 31.146667 31.146667l201.386667 114.773333a85.333333 85.333333 0 0 0 42.666666 11.52h11.946667a81.92 81.92 0 0 0 42.666667-11.52l372.053333-215.466667a85.333333 85.333333 0 0 0 31.146667-31.146666l5.973333-10.666667a85.333333 85.333333 0 0 0 11.52-42.666667V338.773333a85.333333 85.333333 0 0 0-11.52-42.666666zM591.36 213.333333h11.946667L768 307.2l-341.333333 197.546667-170.666667-97.28z m213.333333 384L469.333333 789.333333v-210.346666l341.333334-197.973334v203.52z" p-id="11523" fill="#333C4E"></path></svg>
+                    <span class="tooltip-text tooltip-top">Block information</span>
+                </li>
 
 
                 <li *ngIf="!(guiConfig$ | async).disableMagnifyingGlassButton" class="separator"></li>

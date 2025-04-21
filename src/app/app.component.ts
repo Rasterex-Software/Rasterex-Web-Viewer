@@ -11,6 +11,7 @@ import { Title } from '@angular/platform-browser';
 import { IGuiConfig } from 'src/rxcore/models/IGuiConfig';
 import { CollabService } from './services/collab.service';
 import { AnnotationStorageService } from './services/annotation-storage.service';
+import { TooltipService } from './components/tooltip/tooltip.service';
 
 
 
@@ -59,6 +60,7 @@ export class AppComponent implements AfterViewInit {
     private readonly rxCoreService: RxCoreService,
     private readonly fileGaleryService: FileGaleryService,
     private readonly notificationService: NotificationService,
+    private readonly tooltipService: TooltipService,
     private readonly userService: UserService,
     private readonly collabService: CollabService,  
     private readonly annotationStorageService: AnnotationStorageService,
@@ -170,56 +172,69 @@ export class AppComponent implements AfterViewInit {
       console.log(blockobj);
     });
 
-    const tooltipEle = document.createElement("div");
-    tooltipEle.id = "entity-tooltip";
-    tooltipEle.style.position = "absolute";
-    tooltipEle.innerHTML = `<div class="notification info">
-    <div class="image"><img src="/assets/images/inform-ico.svg" alt="icon" /></div>
-    <div class="text">
-        <p class="title">Information</p>
-        <p class="message"></p>
-    </div>
-    </div>`
-    document.body.querySelector("#rxcontainer")?.appendChild(tooltipEle);
 
-    const delay = 3000;
-    let timer, lastHandle;
+    RXCore.onGui2DBlockHoverEvent((result, mouse) => {
+      
+      if (result) {
+        const insert = result.insert;
+
+        const isLeft = mouse.x < window.innerWidth / 2;
+        const isTop = mouse.y < window.innerHeight / 2;
+        let offsetX = 0;
+        let offsetY = 0;
+        if (isLeft) {
+          offsetX = 30;
+        } else {
+          offsetX = -160;
+        }
+        if (isTop) {
+          offsetY = 30;
+        } else {
+          offsetY = -80;
+
+
+        } 
+
+        this.tooltipService.tooltip({
+          title: 'Block Information',
+          message: `Name: ${result.name}`,
+          duration: 3000,
+          position: [mouse.x / window.devicePixelRatio + offsetX, mouse.y / window.devicePixelRatio + offsetY],
+        });
+
+      } else {
+        this.tooltipService.closeTooltip();
+
+      }
+    })
     
 
     RXCore.onGui2DEntityInfoScreen((vectorinfo : any, screenmouse :any, pathindex : any) => {
       // to use with vector entity selection tool mouse over.
-      const notification = tooltipEle.querySelector(".notification");
 
       if(pathindex.index){
 
-        if (notification && notification?.classList.contains("is-notification") && lastHandle !== vectorinfo.Entity.handle) {
-          notification?.classList.remove("is-notification");
-          return;
-        }
 
-        let messagetext : string = 'Handle: ' + vectorinfo.Entity.handle + '\n' +
-        'Type: ' +  vectorinfo.Entity.typename + '\n' +
-        //'Block: ' + vectorinfo.Block.name + '\n' +
+        let messagetext : string = 'Type: ' +  vectorinfo.Entity.typename + '<br>' +
+        //'Block: ' + vectorinfo.Block.name + '<br>' +
         'Layer: ' + vectorinfo.Layername;
 
 
         if(vectorinfo.Block.listed){
 
 
-          messagetext = 'Handle: ' + vectorinfo.Entity.handle + '\n' +
-          'Type: ' +  vectorinfo.Entity.typename + '\n' +
-          'Block: ' + vectorinfo.Block.name + '\n' +
+          messagetext = 'Type: ' +  vectorinfo.Entity.typename + '<br>' +
+          'Block: ' + vectorinfo.Block.name + '<br>' +
           'Layer: ' + vectorinfo.Layername;
         }else{
-          messagetext = 'Handle: ' + vectorinfo.Entity.handle + '\n' +
-          'Type: ' +  vectorinfo.Entity.typename + '\n' +
+          messagetext = 'Type: ' +  vectorinfo.Entity.typename + '<br>' +
           'Layer: ' + vectorinfo.Layername;
 
         }
         //entity = {type : vectorobj.entityType.type, handle : vectorobj.entityType.handleLow, typename : getvectorType(vectorobj.entityType.type), startp : startpoint, endp : endpoint, length : length};
         if(vectorinfo.Entity.length != undefined && !isNaN(vectorinfo.Entity.length)){
 
-          messagetext = messagetext + '\n Length: ' + vectorinfo.Entity.length.toFixed(2);
+          messagetext = messagetext + '<br> Length: ' + vectorinfo.Entity.length.toFixed(2);
                     
           
         }
@@ -229,36 +244,30 @@ export class AppComponent implements AfterViewInit {
         let offsetX = 0;
         let offsetY = 0;
         if (isLeft) {
-          offsetX = 10;
+          offsetX = 30;
         } else {
-          offsetX = -430;
+          offsetX = -160;
         }
         if (isTop) {
-          offsetY = 40;
+          offsetY = 30;
         } else {
-          offsetY = -100;
+          offsetY = -120;
 
 
         } 
         
-        tooltipEle.style.left = `${screenmouse.x / window.devicePixelRatio + offsetX}px`;
-        tooltipEle.style.top = `${screenmouse.y / window.devicePixelRatio + offsetY}px`;
-        tooltipEle.querySelector(".message")!.innerHTML = messagetext;
-
-        if (timer) clearTimeout(timer);
-        timer = setTimeout(() => {
-          notification?.classList.remove("is-notification");
-        }, delay);
-
-        notification?.classList.add("is-notification");
-
-        lastHandle = vectorinfo.Entity.handle;
-
         
+        this.tooltipService.tooltip({
+          title: 'Entity Information',
+          message: messagetext,
+          duration: 3000,
+          position: [screenmouse.x / window.devicePixelRatio + offsetX, screenmouse.y / window.devicePixelRatio + offsetY],
+        });
+
       }else{
         //console.log("nothing found");
-        notification?.classList.remove("is-notification");
-        
+        this.tooltipService.closeTooltip();
+
       }      
 
     });
@@ -750,7 +759,7 @@ export class AppComponent implements AfterViewInit {
   }
 
   ngOnDestroy() {
-    document.body.querySelector("#entity-tooltip")?.remove();
+    this.tooltipService.closeTooltip();
   }
 
   getRoomName() {

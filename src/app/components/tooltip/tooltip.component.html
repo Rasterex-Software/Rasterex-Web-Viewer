@@ -1,0 +1,7 @@
+<div class="tooltip" [ngClass]="{'is-tooltip-show ': isShowTooltip}" [style.left.px]="position[0]" [style.top.px]="position[1]">
+    <div *ngIf="iconSrc" class="image"><img [src]="iconSrc" alt="icon" /></div>
+    <div class="text">
+        <p class="title">{{ title }}</p>
+        <p class="message" [innerHTML]="message"></p>
+    </div>
+</div>

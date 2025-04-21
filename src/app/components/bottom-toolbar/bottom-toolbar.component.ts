@@ -3,6 +3,7 @@ import { RxCoreService } from 'src/app/services/rxcore.service';
 import { RXCore } from 'src/rxcore';
 import { BottomToolbarService, IBottomToolbarState } from './bottom-toolbar.service';
 import { CompareService } from '../compare/compare.service';
+import { TooltipService } from '../tooltip/tooltip.service';
 
 @Component({
   selector: 'rx-bottom-toolbar',
@@ -19,6 +20,7 @@ export class BottomToolbarComponent implements OnInit, AfterViewInit {
   constructor(
     private readonly rxCoreService: RxCoreService,
     private readonly service: BottomToolbarService,
+    private readonly tooltipService: TooltipService,
     private readonly compareService: CompareService) { }
 
   guiConfig$ = this.rxCoreService.guiConfig$;
@@ -155,8 +157,14 @@ export class BottomToolbarComponent implements OnInit, AfterViewInit {
         break;
       case 'VECTORINFO':
           this.state.isActionSelected["ZOOM_WINDOW"] = false;
+          this.state.isActionSelected["BLOCKINFO"] = false;
           RXCore.blockhoverevent(this.state.isActionSelected[action]);
           RXCore.getVectorEntity(this.state.isActionSelected[action]);
+          break;
+        case 'BLOCKINFO':
+          this.state.isActionSelected["ZOOM_WINDOW"] = false;
+          this.state.isActionSelected["VECTORINFO"] = false;
+          RXCore.getBlockInsert(this.state.isActionSelected[action]);
           break;
 
       case 'ZOOM_IN':

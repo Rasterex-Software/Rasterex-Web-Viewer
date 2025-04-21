@@ -1,3 +1,22 @@
+April 21, 2025
+
+### 1. Refined tooltip style
+### 2. Added "Block Information" toggle button in toolbar
+
+RxCore version is now 35.85
+
+Updated files
+src\app\app.component.html
+src\app\app.component.ts
+src\app\app.module.ts
+src\app\components\bottom-toolbar\bottom-toolbar.component.html
+src\app\components\bottom-toolbar\bottom-toolbar.component.ts
+src\app\components\side-nav-menu\blocks\blocks.component.ts
+src\app\components\tooltip\tooltip.component.html
+src\app\components\tooltip\tooltip.component.scss
+src\app\components\tooltip\tooltip.component.ts
+src\app\components\tooltip\tooltip.service.ts
+
 April 8, 2025
 
 ### 1. Refined entity and block tooltip styles.

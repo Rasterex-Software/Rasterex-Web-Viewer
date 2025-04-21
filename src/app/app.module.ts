@@ -98,6 +98,7 @@ import { CommentStatusIconComponent } from './components/annotation-tools/commen
 
 import { LoginComponent } from './components/user/login/login.component';
 import { RoomPanelComponent } from './components/collab/room-panel.component';
+import { TooltipComponent } from './components/tooltip/tooltip.component';
 
 const storeSchema = [
   { name: 'name', keypath: 'name', options: { unique: false } },
@@ -160,6 +161,7 @@ const dbConfig: DBConfig  = {
     CountPanelComponent,
     CountTypeSelectComponent,
     NotificationComponent,
+    TooltipComponent,
     StampPanelComponent,
     StampTemplateDirective,
     //InteractiveStampTemplateDirective,

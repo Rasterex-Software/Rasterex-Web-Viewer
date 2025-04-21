@@ -2,6 +2,7 @@ import { ChangeDetectorRef, Component, ElementRef, NgZone, OnDestroy, OnInit, Pi
 import { RxCoreService } from 'src/app/services/rxcore.service';
 import { RXCore } from 'src/rxcore';
 import { IVectorBlock } from 'src/rxcore/models/IVectorBlock';
+import { TooltipService } from '../../tooltip/tooltip.service';
 // import { IVectorLayer } from 'src/rxcore/models/IVectorLayer';
 
 interface IBlockAttribute {
@@ -32,7 +33,7 @@ export class BlocksComponent implements OnInit, OnDestroy {
   isSearchResultDirty = false; // used when search criteria is changed and search result is not updated yet
 
 
-  constructor(private readonly rxCoreService: RxCoreService, private el: ElementRef) {}
+  constructor(private readonly rxCoreService: RxCoreService, private readonly tooltipService: TooltipService, private el: ElementRef) {}
 
   ngOnInit(): void {
     this.rxCoreService.guiVectorBlocks$.subscribe((blocks) => {
@@ -84,73 +85,47 @@ export class BlocksComponent implements OnInit, OnDestroy {
     });
 
 
-    const tooltipEle = document.createElement("div");
-    tooltipEle.id = "block-tooltip";
-    tooltipEle.style.position = "absolute";
-    tooltipEle.innerHTML = `<div class="notification info">
-    <div class="image"><img src="/assets/images/inform-ico.svg" alt="icon" /></div>
-    <div class="text">
-        <p class="title">Information</p>
-        <p class="message"></p>
-    </div>
-    </div>`
-    document.body.querySelector("#rxcontainer")?.appendChild(tooltipEle);
-
-    const delay = 3000;
-    let timer, lastHandle;
-
-
     RXCore.onGui2DBlockHoverEvent((result, mouse) => {
-      const notification = tooltipEle.querySelector(".notification");
-
-      if (!result) {
-        notification?.classList.remove("is-notification");
-      } else {
+      
+      if (result) {
         const insert = result.insert;
         const handle = insert.blockhandleHigh > 0 ? insert.blockhandleHigh.toString(16).toUpperCase() : '' + insert.blockhandleLow.toString(16).toUpperCase()
-
-        if (notification && notification?.classList.contains("is-notification") && lastHandle !== handle) {
-          notification?.classList.remove("is-notification");
-          return;
-        }
 
         const isLeft = mouse.x < window.innerWidth / 2;
         const isTop = mouse.y < window.innerHeight / 2;
         let offsetX = 0;
         let offsetY = 0;
         if (isLeft) {
-          offsetX = 10;
+          offsetX = 20;
         } else {
-          offsetX = -37;
+          offsetX = -140;
         }
         if (isTop) {
-          offsetY = 40;
+          offsetY = 20;
         } else {
-          offsetX = -430;
-        }  
+          offsetY = -70;
 
-        tooltipEle.style.left = `${mouse.x / window.devicePixelRatio + offsetX}px`;
-        tooltipEle.style.top = `${mouse.y / window.devicePixelRatio + offsetY}px`;
-        tooltipEle.querySelector(".message")!.innerHTML = `Name: ${result.name} Handle: ${handle}`;
 
-        if (timer) clearTimeout(timer);
-        timer = setTimeout(() => {
-          notification?.classList.remove("is-notification");
-        }, delay);
+        } 
 
-        notification?.classList.add("is-notification");
-        lastHandle = handle;
+        this.tooltipService.tooltip({
+          title: 'Block Information',
+          message: `Name: ${result.name}`,
+          duration: 3000,
+          position: [mouse.x / window.devicePixelRatio + offsetX, mouse.y / window.devicePixelRatio + offsetY],
+        });
 
+      } else {
+        this.tooltipService.closeTooltip();
 
       }
-
     })
 
   }
 
   ngOnDestroy() {
     RXCore.getBlockInsert(false);
-    document.body.querySelector("#block-tooltip")?.remove();
+    this.tooltipService.closeTooltip();
   }
 
   onOpenSearchBlock() {

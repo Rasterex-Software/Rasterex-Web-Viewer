@@ -1,6 +1,7 @@
 import { Component, OnInit, AfterViewInit, ViewChild, ElementRef, Input, Output, EventEmitter } from '@angular/core';
 import { RxCoreService } from 'src/app/services/rxcore.service';
 import { RXCore } from 'src/rxcore';
+import { IVectorBlock } from 'src/rxcore/models/IVectorBlock';
 import { BottomToolbarService, IBottomToolbarState } from './bottom-toolbar.service';
 import { CompareService } from '../compare/compare.service';
 import { TooltipService } from '../tooltip/tooltip.service';
@@ -42,6 +43,7 @@ export class BottomToolbarComponent implements OnInit, AfterViewInit {
   searchCurrentMatch: number = 0;
   isVisible: boolean = true;
   grayscaleValue: number = 3;
+  lastSelectBlock?: IVectorBlock;
 
   state: IBottomToolbarState = { isActionSelected: {}};
   private _deselectAllActions(): void {
@@ -85,6 +87,33 @@ export class BottomToolbarComponent implements OnInit, AfterViewInit {
         }
       });
     });
+
+    RXCore.onGui2DBlock((block: IVectorBlock) => {
+      console.log('onGui2DBlock');
+      if (this.lastSelectBlock) {
+          // if select the same block, then unselect it
+          if (block && block.index === this.lastSelectBlock.index) {
+            // @ts-ignore
+            this.lastSelectBlock.selected = false;
+            this.lastSelectBlock = undefined;
+            RXCore.markUpRedraw();
+    
+            return;
+          }
+          // @ts-ignore
+          this.lastSelectBlock.selected = false;
+          this.lastSelectBlock = undefined;
+      }
+
+      if (block) {
+        // @ts-ignore
+        block.selected = true;
+        this.lastSelectBlock = block;
+        RXCore.selectVectorBlock(block.index);
+        RXCore.markUpRedraw();    
+      }
+    });
+
   }
 
   ngAfterViewInit(): void {
@@ -146,9 +175,17 @@ export class BottomToolbarComponent implements OnInit, AfterViewInit {
     const selected = this.state.isActionSelected[action];
 
     this._deselectAllActions();
+
+    if (this.lastSelectBlock) {
+      // @ts-ignore
+      this.lastSelectBlock.selected = false;
+      this.lastSelectBlock = undefined;
+    }
+    RXCore.getBlockInsert(false);
+    RXCore.markUpRedraw();
     
     this.state.isActionSelected[action] = !selected;
-    this.service.setState(this.state);
+    //this.service.setState(this.state);
 
     switch (action) {
       case 'MAGNIFY':

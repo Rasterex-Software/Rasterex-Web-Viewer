@@ -12,6 +12,8 @@
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+    user-select: none;
+    pointer-events: none;
 
     border-color: #359EFF;
     background: #E3EFFD;

@@ -1,3 +1,20 @@
+May 5, 2025
+
+### 1. Fixed vector and block selection related bugs.
+### 2. Fixed vector and block tooltip bugs.
+
+RxCore version is now 35.87.
+
+Updated files
+src\app\app.component.html
+src\app\app.component.ts
+src\app\components\bottom-toolbar\bottom-toolbar.component.ts
+src\app\components\bottom-toolbar\bottom-toolbar.service.ts
+src\app\components\side-nav-menu\blocks\blocks.component.ts
+src\app\components\tooltip\tooltip.component.scss
+src\app\components\tooltip\tooltip.component.ts
+
+
 April 21, 2025
 
 ### 1. Refined entity and block tooltip styles.

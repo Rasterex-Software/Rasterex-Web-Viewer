@@ -18,6 +18,8 @@ export class BottomToolbarService {
     return {
       fileIndex: undefined,
       isActionSelected: {
+        "BLOCKINFO": false,
+        "VECTORINFO": false,
         "MAGNIFY": false,
         "ZOOM_WINDOW": false,
         "HIDE_MARKUPS": false,

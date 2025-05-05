@@ -231,6 +231,11 @@ export class AppComponent implements AfterViewInit {
         return arr;
       }
     
+      RXCore.onGui2DEntityInfo((vectorInfo: any) => {
+
+        this.infoPanelVisible = true;
+        this.infoData = getBlockAttributes(vectorInfo.Block);
+      })
 
     RXCore.onGui2DEntityInfoScreen((vectorinfo : any, screenmouse :any, pathindex : any) => {
       // to use with vector entity selection tool mouse over.
@@ -238,38 +243,14 @@ export class AppComponent implements AfterViewInit {
 
       if(pathindex.index){
 
-        let messagetext : string = 'Type: ' +  vectorinfo.Entity.typename + '<br>' +
-        //'Block: ' + vectorinfo.Block.name + '<br>' +
-
-        'Layer: ' + vectorinfo.Layername;
-
-
+        let messagetext : string = 'Type: ' +  vectorinfo.Entity.typename + '<br>';
         if(vectorinfo.Block.listed){
-
-
-          messagetext = 'Type: ' +  vectorinfo.Entity.typename + '<br>' +
-          'Block: ' + vectorinfo.Block.name + '<br>' +
-
-          'Layer: ' + vectorinfo.Layername;
-
-          this.infoPanelVisible = true;
-          this.infoData = getBlockAttributes(vectorinfo.Block);
-
-        }else{
-          messagetext = 'Type: ' +  vectorinfo.Entity.typename + '<br>' +
-
-          'Layer: ' + vectorinfo.Layername;
-
-          this.infoPanelVisible = false;
-
+          messagetext += ('Block: ' + vectorinfo.Block.name + '<br>');
         }
+        messagetext += ('Layer: ' + vectorinfo.Layername);
         //entity = {type : vectorobj.entityType.type, handle : vectorobj.entityType.handleLow, typename : getvectorType(vectorobj.entityType.type), startp : startpoint, endp : endpoint, length : length};
         if(vectorinfo.Entity.length != undefined && !isNaN(vectorinfo.Entity.length)){
-
-          messagetext = messagetext + '<br> Length: ' + vectorinfo.Entity.length.toFixed(2);
-
-        
-
+          messagetext += ('<br> Length: ' + vectorinfo.Entity.length.toFixed(2));
         }
 
         const isLeft = screenmouse.x < window.innerWidth / 2;

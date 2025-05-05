@@ -50,7 +50,7 @@
 </div>
 
 <rx-panel
-    *ngIf="infoPanelVisible"
+    *ngIf="infoPanelVisible && infoData.length > 0"
     class="info-panel"
     style="z-index: 9"
     [title]="'Block info'"

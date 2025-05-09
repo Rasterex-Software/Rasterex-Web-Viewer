@@ -50,24 +50,6 @@
 </div>
 
 <rx-panel
-    *ngIf="infoPanelVisible"
-    class="info-panel"
-    style="z-index: 9"
-    [title]="'Block info'"
-    [maxHeight]="312"
-    (onClose)="infoPanelVisible = false">
-    <div class="info-container-wrapper">
-        <div class="info-container">
-            <div class="header">Attribute</div><div class="header">Value</div>
-            <ng-container *ngFor="let item of infoData">
-                <div class="row-header">{{item.name}}</div>
-                <div class="attribute-value">{{item.value}}</div>
-            </ng-container>
-        </div>
-    </div>
-</rx-panel>
-
-<rx-panel
     *ngIf="searchPanelVisible"
     class="info-panel"
     style="z-index: 9"

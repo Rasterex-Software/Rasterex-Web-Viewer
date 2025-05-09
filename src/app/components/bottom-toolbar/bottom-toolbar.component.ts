@@ -1,7 +1,6 @@
 import { Component, OnInit, AfterViewInit, ViewChild, ElementRef, Input, Output, EventEmitter } from '@angular/core';
 import { RxCoreService } from 'src/app/services/rxcore.service';
 import { RXCore } from 'src/rxcore';
-import { IVectorBlock } from 'src/rxcore/models/IVectorBlock';
 import { BottomToolbarService, IBottomToolbarState } from './bottom-toolbar.service';
 import { CompareService } from '../compare/compare.service';
 import { TooltipService } from '../tooltip/tooltip.service';
@@ -43,7 +42,6 @@ export class BottomToolbarComponent implements OnInit, AfterViewInit {
   searchCurrentMatch: number = 0;
   isVisible: boolean = true;
   grayscaleValue: number = 3;
-  lastSelectBlock?: IVectorBlock;
 
   state: IBottomToolbarState = { isActionSelected: {}};
   private _deselectAllActions(): void {
@@ -86,32 +84,6 @@ export class BottomToolbarComponent implements OnInit, AfterViewInit {
           this.onActionSelect(key);
         }
       });
-    });
-
-    RXCore.onGui2DBlock((block: IVectorBlock) => {
-      console.log('onGui2DBlock');
-      if (this.lastSelectBlock) {
-          // if select the same block, then unselect it
-          if (block && block.index === this.lastSelectBlock.index) {
-            // @ts-ignore
-            this.lastSelectBlock.selected = false;
-            this.lastSelectBlock = undefined;
-            RXCore.markUpRedraw();
-    
-            return;
-          }
-          // @ts-ignore
-          this.lastSelectBlock.selected = false;
-          this.lastSelectBlock = undefined;
-      }
-
-      if (block) {
-        // @ts-ignore
-        block.selected = true;
-        this.lastSelectBlock = block;
-        RXCore.selectVectorBlock(block.index);
-        RXCore.markUpRedraw();    
-      }
     });
 
   }
@@ -178,11 +150,7 @@ export class BottomToolbarComponent implements OnInit, AfterViewInit {
 
     this._deselectAllActions();
 
-    if (this.lastSelectBlock) {
-      // @ts-ignore
-      this.lastSelectBlock.selected = false;
-      this.lastSelectBlock = undefined;
-    }
+    this.rxCoreService.setSelectedVectorBlock(undefined);
     RXCore.getBlockInsert(false);
     RXCore.markUpRedraw();
 

@@ -214,6 +214,9 @@ export class RXCore {
         RxCore.selectVectorBlock(blockid);
     }
     
+    public static unselectAllBlocks(): void {
+        RxCore.unselectAllBlocks();
+    }
 
     public static select3DMarkup(onoff: boolean): void {
         RxCore.select3DMarkup(onoff);

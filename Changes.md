@@ -10,7 +10,8 @@ src\app\components\bottom-toolbar\bottom-toolbar.component.ts
 src\app\components\side-nav-menu\blocks\blocks.component.html
 src\app\components\side-nav-menu\blocks\blocks.component.ts
 src\app\services\rxcore.service.ts
-
+src\rxcore\index.ts
+src\assets\scripts\rxcorefunctions.js
 
 May 5, 2025
 

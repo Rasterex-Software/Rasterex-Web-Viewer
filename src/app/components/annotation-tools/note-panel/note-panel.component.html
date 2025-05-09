@@ -1,9 +1,10 @@
 <rx-panel
   *ngIf="visible"
-  [title]="'Annotations and Measurements'"
+  [title]="panelTitle"
   (onClose)="onClose()"
   [draggable]="false"
 >
+<!-- <span *ngIf="showAnnotationsOnLoad" style="float: right;" >({{calcAllCount()}})</span> -->
   <div class="note-panel-container">
     <div class="header-section">
       <!-- <div class="search">

@@ -107,12 +107,12 @@ export class BlocksComponent implements OnInit, OnDestroy {
     });
 
     this.rxCoreService.setSelectedVectorBlock(undefined);
-    RXCore.getBlockInsert(true);
+    //RXCore.getBlockInsert(true);
   }
 
   ngOnDestroy() {
     this.rxCoreService.setSelectedVectorBlock(undefined);
-    RXCore.getBlockInsert(false);
+    //RXCore.getBlockInsert(false);
   }
 
   onOpenSearchBlock() {
@@ -167,7 +167,8 @@ export class BlocksComponent implements OnInit, OnDestroy {
     RXCore.vectorBlocksAll(onoff);
   }
 
-  onSelectBlock(block: IVectorBlock) {   
+  onSelectBlock(block: IVectorBlock) {
+    RXCore.unselectAllBlocks();   
     let lastBlock = this.rxCoreService.getSelectedVectorBlock();
     if (lastBlock) {
         // if select the same block, then unselect it

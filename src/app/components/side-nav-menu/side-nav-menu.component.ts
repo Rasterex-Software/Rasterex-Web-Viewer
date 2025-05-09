@@ -50,7 +50,7 @@ export class SideNavMenuComponent implements OnInit {
   togglePanel(onoff: boolean){
 
     this.toggleablePanelOpened = onoff;
-    RXCore.getBlockInsert(onoff);
+    //RXCore.getBlockInsert(onoff);
 
   }
 

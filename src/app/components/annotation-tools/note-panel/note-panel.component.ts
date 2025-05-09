@@ -39,6 +39,7 @@ export class NotePanelComponent implements OnInit {
   guiConfig: IGuiConfig | undefined;
 
   markuptypes: any[] = [];
+  panelTitle: string = 'Annotations and Measurements';
 
   /*added for comment list panel */
   note: any[] = [];
@@ -771,13 +772,19 @@ export class NotePanelComponent implements OnInit {
       }else{
         switch(option.label) {
           case "View":
+            this.showAll = false;
             this.onShowAll(false);
             break;
           case "Annotate":
+            this.showAnnotations = true;
+            this.showMeasurements = false;
             this.onShowAnnotations(true);
             this.onShowMeasurements(false);
             break;
           case "Measure":
+            this.showAnnotations = false;
+            this.showMeasurements = true;
+
             this.onShowMeasurements(true);
             this.onShowAnnotations(false);
             break;  
@@ -811,6 +818,9 @@ export class NotePanelComponent implements OnInit {
       this.showAnnotations = this.showAnnotationsOnLoad;
       this.showMeasurements = this.showAnnotationsOnLoad;
       this.showAll = this.showAnnotationsOnLoad;
+
+
+      
 
 
     });
@@ -859,6 +869,32 @@ export class NotePanelComponent implements OnInit {
       }*/
       this._updateRxFilter();
       this.annotlist = list;
+
+      this.pageNumbers = [];
+      this.pageNumbers.push({ value: -1, label: 'Select' });
+      let controlarray : Array<number> = [];
+
+      for(let li = 0; li < list.length; li++){
+
+        let pageexist = false;
+        let pagenum = list[li].pagenumber;  
+        
+
+        for(let ci = 0; ci < controlarray.length; ci++){
+          if(controlarray[ci] == pagenum){
+            pageexist = true;
+          }
+        }
+        if(!pageexist){
+          controlarray.push(pagenum);
+          this.pageNumbers.push({ value: pagenum + 1, label: pagenum + 1 });
+        }
+
+        
+
+        
+
+      }
 
       //this.onShowAll(this.showAll)
 
@@ -930,7 +966,11 @@ export class NotePanelComponent implements OnInit {
       }else{
         this._processList(list, this.rxCoreService.getGuiAnnotList());
       }
-        
+
+      if(this.showAnnotationsOnLoad){
+        this.panelTitle = 'Annotations and Measurements' + " (" + this.calcAllCount() + ")";  
+      }
+
 
     });
 
@@ -2238,7 +2278,13 @@ export class NotePanelComponent implements OnInit {
 
 
   calcAllCount() {
+    
+    
+    
     return this.calcAnnotationCount() + this.calcMeasurementsCount();
+
+
+
   }
 
   getUniqueAuthorList() {

@@ -69,6 +69,11 @@ export class QuickActionsMenuComponent implements OnInit, OnDestroy {
     const xscaled = (markup.xscaled || markup.x) / window.devicePixelRatio;
     const yscaled = (markup.yscaled || markup.y) / window.devicePixelRatio;
 
+    const wscaledus = (markup.wscaled || markup.w);
+    const hscaledus = (markup.hscaled || markup.h);
+    const xscaledus = (markup.xscaled || markup.x);
+    const yscaledus = (markup.yscaled || markup.y);
+
 
     
     let absy = yscaled + ((hscaled - yscaled) * 0.5);
@@ -96,10 +101,11 @@ export class QuickActionsMenuComponent implements OnInit, OnDestroy {
 
     if(this.pageRotation != 0){
 
-      let lefttop = markup.getrotatedPoint(xscaled, yscaled);
+      let lefttop = markup.getrotatedPoint(xscaledus, yscaledus);
 
-      isLeft = lefttop.x < window.innerWidth * 0.5;
-      isTop = lefttop.y < window.innerHeight * 0.5;
+
+      isLeft = (lefttop.x / window.devicePixelRatio) < window.innerWidth * 0.5;
+      isTop = (lefttop.y / window.devicePixelRatio) < window.innerHeight * 0.5;
 
 
     }
@@ -219,6 +225,9 @@ export class QuickActionsMenuComponent implements OnInit, OnDestroy {
 
 
         if(this.pageRotation != 0){
+
+           
+
           let rotpointpoly = markup.getrotatedPoint(topcenterx,topcentery);
 
 
@@ -226,11 +235,11 @@ export class QuickActionsMenuComponent implements OnInit, OnDestroy {
 
             if(isTop){
               
-              rotpointpoly = markup.getrotatedPoint(wscaled, yscaled + (hscaled - yscaled) * 0.5);
+              rotpointpoly = markup.getrotatedPoint(wscaledus, yscaledus + (hscaledus - yscaledus) * 0.5);
               
    
             }else{
-              rotpointpoly = markup.getrotatedPoint(xscaled, yscaled + (hscaled - yscaled) * 0.5);
+              rotpointpoly = markup.getrotatedPoint(xscaledus, yscaledus + (hscaledus - yscaledus) * 0.5);
    
             }
 
@@ -240,13 +249,13 @@ export class QuickActionsMenuComponent implements OnInit, OnDestroy {
 
             if(isTop){
               
-              rotpointpoly = markup.getrotatedPoint(xscaled + ((wscaled - xscaled) * 0.5), yscaled);
+              rotpointpoly = markup.getrotatedPoint(xscaledus + ((wscaledus - xscaledus) * 0.5), yscaledus);
               //topcentery = yscaled;
               
    
             }else{
               
-              rotpointpoly = markup.getrotatedPoint(xscaled + ((wscaled - xscaled) * 0.5), hscaled);
+              rotpointpoly = markup.getrotatedPoint(xscaledus + ((wscaledus - xscaledus) * 0.5), hscaledus);
               
    
             }
@@ -257,13 +266,13 @@ export class QuickActionsMenuComponent implements OnInit, OnDestroy {
 
             if(isTop){
               
-              rotpointpoly = markup.getrotatedPoint(xscaled, yscaled + (hscaled - yscaled) * 0.5);
+              rotpointpoly = markup.getrotatedPoint(xscaledus, yscaledus + (hscaledus - yscaledus) * 0.5);
               //topcentery = yscaled;
               
    
             }else{
               
-              rotpointpoly = markup.getrotatedPoint(wscaled, yscaled + (hscaled - yscaled) * 0.5);
+              rotpointpoly = markup.getrotatedPoint(wscaledus, yscaledus + (hscaledus - yscaledus) * 0.5);
               
    
             }
@@ -272,15 +281,15 @@ export class QuickActionsMenuComponent implements OnInit, OnDestroy {
 
 
 
-          topcenterx = rotpointpoly.x;
-          topcentery = rotpointpoly.y;
+          topcenterx = rotpointpoly.x / window.devicePixelRatio;
+          topcentery = rotpointpoly.y / window.devicePixelRatio;
 
   
 
         }
 
-        topcenterx = topcenterx / window.devicePixelRatio;
-        topcentery = topcentery / window.devicePixelRatio;
+        //topcenterx = topcenterx / window.devicePixelRatio;
+        //topcentery = topcentery / window.devicePixelRatio;
 
         
         this.numbuttons = (markup.subtype == MARKUP_TYPES.SHAPE.POLYGON.subType ? 4 : 3);
@@ -351,7 +360,7 @@ export class QuickActionsMenuComponent implements OnInit, OnDestroy {
       let starty = yscaled;
       
       if(this.pageRotation != 0){
-        let rotpointarrow = markup.getrotatedPoint(xscaled,yscaled);
+        let rotpointarrow = markup.getrotatedPoint(xscaledus,yscaledus);
 
 
         /*if (this.pageRotation == 90){
@@ -404,15 +413,15 @@ export class QuickActionsMenuComponent implements OnInit, OnDestroy {
 
 
 
-        startx = rotpointarrow.x;
-        starty = rotpointarrow.y;
+        startx = rotpointarrow.x / window.devicePixelRatio;
+        starty = rotpointarrow.y / window.devicePixelRatio;
 
 
 
       }
 
-      startx = startx / window.devicePixelRatio;
-      starty = starty / window.devicePixelRatio;
+      //startx = startx / window.devicePixelRatio;
+      //starty = starty / window.devicePixelRatio;
 
 
         dx = -26 + _dx;
@@ -491,14 +500,19 @@ export class QuickActionsMenuComponent implements OnInit, OnDestroy {
 
       if(this.pageRotation != 0){
 
-        let maxy = Math.max(yscaled + hscaled, yscaled);
-        let miny = Math.min(yscaled + hscaled, yscaled);
+        //const wscaledus = (markup.wscaled || markup.w);
+        //const hscaledus = (markup.hscaled || markup.h);
+        //const xscaledus = (markup.xscaled || markup.x);
+        //const yscaledus = (markup.yscaled || markup.y);
+    
+        let maxy = Math.max(yscaledus + hscaledus, yscaledus);
+        let miny = Math.min(yscaledus + hscaledus, yscaledus);
 
-        let maxx = Math.max(xscaled + wscaled, xscaled);
-        let minx = Math.min(xscaled + wscaled, xscaled);
+        let maxx = Math.max(xscaledus + wscaledus, xscaledus);
+        let minx = Math.min(xscaledus + wscaledus, xscaledus);
 
-        let boxheight = Math.abs(hscaled);
-        let boxwidth = Math.abs(wscaled);
+        let boxheight = Math.abs(hscaledus);
+        let boxwidth = Math.abs(wscaledus);
 
 
         let rotpoint1 = markup.getrotatedPoint(minx, miny);
@@ -513,11 +527,11 @@ export class QuickActionsMenuComponent implements OnInit, OnDestroy {
         if (this.pageRotation == 90){
 
           if(isTop){
-            xval = rotpoint5.x;
-            yval = rotpoint5.y;
+            xval = rotpoint5.x / window.devicePixelRatio;
+            yval = rotpoint5.y / window.devicePixelRatio;
           }else{
-            xval = rotpoint6.x;
-            yval = rotpoint6.y;
+            xval = rotpoint6.x / window.devicePixelRatio;
+            yval = rotpoint6.y / window.devicePixelRatio;
 
           }
 
@@ -526,18 +540,20 @@ export class QuickActionsMenuComponent implements OnInit, OnDestroy {
 
         if (this.pageRotation == 180){
 
+          
           if(isTop){
-            xval = rotpoint3.x;
-            yval = rotpoint3.y;
+            xval = rotpoint3.x / window.devicePixelRatio;
+            yval = rotpoint3.y / window.devicePixelRatio;
 
-            dy = this.menuheight + offsetTop; //this.menuheight + offsetTop + offsetTop;
+            dy = this.menuheight + offsetTop + 20; //this.menuheight + offsetTop + offsetTop;            
 
           }else{
-            xval = rotpoint2.x;
-            yval = rotpoint2.y;
+            xval = rotpoint2.x / window.devicePixelRatio;
+            yval = rotpoint2.y / window.devicePixelRatio;
+            
+            dy = -(this.menuheight - offsetTop - 20); //
             
             
-            dy = 0; // -(this.menuheight - offsetTop);
             
           }
 
@@ -551,14 +567,14 @@ export class QuickActionsMenuComponent implements OnInit, OnDestroy {
 
         if (this.pageRotation == 270){
           if(isTop){
-            xval = rotpoint6.x;
-            yval = rotpoint6.y;
+            xval = rotpoint6.x / window.devicePixelRatio;
+            yval = rotpoint6.y / window.devicePixelRatio;
             
 
           }else{
 
-            xval = rotpoint5.x;
-            yval = rotpoint5.y;
+            xval = rotpoint5.x / window.devicePixelRatio;
+            yval = rotpoint5.y / window.devicePixelRatio;
 
 
           }

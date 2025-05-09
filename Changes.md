@@ -1,3 +1,17 @@
+May 9, 2025
+
+### 1. When the block has no attributes, add the "(No Attribute)" mark after the block name in the tooltip.
+### 2. Unify the logic of the two entry points, the Block List and the Block toolbar. When a block is clicked, if it has attributes, display the attribute box.
+
+Updated and new files
+
+src\app\app.component.ts
+src\app\components\bottom-toolbar\bottom-toolbar.component.ts
+src\app\components\side-nav-menu\blocks\blocks.component.html
+src\app\components\side-nav-menu\blocks\blocks.component.ts
+src\app\services\rxcore.service.ts
+
+
 May 5, 2025
 
 ### 1. Fixed vector and block selection related bugs.

@@ -133,7 +133,7 @@
                 flex-grow: 1;
                 font-size: 14px;
                 font-weight: 600;
-                padding-left: 12px;
+                padding: 12px;
                 margin: 0;
                 color: $main;
             }
@@ -159,7 +159,7 @@
             height: calc(100% - 42px);
             overflow-y: scroll;
             scrollbar-width: thin;
-    
+
         }
     }
 }

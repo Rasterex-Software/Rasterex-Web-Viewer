@@ -1,7 +1,18 @@
+May 14, 2025
+
+### 1. Fixed a problem with drawing display when having PDF and other formats open at the same time.
+
+
+RxCore version is now 35.9.
+
+Updated and new files
+
+src\assets\scripts\rxcorefunctions.js
+
 
 May 9, 2025
 
-### 1. When the block has no attributes, add the "(No Attribute)" mark after the block name in the tooltip.
+### 1. When the block has attributes, add the "(Attribute yes)" mark under the block name in the tooltip.
 
 
 RxCore version is now 35.89.

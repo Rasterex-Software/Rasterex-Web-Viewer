@@ -27,9 +27,14 @@ export class RXCore {
         RxCore.blockhoverevent(onoff);
     }
 
+    public static getClipRect(selected: boolean): void{
+        RxCore.getClipRect(selected);
+    }
 
+    public static pasteFromClipboard(): void{
+        RxCore.pasteClipboard();
+    }
     
-
     public static changeTextColor(color: string): void {
         RxCore.changeTextColor(color);
     }

@@ -1,6 +1,5 @@
 @import "../../../../assets/scss/config.scss";
 
-
 .link-panel-container {
     padding: 0 12px 12px 12px;
     box-sizing: border-box;
@@ -21,29 +20,76 @@
     .templates-list {
         display: flex;
         flex-direction: column;
-        gap: 6px;
         max-width: 300px; 
         overflow: hidden;  
         text-overflow: ellipsis;  
         white-space: nowrap;
       }
-      
- 
 }
-.link-container{
-    margin: 5px; 
+
+.link-container {
+    display: flex; 
+    align-items: center;
+    margin-top: 15px;
     border: 1px solid #ccc; 
     border-radius: 5px; 
     overflow: hidden;  
 }
+
 .link-container img {
     display: block; 
     width: 100%; 
     height: auto; 
-  }
+}
 
-  #link-container{ 
+.delete-link-button {
+    width: 25px;
+    height: 25px;
+    border: none; 
+    background: none; 
+    cursor: pointer; 
+    padding: 0; 
+}
+
+#link-container{ 
     text-overflow: ellipsis; 
     white-space: nowrap;
     overflow: hidden; 
-  }
+}
+
+.add-custom-stamp { 
+    display: flex;
+    justify-content: center;
+    margin-top: 15px
+}
+
+.error-message {
+    font-size: 12px;
+    color: #D04437;
+}
+
+.link-input-container {
+    width: 400px; 
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    padding: 15px 24px;
+
+    .link-title {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 14px;
+    }
+
+    .link-input {
+        width: 100%; 
+        margin: 5px;
+    }
+
+    .link-hint {
+        font-size: 12px;
+        color: #666;
+        margin-top: 4px;
+    }
+}

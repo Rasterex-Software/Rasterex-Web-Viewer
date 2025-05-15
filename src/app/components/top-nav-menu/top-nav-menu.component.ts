@@ -69,7 +69,9 @@ export class TopNavMenuComponent implements OnInit {
     ) {
   }
 
-  
+  get isCompareDisabled(): boolean {
+    return !this.state?.activefile || this.state?.is3D || this.guiConfig.disableBurgerMenuCompare;
+  }
 
   private _setOptions(option: any = undefined): void {
     this.options = [
@@ -402,8 +404,6 @@ export class TopNavMenuComponent implements OnInit {
   } */
 
   openModalCompare(): void {
-    if (!this.state?.activefile || this.state?.is3D || this.guiConfig.disableBurgerMenuCompare) return;
-
     this.compareService.showCreateCompareModal();
     this.burgerOpened = false;
   }

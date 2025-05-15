@@ -33,6 +33,10 @@ export interface IMarkup {
     updateAttribute: (name: string, value: any) => void;
     GetAttributes: () => Array<any>;
     ClearAttributes: () => void;
-    getselected : () => boolean;
+    getselected: () => boolean;
     setdisplay: (flag: boolean) => void;
+    AddComment: (id: number, signature: string, value: string, timestamp: string) => void;
+    editComment: (id: number, value: string) => void;
+    deleteComment: (id: number) => void;
+    GetComments: () => Array<any>;
 }

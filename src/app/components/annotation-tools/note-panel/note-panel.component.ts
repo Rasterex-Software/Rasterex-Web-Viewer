@@ -561,7 +561,6 @@ export class NotePanelComponent implements OnInit {
       //item.author = item.title !== '' ? item.title : RXCore.getDisplayName(item.signature);
 
       item.author = RXCore.getDisplayName(item.signature);
-
       item.createdStr = dayjs(item.timestamp).format(`MMM D,${dayjs().year() != dayjs(item.timestamp).year() ? 'YYYY ': ''} h:mm A`);
       //item.IsExpanded = item?.IsExpanded;
       //item.IsExpanded = this.activeMarkupNumber > 0 ? item?.IsExpanded : false;
@@ -1138,24 +1137,17 @@ export class NotePanelComponent implements OnInit {
         this.noteIndex = -1;
       }
       else {
-        /*const commentsObj = {
-          id: markup.comments.length,
-          signature: markup.signature,
-          value: this.note[markup.markupnumber]
-        };*/
-
         let sign = RXCore.getSignature();
+        const timestamp = new Date().toISOString();
 
-        markup.AddComment(markup.comments.length, sign, this.note[markup.markupnumber]);
-        //markup.comments.push(commentsObj);
+        markup.AddComment(markup.comments.length, sign, this.note[markup.markupnumber], timestamp);
+        console.log(markup);
       }
-
-      
-
       this.note[markup.markupnumber] = "";
     }
-    else
+    else {
       return;
+    }
   }
 
 

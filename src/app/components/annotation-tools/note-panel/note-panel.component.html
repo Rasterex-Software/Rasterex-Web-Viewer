@@ -328,7 +328,7 @@
                             <div class="author">{{ itemNote.signature }}</div>
                             <div class="comments-date-count">
                               <div class="date-and-time">
-                                {{ item.createdStr }}
+                                {{ itemNote.timestamp | date:'MMM d, h:mm a' }}
                               </div>
                               <div
                                 class="comments-count"

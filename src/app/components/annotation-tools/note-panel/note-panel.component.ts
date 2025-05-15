@@ -1141,7 +1141,6 @@ export class NotePanelComponent implements OnInit {
         const timestamp = new Date().toISOString();
 
         markup.AddComment(markup.comments.length, sign, this.note[markup.markupnumber], timestamp);
-        console.log(markup);
       }
       this.note[markup.markupnumber] = "";
     }

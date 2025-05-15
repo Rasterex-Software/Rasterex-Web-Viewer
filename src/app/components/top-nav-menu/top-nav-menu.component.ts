@@ -13,7 +13,6 @@ import { SideNavMenuService } from '../side-nav-menu/side-nav-menu.service';
 import { MeasurePanelService } from '../annotation-tools/measure-panel/measure-panel.service';
 import { ActionType } from './type';
 
-
 @Component({
   selector: 'top-nav-menu',
   templateUrl: './top-nav-menu.component.html',
@@ -21,8 +20,8 @@ import { ActionType } from './type';
   host: {
     '(document:click)': 'handleClickOutside($event)',
     '(document:keydown)': 'handleKeyboardEvents($event)',
-    '(window:keydown.control.p)': 'handlePrint($event)'
-  }
+    '(window:keydown.control.p)': 'handlePrint($event)',
+  },
 })
 export class TopNavMenuComponent implements OnInit {
   @ViewChild('sidebar') sidebar: ElementRef;
@@ -42,22 +41,21 @@ export class TopNavMenuComponent implements OnInit {
   sidebarOpened: boolean = false;
   modalFileGaleryOpened$ = this.fileGaleryService.modalOpened$;
   isPrint: boolean = false;
-  isPDF : boolean = false;
+  isPDF: boolean = false;
   fileInfo: any = {};
   selectedValue: any;
-  options: Array<{ value: GuiMode, label: string, hidden?: boolean }> = [];
+  options: Array<{ value: GuiMode; label: string; hidden?: boolean }> = [];
   canChangeSign: boolean = false;
   disableImages: boolean = false;
   containLayers: boolean = false;
   containBlocks: boolean = false;
   isActionSelected: boolean = false;
-  actionType: ActionType = "None";
+  actionType: ActionType = 'None';
   private guiOnNoteSelected: Subscription;
   currentScaleValue: string;
   fileLength: number = 0;
   collabPanelOpened: boolean = false;
   private sidebarPanelActive: boolean = false;
-  
   constructor(
     private readonly fileGaleryService: FileGaleryService,
     private readonly rxCoreService: RxCoreService,
@@ -67,18 +65,32 @@ export class TopNavMenuComponent implements OnInit {
     private readonly service: TopNavMenuService,
     private readonly sideNavMenuService: SideNavMenuService,
     private readonly measurePanelService: MeasurePanelService
-    ) {
-  }
-
-  
+  ) {}
 
   private _setOptions(option: any = undefined): void {
     this.options = [
-      { value: GuiMode.View, label: "View" },
-      { value: GuiMode.Annotate, label: "Annotate", hidden: !this.guiConfig.canAnnotate },
-      { value: GuiMode.Measure, label: "Measure", hidden: !this.guiConfig.canAnnotate },
-      { value: GuiMode.Signature, label: "Signature", hidden: !(this.guiConfig.canSignature && this.canChangeSign) },
-      { value: GuiMode.Compare, label: "Revision", hidden: !this.guiConfig.canCompare || !this.compareService.isComparisonActive }
+      { value: GuiMode.View, label: 'View' },
+      {
+        value: GuiMode.Annotate,
+        label: 'Annotate',
+        hidden: !this.guiConfig.canAnnotate,
+      },
+      {
+        value: GuiMode.Measure,
+        label: 'Measure',
+        hidden: !this.guiConfig.canAnnotate,
+      },
+      {
+        value: GuiMode.Signature,
+        label: 'Signature',
+        hidden: !(this.guiConfig.canSignature && this.canChangeSign),
+      },
+      {
+        value: GuiMode.Compare,
+        label: 'Revision',
+        hidden:
+          !this.guiConfig.canCompare || !this.compareService.isComparisonActive,
+      },
     ];
 
     this.selectedValue = option ? option : this.options[0];
@@ -90,28 +102,29 @@ export class TopNavMenuComponent implements OnInit {
 
     this.rxCoreService.guiState$.subscribe((state) => {
       this.guiState = state;
-      this.canChangeSign = state.numpages && state.isPDF && RXCore.getCanChangeSign();
+      this.canChangeSign =
+        state.numpages && state.isPDF && RXCore.getCanChangeSign();
       this._setOptions();
 
       this.isPDF = state.isPDF;
 
       if (this.compareService.isComparisonActive) {
-        const value = this.options.find(option => option.value == "compare");
+        const value = this.options.find((option) => option.value == 'compare');
         if (value) {
           this.onModeChange(value, false);
         }
       }
     });
 
-    this.rxCoreService.guiMode$.subscribe(mode => {
+    this.rxCoreService.guiMode$.subscribe((mode) => {
       this.guiMode = mode;
-      const value = this.options.find(option => option.value == mode);
+      const value = this.options.find((option) => option.value == mode);
       if (value) {
         this.onModeChange(value, false);
       }
     });
 
-    this.rxCoreService.guiConfig$.subscribe(config => {
+    this.rxCoreService.guiConfig$.subscribe((config) => {
       this.guiConfig = config;
       this._setOptions(this.selectedValue);
     });
@@ -128,33 +141,32 @@ export class TopNavMenuComponent implements OnInit {
       this.containBlocks = blocks.length > 0;
     });
 
-    this.service.activeFile$.subscribe(file => {
-    })
+    this.service.activeFile$.subscribe((file) => {});
 
-    this.guiOnNoteSelected = this.rxCoreService.guiOnCommentSelect$.subscribe((value: boolean) => {
-
-      if (value !== undefined){
-        this.isActionSelected = value;
+    this.guiOnNoteSelected = this.rxCoreService.guiOnCommentSelect$.subscribe(
+      (value: boolean) => {
+        if (value !== undefined) {
+          this.isActionSelected = value;
+        }
       }
-     
-    });
+    );
 
-    this.annotationToolsService.notePanelState$.subscribe(state => {
-      if(state?.markupnumber !== undefined)
-      this.isActionSelected = state?.markupnumber;
+    this.annotationToolsService.notePanelState$.subscribe((state) => {
+      if (state?.markupnumber !== undefined)
+        this.isActionSelected = state?.markupnumber;
     });
 
     this.measurePanelService.measureScaleState$.subscribe((state) => {
-      if(state.visible && state.value) {
+      if (state.visible && state.value) {
         this.currentScaleValue = state.value;
       }
-      
-      if(state.visible === false) {
+
+      if (state.visible === false) {
         this.currentScaleValue = '';
       }
     });
 
-    this.service.fileLength$.subscribe(length => {
+    this.service.fileLength$.subscribe((length) => {
       this.fileLength = length;
     });
 
@@ -165,7 +177,6 @@ export class TopNavMenuComponent implements OnInit {
         this.sidebarPanelActive = false;
       }
     });
-
   }
 
   /* Listeners */
@@ -174,11 +185,17 @@ export class TopNavMenuComponent implements OnInit {
       this.moreOpened = false;
     }
 
-    if (this.burgerOpened && !this.burger.nativeElement.contains(event.target)) {
+    if (
+      this.burgerOpened &&
+      !this.burger.nativeElement.contains(event.target)
+    ) {
       this.burgerOpened = false;
     }
 
-    if (this.sidebarOpened && !this.sidebar.nativeElement.contains(event.target)) {
+    if (
+      this.sidebarOpened &&
+      !this.sidebar.nativeElement.contains(event.target)
+    ) {
       this.sidebarOpened = false;
     }
   }
@@ -222,7 +239,11 @@ export class TopNavMenuComponent implements OnInit {
     this.selectedValue = option;
     this.annotationToolsService.setSelectedOption(option);
 
-    if (option.value === 'annotate' || option.value === 'compare' || option.value === 'measure') {
+    if (
+      option.value === 'annotate' ||
+      option.value === 'compare' ||
+      option.value === 'measure'
+    ) {
       if (option.value === 'compare') {
         this.rxCoreService.setGuiConfig({
           canSignature: false,
@@ -256,11 +277,8 @@ export class TopNavMenuComponent implements OnInit {
           disableSignature: true,
           disableLinks: true,
           disableSymbol: true,
-
         });
       } else {
-
-
         if (this.compareService.isComparisonActive) {
           this.rxCoreService.setGuiConfig({
             canCompare: true,
@@ -295,10 +313,8 @@ export class TopNavMenuComponent implements OnInit {
             disableSignature: true,
             disableLinks: true,
             disableSymbol: true,
-
           });
         } else {
-
           if (option.value === 'measure') {
             this.rxCoreService.setGuiConfig({
               disableMarkupTextButton: true,
@@ -309,7 +325,7 @@ export class TopNavMenuComponent implements OnInit {
               //disableMarkupShapeEllipseButton: true,
               //disableMarkupShapeRoundedRectangleButton: true,
               //disableMarkupShapePolygonButton: true,
-              disableMarkupShapeButton : true,
+              disableMarkupShapeButton: true,
               disableMarkupStampButton: true,
               disableMarkupPaintButton: true,
               disableMarkupArrowButton: true,
@@ -319,21 +335,22 @@ export class TopNavMenuComponent implements OnInit {
               disableSignature: true,
               disableLinks: true,
               disableSymbol: true,
-
             });
             //const docObj = RXCore.printDoc();
 
-            if(RXCore.getDocScales() != undefined && RXCore.getDocScales().length === 0 ){
+            if (
+              RXCore.getDocScales() != undefined &&
+              RXCore.getDocScales().length === 0
+            ) {
               //this.scalesOptions = RXCore.getDocScales();
-              this.annotationToolsService.setMeasurePanelState({ visible: true }); 
+              this.annotationToolsService.setMeasurePanelState({
+                visible: true,
+              });
             }
-        
 
-            /*if(docObj && docObj.scalesOptions && docObj.scalesOptions.length === 0) 
+            /*if(docObj && docObj.scalesOptions && docObj.scalesOptions.length === 0)
               this.annotationToolsService.setMeasurePanelState({ visible: true }); */
-            
-  
-          } else if(option.value === 'annotate'){
+          } else if (option.value === 'annotate') {
             this.rxCoreService.setGuiConfig({
               disableMarkupTextButton: false,
               disableMarkupCalloutButton: false,
@@ -343,24 +360,19 @@ export class TopNavMenuComponent implements OnInit {
               //disableMarkupShapeEllipseButton: false,
               //disableMarkupShapeRoundedRectangleButton: false,
               //disableMarkupShapePolygonButton: false,
-              disableMarkupShapeButton : false,
+              disableMarkupShapeButton: false,
               disableMarkupStampButton: false,
               disableMarkupPaintButton: false,
               disableMarkupArrowButton: false,
               disableMarkupCountButton: true,
               disableMarkupMeasureButton: true,
-              disableImages: false, 
+              disableImages: false,
               disableLinks: false,
               disableSymbol: false,
-
             });
-
-          }else{
+          } else {
             this.rxCoreService.resetGuiConfig();
           }
-  
-
-          
         }
       }
 
@@ -374,24 +386,22 @@ export class TopNavMenuComponent implements OnInit {
       objectType: this.selectedValue.value,
     });
 
-
     if (broadcast) {
       this.rxCoreService.setGuiMode(option.value);
     }
   }
 
   openModalPrint() {
-    this.state?.activefile ? (this.isPrint = true, this.burgerOpened = false) : this.isPrint = false;
+    this.state?.activefile
+      ? ((this.isPrint = true), (this.burgerOpened = false))
+      : (this.isPrint = false);
 
-    if(this.isPrint){
-      document.documentElement.style.setProperty("--body-overflow", "visible");
+    if (this.isPrint) {
+      document.documentElement.style.setProperty('--body-overflow', 'visible');
     }
 
     //
-
   }
-
-  
 
   fileInfoDialog(): void {
     this.burgerOpened = false;
@@ -410,7 +420,12 @@ export class TopNavMenuComponent implements OnInit {
   } */
 
   openModalCompare(): void {
-    if (!this.state?.activefile || this.state?.is3D || this.guiConfig.disableBurgerMenuCompare) return;
+    if (
+      !this.state?.activefile ||
+      this.state?.is3D ||
+      this.guiConfig.disableBurgerMenuCompare
+    )
+      return;
 
     this.compareService.showCreateCompareModal();
     this.burgerOpened = false;
@@ -428,72 +443,101 @@ export class TopNavMenuComponent implements OnInit {
   onPDFUploadClick(): void {
     if (this.state?.activefile) {
       this.burgerOpened = false;
-      //RXCore.exportPDF();
-      RXCore.setDefultExportparams();
-      RXCore.uploadPDF();
-      //var szURL = "http://myserver.somedomain.com/mypdfhandlingapp?documentid";
-      //RXCore.uploadPDFCustom(szURL);
 
+      // Check for file modifications
+      const fileInfo = this.getSelectedFileWithModification();
+
+      // First set export parameters if needed
+      RXCore.setDefultExportparams();
+
+
+      // Create a subscription to handle the export completion event
+      const subscription = this.rxCoreService.guiOnExportComplete$.subscribe(
+        (exportedFileUrl) => {
+          if (exportedFileUrl) {
+            console.log("exportedFileUrl: ", exportedFileUrl)
+            // Convert the exported file URL to a File object for upload
+            fetch(exportedFileUrl)
+              .then((response) => response.blob())
+              .then((blob) => {
+                const fileName = fileInfo?.fileName || 'document.pdf';
+                const modifiedFile = new File([blob], fileName, {
+                  type: 'application/pdf',
+                });
+
+                // Upload the modified file
+                return RXCore.uploadFile(modifiedFile);
+              })
+              .then((response) => {
+                console.log("response: ", response)
+                console.log('File uploaded successfully');
+                // You can add a success notification here if needed
+              })
+              .catch((error) => {
+                console.error('Error in upload process:', error);
+              })
+              .finally(() => {
+                // Clean up subscription and reset uploading state
+                subscription.unsubscribe();
+              });
+          }
+        }
+      );
+
+      RXCore.uploadPDF();
     }
   }
 
-
-
-  onPDFDownloadClick():void{
+  onPDFDownloadClick(): void {
     if (this.state?.activefile) {
       this.burgerOpened = false;
-      
+
       RXCore.downloadPDF();
 
       //RXCore.exportPDF();
     }
-
   }
 
-
-  onSearchPanelSelect (): void {
-    this.onActionSelect("Search")
+  onSearchPanelSelect(): void {
+    this.onActionSelect('Search');
   }
 
-  onCommentPanelSelect (): void {
-    this.onActionSelect("Comment")
+  onCommentPanelSelect(): void {
+    this.onActionSelect('Comment');
   }
 
-  onCollabPanelSelect (): void {
+  onCollabPanelSelect(): void {
     this.collabPanelOpened = !this.collabPanelOpened;
   }
 
-
   onActionSelect(actionType: ActionType): void {
-    
-    if(this.actionType.includes(actionType)) {
-      this.isActionSelected = !this.isActionSelected
+    if (this.actionType.includes(actionType)) {
+      this.isActionSelected = !this.isActionSelected;
     } else {
       this.actionType = actionType;
-      this.isActionSelected = true
+      this.isActionSelected = true;
     }
 
-    console.log(actionType, this.isActionSelected)
+    console.log(actionType, this.isActionSelected);
 
-    if(actionType === "Comment"){
+    if (actionType === 'Comment') {
       this.annotationToolsService.setSearchPanelState({ visible: false });
-      this.annotationToolsService.setNotePanelState({ visible: this.isActionSelected && actionType === "Comment" });
+      this.annotationToolsService.setNotePanelState({
+        visible: this.isActionSelected && actionType === 'Comment',
+      });
     }
 
-    if(actionType === "Search"){
+    if (actionType === 'Search') {
       this.annotationToolsService.setNotePanelState({ visible: false });
-      this.annotationToolsService.setSearchPanelState({ visible: this.isActionSelected && actionType === "Search" });
+      this.annotationToolsService.setSearchPanelState({
+        visible: this.isActionSelected && actionType === 'Search',
+      });
     }
-
-    
-    
 
     setTimeout(() => {
-      //RXCore.doResize(false, 0, 0);      
+      //RXCore.doResize(false, 0, 0);
     }, 100);
-    
   }
-
 
   /* onActionSelect(): void {
 
@@ -514,34 +558,14 @@ export class TopNavMenuComponent implements OnInit {
 
 
     setTimeout(() => {
-      //RXCore.doResize(false, 0, 0);      
+      //RXCore.doResize(false, 0, 0);
     }, 100);
-    
+
   } */
 
-
   handleOpenSidebarMenu() {
-
     // This method is now only for opening the dropdown when multiple options are available
     this.sidebarOpened = !this.sidebarOpened;
-
-
-    /*const visibleItems = [
-      { index: 0, visible: !(this.guiConfig?.disableViewPages) },
-      { index: 5, visible: (this.guiConfig?.canSignature) && this.canChangeSign && this.guiMode == GuiMode.Signature },
-      { index: 3, visible: !(this.guiConfig?.disableViewVectorLayers) && (this.guiState?.is2D || this.guiState?.isPDF) && this.containLayers },
-      { index: 6, visible: !(this.guiConfig?.disableViewVectorLayers) && this.guiState?.is2D && this.containBlocks },
-      { index: 4, visible: !(this.guiConfig?.disableView3DParts) && this.guiState?.is3D }
-    ];*/
-
-    //const visibleCount = visibleItems.filter(option => option.visible).length;
-
-    /*if (visibleCount > 1) {
-      this.sidebarOpened = !this.sidebarOpened;
-    } else if (visibleCount === 1) {
-      const indexToOpen = visibleItems.find(item => item.visible);
-      this.handleSidebarOpen(indexToOpen?.index || 0);
-    }*/
   }
 
   handleDirectSidebarOpen() {
@@ -600,6 +624,9 @@ export class TopNavMenuComponent implements OnInit {
     return visibleItems.filter((item) => item.visible);
   }
 
+
+
+
   handleSidebarOpen(index: number): void {
     this.sideNavMenuService.toggleSidebar(index);
     this.sidebarOpened = false;
@@ -615,14 +642,12 @@ export class TopNavMenuComponent implements OnInit {
       opacity: 50,
       font: 4,
       rotation: 45,
-      flags : 2
+      flags: 2,
     });
 
     setTimeout(() => {
       RXCore.refreshThumbnails();
     }, 1000);
-
-
   }
 
   onRemoveWatermarkClick(): void {
@@ -631,14 +656,25 @@ export class TopNavMenuComponent implements OnInit {
     setTimeout(() => {
       RXCore.refreshThumbnails();
     }, 1000);
-
-
   }
 
-  
+  getSelectedFileWithModification(): any {
+    if (this.state?.activefile) {
+      // Get file info from state rather than just a boolean
+      const fileInfo = {
+        fileName: RXCore.getDocFileName(),
+        originalPath: RXCore.getOriginalPath(),
+        hasModifications: RXCore.markupChanged,
+        isPDF: this.isPDF,
+        fileIndex: this.state.activefileindex,
+      };
+
+      return fileInfo;
+    }
+    return null;
+  }
+
   ngOnDestroy(): void {
     this.guiOnNoteSelected.unsubscribe();
   }
-
-
 }

@@ -444,11 +444,48 @@ export class TopNavMenuComponent implements OnInit {
   onPDFUploadClick(): void {
     if (this.state?.activefile) {
       this.burgerOpened = false;
-      //RXCore.exportPDF();
+
+      // Check for file modifications
+      const fileInfo = this.getSelectedFileWithModification();
+
+      // First set export parameters if needed
       RXCore.setDefultExportparams();
+
+
+      // Create a subscription to handle the export completion event
+      const subscription = this.rxCoreService.guiOnExportComplete$.subscribe(
+        (exportedFileUrl) => {
+          if (exportedFileUrl) {
+            console.log("exportedFileUrl: ", exportedFileUrl)
+            // Convert the exported file URL to a File object for upload
+            fetch(exportedFileUrl)
+              .then((response) => response.blob())
+              .then((blob) => {
+                const fileName = fileInfo?.fileName || 'document.pdf';
+                const modifiedFile = new File([blob], fileName, {
+                  type: 'application/pdf',
+                });
+
+                // Upload the modified file
+                return RXCore.uploadFile(modifiedFile);
+              })
+              .then((response) => {
+                console.log("response: ", response)
+                console.log('File uploaded successfully');
+                // You can add a success notification here if needed
+              })
+              .catch((error) => {
+                console.error('Error in upload process:', error);
+              })
+              .finally(() => {
+                // Clean up subscription and reset uploading state
+                subscription.unsubscribe();
+              });
+          }
+        }
+      );
+
       RXCore.uploadPDF();
-      //var szURL = "http://myserver.somedomain.com/mypdfhandlingapp?documentid";
-      //RXCore.uploadPDFCustom(szURL);
     }
   }
 
@@ -617,6 +654,22 @@ export class TopNavMenuComponent implements OnInit {
     setTimeout(() => {
       RXCore.refreshThumbnails();
     }, 1000);
+  }
+
+  getSelectedFileWithModification(): any {
+    if (this.state?.activefile) {
+      // Get file info from state rather than just a boolean
+      const fileInfo = {
+        fileName: RXCore.getDocFileName(),
+        originalPath: RXCore.getOriginalPath(),
+        hasModifications: RXCore.markupChanged,
+        isPDF: this.isPDF,
+        fileIndex: this.state.activefileindex,
+      };
+
+      return fileInfo;
+    }
+    return null;
   }
 
   ngOnDestroy(): void {

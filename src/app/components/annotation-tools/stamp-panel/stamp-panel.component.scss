@@ -7,6 +7,7 @@
 
   section {
     width: 285px;
+
     h4 {
       margin: 12px 0;
       color: #a4abae;
@@ -23,12 +24,17 @@
     align-items: center;
     overflow-y: scroll;
     height: 465px;
+
     div {
       margin-top: 5px;
       padding: 3px 0;
       border: 1px solid #eee;
       border-radius: 4px;
     }
+  }
+
+  .stamp-draggable-image {
+    height: 75px;
   }
 
   .add-custom-stamp {
@@ -161,6 +167,7 @@
   justify-content: flex-end;
   margin-top: 20px;
 }
+
 /*#tabs{
 }*/
 .file-upload {
@@ -168,5 +175,5 @@
 }
 
 //.add-custom-stamp {
-  // Your styling here
+// Your styling here
 //}

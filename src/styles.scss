@@ -475,7 +475,6 @@ color-chrome {
         padding: 8px 10px;
         position: absolute;
         z-index: 1;
-        transition: opacity 0.5s ease-in-out, visibility 0.1s linear 0.5s;
 
         &::after {
             content: "";

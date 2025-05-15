@@ -42,7 +42,7 @@ var RxConfig = (function() {
     var uploadfolderURL = baseURLWeb + "Upload/";
     var htmlviewerurl = baseURLWeb + "default.htm";
     var splashscreen = baseURL + "rxweb/welcome.jpg";
-    var noteImgSrc = baseURL + "rxweb/images/note.png";
+    var noteImgSrc = baseURL + "assets/images/note.png";
     var PDFcmap = baseURLWeb + "pdfjs/web/cmaps/";
 
     var baseFileURL = "E:\\\\Rasterex\\\\Upload\\\\";

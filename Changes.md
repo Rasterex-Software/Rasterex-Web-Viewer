@@ -1,3 +1,18 @@
+May 15, 2025
+
+### 1. Minor changes and corrections to hamburger menu.
+
+Updated and new files
+
+src\app\components\top-nav-menu\top-nav-menu.component.html
+src\app\components\top-nav-menu\top-nav-menu.component.scss
+src\app\components\top-nav-menu\top-nav-menu.component.ts
+src\assets\scripts\rxconfig.js
+src\assets\config\UIConfig.js
+
+
+
+
 May 14, 2025
 
 ### 1. Fixed a problem with drawing display when having PDF and other formats open at the same time.

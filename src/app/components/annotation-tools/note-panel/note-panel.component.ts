@@ -149,26 +149,6 @@ export class NotePanelComponent implements OnInit {
       dayjs.extend(updateLocale);
       dayjs.extend(isSameOrAfter);
       dayjs.extend(isSameOrBefore);
-      dayjs.updateLocale('en', {
-        relativeTime: {
-          past: "%s",
-          s: 'A few seconds ago',
-          m: "A minute ago",
-          mm: function (number) {
-            return number > 10 ? `${number} minutes ago` : "A few minutes ago";
-          },
-          h: "An hour ago",
-          hh:"Today",
-          d: "Yesterday",
-          dd: function (number) {
-            return number > 1 ? `${number} days ago` : "Yesterday";
-          },
-          M: "A month ago",
-          MM: "%d months ago",
-          y: "A year ago",
-          yy: "%d years ago"
-        }
-      });
     }
 
   private _showLeaderLine(markup: IMarkup): void {
@@ -812,13 +792,28 @@ export class NotePanelComponent implements OnInit {
 
     this.guiConfig$.subscribe(config => {
       this.guiConfig = config;
-
-      
-
-    
-      //const result = words.filter((word) => word.length > 6);
-    
-
+      if (config?.dateFormat?.locale) {
+        dayjs.updateLocale(config?.dateFormat?.locale, {
+          relativeTime: {
+            past: "%s",
+            s: 'A few seconds ago',
+            m: "A minute ago",
+            mm: function (number) {
+              return number > 10 ? `${number} minutes ago` : "A few minutes ago";
+            },
+            h: "An hour ago",
+            hh:"Today",
+            d: "Yesterday",
+            dd: function (number) {
+              return number > 1 ? `${number} days ago` : "Yesterday";
+            },
+            M: "A month ago",
+            MM: "%d months ago",
+            y: "A year ago",
+            yy: "%d years ago"
+          }
+        });
+      }
 
       this.showAnnotationsOnLoad = this.guiConfig.showAnnotationsOnLoad;
 

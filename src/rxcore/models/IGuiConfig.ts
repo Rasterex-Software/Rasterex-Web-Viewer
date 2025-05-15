@@ -1,3 +1,5 @@
+import { IGuiDateFormat } from './IGuiDateFormat';
+
 export interface IGuiConfig {
     canAnnotate?: boolean;
     canConsolidate?: boolean;
@@ -78,5 +80,5 @@ export interface IGuiConfig {
     
     /*  */
     logoUrl?: string;
+    dateFormat?: IGuiDateFormat;
 }
-

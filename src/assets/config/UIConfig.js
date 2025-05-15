@@ -23,8 +23,17 @@ var UIConfig = (function() {
                 "localStoreAnnotation": true,
                 "disable2DVectorInfoButton" : false,
                 "watermarkdemo" : false,
-                "logoUrl": "/assets/images/logo.svg"
-            
+                "logoUrl": "/assets/images/logo.svg",
+                "dateFormat": {
+                    "locale": "en",
+                    "shortDate": "MMM d, yyyy",
+                    "longDate": "MMMM d, yyyy",
+                    "time": "h:mm a",
+                    "month": "MMM",
+                    "dateTime": "MMM d, yyyy h:mm a",
+                    "dateTimeWithoutYear": "MMM d, h:mm a",
+                    "dateMonthYear": "DD/MM/YYYY",
+                }
         },
         "UIStyles" : [
             

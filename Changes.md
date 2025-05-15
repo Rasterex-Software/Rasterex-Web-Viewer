@@ -1,7 +1,33 @@
+May 15, 2025
+
+### 1. Minor changes and corrections to hamburger menu.
+
+Updated and new files
+
+src\app\components\top-nav-menu\top-nav-menu.component.html
+src\app\components\top-nav-menu\top-nav-menu.component.scss
+src\app\components\top-nav-menu\top-nav-menu.component.ts
+src\assets\scripts\rxconfig.js
+src\assets\config\UIConfig.js
+
+
+
+
+May 14, 2025
+
+### 1. Fixed a problem with drawing display when having PDF and other formats open at the same time.
+
+
+RxCore version is now 35.9.
+
+Updated and new files
+
+src\assets\scripts\rxcorefunctions.js
+
 
 May 9, 2025
 
-### 1. When the block has no attributes, add the "(No Attribute)" mark after the block name in the tooltip.
+### 1. When the block has attributes, add the "(Attribute yes)" mark under the block name in the tooltip.
 
 
 RxCore version is now 35.89.

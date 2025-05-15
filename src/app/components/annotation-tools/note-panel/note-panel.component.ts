@@ -767,7 +767,7 @@ export class NotePanelComponent implements OnInit {
     this.rxCoreService.guiOnResize$.subscribe(() => {
 
       RXCore.redrawCurrentPage();
-      
+
 
     });
 
@@ -1748,11 +1748,6 @@ export class NotePanelComponent implements OnInit {
   zoomTo(markup : any){
     
     let padding = {x : 30, y : 30, w : 150, h : 150};
-
-    //hscaled = hscaled + padding.h;
-    //wscaled = wscaled + padding.w;
-    //xscaled = xscaled - padding.x;
-    //yscaled = yscaled - padding.y;
 
     
     markup.zoomTo(padding);

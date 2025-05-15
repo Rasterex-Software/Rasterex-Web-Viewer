@@ -56,7 +56,6 @@ export class TopNavMenuComponent implements OnInit {
   fileLength: number = 0;
   collabPanelOpened: boolean = false;
   private sidebarPanelActive: boolean = false;
-
   constructor(
     private readonly fileGaleryService: FileGaleryService,
     private readonly rxCoreService: RxCoreService,
@@ -624,6 +623,9 @@ export class TopNavMenuComponent implements OnInit {
 
     return visibleItems.filter((item) => item.visible);
   }
+
+
+
 
   handleSidebarOpen(index: number): void {
     this.sideNavMenuService.toggleSidebar(index);

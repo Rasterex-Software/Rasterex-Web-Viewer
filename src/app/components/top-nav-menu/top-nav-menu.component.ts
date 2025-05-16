@@ -64,7 +64,8 @@ export class TopNavMenuComponent implements OnInit {
     private readonly compareService: CompareService,
     private readonly service: TopNavMenuService,
     private readonly sideNavMenuService: SideNavMenuService,
-    private readonly measurePanelService: MeasurePanelService
+    private readonly measurePanelService: MeasurePanelService,
+    private readonly sidebarStateService: RxCoreService
   ) {}
 
   private _setOptions(option: any = undefined): void {
@@ -450,12 +451,10 @@ export class TopNavMenuComponent implements OnInit {
       // First set export parameters if needed
       RXCore.setDefultExportparams();
 
-
       // Create a subscription to handle the export completion event
       const subscription = this.rxCoreService.guiOnExportComplete$.subscribe(
         (exportedFileUrl) => {
           if (exportedFileUrl) {
-            console.log("exportedFileUrl: ", exportedFileUrl)
             // Convert the exported file URL to a File object for upload
             fetch(exportedFileUrl)
               .then((response) => response.blob())
@@ -469,7 +468,6 @@ export class TopNavMenuComponent implements OnInit {
                 return RXCore.uploadFile(modifiedFile);
               })
               .then((response) => {
-                console.log("response: ", response)
                 console.log('File uploaded successfully');
                 // You can add a success notification here if needed
               })
@@ -573,6 +571,7 @@ export class TopNavMenuComponent implements OnInit {
     const visibleItem = this.getVisibleSidebarItem();
     if (visibleItem) {
       this.sidebarPanelActive = !this.sidebarPanelActive;
+      this.sidebarStateService.setSidebarState(this.sidebarPanelActive);
       this.sideNavMenuService.toggleSidebar(visibleItem.index);
     }
   }

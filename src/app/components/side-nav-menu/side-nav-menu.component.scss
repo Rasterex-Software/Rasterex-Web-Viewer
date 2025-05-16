@@ -14,7 +14,7 @@
         position: absolute;
         z-index: 1;
         box-sizing: border-box;
-        overflow-x: hidden;
+        // overflow-x: hidden;
 
         ul {
             list-style: none;
@@ -118,7 +118,7 @@
         background-color: $side-nav-panel-background;
         box-shadow: 0px 0px 7px 2px #48484814;
         transition: left 0.3s ease-in-out;
-        overflow-x: hidden;
+        // overflow-x: hidden;
 
         &.opened {
             left: 0;
@@ -156,8 +156,9 @@
         }
 
         .toggleable-panel-body {
+            // min-height: 100%;
             height: calc(100% - 42px);
-            overflow-y: scroll;
+            // overflow-y: scroll;
             scrollbar-width: thin;
 
         }

@@ -82,14 +82,14 @@
                 box-sizing: border-box;
                 outline: none;
                 transition: 0.3s;
-        
+
                 &:focus {
                     border-color: $main;
 
 
 
                 }
-        
+
                 &::placeholder {
 
                     color: #A4ABAE;
@@ -113,7 +113,7 @@
 
         .pages-list {
             overflow: auto;
-            max-height: calc(100vh - 228px);
+            max-height: calc(100vh - 266px);
             display: flex;
             align-items: flex-start;
             justify-content: space-evenly;
@@ -233,7 +233,7 @@
         .bookmarks-empty {
             display: flex;
             justify-content: center;
-            height: calc(100vh - 228px);
+            height: calc(100vh - 266px);
 
             p {
                 text-align: center;

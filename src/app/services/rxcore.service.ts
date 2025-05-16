@@ -16,9 +16,12 @@ import { IVectorLayer } from 'src/rxcore/models/IVectorLayer';
   providedIn: 'root'
 })
 export class RxCoreService {
+  private sidebarState = new BehaviorSubject<boolean>(false);
+  sidebarState$ = this.sidebarState.asObservable();
+
   constructor() {
 
-    
+
     this._defaultGuiConfig = {
       canFileOpen: true,
       canSaveFile: true,
@@ -32,10 +35,10 @@ export class RxCoreService {
       logoUrl: "/assets/images/logo.svg"
     };
 
-    
+
     //import { RXCore } from 'src/rxcore';
 
-    //this._defaultGuiConfig = UIConfigData.UIConfig; 
+    //this._defaultGuiConfig = UIConfigData.UIConfig;
 
     this._defaultGuiConfig = RXCore.ViewUIConfig.UIConfig;
 
@@ -45,14 +48,14 @@ export class RxCoreService {
 
     this.setguidemofiles(RXCore.ViewUIConfig.demofiles);
 
-    
+
 
   }
 
 
 
   private _defaultGuiConfig: IGuiConfig;
-  
+
   private _guiConfig: BehaviorSubject<IGuiConfig> = new BehaviorSubject<IGuiConfig>({});
   public guiConfig$: Observable<IGuiConfig> = this._guiConfig.asObservable();
   public setGuiConfig(config: IGuiConfig, replaceDefault: boolean = false): void {
@@ -139,7 +142,7 @@ export class RxCoreService {
     this._guiMarkupUnselect.next(markup);
   }
 
-  
+
   /*private _guiRotatePage: Subject<{degree: number, pageIndex: number}> = new Subject<{degree: number, pageIndex: number}>();
   guiRotatePage$: Observable<{degree: number, pageIndex: number}> = this._guiRotatePage.asObservable();
   public setGuiRotatePage(degree: number, pageIndex: number): void {
@@ -302,7 +305,7 @@ export class RxCoreService {
 
 
   /*bugfix 2 commentlist*/
-  
+
   private _guiOnCommentSelect: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   guiOnCommentSelect$: Observable<boolean> = this._guiOnCommentSelect.asObservable();
   public setCommentSelected(isselected: boolean): void {
@@ -315,7 +318,7 @@ export class RxCoreService {
     this._resetLeaderLine.next(isReset);
   }
 
-  
+
   public getCommentSelected(): boolean {
     return this._guiOnCommentSelect.getValue();
   }
@@ -323,7 +326,7 @@ export class RxCoreService {
 
   private _guiMarkupMeasureRealTimeData: Subject<{markup: IMarkup | -1}> = new Subject<{markup: IMarkup | -1}>();
   guiMarkupMeasureRealTimeData$: Observable<{markup: IMarkup | -1}> = this._guiMarkupMeasureRealTimeData.asObservable();
-  public setGuiMarkupMeasureRealTimeData(markup): void {  
+  public setGuiMarkupMeasureRealTimeData(markup): void {
     this._lastGuiMarkupMeasureRealTimeData = {markup};
     this._guiMarkupMeasureRealTimeData.next({markup});
   }
@@ -347,6 +350,16 @@ export class RxCoreService {
 
   setGuiCalibrate(data: any) {
     this.guiCalibrateSubject.next(data);
+  }
+
+
+    setSidebarState(state: boolean) {
+    console.log('SidebarStateService: Setting state to:', state);
+    this.sidebarState.next(state);
+  }
+
+  getSidebarState(): boolean {
+    return this.sidebarState.value;
   }
 
 

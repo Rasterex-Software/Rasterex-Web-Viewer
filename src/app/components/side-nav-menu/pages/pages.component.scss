@@ -23,7 +23,7 @@
                 color: $main;
             }
 
-            input[type="text"] {
+            input[type="text"], input[type="number"] {
                 background: transparent;
                 border: 1px solid #EDF1F2;
                 border-radius: 4px;
@@ -42,7 +42,22 @@
                 &::placeholder {
                     color: #A4ABAE;
                 }
+
+
+
             }
+
+            input[type="number"] {
+                appearance:textfield;
+                -moz-appearance:textfield;
+                &::-webkit-outer-spin-button,
+                &::-webkit-inner-spin-button {
+                    -webkit-appearance: none;
+                    margin: 0;
+                }
+            }
+
+
         }
 
         .scale-section {

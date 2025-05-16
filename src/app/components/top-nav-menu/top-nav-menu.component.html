@@ -1,12 +1,12 @@
 <nav class="top-nav-menu">
   <img
-    *ngIf="(guiConfig$ | async).logoUrl"
+    *ngIf="guiConfig.logoUrl"
     class="top-nav-item logo"
     alt="Rasterex Logo"
-    [src]="(guiConfig$ | async).logoUrl"
+    [src]="guiConfig.logoUrl"
   />
 
-  <div *ngIf="(guiConfig$ | async).canLogin" class="top-nav-item user-info">
+  <div *ngIf="guiConfig.canLogin" class="top-nav-item user-info">
     <rx-login></rx-login>
   </div>
 
@@ -60,7 +60,7 @@
       <div class="options-wrapper" style="right: unset; left: -32px">
         <ul class="options" role="listbox" aria-expanded="false">
           <li
-            *ngIf="!(guiConfig$ | async).disableViewPages"
+            *ngIf="!guiConfig.disableViewPages"  
             role="option"
             tabindex="0"
             (click)="handleSidebarOpen(0)"
@@ -114,9 +114,9 @@
           </li>
           <li
             *ngIf="
-              (guiConfig$ | async).canSignature &&
+              guiConfig.canSignature &&
               canChangeSign &&
-              (guiMode$ | async) == GuiMode.Signature
+              guiMode == GuiMode.Signature
             "
             role="option"
             tabindex="0"
@@ -170,8 +170,8 @@
           </li>
           <li
             *ngIf="
-              !(guiConfig$ | async).disableViewVectorLayers &&
-              ((guiState$ | async).is2D || (guiState$ | async).isPDF) &&
+              !guiConfig.disableViewVectorLayers &&
+              (guiState.is2D || guiState.isPDF) &&
               containLayers
             "
             role="option"
@@ -196,8 +196,8 @@
           </li>
           <li
             *ngIf="
-              !(guiConfig$ | async).disableViewVectorLayers &&
-              (guiState$ | async).is2D &&
+              !guiConfig.disableViewVectorLayers &&
+              guiState.is2D &&
               containBlocks
             "
             role="option"
@@ -221,8 +221,8 @@
           </li>
           <li
             *ngIf="
-              !(guiConfig$ | async).disableView3DParts &&
-              (guiState$ | async).is3D
+              !guiConfig.disableView3DParts &&
+              guiState.is3D
             "
             role="option"
             tabindex="0"
@@ -248,8 +248,8 @@
       </div>
     </div>
   </div>
-  <div class="top-nav-item button burger" #burger>
-    <div
+  <div class="top-nav-item button burger" *ngIf="fileLength > 0" #burger>
+      <div
       class="dropdown"
       [class.opened]="burgerOpened"
       (click)="burgerOpened = !burgerOpened"
@@ -279,7 +279,7 @@
       <div class="options-wrapper" style="right: unset; left: -32px">
         <ul class="options" role="listbox" aria-expanded="false">
           <li
-            *ngIf="(guiConfig$ | async).canFileOpen"
+            *ngIf="guiConfig.canFileOpen"
             role="option"
             tabindex="0"
             (click)="handleOpenFile()"
@@ -299,7 +299,7 @@
             <span>Open</span>
           </li>
           <li
-            *ngIf="(guiConfig$ | async).canSaveFile"
+            *ngIf="guiConfig.canSaveFile"
             role="option"
             tabindex="0"
             (click)="handleSaveFile()"
@@ -326,7 +326,7 @@
                     </li> -->
 
           <li
-            *ngIf="(guiConfig$ | async).canExport"
+            *ngIf="guiConfig.canExport"
             (click)="onExportClick()"
             role="option"
             tabindex="0"
@@ -351,7 +351,7 @@
           </li>
 
           <li
-            *ngIf="(guiConfig$ | async).canExport && isPDF"
+            *ngIf="guiConfig.canExport && isPDF"
             (click)="onPDFDownloadClick()"
             role="option"
             tabindex="0"
@@ -391,7 +391,7 @@
           </li>
 
           <li
-            *ngIf="(guiConfig$ | async).canExport && isPDF"
+            *ngIf="guiConfig.canExport && isPDF"
             (click)="onPDFUploadClick()"
             role="option"
             tabindex="0"
@@ -427,7 +427,7 @@
           </li>
 
           <li
-            *ngIf="(guiConfig$ | async).canPrint"
+            *ngIf="guiConfig.canPrint"
             role="option"
             tabindex="0"
             (click)="openModalPrint()"
@@ -501,9 +501,12 @@
             <span class="print-text">Print</span>
           </li>
           <li
+
+
+
             *ngIf="
-              (guiConfig$ | async).canCompare &&
-              !(guiConfig$ | async).disableBurgerMenuCompare
+              guiConfig.canCompare &&
+              !guiConfig.disableBurgerMenuCompare
             "
             role="option"
             tabindex="0"
@@ -553,7 +556,7 @@
             </div>
             <span class="compare-text">Compare</span>
           </li>
-          <ng-container *ngIf="(guiConfig$ | async).canGetFileInfo">
+          <ng-container *ngIf="guiConfig.canGetFileInfo">
             <li class="separator"></li>
             <li role="option" tabindex="0" (click)="fileInfoDialog()">
               <svg
@@ -605,7 +608,7 @@
   </div>
 
   <div
-    *ngIf="(guiConfig$ | async).watermarkdemo"
+    *ngIf="guiConfig.watermarkdemo"
     class="top-nav-item watermark"
   >
     <button (click)="onWatermarkClick()">Add Watermark</button>
@@ -671,7 +674,7 @@
     <!-- <span class="tooltip-text tooltip-bottom">Comments</span> -->
   </div>
   <div
-    *ngIf="(guiConfig$ | async).canCollaborate && fileLength > 0"
+    *ngIf="guiConfig.canCollaborate && fileLength > 0"
     [ngClass]="{ selected: collabPanelOpened }"
     class="tooltip collab-icon"
     (click)="onCollabPanelSelect()"

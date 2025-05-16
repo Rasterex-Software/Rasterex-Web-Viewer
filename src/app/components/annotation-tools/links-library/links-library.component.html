@@ -1,54 +1,48 @@
 <rx-panel [title]="'Links and Attachments'" (onClose)="onPanelClose()">
-    <div class="link-panel-container">
-      <!-- Tab Buttons -->
-      <div class="btn-group" role="group">
+  <div class="link-panel-container">
+
+    <section>
+      <div class="templates-list">
+        <div *ngFor="let template of links; let i = index" id="link-container" class="link-container">
+          <img
+          [linkTemplate]="template"
+          [src]="template.src"
+          [ngStyle]="{ 'width.px': template.width, 'height.px': template.height }" />
+          <button (click)="deleteLink(i)" class="delete-link-button">
+            <img src="/assets/images/trash-ico.svg" />
+          </button>
+        </div> 
       </div>
-      <section >
-        <div class="templates-list">
-          <div *ngFor="let template of links; let i = index" style="display: flex; align-items: center;" id="link-container" class="link-container">
-    
-            <img
-            [linkTemplate]="template"
-            [src]="template.src"
-            [ngStyle]="{ 'width.px': template.width, 'height.px': template.height }" />
-            <button (click)="deleteLink(i)" style="border: none; background: none; cursor: pointer; padding: 0; margin-left: 8px;">
-              <img src="/assets/images/trash-ico.svg" />
-            </button>
-          </div> 
-     
-        </div>
-     
-      </section>
-      <div class="add-custom-stamp">
-        <button class="btn btn-primary" (click)="opened = true">Add Links</button>
-      </div>
-      
+    </section>
+
+    <div class="add-custom-stamp">
+      <button class="btn btn-primary" (click)="opened = true">Add Links</button>
     </div>
-  </rx-panel>
+  </div>
+</rx-panel>
 
-
-  <rx-modal-dialog [opened]="opened" (onClose)="opened = false">
-    <div class="confirm-modal-container" style="max-width: fit-content;">
-      <div class="rx-modal-dialog-header">
-        <img (click)="opened = false;" class="close" style="right: 14px; top: 10px;" src="/assets/images/close-modal-ico.svg" />
-        <span class="title">Add Links</span>
-      </div>
-      <!-- Preview -->
-      <div class="body" style="width: 364px; box-sizing: border-box;">
-        <div role="group">
+<rx-modal-dialog [opened]="opened" (onClose)="opened = false">
+  <div class="confirm-modal-container" style="max-width: fit-content;">
+    <div class="rx-modal-dialog-header">
+      <img (click)="opened = false;" class="close" style="right: 14px; top: 10px;" src="/assets/images/close-modal-ico.svg" />
+      <span class="title">Add Links</span>
+    </div>
+    <div class="body link-input-container">
+      <div role="group">
+        <div class="link-title">
           <label for="link">Add Link Here:</label>
-          <div style="width: 100%; margin: 5px;">
-            <input id="link" type="text" [(ngModel)]="link" style="width: 90%;" />
-          </div>
-          <!-- Error message for invalid link -->
-          <div *ngIf="!isValidLink()" class="error-message" style="color: red;">Please add a valid link.</div>
+        </div>
+        <div class="link-input">
+          <input id="link" type="text" [(ngModel)]="link" />
+          <span class="link-hint">Please enter a valid URL starting with <code>http://</code> or <code>https://</code></span>
         </div>
       </div>
-      <div class="footer">
-        <button (click)="opened = false;" class="btn btn-light">CANCEL</button>
-        <button class="btn btn-primary" (click)="addLink($event)">SAVE</button>
-      </div>
     </div>
-  </rx-modal-dialog>
+    <div class="footer">
+      <button (click)="opened = false;" class="btn btn-light">CANCEL</button>
+      <button type="button" class="btn btn-primary" (click)="addLink($event)" [disabled]="!isValidLink">SAVE</button>
+    </div>
+  </div>
+</rx-modal-dialog>
   
   

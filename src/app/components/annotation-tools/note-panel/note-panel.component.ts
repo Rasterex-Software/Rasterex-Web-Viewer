@@ -9,7 +9,7 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 import updateLocale from 'dayjs/plugin/updateLocale';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
-import { Subscription } from 'rxjs';
+import { distinctUntilChanged, Subscription } from 'rxjs';
 import { IGuiConfig } from 'src/rxcore/models/IGuiConfig';
 
 declare var LeaderLine: any;
@@ -221,7 +221,6 @@ export class NotePanelComponent implements OnInit {
 
   }
     
-  
   private _getmarkupTypeDisplay(markup): boolean | undefined{
 
     let showtype : boolean = false;
@@ -266,7 +265,6 @@ export class NotePanelComponent implements OnInit {
 
   }
 
-
   private _updateRxFilter(){
 
     this.rxTypeFilter = [];
@@ -293,15 +291,9 @@ export class NotePanelComponent implements OnInit {
   }
 
   private _setloadedtypeFilterOff(){
-
     for(let mi=0; mi < this.rxTypeFilter.length;mi++){
-
       this.rxTypeFilter[mi].loaded = false;
-
-
     }
-
-
   }
 
   private _setloadedtypeFilter(annot){
@@ -313,36 +305,22 @@ export class NotePanelComponent implements OnInit {
     //labelType.label = "Freehand pen";
     //labelType.type = 'PEN';
 
-    if(Array.isArray(markuptype.type)){
-      
+    if (Array.isArray(markuptype.type)) {
       typename = markuptype.type[1];
-
     }
 
     for(let mi=0; mi < this.rxTypeFilter.length;mi++){
-
-
       if(this.rxTypeFilter[mi].typename === typename){
         //this.rxTypeFilter[mi].show = onoff;
         this.rxTypeFilter[mi].loaded = true;
         this.rxTypeFilter[mi].show = annot.display;
       }
-
-
-
       //this.rxTypeFilter[mi].loaded = false;
 
       /*if(this.rxTypeFilter[mi].type == annot.type && this.rxTypeFilter[mi].subtype == annot.subtype){
 
       }*/
-
-      
-
     }
-
-    
-
-
   }
 
   private scrollToAnnotItem(annotitem: any, showleader : boolean) {
@@ -402,6 +380,7 @@ export class NotePanelComponent implements OnInit {
     /*modified for comment list panel */
 
     const mergeList = [...list, ...annotList];
+
     const query = mergeList.filter((i: any) => {
       // Check if markup is a measurement type
       /*if(i.type === MARKUP_TYPES.MEASURE.LENGTH.type ||
@@ -412,7 +391,6 @@ export class NotePanelComponent implements OnInit {
         (i.type === MARKUP_TYPES.MEASURE.RECTANGLE.type &&
           i.subtype === MARKUP_TYPES.MEASURE.RECTANGLE.subType))
           return this.showMeasurements;*/
-
 
           return this._getmarkupTypeDisplay(i);
           
@@ -571,6 +549,8 @@ export class NotePanelComponent implements OnInit {
       }
     });
 
+
+
     switch (this.sortByField) {
       case 'created':
         this.list = query.reduce((list, item) => {
@@ -632,7 +612,6 @@ export class NotePanelComponent implements OnInit {
       default:
         this.list = {'': query};
     }
-
 
     /*if (this.sortByField == 'created') {
       this.list = query.reduce((list, item) => {
@@ -744,13 +723,8 @@ export class NotePanelComponent implements OnInit {
     });
 
     this.rxCoreService.guiOnResize$.subscribe(() => {
-
       RXCore.redrawCurrentPage();
-
-
     });
-
-
 
     this.annotationToolsService.selectedOption$.subscribe(option => {
       
@@ -781,7 +755,6 @@ export class NotePanelComponent implements OnInit {
       
     });
 
-
     /*this.guiConfig$.subscribe(config => {
       this.guiConfig = config;
       this.convertPDFAnnots = this.guiConfig.convertPDFAnnots;
@@ -789,57 +762,50 @@ export class NotePanelComponent implements OnInit {
 
     });*/
 
+    this.guiConfig$
+      .pipe(distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)))
+      .subscribe(config => {
+        this.guiConfig = config;
+        if (config?.dateFormat?.locale) {
+          dayjs.updateLocale(config?.dateFormat?.locale, {
+            relativeTime: {
+              past: "%s",
+              s: 'A few seconds ago',
+              m: "A minute ago",
+              mm: function (number) {
+                return number > 10 ? `${number} minutes ago` : "A few minutes ago";
+              },
+              h: "An hour ago",
+              hh:"Today",
+              d: "Yesterday",
+              dd: function (number) {
+                return number > 1 ? `${number} days ago` : "Yesterday";
+              },
+              M: "A month ago",
+              MM: "%d months ago",
+              y: "A year ago",
+              yy: "%d years ago"
+            }
+          });
+        }
 
-    this.guiConfig$.subscribe(config => {
-      this.guiConfig = config;
-      if (config?.dateFormat?.locale) {
-        dayjs.updateLocale(config?.dateFormat?.locale, {
-          relativeTime: {
-            past: "%s",
-            s: 'A few seconds ago',
-            m: "A minute ago",
-            mm: function (number) {
-              return number > 10 ? `${number} minutes ago` : "A few minutes ago";
-            },
-            h: "An hour ago",
-            hh:"Today",
-            d: "Yesterday",
-            dd: function (number) {
-              return number > 1 ? `${number} days ago` : "Yesterday";
-            },
-            M: "A month ago",
-            MM: "%d months ago",
-            y: "A year ago",
-            yy: "%d years ago"
-          }
-        });
-      }
-
-      this.showAnnotationsOnLoad = this.guiConfig.showAnnotationsOnLoad;
-
-      this.showAnnotations = this.showAnnotationsOnLoad;
-      this.showMeasurements = this.showAnnotationsOnLoad;
-      this.showAll = this.showAnnotationsOnLoad;
-
-
-      
-
-
-    });
+        this.showAnnotationsOnLoad = this.guiConfig.showAnnotationsOnLoad;
+        
+        this.showAnnotations = this.showAnnotationsOnLoad;
+        this.showMeasurements = this.showAnnotationsOnLoad;
+        this.showAll = this.showAnnotationsOnLoad;
+      });
 
 
     this.guiZoomUpdated$.subscribe(({params, zoomtype}) => {
       if(zoomtype == 0 || zoomtype == 1){
         this._hideLeaderLine();
       }
-
     });
       
     this.guiRotatePage$.subscribe(({degree, pageIndex}) => {
-
         //this.pageNumber = pageIndex;
         this.pageRotation = degree;
-
     });
 
     /*this.rxCoreService.guiRotatePage$.subscribe((degree,  pageIndex) => {
@@ -860,8 +826,6 @@ export class NotePanelComponent implements OnInit {
       }
 
     });*/
-
-
 
     this.rxCoreService.guiMarkupList$.subscribe((list = []) => {
       this.createdByFilter = new Set();
@@ -980,7 +944,6 @@ export class NotePanelComponent implements OnInit {
       this._processList(this.rxCoreService.getGuiMarkupList(), list);
     });
 
-
     this.rxCoreService.guiPage$.subscribe((state) => {
       //this.currentPage = state.currentpage;
       if (this.connectorLine) {
@@ -991,8 +954,6 @@ export class NotePanelComponent implements OnInit {
       }
 
     });
-
-
 
     this.rxCoreService.guiMarkupIndex$.subscribe(({markup, operation}) => {
       this._hideLeaderLine();
@@ -1048,14 +1009,12 @@ export class NotePanelComponent implements OnInit {
       }
     });
 
-
     this.rxCoreService.guiOnMarkupChanged.subscribe(({annotation, operation}) => {
       //this.visible = false;
       this._hideLeaderLine();
     });
 
     this.markuptypes = RXCore.getMarkupTypes();
-
   }
 
   get isEmpytyList(): boolean {

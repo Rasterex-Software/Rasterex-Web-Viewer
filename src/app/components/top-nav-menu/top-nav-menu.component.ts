@@ -28,7 +28,7 @@ export class TopNavMenuComponent implements OnInit {
   @ViewChild('sidebar') sidebar: ElementRef;
   @ViewChild('burger') burger: ElementRef;
   @ViewChild('more') more: ElementRef;
-  @Input() state: any;;
+  @Input() state: any;
 
   guiConfig$ = this.rxCoreService.guiConfig$;
   guiState$ = this.rxCoreService.guiState$;
@@ -56,6 +56,7 @@ export class TopNavMenuComponent implements OnInit {
   currentScaleValue: string;
   fileLength: number = 0;
   collabPanelOpened: boolean = false;
+  private sidebarPanelActive: boolean = false;
   
   constructor(
     private readonly fileGaleryService: FileGaleryService,
@@ -157,6 +158,13 @@ export class TopNavMenuComponent implements OnInit {
       this.fileLength = length;
     });
 
+    // Add subscription to track sidebar panel state
+    this.sideNavMenuService.sidebarChanged$.subscribe((index) => {
+      // If panel is closed via its close button, update our active state
+      if (index === -1) {
+        this.sidebarPanelActive = false;
+      }
+    });
 
   }
 
@@ -513,27 +521,89 @@ export class TopNavMenuComponent implements OnInit {
 
 
   handleOpenSidebarMenu() {
-    const visibleItems = [
+
+    // This method is now only for opening the dropdown when multiple options are available
+    this.sidebarOpened = !this.sidebarOpened;
+
+
+    /*const visibleItems = [
       { index: 0, visible: !(this.guiConfig?.disableViewPages) },
       { index: 5, visible: (this.guiConfig?.canSignature) && this.canChangeSign && this.guiMode == GuiMode.Signature },
       { index: 3, visible: !(this.guiConfig?.disableViewVectorLayers) && (this.guiState?.is2D || this.guiState?.isPDF) && this.containLayers },
       { index: 6, visible: !(this.guiConfig?.disableViewVectorLayers) && this.guiState?.is2D && this.containBlocks },
       { index: 4, visible: !(this.guiConfig?.disableView3DParts) && this.guiState?.is3D }
-    ];
+    ];*/
 
-    const visibleCount = visibleItems.filter(option => option.visible).length;
+    //const visibleCount = visibleItems.filter(option => option.visible).length;
 
-    if (visibleCount > 1) {
+    /*if (visibleCount > 1) {
       this.sidebarOpened = !this.sidebarOpened;
     } else if (visibleCount === 1) {
       const indexToOpen = visibleItems.find(item => item.visible);
       this.handleSidebarOpen(indexToOpen?.index || 0);
+    }*/
+  }
+
+  handleDirectSidebarOpen() {
+    // This method directly opens the sidebar panel when only one option is available
+    const visibleItem = this.getVisibleSidebarItem();
+    if (visibleItem) {
+      this.sidebarPanelActive = !this.sidebarPanelActive;
+      this.sideNavMenuService.toggleSidebar(visibleItem.index);
     }
+  }
+
+  isSidebarActive(): boolean {
+    return this.sidebarPanelActive;
+  }
+
+  getVisibleSidebarItemsCount(): number {
+    const visibleItems = this.getVisibleSidebarItems();
+    return visibleItems.length;
+  }
+
+  getVisibleSidebarItem() {
+    const visibleItems = this.getVisibleSidebarItems();
+    return visibleItems.length === 1 ? visibleItems[0] : null;
+  }
+
+  private getVisibleSidebarItems() {
+    const visibleItems = [
+      { index: 0, visible: !this.guiConfig?.disableViewPages },
+      {
+        index: 5,
+        visible:
+          this.guiConfig?.canSignature &&
+          this.canChangeSign &&
+          this.guiMode == GuiMode.Signature,
+      },
+      {
+        index: 3,
+        visible:
+          !this.guiConfig?.disableViewVectorLayers &&
+          (this.guiState?.is2D || this.guiState?.isPDF) &&
+          this.containLayers,
+      },
+      {
+        index: 6,
+        visible:
+          !this.guiConfig?.disableViewVectorLayers &&
+          this.guiState?.is2D &&
+          this.containBlocks,
+      },
+      {
+        index: 4,
+        visible: !this.guiConfig?.disableView3DParts && this.guiState?.is3D,
+      },
+    ];
+
+    return visibleItems.filter((item) => item.visible);
   }
 
   handleSidebarOpen(index: number): void {
     this.sideNavMenuService.toggleSidebar(index);
     this.sidebarOpened = false;
+    this.sidebarPanelActive = false;
   }
 
   onWatermarkClick(): void {

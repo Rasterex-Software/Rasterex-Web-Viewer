@@ -118,6 +118,18 @@
                     <svg t="1745205971668" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="11522" width="24" height="24"><path d="M884.48 296.106667l-5.973333-10.666667a90.88 90.88 0 0 0-31.146667-29.44l-201.386667-116.48a85.333333 85.333333 0 0 0-42.666666-11.52h-11.946667a81.92 81.92 0 0 0-42.666667 11.52L176.64 354.986667a85.333333 85.333333 0 0 0-31.146667 31.146666l-5.973333 10.666667a85.333333 85.333333 0 0 0-11.52 42.666667v245.76a85.333333 85.333333 0 0 0 11.52 42.666666l5.973333 10.666667a90.88 90.88 0 0 0 31.146667 31.146667l201.386667 114.773333a85.333333 85.333333 0 0 0 42.666666 11.52h11.946667a81.92 81.92 0 0 0 42.666667-11.52l372.053333-215.466667a85.333333 85.333333 0 0 0 31.146667-31.146666l5.973333-10.666667a85.333333 85.333333 0 0 0 11.52-42.666667V338.773333a85.333333 85.333333 0 0 0-11.52-42.666666zM591.36 213.333333h11.946667L768 307.2l-341.333333 197.546667-170.666667-97.28z m213.333333 384L469.333333 789.333333v-210.346666l341.333334-197.973334v203.52z" p-id="11523" fill="#333C4E"></path></svg>
                     <span class="tooltip-text tooltip-top">Block information</span>
                 </li>
+                <li *ngIf="!(guiState$ | async).isPDF" (click)="onActionSelect('COPY_TO_CLIPBOARD')" [class.selected]="state?.isActionSelected['COPY_TO_CLIPBOARD']" class="tooltip">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M16 1H4C2.9 1 2 1.9 2 3V17H4V3H16V1ZM19 5H8C6.9 5 6 5.9 6 7V21C6 22.1 6.9 23 8 23H19C20.1 23 21 22.1 21 21V7C21 5.9 20.1 5 19 5ZM19 21H8V7H19V21Z" fill="#333C4E"/>
+                    </svg>
+                    <span class="tooltip-text tooltip-top">Copy image to Clipboard</span>
+                </li>
+                <li *ngIf="!(guiState$ | async).isPDF" (click)="onActionSelect('PASTE_FROM_CLIPBOARD')" [class.selected]="state?.isActionSelected['PASTE_FROM_CLIPBOARD']" class="tooltip">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M19 3H14.82C14.4 1.84 13.3 1 12 1C10.7 1 9.6 1.84 9.18 3H5C3.9 3 3 3.9 3 5V21C3 22.1 3.9 23 5 23H19C20.1 23 21 22.1 21 21V5C21 3.9 20.1 3 19 3ZM12 3C12.55 3 13 3.45 13 4C13 4.55 12.55 5 12 5C11.45 5 11 4.55 11 4C11 3.45 11.45 3 12 3ZM19 21H5V5H7V7H17V5H19V21Z" fill="#333C4E"/>
+                    </svg>
+                    <span class="tooltip-text tooltip-top">Paste image from Clipboard</span>
+                </li>                 
                 <li *ngIf="!(guiConfig$ | async).disableMagnifyingGlassButton" class="separator"></li>
                 <!--  -->
 

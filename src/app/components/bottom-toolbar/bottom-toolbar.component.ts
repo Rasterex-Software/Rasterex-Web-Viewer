@@ -279,6 +279,16 @@ export class BottomToolbarComponent implements OnInit, AfterViewInit {
         break;
       case 'GRAYSCALE':
         break;
+      case 'COPY_TO_CLIPBOARD':
+        if (typeof RXCore !== 'undefined' && RXCore.getClipRect) {
+          RXCore.getClipRect(this.state.isActionSelected[action]);
+        } else {
+          console.warn('RXCore.getClipRect is not defined');
+        }
+      break;
+      case 'PASTE_FROM_CLIPBOARD':
+        RXCore.pasteFromClipboard();
+      break;
       default:
         break;
     }

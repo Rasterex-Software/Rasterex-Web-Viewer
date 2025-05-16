@@ -229,6 +229,12 @@ export class TopNavMenuComponent implements OnInit {
   }
 
   handleFileSelect(item: any) {
+    // Clear any existing annotations before opening a new file
+    // This ensures we don't see annotations from previously edited files
+    console.log('Clearing annotations before opening file:', item.file);
+    RXCore.clearMarkup();
+
+    // Open the file
     RXCore.openFile(`${RXCore.Config.baseFileURL}${item.file}`);
   }
 
@@ -622,9 +628,6 @@ export class TopNavMenuComponent implements OnInit {
 
     return visibleItems.filter((item) => item.visible);
   }
-
-
-
 
   handleSidebarOpen(index: number): void {
     this.sideNavMenuService.toggleSidebar(index);

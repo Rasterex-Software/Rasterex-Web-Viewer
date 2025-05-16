@@ -11,7 +11,7 @@ import { IGuiConfig } from 'src/rxcore/models/IGuiConfig';
   styleUrls: ['./file-galery.component.scss']
 })
 export class FileGaleryComponent implements OnInit {
-  @ViewChild('fileToUpload') fileToUpload: ElementRef; 
+  @ViewChild('fileToUpload') fileToUpload: ElementRef;
   @ViewChild('progressBar') progressBar: ElementRef;
   @Output() onSelect = new EventEmitter<any>();
   @Output() onUpload = new EventEmitter<void>();
@@ -19,7 +19,7 @@ export class FileGaleryComponent implements OnInit {
 
   cacheUrl = RXCore.Config.xmlurlrel + '/cache/';
 
-  
+
 
   groups : any = RXCore.ViewUIConfig.demofiles;
 
@@ -33,7 +33,7 @@ export class FileGaleryComponent implements OnInit {
 
         {"id": "CAD_INVENTOR", "name": "Inventor drawing", "file": "brewing-main.idw", "type": "2D", "size": 5706}
 
-        
+
         //{"id": "CAD_SOLIDWORKS", "name": "SolidWorks Drawing", "file": "Sprinkler.SLDDRW", "type": "2D", "size": 3127},
         //{"id": "CAD_COMPARE", "name": "Compare", "action": "compare", "file": ["RXHDEMO5.dwg","Rxhdemo6.dwg"], "type": "2D"}
       ]
@@ -102,7 +102,7 @@ export class FileGaleryComponent implements OnInit {
   guiConfig: IGuiConfig | undefined;
   canCollaborate : boolean | undefined = false;
 
-  
+
   selected = this.groups[0];
   leftTabActiveIndex: number = 0;
   selectedFileName: string;
@@ -124,7 +124,7 @@ export class FileGaleryComponent implements OnInit {
     this.fileGaleryService.getStatusActiveDocument().subscribe(status => {
       if (status === 'awaitingSetActiveDocument' && this.progressBar) this.progressBar.nativeElement.value = 100;
       else {
-        this.clearData(); 
+        this.clearData();
         this.leftTabActiveIndex = 0;
       }
     });
@@ -156,27 +156,30 @@ export class FileGaleryComponent implements OnInit {
       }, 1000);
     }
 
-    
+
 
   }
 
-  
+
 
   handleFileSelect(item): void {
-    this.uploadFile(item);
-    this.fileType = item.type;
+    // Clear any existing annotations before opening a new file
+    console.log('Clearing annotations before opening file:', item.file);
+    RXCore.clearMarkup();
+
     this.onSelect.emit(item);
+    this.fileGaleryService.closeModal();
   }
 
   handleFileUpload(event) {
-    const file = this.file = event.target ? event.target.files[0] : event[0];
+    const file = (this.file = event.target ? event.target.files[0] : event[0]);
 
     if (file) {
       this.selectedFileName = file.name;
       const bytes = file.size;
 
       if (bytes < 1024) {
-        this.fileSize = parseFloat(bytes.toFixed(2)); 
+        this.fileSize = parseFloat(bytes.toFixed(2));
         this.fileSizeUnits = 'B';
       } else if (bytes < 1024 * 1024) {
         this.fileSize = parseFloat((bytes / 1024).toFixed(2));
@@ -217,20 +220,20 @@ export class FileGaleryComponent implements OnInit {
 
       reader.onload = () => {
         currentChunk++;
-        
+
         const progressBar = this.progressBar.nativeElement;
-        const increment = 1; 
-        const intervalDelay = 20; 
-        const finalValue = (currentChunk / totalChunks) * 95; 
+        const increment = 1;
+        const intervalDelay = 20;
+        const finalValue = (currentChunk / totalChunks) * 95;
 
         let currentValue = 0;
 
         const interval = setInterval(() => {
           currentValue += increment;
           progressBar.value = currentValue;
-          
+
           if (currentValue >= finalValue) {
-            clearInterval(interval); 
+            clearInterval(interval);
           }
         }, intervalDelay);
 
@@ -240,7 +243,11 @@ export class FileGaleryComponent implements OnInit {
       const loadNextChunk = () => {
         const start = currentChunk * chunkSize;
         const end = Math.min(start + chunkSize, fileSize);
-        const blob = this.file ? this.file.slice(start, end) : fileSelect ? new Blob([fileSelect], { type: fileSelect.type }) : null;
+        const blob = this.file
+          ? this.file.slice(start, end)
+          : fileSelect
+          ? new Blob([fileSelect], { type: fileSelect.type })
+          : null;
         if (blob) reader.readAsBinaryString(blob);
       };
 
@@ -253,7 +260,7 @@ export class FileGaleryComponent implements OnInit {
 
   clearData() {
     this.file = undefined;
-    this.selectedFileName = ''; 
+    this.selectedFileName = '';
     this.isUploadFile = false;
     if (this.progressBar) this.progressBar.nativeElement.value = 0;
   }

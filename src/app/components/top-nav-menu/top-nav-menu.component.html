@@ -299,7 +299,7 @@
             <span>Open</span>
           </li>
           <li
-            *ngIf="(guiConfig$ | async).canSaveFile"
+            *ngIf="(guiConfig$ | async).canSaveFile && fileLength > 0"
             role="option"
             tabindex="0"
             (click)="handleSaveFile()"
@@ -326,7 +326,7 @@
                     </li> -->
 
           <li
-            *ngIf="(guiConfig$ | async).canExport"
+            *ngIf="(guiConfig$ | async).canExport  && fileLength > 0"
             (click)="onExportClick()"
             role="option"
             tabindex="0"
@@ -427,7 +427,7 @@
           </li>
 
           <li
-            *ngIf="(guiConfig$ | async).canPrint"
+            *ngIf="(guiConfig$ | async).canPrint  && fileLength > 0"
             role="option"
             tabindex="0"
             (click)="openModalPrint()"
@@ -503,7 +503,7 @@
           <li
             *ngIf="
               (guiConfig$ | async).canCompare &&
-              !(guiConfig$ | async).disableBurgerMenuCompare
+              !(guiConfig$ | async).disableBurgerMenuCompare && fileLength > 0
             "
             role="option"
             tabindex="0"
@@ -553,7 +553,7 @@
             </div>
             <span class="compare-text">Compare</span>
           </li>
-          <ng-container *ngIf="(guiConfig$ | async).canGetFileInfo">
+          <ng-container *ngIf="(guiConfig$ | async).canGetFileInfo  && fileLength > 0">
             <li class="separator"></li>
             <li role="option" tabindex="0" (click)="fileInfoDialog()">
               <svg

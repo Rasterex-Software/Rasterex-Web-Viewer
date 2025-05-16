@@ -1,0 +1,32 @@
+<ng-container>
+<div class="login-overlay" *ngIf="visible">
+  <div class="login-modal">
+    <div class="title" *ngIf="!isLoggingIn">Login</div>
+    <div class="title" *ngIf="isLoggingIn">Logging in...</div>
+    
+    <div class="form-group">
+      <label for="username">Username:</label>
+      <input *ngIf="!useBuildinUser" type="text" [(ngModel)]="loginUsername" id="username" placeholder="enter username" />
+      <select *ngIf="useBuildinUser" [(ngModel)]="selectedBuildinUsername" (change)="onBuildinUsernameChange()"  id="username"
+    name="username">
+        <option value="">Type a username</option>
+        <option value="bob">bob</option>
+        <option value="archi">archi</option>
+        <option value="owen">owen</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="password">Password:</label>
+      <input type="password" [(ngModel)]="loginPassword" id="password" name="password" />
+    </div>
+
+    <div class="buttons">
+      <button (click)="onLogin()" [disabled]="!loginUsername || !loginPassword || isLoggingIn">Login</button>
+      <button (click)="close()">Cancel</button>
+    </div>
+    
+    <div class="status error" *ngIf="isLoginFailed">Login failed. Please try again.</div>
+  </div>
+</div>
+</ng-container>

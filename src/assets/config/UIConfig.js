@@ -23,6 +23,7 @@ var UIConfig = (function() {
                 "localStoreAnnotation": false,
                 "disable2DVectorInfoButton" : false,
                 "watermarkdemo" : false,
+                "forceLogin" : false,
                 "logoUrl": "/assets/images/logo.svg"
             
         },

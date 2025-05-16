@@ -99,6 +99,7 @@ import { CommentStatusIconComponent } from './components/annotation-tools/commen
 import { LoginComponent } from './components/user/login/login.component';
 import { RoomPanelComponent } from './components/collab/room-panel.component';
 import { TooltipComponent } from './components/tooltip/tooltip.component';
+import { LoginModalComponent } from './components/user/login-modal/login-modal.component';
 
 const storeSchema = [
   { name: 'name', keypath: 'name', options: { unique: false } },
@@ -198,7 +199,8 @@ const dbConfig: DBConfig  = {
     SafeHtmlPipe,
     CommentStatusIconComponent,
     LoginComponent,
-    RoomPanelComponent
+    RoomPanelComponent,
+    LoginModalComponent
   ],
   imports: [
     BrowserModule,

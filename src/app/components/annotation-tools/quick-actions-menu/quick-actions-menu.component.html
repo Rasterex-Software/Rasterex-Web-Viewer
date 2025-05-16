@@ -63,6 +63,13 @@
             <img id="quickActionsMenuShowHideLabel" src="/assets/images/label-remove.svg" height="23" />
             <!-- <span class="tooltip-text tooltip-top">Hide Label</span> -->
         </li>        
+        <li
+            *ngIf="(guiMode$ | async) == 'measure' && ((annotation.type === 1 && annotation.subtype === 3) || (annotation.type === 3 && annotation.subtype === 6) || annotation.type === 7 || annotation.type === 8)"
+            (click)="onMoveLabelClick()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2L15 5H13V11H11V5H9L12 2ZM12 22L9 19H11V13H13V19H15L12 22ZM2 12L5 15V13H11V11H5V9L2 12ZM22 12L19 9V11H13V13H19V15L22 12Z" fill="#333C4E"/>
+            </svg>
+        </li> 
 
     </ul>
 </div>

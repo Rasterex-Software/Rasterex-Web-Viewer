@@ -27,6 +27,7 @@ export class QuickActionsMenuComponent implements OnInit, OnDestroy {
   visible = false;
   pageRotation : number = 0;
   annotation: any = -1;
+  moveLabelEnabled: boolean = false;
   operation: any = undefined;
   rectangle: any;
   confirmDeleteOpened: boolean = false;
@@ -626,6 +627,7 @@ export class QuickActionsMenuComponent implements OnInit, OnDestroy {
     this.guiMarkupSubscription = this.rxCoreService.guiMarkup$.subscribe(({markup, operation}) => {
       this.visible = false;
       this.annotation = markup;
+      console.log(this.annotation)
       this.operation = operation;
       this.snap = RXCore.getSnapState();
 
@@ -823,10 +825,16 @@ export class QuickActionsMenuComponent implements OnInit, OnDestroy {
       this.annotation.hidelabelmarkupobj();
     }
     else {
+      debugger
       this.annotation.showlabelmarkupobj();
     }
     RXCore.markUpRedraw();
     this.visible = false;
+  }
+
+  onMoveLabelClick(): void {
+    this.moveLabelEnabled = !this.moveLabelEnabled;
+    RXCore.moveLabelEnable(this.moveLabelEnabled);
   }
  
   onHoleClick(): void { 

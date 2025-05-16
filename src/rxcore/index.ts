@@ -27,7 +27,9 @@ export class RXCore {
         RxCore.blockhoverevent(onoff);
     }
 
-
+    public static moveLabelEnable(onoff: boolean): void {
+        RxCore.moveLabelEnable(onoff);
+    }
     
 
     public static changeTextColor(color: string): void {

@@ -847,5 +847,13 @@ export class QuickActionsMenuComponent implements OnInit, OnDestroy {
     }
   }
 
+  onMoveToBackClick(): void {
+    RXCore.movetoBack();
+    RXCore.markUpRedraw();
+  }
 
+  onMoveToFrontClick(): void {
+    RXCore.movetoFront();
+    RXCore.markUpRedraw();
+  }
 }

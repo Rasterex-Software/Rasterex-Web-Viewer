@@ -2,11 +2,13 @@
 <div *ngIf="visible" class="text-editor-container" [ngStyle]="{ 'top.px' : rectangle?.y, 'left.px' : rectangle?.x }">
     <div *ngIf="isTextAreaVisible"
         class="textarea-wrapper"
-        [ngStyle]="{ 'width.px' : rectangle?.w, 'height.px' : rectangle?.h }">
+        [ngStyle]="{ 'width.px' : rectangle?.w }">
         <textarea
+            class="auto-expanding-textarea" 
             [ngStyle]="{'color': color, 'font-size.px': font.size - 4, 'font-family': font.font, 'font-style': font.style.italic ? 'italic' : 'normal', 'font-weight': font.style.bold ? 'bold' : 'normal' }"
             [(ngModel)]="text"
             (ngModelChange)="onTextChange()"
+            (input)="adjustTextareaHeight($event)"
             placeholder="Insert text here...">
         </textarea>
     </div>
@@ -22,9 +24,9 @@
                 <rx-accordion-item *ngIf="isTextAreaVisible" [title]="'Text Style'">
                     <ng-template accordionContent>
                         <rx-text-style-select
-                        [value]="font"
-                        (valueChange)="onTextStyleSelect($event)">
-                    </rx-text-style-select>
+                            [value]="font"
+                            (valueChange)="onTextStyleSelect($event)">
+                        </rx-text-style-select>
                     </ng-template>
                 </rx-accordion-item>
                 <rx-accordion-item [title]="'Colors'">

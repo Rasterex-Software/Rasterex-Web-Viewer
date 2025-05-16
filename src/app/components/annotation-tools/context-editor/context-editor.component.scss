@@ -29,6 +29,15 @@
         }
     }
 
+    .auto-expanding-textarea {
+        width: 100%;
+        min-height: 24px;
+        overflow: hidden;
+        resize: none;
+        line-height: 1.4;
+        padding: 4px;
+    }      
+
     .text-style-color-wrapper {
         position: relative;
 

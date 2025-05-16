@@ -23,7 +23,7 @@
 
     <div class="buttons">
       <button (click)="onLogin()" [disabled]="!loginUsername || !loginPassword || isLoggingIn">Login</button>
-      <button (click)="close()">Cancel</button>
+      <button [disabled]="forceToLogInDisableCancel" (click)="close()">Cancel</button>
     </div>
     
     <div class="status error" *ngIf="isLoginFailed">Login failed. Please try again.</div>

@@ -8,6 +8,7 @@ import { ProjectUserPermission } from '../components/user/user.service';
 export class LoginService {
   // Controls visibility of the global login modal
   loginModalVisible$ = new BehaviorSubject<boolean>(false);
+   forceToLogInDisableCancel$ = new BehaviorSubject<boolean>(false);
 
 private usernameSubject = new BehaviorSubject<string>('');
 username$ = this.usernameSubject.asObservable();
@@ -22,12 +23,19 @@ groupedPermissions: { [type: string]: string[] } = {};
 private permissionSubject = new BehaviorSubject<{ [type: string]: string[] }>({});
 permissions$ = this.permissionSubject.asObservable();
 
+private enableLandingPageSubject = new BehaviorSubject<boolean>(false);
+enableLandingPage$ = this.enableLandingPageSubject.asObservable();
+
   constructor() {}
 
 setLoginInfo(username: string, displayName: string, email: string) {
   this.usernameSubject.next(username);
   this.displayNameSubject.next(displayName);
     this.emailSubject.next(email);
+}
+
+enableLandingPageLayout(enableLandingPage: boolean){
+this.enableLandingPageSubject.next(enableLandingPage);
 }
 
 setPermissionsInProfilePanel(permissions?: ProjectUserPermission[]) {
@@ -58,8 +66,9 @@ clearLoginInfo() {
   this.displayNameSubject.next('');
 }
 
-  showLoginModal() {
+  showLoginModal(forceToLogin:boolean) {
     this.loginModalVisible$.next(true);
+    this.forceToLogInDisableCancel$.next(forceToLogin);
   }
 
   hideLoginModal() {

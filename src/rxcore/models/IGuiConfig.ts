@@ -75,6 +75,7 @@ export interface IGuiConfig {
     //localStoreStamp?: boolean;
     localStoreAnnotation?: boolean;
     watermarkdemo?:boolean;
+    forceLogin?:boolean;
     
     /*  */
     logoUrl?: string;

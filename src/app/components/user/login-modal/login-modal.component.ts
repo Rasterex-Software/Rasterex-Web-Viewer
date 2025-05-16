@@ -16,6 +16,7 @@ export class LoginModalComponent implements OnInit, OnDestroy {
   selectedBuildinUsername = 'bob';
   isLoggingIn = false;
   isLoginFailed = false;
+  forceToLogInDisableCancel = false;
 
   private loginModalSub: Subscription | undefined;
 
@@ -29,6 +30,10 @@ export class LoginModalComponent implements OnInit, OnDestroy {
       if (visible) {
         this.resetForm();
       }
+    });
+
+    this.loginService.forceToLogInDisableCancel$.subscribe((forceToDisableCancel) => {
+      this.forceToLogInDisableCancel = forceToDisableCancel;
     });
   }
 
@@ -83,6 +88,8 @@ export class LoginModalComponent implements OnInit, OnDestroy {
         });
         this.loginService.hideLoginModal();
         this.loginService.setLoginInfo(user.username, user.displayName || user.username, user.email);
+
+        this.loginService.enableLandingPageLayout(true);
       })
       .catch((e) => {
         console.error('Login failed:', e.error || e.message);

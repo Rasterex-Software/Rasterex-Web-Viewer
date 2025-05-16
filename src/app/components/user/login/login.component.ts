@@ -3,6 +3,7 @@ import { RxCoreService } from 'src/app/services/rxcore.service';
 import { RXCore } from 'src/rxcore';
 import { User, UserService } from '../user.service';
 import { LoginService } from 'src/app/services/login.service';
+import { IGuiConfig } from 'src/rxcore/models/IGuiConfig';
 
 @Component({
   selector: 'rx-login',
@@ -10,6 +11,8 @@ import { LoginService } from 'src/app/services/login.service';
   styleUrls: ['./login.component.scss'],
 })
 export class LoginComponent implements OnInit {
+  guiConfig$ = this.rxCoreService.guiConfig$;
+  guiConfig: IGuiConfig | undefined;
   username = '';
   displayName = '';
   email = '';
@@ -19,8 +22,7 @@ export class LoginComponent implements OnInit {
   userInfoPanelOpened = false;
   objectKeys = Object.keys;
 
-
-     @ViewChild('userInfoPanel', { static: false }) userInfoPanelRef!: ElementRef;
+  @ViewChild('userInfoPanel', { static: false }) userInfoPanelRef!: ElementRef;
 
   constructor(
     private readonly rxCoreService: RxCoreService,
@@ -29,8 +31,11 @@ export class LoginComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.rxCoreService.guiState$.subscribe((state) => {
 
+    this.guiConfig$.subscribe(config => {
+      this.guiConfig = config;
+    });
+       
        this.loginService.username$.subscribe(username => {
     this.username = username;
   });
@@ -46,11 +51,11 @@ export class LoginComponent implements OnInit {
    this.loginService.permissions$.subscribe(permission => {
     this.groupedPermissions = permission;
   });
-    });
+    
   }
 
   openLoginDialog() {
-    this.loginService.showLoginModal();
+    this.loginService.showLoginModal(false);
   }
 
  
@@ -72,6 +77,11 @@ export class LoginComponent implements OnInit {
         this.userInfoPanelOpened = false;
         this.loginService.clearLoginInfo();
       });
+
+      if(this.guiConfig?.forceLogin){
+       this.loginService.enableLandingPageLayout(false);
+       this.loginService.showLoginModal(this.guiConfig?.forceLogin);
+      }
   }
 
   toggleUserInfoPanel() {

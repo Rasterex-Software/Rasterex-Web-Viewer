@@ -27,8 +27,17 @@ export class RXCore {
         RxCore.blockhoverevent(onoff);
     }
 
-
+    public static movetoBack(): void {
+        RxCore.movetoBack();
+    }
     
+    public static movetoFront(): void {
+        RxCore.movetoFront();
+    } 
+
+    public static toggleCycleSelect(): void {
+        RxCore.toggleCycleSelect();
+    } 
 
     public static changeTextColor(color: string): void {
         RxCore.changeTextColor(color);

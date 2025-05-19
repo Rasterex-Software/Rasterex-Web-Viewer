@@ -250,11 +250,8 @@ export class TopNavMenuComponent implements OnInit {
           disableSignature: true,
           disableLinks: true,
           disableSymbol: true,
-
         });
       } else {
-
-
         if (this.compareService.isComparisonActive) {
           this.rxCoreService.setGuiConfig({
             canCompare: true,
@@ -292,7 +289,6 @@ export class TopNavMenuComponent implements OnInit {
 
           });
         } else {
-
           if (option.value === 'measure') {
             this.rxCoreService.setGuiConfig({
               disableMarkupTextButton: true,
@@ -313,20 +309,15 @@ export class TopNavMenuComponent implements OnInit {
               disableSignature: true,
               disableLinks: true,
               disableSymbol: true,
-
             });
             //const docObj = RXCore.printDoc();
 
             if(RXCore.getDocScales() != undefined && RXCore.getDocScales().length === 0 ){
               //this.scalesOptions = RXCore.getDocScales();
               this.annotationToolsService.setMeasurePanelState({ visible: true }); 
-            }
-        
-
+            }  
             /*if(docObj && docObj.scalesOptions && docObj.scalesOptions.length === 0) 
               this.annotationToolsService.setMeasurePanelState({ visible: true }); */
-            
-  
           } else if(option.value === 'annotate'){
             this.rxCoreService.setGuiConfig({
               disableMarkupTextButton: false,
@@ -346,15 +337,10 @@ export class TopNavMenuComponent implements OnInit {
               disableImages: false, 
               disableLinks: false,
               disableSymbol: false,
-
             });
-
-          }else{
+          } else {
             this.rxCoreService.resetGuiConfig();
           }
-  
-
-          
         }
       }
 

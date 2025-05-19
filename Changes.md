@@ -1,6 +1,7 @@
 May 19, 2025
 
 ### 1. Added a draggable resize handle for the left pages panel.
+### 2. Align rotation button icon with applied rotation.
 
 Updated and new files
 
@@ -8,9 +9,10 @@ src\app\app.module.ts
 src\app\components\side-nav-menu\context-menu\context-menu.component.scss
 src\app\components\side-nav-menu\pages\pages.component.html
 src\app\components\side-nav-menu\pages\pages.component.scss
-src\app\directives\rx-resizable.directive.ts
 src\app\components\side-nav-menu\side-nav-menu.component.html
 src\app\components\side-nav-menu\side-nav-menu.component.scss
+src\app\components\bottom-toolbar\bottom-toolbar.component.html
+src\app\directives\rx-resizable.directive.ts
 
 
 

@@ -80,7 +80,14 @@ export class PagesComponent implements OnInit {
 
     this.rxCoreService.guiPage$.subscribe(page => {
       this.selectedPageIndex = page.currentpage;
-      this.checkString = (this.selectedPageIndex + 1).toString();
+      
+      if (this.multiSelect) {
+        this.checkString = this.convertBooleanArrayToString(this.checkList);
+      } else {
+        this.checkString = (this.selectedPageIndex + 1).toString();
+      }
+      
+      
       document.getElementById(`page-${page.currentpage}`)?.scrollIntoView({
         behavior: "instant",
         block: "start",
@@ -335,6 +342,8 @@ export class PagesComponent implements OnInit {
 
     if(!this.multiSelect) {
       this.checkString = (this.selectedPageIndex + 1).toString();
+    } else {
+      this.checkList[pageIndex] = !this.checkList[pageIndex];
     }
 
     RXCore.gotoPage(pageIndex);

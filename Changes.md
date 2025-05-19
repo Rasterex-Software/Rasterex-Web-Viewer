@@ -1,3 +1,54 @@
+May 16, 2025
+
+### 1. Implemented locked aspect ratio for image type annoations.
+### 2. Correction to drag and drop image aspect ratio.
+### 3. Modification to time and date now got from src\assets\config\UIConfig.js.
+### 4. Links in link dialog can now be deleted.
+
+
+RxCore version is now 35.92.
+
+Updated and new files
+
+src\rxcore\models\IGuiDateFormat.ts
+src\assets\config\UIConfig.js
+src\rxcore\models\IGuiConfig.ts
+src\rxcore\models\IMarkup.ts
+src\assets\scripts\rxcorefunctions.js
+src\app\app.module.ts
+src\app\components\annotation-tools\stamp-panel\stamp-panel.component.html
+src\app\components\annotation-tools\stamp-panel\stamp-panel.component.scss
+src\app\components\top-nav-menu\top-nav-menu.component.ts
+src\app\components\top-nav-menu\top-nav-menu.component.scss
+src\app\components\top-nav-menu\top-nav-menu.component.html
+src\app\components\side-nav-menu\pages\numeric-range.directive.ts
+src\app\components\side-nav-menu\pages\pages.component.html
+src\app\components\side-nav-menu\pages\pages.component.scss
+src\app\components\side-nav-menu\pages\pages.component.ts
+src\app\components\common\date-picker\date-picker.component.ts
+src\app\components\annotation-tools\note-panel\note-panel.component.ts
+src\app\components\annotation-tools\note-panel\note-panel.component.html
+src\app\components\annotation-tools\links-library\links-library.component.html
+src\app\components\annotation-tools\links-library\links-library.component.scss
+src\app\components\annotation-tools\links-library\links-library.component.ts
+
+
+
+May 15, 2025
+
+### 1. Minor changes and corrections to hamburger menu.
+
+Updated and new files
+
+src\app\components\top-nav-menu\top-nav-menu.component.html
+src\app\components\top-nav-menu\top-nav-menu.component.scss
+src\app\components\top-nav-menu\top-nav-menu.component.ts
+src\assets\scripts\rxconfig.js
+src\assets\config\UIConfig.js
+
+
+
+
 May 14, 2025
 
 ### 1. Fixed a problem with drawing display when having PDF and other formats open at the same time.

@@ -36,7 +36,7 @@
             margin-left: 16px;
             margin-right: 16px;
             height: var(--logo-height);
-            cursor: pointer;
+            // cursor: pointer;
         }
 
         &.pages {
@@ -74,11 +74,21 @@
             justify-content: center;
             border-radius: 4px;
             cursor: pointer;
+            transition: transform 0.3s ease;
 
-            &:hover,
-            &.opened {
-                background-color: #EDF1F2;
+            &:hover {
+                background-color: #edf1f2;
             }
+
+            &.active {
+                background-color: #edf1f2;
+                transform: rotate(180deg);
+            }
+        
+            &.opened {
+                background-color: #edf1f2
+            }
+                    
         }
 
         .options-container {
@@ -125,6 +135,29 @@
                             opacity: .5;
                             pointer-events: none;
                         }
+
+                        .print-icon {
+                            display: flex;
+                            align-items: center;
+                            margin-left: 4px;
+                          }
+                          .print-text {
+                            margin-left: -2px;
+                            font-size: 12px;
+                            color: $top-nav-color;
+                          }
+              
+                          .compare-icon {
+                            display: flex;
+                            align-items: center;
+                            margin-left: 2px;
+                          }
+                          .compare-text {
+                            margin-left: -2px;
+                            font-size: 12px;
+                            color: $top-nav-color;
+                          }
+              
 
                         &:not(.disabled) {
                             &:hover,

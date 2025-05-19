@@ -254,7 +254,7 @@
                             <div class="author">{{ item.author }}</div>
                             <div class="comments-date-count">
                               <div class="date-and-time">
-                                {{ item.createdStr }}
+                                {{ item.timestamp | date: (guiConfig$ | async).dateFormat.dateTimeWithoutYear }}
                               </div>
                               <div class="comments-count">
                                 <img src="/assets/images/comment-ico.svg" />{{
@@ -330,7 +330,6 @@
                             <div class="comments-date-count">
                               <div class="date-and-time">
                                 {{ itemNote.timestamp | date: (guiConfig$ | async).dateFormat?.dateTimeWithoutYear }}
-                              </div>
                               <div
                                 class="comments-count"
                                 *ngIf="

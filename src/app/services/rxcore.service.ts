@@ -342,4 +342,12 @@ export class RxCoreService {
   public guiScaleListLoadComplete: Subject<void> = new Subject<void>();
   public guiScaleListLoadComplete$: Observable<void> = this.guiScaleListLoadComplete.asObservable();
 
+  private readonly guiCalibrateSubject = new Subject<any>();
+  readonly guiCalibrate$ = this.guiCalibrateSubject.asObservable();
+
+  setGuiCalibrate(data: any) {
+    this.guiCalibrateSubject.next(data);
+  }
+
+
 }

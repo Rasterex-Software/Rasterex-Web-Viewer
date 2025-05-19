@@ -99,6 +99,7 @@ import { CommentStatusIconComponent } from './components/annotation-tools/commen
 import { LoginComponent } from './components/user/login/login.component';
 import { RoomPanelComponent } from './components/collab/room-panel.component';
 import { TooltipComponent } from './components/tooltip/tooltip.component';
+import { NumericRangeDirective } from "./components/side-nav-menu/pages/numeric-range.directive";
 
 const storeSchema = [
   { name: 'name', keypath: 'name', options: { unique: false } },
@@ -157,6 +158,7 @@ const dbConfig: DBConfig  = {
     PagesComponent,
     ThreedPartInfoComponent,
     PageThumbnailDirective,
+    NumericRangeDirective,
     ThumbnailDirective,
     CountPanelComponent,
     CountTypeSelectComponent,

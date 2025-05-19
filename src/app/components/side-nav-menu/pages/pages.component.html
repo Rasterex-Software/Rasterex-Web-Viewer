@@ -19,8 +19,11 @@
             <div *ngIf="isPDF" class="search-section">
                 <span>Search page:</span>
                 <input
-                    type="text"
+                    type="number"
                     placeholder="0"
+                    appNumericRange
+                    [appMin]="1"
+                    [appMax]="thumbnails?.length"
                     [(ngModel)]="page"
                     (keyup)="onPageSearch($event)" />
             </div>

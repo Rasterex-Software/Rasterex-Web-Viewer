@@ -1086,8 +1086,11 @@ export class NotePanelComponent implements OnInit {
 
   onAddNote(markup: any): void {
     if (this.note[markup.markupnumber]) {
+
+      const timestamp = new Date().toISOString();
+
       if (this.noteIndex >= 0) {
-        markup.editComment(this.noteIndex, this.note[markup.markupnumber]);
+        markup.editComment(this.noteIndex, this.note[markup.markupnumber], timestamp);
         this.noteIndex = -1;
       }
       else {

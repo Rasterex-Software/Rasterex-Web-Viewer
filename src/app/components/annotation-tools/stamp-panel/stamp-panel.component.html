@@ -16,6 +16,8 @@
             <button title="trash" *ngIf="isAdmin" (click)="deleteStandardStamp(template.id)" style="border: none; background: none; cursor: pointer; padding: 0; margin-left: 8px;">
               <img src="/assets/images/trash-ico.svg" />
             </button>
+
+
           </div>
         </div>
       </section>
@@ -27,6 +29,7 @@
         </div>
         <div class="templates-list" style="height: 390px;">
           <div *ngFor="let template of customStamps;let i = index" style="display: flex; align-items: center;" >
+
             <img [stampTemplate]="template" [src]="template.src" [ngStyle]="{ 'width.px': template.width, 'height.px': template.height }" style="margin: 2px;">
             <button title="convert to standard" *ngIf="isAdmin" (click)="convertToStandardStamp('CustomStamp', template.id)" style="border: none; background: none; cursor: pointer; padding: 0; margin-left: 8px;">
               <img src="/assets/images/convert-standard.svg" />
@@ -34,6 +37,7 @@
             <button title="trash" (click)="deleteCustomStamp(template.id)" style="border: none; background: none; cursor: pointer; padding: 0; margin-left: 8px;">
               <img src="/assets/images/trash-ico.svg" />
             </button>
+
           </div>
         </div>
       </section>
@@ -41,8 +45,11 @@
       <!-- UploadImage Section -->
       <section *ngIf="activeIndexStamp === 3">
         <div class="add-custom-stamp">
+
           <input type="file" #fileUpload (change)="handleImageUpload($event)" accept=".jpg,.jpeg,.png" style="display: none;" multiple>
           <button type="button" id="upload_button" class="btn btn-primary" (click)="fileUpload.click()">Upload Image Stamp</button>
+
+
         </div>
         <!-- <div class="input-group" style="width: auto;margin: 0 7px;">
           <input
@@ -58,19 +65,24 @@
           </button>
         </div> -->
         <div class="templates-list" style="height: 390px;">
-          <div *ngFor="let template of uploadImageStamps; let i = index" style="display: flex; align-items: center;" class="image-container">
-            <img
-            [stampTemplate]="template"
-            [src]="template.src"
-            style="width: 210px; height: 75px;object-fit: contain;"
-             />
-            <button *ngIf="isAdmin" title="convert to standard" (click)="convertToStandardStamp('UploadStamp', template.id)" style="border: none; background: none; cursor: pointer; padding: 0; margin-left: 8px;">
-              <img src="/assets/images/convert-standard.svg" />
-            </button>
-            <button title="trash" (click)="deleteImageStamp(template.id)" style="border: none; background: none; cursor: pointer; padding: 0; margin-left: 8px;">
-              <img src="/assets/images/trash-ico.svg" />
-            </button>
-          </div>   
+          
+          
+
+          <div *ngFor="let template of uploadImageStamps; let i = index" style="display: flex; align-items: center; width: 210px; justify-content: space-between;" class="image-container">
+          <img [stampTemplate]="template" [src]="template.src" class="stamp-draggable-image" />
+          <button *ngIf="isAdmin" title="convert to standard"
+            (click)="convertToStandardStamp('UploadStamp', template.id)"
+            style="border: none; background: none; cursor: pointer; padding: 0; margin-left: 8px;">
+            <img src="/assets/images/convert-standard.svg" />
+          </button>
+          <button title="trash" (click)="deleteImageStamp(template.id)"
+            style="border: none; background: none; cursor: pointer; padding: 0; margin-left: 8px;">
+            <img src="/assets/images/trash-ico.svg" />
+          </button>
+        </div>
+
+
+
         </div>
       </section>
 
@@ -88,12 +100,13 @@
       <!-- Preview -->
       <div id="preview">
         <svg [attr.width]="svgWidth" [attr.height]="svgHeight">
-          <rect [attr.x]="strokeWidth / 2" [attr.y]="strokeWidth / 2" [attr.width]="svgWidth - strokeWidth" [attr.height]="svgHeight - strokeWidth" [attr.fill]="fillColor" [attr.stroke]="strokeColor" [attr.stroke-width]="strokeWidth" [attr.rx]="strokeRadius" [attr.ry]="strokeRadius"/>
+          <rect [attr.x]="strokeWidth / 2" [attr.y]="strokeWidth / 2" [attr.width]="svgWidth - strokeWidth" [attr.height]="svgHeight - strokeWidth" [attr.fill]="fillColor" [attr.stroke]="strokeColor" [attr.stroke-width]="strokeWidth" [attr.rx]="strokeRadius" [attr.ry]="strokeRadius" />
           <text [attr.x]="textX" [attr.y]="svgHeight / 2 + textOffset" text-anchor="middle" alignment-baseline="middle">
             <tspan [attr.style]="textStyle">{{ stampText }}</tspan>
             <tspan *ngIf="hasTimestamp()" [attr.x]="textX" dy="2.2em" [attr.style]="subtleTextStyle">{{ timestampText }}</tspan>
           </text>
         </svg>
+
       </div>
   
       <div id="body" class="body">
@@ -110,29 +123,19 @@
   
         <rx-accordion  *ngIf="activeIndex == 0">
           <rx-accordion-item  [title]="'Text Style'">
-              <ng-template accordionContent>
-                  <rx-text-style-select
-                  [value]="font"
-                  (valueChange)="onTextStyleSelect($event)"
-                  [showFontSize]="true"
-                  >
-              </rx-text-style-select>
+              
+            <ng-template accordionContent>
+              <rx-text-style-select [value]="font" (valueChange)="onTextStyleSelect($event)" [showFontSize]="true"></rx-text-style-select>
               </ng-template>
           </rx-accordion-item>
           <rx-accordion-item [title]="'Colors'">
               <ng-template accordionContent>
-                  <rx-color-picker
-                      [value]="color"
-                      (valueChange)="onColorSelect($event)">
-                  </rx-color-picker>
+                <rx-color-picker [value]="color" (valueChange)="onColorSelect($event)"></rx-color-picker>
               </ng-template>
           </rx-accordion-item>
           <rx-accordion-item [title]="'Fill Colors'">
             <ng-template accordionContent>
-                <rx-color-picker
-                    [value]="fillColor"
-                    (valueChange)="onFillColorSelect($event)">
-                </rx-color-picker>
+              <rx-color-picker [value]="fillColor" (valueChange)="onFillColorSelect($event)"></rx-color-picker>
             </ng-template>
         </rx-accordion-item>
           <!-- <rx-accordion-item   [title]="'Opacity'">
@@ -210,10 +213,7 @@
       <rx-accordion *ngIf="activeIndex == 1">
         <rx-accordion-item [title]="'Colors'">
           <ng-template id="color-picker" accordionContent>
-              <rx-color-picker
-                  [value]="color"
-                  (valueChange)="onStrokeColorSelect($event)">
-              </rx-color-picker>
+            <rx-color-picker [value]="color" (valueChange)="onStrokeColorSelect($event)"></rx-color-picker>
           </ng-template>
       </rx-accordion-item>
     </rx-accordion>

@@ -1,3 +1,16 @@
+May 19, 2025
+
+### 1. Added insert and delete point functionality for all multi-point annotations (polyline, polygon, counter, and measurement path)
+
+Updated and new files
+
+src/app/components/annotation-tools/quick-actions-menu/quick-actions-menu.component.html
+src/app/components/annotation-tools/quick-actions-menu/quick-actions-menu.component.ts
+src/assets/images/remove-point.svg
+
+
+
+
 May 16, 2025
 
 ### 1. Implemented locked aspect ratio for image type annoations.

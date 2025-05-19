@@ -47,10 +47,17 @@
         </li>
 
         <li
-            *ngIf="(guiMode$ | async) == 'measure' && (annotation.type === 8 || (annotation.type === 3 && annotation.subtype === 6))"
+            *ngIf="((guiMode$ | async) == 'annotate' || (guiMode$ | async) == 'measure') && ((annotation.type === 1 && [1, 2, 3].includes(annotation.subtype)) || annotation.type === 13 || annotation.type === 8 || (annotation.type === 3 && (annotation.subtype === 6 || annotation.subtype === 0)))"
             (click)="onInsertClick()">
                 <img id="quickActionsMenuInsertPoint" src="/assets/images/insert-point.svg" height="48" />
         </li>
+
+        <li
+            *ngIf="((guiMode$ | async) == 'annotate' || (guiMode$ | async) == 'measure') && ((annotation.type === 1 && [1, 2, 3].includes(annotation.subtype)) || annotation.type === 13 || annotation.type === 8 || (annotation.type === 3 && (annotation.subtype === 6 || annotation.subtype === 0)))"
+            (click)="onDeletePointClick()">
+                <img id="quickActionsMenuRemovePoint" src="/assets/images/remove-point.svg" height="48" />
+        </li>
+
         <li
             *ngIf="(guiMode$ | async) == 'measure' && (annotation.type === 8 || (annotation.type === 3 && annotation.subtype === 6)) && annotation.parentmarkupnumber === 0"
             (click)="onHoleClick()">

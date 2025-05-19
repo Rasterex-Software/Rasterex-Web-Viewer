@@ -817,6 +817,18 @@ export class QuickActionsMenuComponent implements OnInit, OnDestroy {
     this.visible = false;
   }
 
+  onDeletePointClick(): void {
+    if (this.annotation.type === MARKUP_TYPES.SHAPE.RECTANGLE.type) {
+      RXCore.markupRectToAreaSwitch(this.annotation);
+    }
+    if (this.operation?.created) {
+      RXCore.selectMarkUp(true);
+    }
+  
+    RXCore.deletePoint();
+    this.visible = false;
+  }
+
   onShowHideLabelClick(): void {    
     if (this.operation?.created) { RXCore.selectMarkUp(true); }
     if(!this.annotation.hidevaluelabel) {

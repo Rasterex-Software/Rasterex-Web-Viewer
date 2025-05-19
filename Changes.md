@@ -658,3 +658,17 @@ Component Path: `components/annotation-tools/search-panel`
 - `markupDocumentSearchResult`
 - `markupTextWithOrange`
 - `onGuiDocumentSearch`
+
+
+May 19, 2025
+
+# Fix: Resolved issues with initial image upload failure, image turning white on rotate, and logout on page refresh during editing.
+
+Component Paths:
+  `modified:   src/app/app.component.ts` 
+  `modified:   src/app/app.module.ts`
+  `modified:   src/app/components/side-nav-menu/insert-modal/insert-modal.component.html`
+  `modified:   src/app/components/side-nav-menu/insert-modal/insert-modal.component.ts`  
+  `modified:   src/app/components/user/login/login.component.ts`
+  `modified:   src/app/components/user/user.service.ts`
+  `new file:   src/app/services/auth-interceptor.service.ts`

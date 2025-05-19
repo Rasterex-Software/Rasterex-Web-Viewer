@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule, Title } from '@angular/platform-browser';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 
 //import { FormsModule } from '@angular/forms';
 
@@ -99,6 +99,7 @@ import { CommentStatusIconComponent } from './components/annotation-tools/commen
 import { LoginComponent } from './components/user/login/login.component';
 import { RoomPanelComponent } from './components/collab/room-panel.component';
 import { TooltipComponent } from './components/tooltip/tooltip.component';
+import { AuthInterceptor } from './services/auth-interceptor.service';
 
 const storeSchema = [
   { name: 'name', keypath: 'name', options: { unique: false } },
@@ -110,11 +111,11 @@ const dbConfig: DBConfig  = {
   objectStoresMeta: [
     { store: 'CustomStamp',
       storeConfig: { keyPath: 'id', autoIncrement: true },
-      storeSchema 
+      storeSchema
     },
     { store: 'UploadStamp',
       storeConfig: { keyPath: 'id', autoIncrement: true },
-      storeSchema 
+      storeSchema
     }
   ]
 };
@@ -215,8 +216,16 @@ const dbConfig: DBConfig  = {
     TreeviewModule.forRoot(),
     ToastrModule.forRoot(), // ToastrModule added
   ],
-  providers: [ColorHelper, Title],
+  providers: [
+    ColorHelper,
+    Title,
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptor,
+      multi: true
+    }
+  ],
   bootstrap: [AppComponent],
-  
+
 })
 export class AppModule { }

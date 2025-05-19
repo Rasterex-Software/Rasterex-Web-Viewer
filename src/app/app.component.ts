@@ -137,7 +137,9 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     RXCore.convertPDFAnnots(this.convertPDFAnnots);
     RXCore.usePDFAnnotProxy(this.createPDFAnnotproxy);
 
+    // Get the current user from the service to ensure we use authenticated data
     const user = this.userService.getCurrentUser();
+    console.log('App initializing with user:', user?.username || 'none');
 
     let JSNObj = [
       {
@@ -146,6 +148,18 @@ export class AppComponent implements AfterViewInit, OnDestroy {
         DisplayName: user?.displayName || 'Demo User',
       },
     ];
+
+    // Subscribe to user changes to update RXCore when authentication state changes
+    this.userService.currentUser$.subscribe(updatedUser => {
+      if (updatedUser) {
+        console.log('User authenticated, updating RXCore user:', updatedUser.username);
+        RXCore.setUser(updatedUser.username, updatedUser.displayName || updatedUser.username);
+      } else if (user !== null) {
+        // Only log out if we previously had a user (avoid duplicate init)
+        console.log('User logged out, clearing RXCore user');
+        RXCore.setUser('', '');
+      }
+    });
 
     RXCore.setJSONConfiguration(JSNObj);
     RXCore.limitZoomOut(false);

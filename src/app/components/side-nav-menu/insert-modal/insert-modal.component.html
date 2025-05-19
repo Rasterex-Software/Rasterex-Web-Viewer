@@ -31,7 +31,7 @@
                     </div>
                     <ng-template #fileUploadProgress>
                         <div *ngIf="selectedFileName" class="container-file-upload">
-                            <div class="info-file-gallery"> 
+                            <div class="info-file-gallery">
                                 <div class="file">
                                     <img src="/assets/images/file-ico.svg" />
                                     <div class="selected-file">
@@ -43,7 +43,7 @@
                             </div>
                             <div class="btn-file-gallery">
                                 <button *ngIf="!isUploadFile" class="btn btn-light" (click)="clearData()">CANCEL</button>
-                                <button class="btn btn-primary" (click)="uploadFile()" [disabled]="isUploadFile">PROCESS</button>
+                                <button class="btn btn-primary" (click)="uploadFile(true)" [disabled]="isUploadFile || !file">PROCESS</button>
                             </div>
                         </div>
                     </ng-template>
@@ -56,7 +56,7 @@
                             <div class="group">
                                 <div class="input">
                                     <span>Current Page</span>
-                                    <input type="text"  
+                                    <input type="text"
                                     (blur)="onBlurPageRange()"
                                     [(ngModel)]="pageRangeStr" autocomplete="off"
                                         (change)="validate()" />
@@ -99,7 +99,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="control">
                         <button [disabled]="isInvalid" (click)="addPages()">Add Page(s)</button>
                     </div>
@@ -110,7 +110,7 @@
     <div *ngIf="loadingStatus === 'LOADED'" class="opened-pages" >
         <div class="header">
             <div class="header-title">
-                <svg 
+                <svg
                 (click)="loadingStatus = 'NONE'"
                 xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
                     <path fill="#A4ABAE"
@@ -143,7 +143,7 @@
                 <span class="bold">{{" "}}</span>
             </div>
             <div class="thumbnail-list">
-                <div 
+                <div
                 (click)="onClickPage(i)"
                 class="thumbnail" *ngFor="let thumbnail of thumbnails; index as i">
                     <canvas [thumbnail]="thumbnail"></canvas>
@@ -154,14 +154,14 @@
         </div>
         <div
         class="footer">
-            <button 
+            <button
             (click)="selectPages()"
             class="select">
                 {{selectedCount() > 0? "Deselect" : "Select"}} All
             </button>
             <button
             (click)="importPages()"
-            [disabled]="selectedCount() === 0" 
+            [disabled]="selectedCount() === 0"
             class="add">
                 {{visible === 'INSERT' ? "Add" : "Replace"}} Page(s)
             </button>

@@ -1,11 +1,11 @@
 import { Directive, ElementRef, HostListener, Input } from '@angular/core';
 
 @Directive({
-  selector: '[appNumericRange]'
+  selector: '[rxNumericRange]'
 })
 export class NumericRangeDirective {
-  @Input('appMin') minValue!: number;
-  @Input('appMax') maxValue!: number;
+  @Input() minValue!: number;
+  @Input() maxValue!: number;
 
   constructor(private el: ElementRef<HTMLInputElement>) {}
 

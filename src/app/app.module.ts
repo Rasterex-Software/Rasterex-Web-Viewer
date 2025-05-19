@@ -99,8 +99,8 @@ import { CommentStatusIconComponent } from './components/annotation-tools/commen
 import { LoginComponent } from './components/user/login/login.component';
 import { RoomPanelComponent } from './components/collab/room-panel.component';
 import { TooltipComponent } from './components/tooltip/tooltip.component';
-import { NumericRangeDirective } from "./components/side-nav-menu/pages/numeric-range.directive";
-import { ResizableDirective } from './directives/rx-resizable.directive';
+import { NumericRangeDirective } from "./directives/numeric-range.directive";
+import { ResizableDirective } from './directives/resizable.directive';
 
 const storeSchema = [
   { name: 'name', keypath: 'name', options: { unique: false } },

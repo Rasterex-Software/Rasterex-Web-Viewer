@@ -1,3 +1,10 @@
+May 19, 2025
+### 1. Added Fills to Create Custom Stamp Modal so that It can be 3sections and added edit button to enable edit of custom stamp(Need to dig into more for IndexDB)
+Updated and new files
+src/app/components/annotation-tools/stamp-panel/stamp-panel.component.html
+src/app/components/annotation-tools/stamp-panel/stamp-panel.component.ts
+src/assets/images/edit-ico.svg
+
 May 14, 2025
 
 ### 1. Fixed a problem with drawing display when having PDF and other formats open at the same time.

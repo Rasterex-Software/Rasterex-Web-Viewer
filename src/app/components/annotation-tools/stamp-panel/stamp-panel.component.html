@@ -36,6 +36,10 @@
             style="border: none; background: none; cursor: pointer; padding: 0; margin-left: 8px;">
             <img src="/assets/images/convert-standard.svg" />
           </button>
+          <button title="edit" (click)="editCustomStamp(template.id)"
+            style="border: none; background: none; cursor: pointer; padding: 0; margin-left: 8px;">
+            <img src="/assets/images/edit-ico.svg" />
+          </button>
           <button title="trash" (click)="deleteCustomStamp(template.id)"
             style="border: none; background: none; cursor: pointer; padding: 0; margin-left: 8px;">
             <img src="/assets/images/trash-ico.svg" />
@@ -112,6 +116,7 @@
       <div class="btn-group" role="group">
         <button [class.selected]="activeIndex == 0" (click)="activeIndex = 0">Text</button>
         <button [class.selected]="activeIndex == 1" (click)="activeIndex = 1">Stroke</button>
+        <button [class.selected]="activeIndex == 2" (click)="activeIndex = 2">Fill</button>
       </div>
       <div *ngIf="activeIndex == 0">
         <label for="stampText">Stamp Text:</label>
@@ -139,19 +144,6 @@
             </rx-color-picker>
           </ng-template>
         </rx-accordion-item>
-        <!-- <rx-accordion-item   [title]="'Opacity'">
-              <ng-template accordionContent>
-                  <div class="slider-container">
-                      <ngx-slider
-                          class="slider"
-                          [(value)]="fillOpacity"
-                          [options]="{floor: 0, ceil: 100, hideLimitLabels: true, hidePointerLabels: true, showSelectionBar: true }"
-                          (userChange)="onFillOpacityChange()">
-                      </ngx-slider>
-                      <span class="value">{{fillOpacity}}%</span>
-                  </div>
-              </ng-template>
-          </rx-accordion-item> -->
         <rx-accordion-item [title]="'TimeStamp Text'">
           <ng-template accordionContent>
             <div *ngIf="activeIndex == 0" id="custom-checkbox-container">
@@ -219,6 +211,38 @@
           </ng-template>
         </rx-accordion-item>
       </rx-accordion>
+
+      <div *ngIf="activeIndex == 2">
+        <section>
+          <h4>Opacity</h4>
+          <div class="slider-container">
+            <ngx-slider class="slider" [(value)]="fillOpacity"
+              [options]="{floor: 0, ceil: 100, hideLimitLabels: true, hidePointerLabels: true, showSelectionBar: true }"
+              (userChange)="onFillOpacityChange()">
+            </ngx-slider>
+            <span class="value">{{fillOpacity}}%</span>
+          </div>
+        </section>
+        <section>
+          <h4>Colors</h4>
+          <rx-color-picker [value]="fillColor" (valueChange)="onFillColorSelect($event)">
+          </rx-color-picker>
+        </section>
+        <section>
+          <div class="snap-section">
+            <span>Snap</span>
+            <rx-switch [checked]="snap" (change)="onSnapChange($event)">
+            </rx-switch>
+          </div>
+        </section>
+        <section>
+          <div class="snap-section">
+            <span>Lock</span>
+            <rx-switch [checked]="locked" (change)="onLockChange($event)">
+            </rx-switch>
+          </div>
+        </section>
+      </div>
 
     </div>
     <div class="footer">

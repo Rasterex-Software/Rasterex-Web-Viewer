@@ -8,7 +8,8 @@
                 <ng-container *ngSwitchCase="5">Signature</ng-container>
                 <ng-container *ngSwitchCase="6">Blocks</ng-container>
             </h4>
-             <span role="button" (click)="togglePanel(false); activeIndex = -1;">
+             <!-- <span role="button" (click)="togglePanel(false); activeIndex = -1;"> -->
+            <span role="button" (click)="togglePanel(false); activeIndex = -1" *ngIf="visibleSidebarItemsCount() > 1">
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path fill-rule="evenodd" clip-rule="evenodd" d="M12.7995 7.99948C12.7995 8.29403 12.5607 8.53281 12.2661 8.53281H5.0204L7.84327 11.3556C8.05155 11.564 8.05155 11.9017 7.84327 12.11C7.63499 12.3182 7.2973 12.3182 7.08903 12.11L3.35569 8.3766C3.25168 8.27259 3.19961 8.13632 3.19948 8V13.3328C3.19948 13.6273 2.9607 13.8661 2.66615 13.8661C2.3716 13.8661 2.13281 13.6273 2.13281 13.3328V2.66615C2.13281 2.3716 2.3716 2.13281 2.66615 2.13281C2.9607 2.13281 3.19948 2.3716 3.19948 2.66615V8C3.19961 7.86368 3.25168 7.72636 3.35569 7.62235L7.08903 3.88903C7.2973 3.68074 7.63499 3.68074 7.84327 3.88903C8.05155 4.0973 8.05155 4.43499 7.84327 4.64327L5.0204 7.46615H12.2661C12.5607 7.46615 12.7995 7.70493 12.7995 7.99948Z" fill="#333C4E"/>
                 </svg>

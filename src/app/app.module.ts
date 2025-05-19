@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule, Title } from '@angular/platform-browser';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 
 //import { FormsModule } from '@angular/forms';
 
@@ -100,6 +100,7 @@ import { LoginComponent } from './components/user/login/login.component';
 import { RoomPanelComponent } from './components/collab/room-panel.component';
 import { TooltipComponent } from './components/tooltip/tooltip.component';
 import { NumericRangeDirective } from "./components/side-nav-menu/pages/numeric-range.directive";
+import { AuthInterceptor } from './services/auth-interceptor.service';
 
 const storeSchema = [
   { name: 'name', keypath: 'name', options: { unique: false } },
@@ -217,7 +218,17 @@ const dbConfig: DBConfig  = {
     TreeviewModule.forRoot(),
     ToastrModule.forRoot(), // ToastrModule added
   ],
-  providers: [ColorHelper, Title],
+   providers: [
+    ColorHelper,
+    Title,
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptor,
+      multi: true
+    }
+  ],
+
+
   bootstrap: [AppComponent],
   
 })

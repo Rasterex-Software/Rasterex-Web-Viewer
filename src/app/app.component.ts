@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnDestroy } from '@angular/core';
 import { FileGaleryService } from './components/file-galery/file-galery.service';
 import { RxCoreService } from './services/rxcore.service';
 import { RXCore } from 'src/rxcore';
@@ -13,6 +13,7 @@ import { IVectorBlock } from 'src/rxcore/models/IVectorBlock';
 import { CollabService } from './services/collab.service';
 import { AnnotationStorageService } from './services/annotation-storage.service';
 import { TooltipService } from './components/tooltip/tooltip.service';
+import { Subscription } from 'rxjs';
 
 
 
@@ -23,7 +24,7 @@ import { TooltipService } from './components/tooltip/tooltip.service';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
-export class AppComponent implements AfterViewInit {
+export class AppComponent implements AfterViewInit, OnDestroy {
   //@ViewChild('progressBar') progressBar: ElementRef;
   
   guiConfig$ = this.rxCoreService.guiConfig$;
@@ -57,6 +58,11 @@ export class AppComponent implements AfterViewInit {
   infoData: Array<any> = [];
   infoPanelVisible: boolean = false;
 
+  sidebarState$ = this.sidebarStateService.sidebarState$;
+  private sidebarStateSubscription: Subscription;
+    sidebarOpen = false;
+
+
 
   constructor(
     private readonly recentfilesService: RecentFilesService,
@@ -68,7 +74,17 @@ export class AppComponent implements AfterViewInit {
     private readonly collabService: CollabService,  
     private readonly annotationStorageService: AnnotationStorageService,
     private titleService:Title,
-    private el: ElementRef) { }
+    private readonly sidebarStateService: RxCoreService,
+    private el: ElementRef) {
+      // Subscribe to sidebar state changes
+      this.sidebarStateSubscription = this.sidebarState$.subscribe((state) => {
+        if(state === true) {
+           RXCore.zoomHeight();
+        }
+        this.sidebarOpen = state;
+      });
+
+     }
     
   ngOnInit() {
 
@@ -128,7 +144,10 @@ export class AppComponent implements AfterViewInit {
     RXCore.convertPDFAnnots(this.convertPDFAnnots);
     RXCore.usePDFAnnotProxy(this.createPDFAnnotproxy);
 
+    // Get the current user from the service to ensure we use authenticated data
     const user = this.userService.getCurrentUser();
+    console.log('App initializing with user:', user?.username || 'none');
+    
 
     let JSNObj = [
       {
@@ -138,6 +157,17 @@ export class AppComponent implements AfterViewInit {
       }
     ];
 
+    // Subscribe to user changes to update RXCore when authentication state changes
+    this.userService.currentUser$.subscribe(updatedUser => {
+      if (updatedUser) {
+        console.log('User authenticated, updating RXCore user:', updatedUser.username);
+        RXCore.setUser(updatedUser.username, updatedUser.displayName || updatedUser.username);
+      } else if (user !== null) {
+        // Only log out if we previously had a user (avoid duplicate init)
+        console.log('User logged out, clearing RXCore user');
+        RXCore.setUser('', '');
+      }
+    });
 
 
 
@@ -446,6 +476,7 @@ export class AppComponent implements AfterViewInit {
       this.rxCoreService.setNumOpenFiles(state?.numOpenFiles);
       this.rxCoreService.setGuiState(state);
 
+      
       if (this.eventUploadFile) this.fileGaleryService.sendStatusActiveDocument('awaitingSetActiveDocument');
       if ((state.source === 'forcepagesState' && state.isPDF) || (state.source === 'setActiveDocument' && !state.isPDF)) {
         
@@ -883,6 +914,12 @@ export class AppComponent implements AfterViewInit {
   }
 
   ngOnDestroy() {
+
+    // Clean up subscription
+    if (this.sidebarStateSubscription) {
+      this.sidebarStateSubscription.unsubscribe();
+    }
+
     this.tooltipService.closeTooltip();
     this.infoPanelVisible = false;
   }

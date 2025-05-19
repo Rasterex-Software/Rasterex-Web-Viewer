@@ -43,7 +43,7 @@
                             </div>
                             <div class="btn-file-gallery">
                                 <button *ngIf="!isUploadFile" class="btn btn-light" (click)="clearData()">CANCEL</button>
-                                <button class="btn btn-primary" (click)="uploadFile()" [disabled]="isUploadFile">PROCESS</button>
+                                <button class="btn btn-primary" (click)="uploadFile(true)" [disabled]="isUploadFile || !file">PROCESS</button>
                             </div>
                         </div>
                     </ng-template>

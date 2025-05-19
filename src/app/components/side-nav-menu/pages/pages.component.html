@@ -21,9 +21,9 @@
                 <input
                     type="number"
                     placeholder="0"
-                    appNumericRange
-                    [appMin]="1"
-                    [appMax]="thumbnails?.length"
+                    rxNumericRange
+                    [minValue]="1"
+                    [maxValue]="thumbnails?.length"
                     [(ngModel)]="page"
                     (keyup)="onPageSearch($event)" />
             </div>

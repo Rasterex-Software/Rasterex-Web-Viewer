@@ -1,3 +1,27 @@
+May 19, 2025
+
+### 1. Improved UI design of the File Gallery with enhanced styling, background shadow, and bordered tiles for a more realistic look.
+### 2. Removed repeated static "PDF Reader powered by Foxit" lines and ensured it appears only once per tab for consistency.
+### 3. Fixed modal layout issues to prevent UI elements from overflowing outside the modal boundaries.
+### 4. Added placeholder generic thumbnails for selectable demo files, and organized them in a dedicated images/thumbnails/ folder.
+### 5. Refined the layout of the Recent Documents tab to ensure visual consistency and alignment with neighboring tiles.
+
+
+Updated and new files
+
+src\app\components\common\modal-dialog\modal-dialog.component.scss
+src\app\components\common\file-galery\file-galery.component.html
+src\app\components\common\file-galery\file-galery.component.scss
+src\app\components\common\recent-files\recent-files.component.scss
+src\assets\config\UIConfig.js
+src\assets\images\thumbnails\3d-thumbnail.png
+src\assets\images\thumbnails\cad-thumbnail.png
+src\assets\images\thumbnails\documents-thumbnail.png
+src\assets\images\thumbnails\image-thumbnail.png
+src\assets\images\thumbnails\plotter-thumbnail.png
+
+
+
 May 16, 2025
 
 ### 1. Implemented locked aspect ratio for image type annoations.

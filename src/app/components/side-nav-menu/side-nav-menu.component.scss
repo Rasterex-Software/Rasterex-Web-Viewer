@@ -14,7 +14,8 @@
         position: absolute;
         z-index: 1;
         box-sizing: border-box;
-        overflow-x: hidden;
+        //overflow-x: hidden;
+
 
         ul {
             list-style: none;
@@ -119,8 +120,7 @@
         background-color: $side-nav-panel-background;
         box-shadow: 0 0 7px 2px #48484814;
         transition: transform 0.3s ease-in-out;
-        overflow-x: hidden;
-        padding-right: 15px;
+        //overflow-x: hidden;
 
         &:not(.opened) {
             transform: translateX(-100%);
@@ -129,7 +129,7 @@
         &.opened {
             left: 0;
 
-          &:has(.splitter) {
+          &:has(.resizer) {
             padding-right: 15px;
           }
         }

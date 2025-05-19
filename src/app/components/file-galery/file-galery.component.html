@@ -9,7 +9,7 @@
             <img class="close" src="/assets/images/close-modal-ico.svg" (click)="handleCloseModalFileGalery()" />
             <span class="title">FILE GALLERY</span>
         </div>
-        <div [ngSwitch]="leftTabActiveIndex">
+        <div [ngSwitch]="leftTabActiveIndex" style="height: 91%;">
             <div *ngSwitchDefault>
                 <div class="tabbed-menu">
                     <div
@@ -26,12 +26,14 @@
                         class="tile"
                         (click)="handleFileSelect(item)">
                             <!-- <div class="thumbnail"><img src="{{item.thumbnail}}" /></div> -->
-                            <div class="thumbnail"></div>
+                            <div class="thumbnail">
+                                <img height="85%" width="85%" [src]="item.thumbnail" />
+                            </div>
                             <div class="title">{{item.name}}</div>
                     </div>
                     <br>
                     <br>
-                    <p class="copyright">PDF Reader powered by Foxit. Copyright (c) 2003-2024 by Foxit Software Incorporated</p>
+                    <!-- <p class="copyright">PDF Reader powered by Foxit. Copyright (c) 2003-2024 by Foxit Software Incorporated</p> -->
                 </div>
             </div>
             <div *ngSwitchCase="1">
@@ -58,7 +60,8 @@
                         <li>Other text formats like </li>
                     </ul>
 
-                    <p class="copyright">PDF Reader powered by Foxit. Copyright (c) 2003-2024 by Foxit Software Incorporated</p>
+                    <!-- <p class="copyright">PDF Reader powered by Foxit. Copyright (c) 2003-2024 by Foxit Software Incorporated</p> -->
+                    
 
                 </div>
                 <ng-template #fileUploadProgress>
@@ -81,7 +84,7 @@
             <div *ngSwitchCase="2">
                 <rx-recent-files (select)="onSelectRecentFile($event)"></rx-recent-files>
             </div>
-
+            <p class="copyright">PDF Reader powered by Foxit. Copyright (c) 2003-2025 by Foxit Software Incorporated</p>
         </div>
     </div>
 

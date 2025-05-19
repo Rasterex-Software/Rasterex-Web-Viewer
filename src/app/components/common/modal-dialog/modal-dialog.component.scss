@@ -1,3 +1,4 @@
+@import "../../../../assets/scss/config.scss";
 .rx-modal-dialog-wrapper{
     z-index: 9999;
    // overflow: hidden;
@@ -14,7 +15,9 @@
     .rx-modal-dialog-container {
         position: absolute;
         background: #FFFFFF;
-        border-radius: 4px;
+        border: 1px solid $accent;
+        border-radius: 10px;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
         //min-width: 500px;
         //min-height: 100px;
         top: 50%;

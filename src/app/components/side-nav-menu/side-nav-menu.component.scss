@@ -112,16 +112,26 @@
         position: absolute;
         height: 100%;
         width: 288px;
+        display: flex;
+        flex-direction: column;
         top: 0;
         right: auto;
-        left: -288px;
         background-color: $side-nav-panel-background;
-        box-shadow: 0px 0px 7px 2px #48484814;
-        transition: left 0.3s ease-in-out;
+        box-shadow: 0 0 7px 2px #48484814;
+        transition: transform 0.3s ease-in-out;
         overflow-x: hidden;
+        padding-right: 15px;
+
+        &:not(.opened) {
+            transform: translateX(-100%);
+        }
 
         &.opened {
             left: 0;
+
+          &:has(.splitter) {
+            padding-right: 15px;
+          }
         }
 
         .toggleable-panel-header {
@@ -157,10 +167,23 @@
         }
 
         .toggleable-panel-body {
-            height: calc(100% - 42px);
-            overflow-y: scroll;
+            flex: 1;
+            overflow-y: auto;
             scrollbar-width: thin;
-    
+        }
+
+        .resizer {
+            width: 15px;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: var(--background-secondary);
+            border-left: 1px solid var(--background);
+            border-right: 1px solid var(--background);
         }
     }
 }

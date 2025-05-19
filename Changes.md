@@ -5,6 +5,22 @@ src/app/components/annotation-tools/stamp-panel/stamp-panel.component.html
 src/app/components/annotation-tools/stamp-panel/stamp-panel.component.ts
 src/assets/images/edit-ico.svg
 
+May 15, 2025
+### 1. Drag/Drop image is stretched
+### 2. Images: Maintain Aspect Ratio
+Updated and new files
+src/app/components/annotation-tools/stamp-panel/stamp-panel.component.html
+src/app/components/annotation-tools/stamp-panel/stamp-panel.component.scss
+src/assets/scripts/rxcorefunctions.js
+
+May 14, 2025
+### 1. Toolbar hover issue
+### 2. Toolbar icon too small fix
+Updated and new files
+src/app/components/bottom-toolbar/bottom-toolbar.component.html
+src/app/components/bottom-toolbar/bottom-toolbar.component.scss
+src/app/components/bottom-toolbar/bottom-toolbar.component.scss
+
 May 14, 2025
 
 ### 1. Fixed a problem with drawing display when having PDF and other formats open at the same time.

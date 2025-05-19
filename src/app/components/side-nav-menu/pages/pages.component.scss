@@ -1,9 +1,27 @@
 @import "../../../../assets/scss/config.scss";
 
 .pages-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+
+  .nav-tabs {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    flex: 0 0 46px;
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+  }
 
     .nav-tabs-content {
-        padding: 12px 0;
+        flex: 1 1 auto;
+        overflow-y: auto;
+        padding: 12px 8px 0;
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -97,14 +115,14 @@
                 box-sizing: border-box;
                 outline: none;
                 transition: 0.3s;
-        
+
                 &:focus {
                     border-color: $main;
 
 
 
                 }
-        
+
                 &::placeholder {
 
                     color: #A4ABAE;
@@ -128,7 +146,7 @@
 
         .pages-list {
             overflow: auto;
-            max-height: calc(100vh - 228px);
+            width: 100%;
             display: flex;
             align-items: flex-start;
             justify-content: space-evenly;
@@ -137,7 +155,6 @@
             padding: 12px;
             box-sizing: border-box;
             scrollbar-width: thin;
-
         }
 
         /* .pages-list {
@@ -248,7 +265,6 @@
         .bookmarks-empty {
             display: flex;
             justify-content: center;
-            height: calc(100vh - 228px);
 
             p {
                 text-align: center;

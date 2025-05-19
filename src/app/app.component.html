@@ -6,11 +6,9 @@
 <div
   class="content"
   [class.full-height]="(guiConfig$ | async).disableTopNavMenu"
-  [class.full-width]="!sidebarOpen"
-
+  [class.full-width]="(guiConfig$ | async).disableSideNavMenu"
   [ngStyle]="{'filter': eventUploadFile ? 'blur(3px)' : 'none' }">
-  <!-- <div id="mainContent" class="main-content" [class.overflow-hidden]="!(numOpenFiles$ | async)"> -->
-  <div id="mainContent" class="main-content" [class.overflow-hidden]="!(numOpenFiles$ | async)" [ngStyle]="{'width': sidebarOpen ? 'calc(100% - 300px); margin-left: 300px ' : '100%'}"> 
+  <div id="mainContent" class="main-content" [class.overflow-hidden]="!(numOpenFiles$ | async)">
     <div *ngIf="!(numOpenFiles$ | async)" class="welcome-content">
       <img [src]="(guiConfig$ | async).logoUrl" />
       <!-- <div class="btn-choice-file" (click)="handleLoginClick()">Log In</div> -->

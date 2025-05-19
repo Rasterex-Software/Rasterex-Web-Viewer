@@ -65,90 +65,12 @@ export class UserService {
   public canDeleteAnnotation$ = this._canDeleteAnnotation.asObservable();
 
   constructor(private http: HttpClient) {
-    // Load from localStorage if available
-    this.loadAuthState();
-
-    // Default permissions when not logged in
-    if (!this._currentUser.value) {
-      // Set the current user to null if not loaded from storage
-      this._currentUser.next(null);
-
-      this._canViewAnnotation.next(true);
-      this._canAddAnnotation.next(true);
-      this._canUpdateAnnotation.next(true);
-      this._canDeleteAnnotation.next(true);
-    }
-  }
-
-  // Load authentication state from localStorage
-  private loadAuthState(): void {
-    console.log('Attempting to load auth state from storage');
-
-    // Try both sessionStorage and localStorage to support different browser settings
-    const storedToken = sessionStorage.getItem('rx_access_token') || localStorage.getItem('rx_access_token');
-    const storedUser = sessionStorage.getItem('rx_user') || localStorage.getItem('rx_user');
-
-    console.log('Retrieved from storage:', {
-      hasToken: !!storedToken,
-      hasUser: !!storedUser
-    });
-
-    if (storedToken && storedUser) {
-      try {
-        this.accessToken = storedToken;
-        const user = JSON.parse(storedUser);
-        this._currentUser.next(user);
-
-        console.log('Successfully restored user from storage:', user.username);
-
-        // Also set RXCore user
-        if (user && user.username) {
-          try {
-            RXCore.setUser(user.username, user.displayName || user.username);
-            console.log('Set RXCore user successfully');
-          } catch (err) {
-            console.error('Error setting RXCore user:', err);
-          }
-        }
-      } catch (e) {
-        console.error('Error loading auth state:', e);
-        // Clear potentially corrupted data
-        this.clearStoredAuth();
-      }
-    } else {
-      console.log('No stored authentication found');
-    }
-  }
-
-  // Clear auth data from all storage locations
-  private clearStoredAuth(): void {
-    localStorage.removeItem('rx_access_token');
-    localStorage.removeItem('rx_user');
-    sessionStorage.removeItem('rx_access_token');
-    sessionStorage.removeItem('rx_user');
-  }
-
-  // Save authentication state to sessionStorage and localStorage for redundancy
-  private saveAuthState(token: string, user: User | null): void {
-    console.log('Saving auth state to storage:', { hasToken: !!token, hasUser: !!user });
-    if (token && user) {
-      try {
-        // Store in sessionStorage (primary)
-        sessionStorage.setItem('rx_access_token', token);
-        sessionStorage.setItem('rx_user', JSON.stringify(user));
-
-        // Also store in localStorage as backup
-        localStorage.setItem('rx_access_token', token);
-        localStorage.setItem('rx_user', JSON.stringify(user));
-
-        console.log('Auth state saved successfully to both storage types');
-      } catch (e) {
-        console.error('Error saving auth state:', e);
-      }
-    } else {
-      this.clearStoredAuth();
-      console.log('Auth state cleared from storage');
-    }
+    // when a user is not logged in, he can do everything
+    this._currentUser.next(null);
+    this._canViewAnnotation.next(true);
+    this._canAddAnnotation.next(true);
+    this._canUpdateAnnotation.next(true);
+    this._canDeleteAnnotation.next(true);
   }
 
   async login(username: string, password: string): Promise<User> {
@@ -162,10 +84,6 @@ export class UserService {
         next: (v: any) => {
           this.accessToken = v.accessToken;
           this._currentUser.next(v.user);
-
-          // Save to localStorage
-          this.saveAuthState(v.accessToken, v.user);
-
           resolve(v.user);
         },
         error: (e: ResponseMessage) => {
@@ -184,10 +102,6 @@ export class UserService {
         next: (v: ResponseMessage) => {
           this.accessToken = '';
           this._currentUser.next(null);
-
-          // Clear localStorage
-          this.saveAuthState('', null);
-
           console.log('logout result:', v);
           resolve();
         },
@@ -205,7 +119,7 @@ export class UserService {
     getCurrentUser(): User | null {
       return this._currentUser.value;
     }
-
+  
   /**
    * Checks if the current user is admin.
    * There is no system role defined today, so we simply check if the username is 'admin'.
@@ -216,10 +130,10 @@ export class UserService {
       if (!user) {
         return false;
       }
-
+  
       return user.username === 'admin';
     }
-
+  
 
   /**
    * Gets permissions from back-end.
@@ -398,15 +312,4 @@ export class UserService {
     console.log('Annotations:', annos);
     // TODO: implement it
   }
-
-  /**
-   * Clears invalid authentication when we get auth errors from the server
-   */
-  public clearInvalidAuth(): void {
-    console.log('Clearing invalid authentication data');
-    this.accessToken = '';
-    this._currentUser.next(null);
-    this.clearStoredAuth();
-  }
 }
-

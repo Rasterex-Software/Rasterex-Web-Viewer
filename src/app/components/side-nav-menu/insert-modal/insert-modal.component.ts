@@ -320,17 +320,11 @@ export class InsertModalComponent implements OnInit {
     }
 
     handleFileUpload(event) {
-        //const file = this.file = event.target ? event.target.files[0] : event[0];
-        const file = event.target ? event.target.files[0] : event[0];
+        const file = this.file = event.target ? event.target.files[0] : event[0];
 
         if (file) {
-            this.file = file;
-            this.selectedFileName = file.name;
-            const bytes = file.size;
-
-            // Get file type for validation
-            this.fileType = file.type || '';
-
+        this.selectedFileName = file.name;
+        const bytes = file.size;
 
         if (bytes < 1024) {
             this.fileSize = parseFloat(bytes.toFixed(2)); 
@@ -345,68 +339,33 @@ export class InsertModalComponent implements OnInit {
             this.fileSize = parseFloat((bytes / (1024 * 1024 * 1024)).toFixed(2));
             this.fileSizeUnits = 'GB';
         }
-
-        // For image files, automatically start processing
-        if (this.fileType.startsWith('image/')) {
-            this.uploadFile(true);
-        }
-        
-
         }
     }
 
-    uploadFile(fileSelect?: any) {
+    uploadFile(fileSelect) {
         if (this.file || fileSelect) {
-            // Set loading status immediately
             this.loadingStatus = 'LOADING';
-
-            // Add a timeout to ensure UI updates before starting heavy processing
-            setTimeout(() => {
-                // Clear any previous data
-                this.thumbnails = [];
-
-                RXCore.getAllThumbnailsFromFile(this.file)
-                    .then(value => {
-                        this.thumbnails = value;
-                        this.loadingStatus = 'LOADED';
-                        this.checkedPageList = new Array(value.length).fill(true);
-                        this.checkedPageRangeStr = `1-${value.length}`;
-
-
-                    })
-                    .catch((error) => {
-                        console.error('Error loading thumbnails:', error);
-                        this.loadingStatus = 'NONE';
-                        // Display user-friendly error message
-                        alert('Failed to process file. Please try again.');
-                    });
-            }, 100);
+            RXCore.getAllThumbnailsFromFile(this.file).then(value => {
+                this.thumbnails = value;
+                this.loadingStatus = 'LOADED';
+                this.checkedPageList = new Array(value.length).fill(true);
+                this.checkedPageRangeStr = `1-${value.length}`
+            }).catch(() => {
+                this.loadingStatus = 'NONE';
+            }) 
         }
     }
-    
 
     clearData() {
         this.file = undefined;
         this.selectedFileName = ''; 
         this.isUploadFile = false;
-        this.thumbnails = [];
     }
 
 
     public onDrop(files: FileList): void {
-        if (files && files.length > 0) {
-            this.handleFileUpload(files);
-            // Instead of directly setting files, we create a new DataTransfer object
-            try {
-                const dataTransfer = new DataTransfer();
-                dataTransfer.items.add(files[0]);
-                this.fileToUpload.nativeElement.files = dataTransfer.files;
-            } catch (error) {
-                console.error('Error handling dropped file:', error);
-                // Fallback for browsers that don't support DataTransfer
-                this.fileToUpload.nativeElement.files = files;
-            }
-        }
+        this.handleFileUpload(files);
+        this.fileToUpload.nativeElement.files = files;
     }
 
     public onChooseClick() {

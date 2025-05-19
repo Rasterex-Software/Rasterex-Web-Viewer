@@ -41,7 +41,7 @@ export class DatePickerComponent {
   clickCounter: number = 0;
 
   get date(): string {
-    if (!this.startDate && !this.endDate) return 'Select...';
+
     if (this.startDate && !this.endDate) return `${this.startDate.format(this.dateFormat.dateMonthYear)}`;
     if (this.startDate && this.endDate && this.startDate.isSame(this.endDate)) return `${this.startDate.format(this.dateFormat.dateMonthYear)}`;
     return `${this.startDate.format(this.dateFormat.dateMonthYear)} - ${this.endDate.format(this.dateFormat.dateMonthYear)}`;

@@ -593,25 +593,4 @@ deleteImageStamp(id: number): void {
   onPanelClose(): void {
     this.onClose.emit();
   }
-
-  onSnapChange(onoff: boolean): void {
-    RXCore.changeSnapState(onoff);
-  }
-
-  onLockChange(onoff: boolean): void {
-    //RXCore.changeSnapState(onoff);
-    let mrkUp = RXCore.getSelectedMarkup();
-    mrkUp.locked = onoff;
-  }
-
-  onFillOpacityChange(): void {
-    RXCore.changeTransp(this.fillOpacity);
-  }
-
-  editCustomStamp(id: number): void {
-    const stampToEdit = this.customStamps.find(stamp => stamp.id === id);
-    //Logic to edit
-  }
-
-
 }

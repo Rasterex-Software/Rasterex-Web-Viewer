@@ -16,11 +16,6 @@ import { IVectorLayer } from 'src/rxcore/models/IVectorLayer';
   providedIn: 'root'
 })
 export class RxCoreService {
-
-  private sidebarState = new BehaviorSubject<boolean>(false);
-  sidebarState$ = this.sidebarState.asObservable();
-
-
   constructor() {
 
     
@@ -352,16 +347,6 @@ export class RxCoreService {
 
   setGuiCalibrate(data: any) {
     this.guiCalibrateSubject.next(data);
-  }
-
-  setSidebarState(state: boolean) {
-    console.log('SidebarStateService: Setting state to:', state);
-    this.sidebarState.next(state);
-  }
-
-
-  getSidebarState(): boolean {
-    return this.sidebarState.value;
   }
 
 

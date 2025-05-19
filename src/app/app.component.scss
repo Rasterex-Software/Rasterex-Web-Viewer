@@ -1,20 +1,15 @@
 @import "../assets/scss/config.scss";
 
 .content {
-    width: calc(100% - 300px);
+    width: 100% ;
     height: 100%;
     box-sizing: border-box; 
-    margin-left: 300px;
     //padding-left: 82px;
     padding-top: 48px;
     display: flex;
-    overflow-x: hidden;
 
     &.full-height {
-        width: 100%;
-        margin-left: 0;
-        //padding-top: 0;
-
+        padding-top: 0;
     }
 
     &.full-width {
@@ -26,7 +21,6 @@
     }
 
     .main-content {
-        width: 100%;
         overflow: hidden;
         position: relative;
         //flex-direction: column;

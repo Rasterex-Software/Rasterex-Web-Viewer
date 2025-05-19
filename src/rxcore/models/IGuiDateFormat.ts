@@ -7,4 +7,6 @@ export interface IGuiDateFormat {
     dateTime: string;
     dateTimeWithoutYear: string;
     dateMonthYear: string;
+    dateTimeWithConditionalYear: string;
+    dateTimeWithSeconds: string;
 } 

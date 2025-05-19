@@ -541,7 +541,7 @@ export class NotePanelComponent implements OnInit {
       //item.author = item.title !== '' ? item.title : RXCore.getDisplayName(item.signature);
 
       item.author = RXCore.getDisplayName(item.signature);
-      item.createdStr = dayjs(item.timestamp).format(`MMM D,${dayjs().year() != dayjs(item.timestamp).year() ? 'YYYY ': ''} h:mm A`);
+      item.createdStr = dayjs(item.timestamp).format(this.guiConfig?.dateFormat?.dateTimeWithConditionalYear || 'MMM d, [yyyy] h:mm a');
       //item.IsExpanded = item?.IsExpanded;
       //item.IsExpanded = this.activeMarkupNumber > 0 ? item?.IsExpanded : false;
       item.IsExpanded = item?.IsExpanded;

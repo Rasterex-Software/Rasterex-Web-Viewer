@@ -33,6 +33,8 @@ var UIConfig = (function() {
                     "dateTime": "MMM d, yyyy h:mm a",
                     "dateTimeWithoutYear": "MMM d, h:mm a",
                     "dateMonthYear": "DD/MM/YYYY",
+                    "dateTimeWithConditionalYear": "MMM d, [yyyy] h:mm a",
+                    "dateTimeWithSeconds": "D/M/YYYY HH:mm:ss"
                 }
         },
         "UIStyles" : [

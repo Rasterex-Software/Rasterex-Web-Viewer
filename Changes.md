@@ -1,3 +1,20 @@
+May 19, 2025
+
+### 1. Improved dateFormat config (src\assets\config\UIConfig.js), added dateTimeWithSeconds format under properties-panel
+### 2. Correction to annotation / measurement menu, fixed multipple trigger guiConfig, fixed swicher state
+
+RxCore version is now 35.92.
+
+Updated and new files
+
+src/assets/config/UIConfig.js
+src/rxcore/models/IGuiDateFormat.ts
+src/rxcore/models/IMarkup.ts
+src/app/components/annotation-tools/properties-panel/properties-panel.component.ts
+src/app/components/annotation-tools/note-panel/note-panel.component.ts
+src/app/components/annotation-tools/note-panel/note-panel.component.html
+src/app/components/top-nav-menu/top-nav-menu.component.ts
+
 May 16, 2025
 
 ### 1. Implemented locked aspect ratio for image type annoations.

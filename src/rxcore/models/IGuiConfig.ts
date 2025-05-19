@@ -81,5 +81,4 @@ export interface IGuiConfig {
     /*  */
     logoUrl?: string;
     dateFormat?: IGuiDateFormat;
-    dateFormat?: IGuiDateFormat;
 }

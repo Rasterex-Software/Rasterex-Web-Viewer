@@ -330,6 +330,7 @@
                             <div class="comments-date-count">
                               <div class="date-and-time">
                                 {{ itemNote.timestamp | date: (guiConfig$ | async).dateFormat?.dateTimeWithoutYear }}
+                              </div>
                               <div
                                 class="comments-count"
                                 *ngIf="

@@ -1,4 +1,4 @@
-May 19, 2025
+May 20, 2025
 
 ### 1. Added a draggable resize handle for the left pages panel.
 ### 2. Align rotation button icon with applied rotation.

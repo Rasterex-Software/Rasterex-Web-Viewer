@@ -9,7 +9,7 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 import updateLocale from 'dayjs/plugin/updateLocale';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
-import { Subscription } from 'rxjs';
+import { distinctUntilChanged, Subscription } from 'rxjs';
 import { IGuiConfig } from 'src/rxcore/models/IGuiConfig';
 
 declare var LeaderLine: any;
@@ -562,7 +562,9 @@ export class NotePanelComponent implements OnInit {
 
       item.author = RXCore.getDisplayName(item.signature);
 
-      item.createdStr = dayjs(item.timestamp).format(`MMM D,${dayjs().year() != dayjs(item.timestamp).year() ? 'YYYY ': ''} h:mm A`);
+      //item.createdStr = dayjs(item.timestamp).format(`MMM D,${dayjs().year() != dayjs(item.timestamp).year() ? 'YYYY ': ''} h:mm A`);
+      item.createdStr = dayjs(item.timestamp).format(this.guiConfig?.dateFormat?.dateTimeWithConditionalYear || 'MMM d, [yyyy] h:mm a');
+
       //item.IsExpanded = item?.IsExpanded;
       //item.IsExpanded = this.activeMarkupNumber > 0 ? item?.IsExpanded : false;
       item.IsExpanded = item?.IsExpanded;
@@ -811,8 +813,10 @@ export class NotePanelComponent implements OnInit {
     });*/
 
 
-    this.guiConfig$.subscribe(config => {
+    this.guiConfig$.pipe(distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr))).subscribe(config => {
+      
       this.guiConfig = config;
+
       if (config?.dateFormat?.locale) {
         dayjs.updateLocale(config?.dateFormat?.locale, {
           relativeTime: {
@@ -1165,6 +1169,8 @@ export class NotePanelComponent implements OnInit {
       else {
 
         let sign = RXCore.getSignature();
+        const timestamp = new Date().toISOString();
+        
         
 
 

@@ -1,3 +1,62 @@
+May 20, 2025
+
+
+### 1. Added a draggable resize handle for the left pages panel.
+### 2. Align rotation button icon with applied rotation.
+### 3. Rename and refactor NumericRangeDirective.
+
+### 1. Improved dateFormat config (src\assets\config\UIConfig.js), added dateTimeWithSeconds format under properties-panel
+### 2. Correction to annotation / measurement menu, fixed multipple trigger guiConfig, fixed swicher state
+
+
+### 3. Improved UI design of the File Gallery with enhanced styling, background shadow, and bordered tiles for a more realistic look.
+### 4. Removed repeated static "PDF Reader powered by Foxit" lines and ensured it appears only once per tab for consistency.
+### 5. Fixed modal layout issues to prevent UI elements from overflowing outside the modal boundaries.
+### 6. Added placeholder generic thumbnails for selectable demo files, and organized them in a dedicated images/thumbnails/ folder.
+### 7. Refined the layout of the Recent Documents tab to ensure visual consistency and alignment with neighboring tiles.
+
+### 8. Added Fills to Create Custom Stamp Modal so that It can be 3sections and added edit button to enable edit of custom stamp(Need to dig into more for IndexDB)
+
+Updated and new files
+
+RxCore version is now 35.921.
+
+src\assets\config\UIConfig.js
+src/rxcore/models/IGuiDateFormat.ts
+src/rxcore/models/IMarkup.ts
+src/app/components/annotation-tools/properties-panel/properties-panel.component.ts
+src/app/components/annotation-tools/note-panel/note-panel.component.ts
+src/app/components/annotation-tools/note-panel/note-panel.component.html
+src/app/components/top-nav-menu/top-nav-menu.component.ts
+
+src\app\components\common\modal-dialog\modal-dialog.component.scss
+src\app\components\common\file-galery\file-galery.component.html
+src\app\components\common\file-galery\file-galery.component.scss
+src\app\components\common\recent-files\recent-files.component.scss
+
+src\assets\images\thumbnails\3d-thumbnail.png
+src\assets\images\thumbnails\cad-thumbnail.png
+src\assets\images\thumbnails\documents-thumbnail.png
+src\assets\images\thumbnails\image-thumbnail.png
+src\assets\images\thumbnails\plotter-thumbnail.png
+
+src\app\app.module.ts
+src\app\components\side-nav-menu\context-menu\context-menu.component.scss
+src\app\components\side-nav-menu\pages\pages.component.html
+src\app\components\side-nav-menu\pages\pages.component.scss
+src\app\components\side-nav-menu\side-nav-menu.component.html
+src\app\components\side-nav-menu\side-nav-menu.component.scss
+src\app\components\bottom-toolbar\bottom-toolbar.component.html
+src\app\directives\resizable.directive.ts
+src\app\directives\numeric-range.directive.ts
+
+src/app/components/annotation-tools/stamp-panel/stamp-panel.component.html
+src/app/components/annotation-tools/stamp-panel/stamp-panel.component.ts
+src/assets/images/edit-ico.svg
+
+
+
+
 May 16, 2025
 
 ### 1. Implemented locked aspect ratio for image type annoations.

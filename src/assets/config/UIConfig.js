@@ -33,6 +33,8 @@ var UIConfig = (function() {
                   "dateTime": "MMM d, yyyy h:mm a",
                   "dateTimeWithoutYear": "MMM d, h:mm a",
                   "dateMonthYear": "DD/MM/YYYY",
+                  "dateTimeWithConditionalYear": "MMM d, [yyyy] h:mm a",
+                  "dateTimeWithSeconds": "D/M/YYYY HH:mm:ss"
               }
         },
         "UIStyles" : [
@@ -65,13 +67,12 @@ var UIConfig = (function() {
               "name": "CAD Drawings",
               "items":
               [
-                {"id": "CAD_AUTOCAD", "name": "AutoCAD Drawing", "file": "demo1.dwg", "type": "2D", "size": 106, "thumbnail" : this.cacheUrl + "demo1-1aaac-468d814f/1_1T.PNG"},
-                {"id": "CAD_MIROSTATION", "name": "Microstation Drawing", "file": "demo5.dgn", "type": "2D", "size": 5706},
-        
-                {"id": "CAD_INVENTOR", "name": "Inventor drawing", "file": "brewing-main.idw", "type": "2D", "size": 5706}
-        
                 
-                //{"id": "CAD_SOLIDWORKS", "name": "SolidWorks Drawing", "file": "Sprinkler.SLDDRW", "type": "2D", "size": 3127},
+                {"id": "CAD_AUTOCAD", "name": "AutoCAD Drawing", "file": "demo1.dwg", "type": "2D", "size": 106, "thumbnail" : "assets/images/thumbnails/cad-thumbnail.png"},
+                {"id": "CAD_MIROSTATION", "name": "Microstation Drawing", "file": "demo5.dgn", "type": "2D", "size": 5706, "thumbnail" : "assets/images/thumbnails/cad-thumbnail.png"},        
+                {"id": "CAD_INVENTOR", "name": "Inventor drawing", "file": "brewing-main.idw", "type": "2D", "size": 5706, "thumbnail" : "assets/images/thumbnails/cad-thumbnail.png"}
+
+
                 //{"id": "CAD_COMPARE", "name": "Compare", "action": "compare", "file": ["RXHDEMO5.dwg","Rxhdemo6.dwg"], "type": "2D"}
               ]
             },
@@ -79,16 +80,16 @@ var UIConfig = (function() {
               "name": "3D Models",
               "items":
               [
-                {"id": "C3D_IFCMODEL", "name": "IFC model", "file": "AC11-FZK-Haus-IFC.ifc", "type": "3D", "size": 4048},
-                {"id": "C3D_KARLSRUHE", "name": "Karlsruhe institue", "file": "AC11-Institute-Var-2-IFC.ifc", "type": "3D", "size": 2769},
-                {"id": "C3D_HITO", "name": "HITO School building", "file": "Plan_20070203_2x3.ifc", "type": "3D", "size": 72915},
+
+                {"id": "C3D_IFCMODEL", "name": "IFC model", "file": "AC11-FZK-Haus-IFC.ifc", "type": "3D", "size": 4048, "thumbnail" : "assets/images/thumbnails/3d-thumbnail.png"},
+                {"id": "C3D_KARLSRUHE", "name": "Karlsruhe institue", "file": "AC11-Institute-Var-2-IFC.ifc", "type": "3D", "size": 2769, "thumbnail" : "assets/images/thumbnails/3d-thumbnail.png"},
+                {"id": "C3D_HITO", "name": "HITO School building", "file": "Plan_20070203_2x3.ifc", "type": "3D", "size": 72915, "thumbnail" : "assets/images/thumbnails/3d-thumbnail.png"},        
+                {"id": "C3D_TIE", "name": "7181 TIE Interceptor.stp", "file": "7181 TIE Interceptor.stp", "type": "3D", "size": 72915, "thumbnail" : "assets/images/thumbnails/3d-thumbnail.png"},
+
         
-                {"id": "C3D_TIE", "name": "7181 TIE Interceptor.stp", "file": "7181 TIE Interceptor.stp", "type": "3D", "size": 72915},
-        
-                {"id": "C3D_APPLE", "name": "Apple.igs", "file": "Apple.igs", "type": "3D", "size": 72915},
-                {"id": "C3D_VALVE", "name": "Valve.ipt", "file": "Valve.ipt", "type": "3D", "size": 72915}
-        
-        
+                {"id": "C3D_APPLE", "name": "Apple.igs", "file": "Apple.igs", "type": "3D", "size": 72915, "thumbnail" : "assets/images/thumbnails/3d-thumbnail.png"},
+                {"id": "C3D_VALVE", "name": "Valve.ipt", "file": "Valve.ipt", "type": "3D", "size": 72915, "thumbnail" : "assets/images/thumbnails/3d-thumbnail.png"}
+
         
               ]
             },
@@ -96,18 +97,19 @@ var UIConfig = (function() {
               "name": "Plotter Files",
               "items":
               [
-                {"id": "PLOTTER_HPGL", "name": "HPGL Plot File", "file": "demo2.plt", "type": "2D", "size": 38},
-                {"id": "PLOTTER_GERBER", "name": "Gerber File",  "file": "demo.gbr", "type": "2D", "size": 62}
+                {"id": "PLOTTER_HPGL", "name": "HPGL Plot File", "file": "demo2.plt", "type": "2D", "size": 38, "thumbnail" : "assets/images/thumbnails/plotter-thumbnail.png"},
+                {"id": "PLOTTER_GERBER", "name": "Gerber File",  "file": "demo.gbr", "type": "2D", "size": 62, "thumbnail" : "assets/images/thumbnails/plotter-thumbnail.png"}
+                
               ]
             },
             {
               "name": "Image Files",
               "items":
               [
-                {"id": "IMAGE_TIFF", "name": "Color Tiff", "file": "demo6.tif", "type": "2D", "size": 193},
-                {"id": "IMAGE_TIFF_MONO", "name": "Mono Tiff", "file": "demo7.tif", "type": "2D", "size": 396},
-                {"id": "IMAGE_MULTIPAGE", "name": "Multipage Tiff", "file": "demo8.tif", "type": "2D", "size": 870},
-                {"id": "IMAGE_JPEG", "name": "Jpeg", "file": "X-35.jpg", "type": "2D", "size": 714}
+                {"id": "IMAGE_TIFF", "name": "Color Tiff", "file": "demo6.tif", "type": "2D", "size": 193, "thumbnail" : "assets/images/thumbnails/image-thumbnail.png"},
+                {"id": "IMAGE_TIFF_MONO", "name": "Mono Tiff", "file": "demo7.tif", "type": "2D", "size": 396, "thumbnail" : "assets/images/thumbnails/image-thumbnail.png"},
+                {"id": "IMAGE_MULTIPAGE", "name": "Multipage Tiff", "file": "demo8.tif", "type": "2D", "size": 870, "thumbnail" : "assets/images/thumbnails/image-thumbnail.png"},
+                {"id": "IMAGE_JPEG", "name": "Jpeg", "file": "X-35.jpg", "type": "2D", "size": 714, "thumbnail" : "assets/images/thumbnails/image-thumbnail.png"}
               ]
             },
             {
@@ -115,9 +117,11 @@ var UIConfig = (function() {
               "items":
               [
                 //{"id": "OFFICE_EXCEL", "name": "Excel Spreadsheet", "file": "demo11.xlsx", "type": "2D"},
-                {"id": "OFFICE_PDF", "name": "PDF Document", "file": "040915 MOBSLAKT.pdf", "type": "PDF", "size": 125},
-                {"id": "RXVIEW360_API_REFERENCE", "name": "API reference", "file": "RxView360_API_Specification.pdf", "type": "PDF", "size": 1727},
-                {"id": "demo9", "name": "Sign demo", "file": "demo9.pdf", "type": "PDF", "size": 68}
+
+                {"id": "OFFICE_PDF", "name": "PDF Document", "file": "040915 MOBSLAKT.pdf", "type": "PDF", "size": 125, "thumbnail" : "assets/images/thumbnails/documents-thumbnail.png"},
+                {"id": "RXVIEW360_API_REFERENCE", "name": "API reference", "file": "RxView360_API_Specification.pdf", "type": "PDF", "size": 1727, "thumbnail" : "assets/images/thumbnails/documents-thumbnail.png"},
+                {"id": "demo9", "name": "Sign demo", "file": "demo9.pdf", "type": "PDF", "size": 68, "thumbnail" : "assets/images/thumbnails/documents-thumbnail.png"}
+                
               ]
             }
         ]

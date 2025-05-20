@@ -330,7 +330,7 @@
                             <div class="comments-date-count">
                               <div class="date-and-time">
                                 <!-- {{ item.createdStr }} -->
-                                {{ itemNote.timestamp | date: (guiConfig$ | async).dateFormat.dateTimeWithoutYear }}
+                                {{ itemNote.timestamp | date: (guiConfig$ | async).dateFormat?.dateTimeWithoutYear }}
                               </div>
                               <div
                                 class="comments-count"

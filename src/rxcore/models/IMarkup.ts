@@ -28,6 +28,7 @@ export interface IMarkup {
     layer: string;
     rotatedrect: any;
     selected: boolean;
+    timestamp: string;
     AddAttribute: (name: string, value: any) => void;
     GetAttribute: (name: string) => any;
     updateAttribute: (name: string, value: any) => void;

@@ -4,6 +4,9 @@ import { RXCore } from 'src/rxcore';
 import { RxCoreService } from 'src/app/services/rxcore.service';
 import { ColorHelper } from 'src/app/helpers/color.helper';
 import { MARKUP_TYPES } from 'src/rxcore/constants';
+import { IGuiDateFormat } from 'src/rxcore/models/IGuiDateFormat';
+import dayjs from 'dayjs';
+
 
 @Component({
   selector: 'rx-properties-panel',
@@ -11,6 +14,8 @@ import { MARKUP_TYPES } from 'src/rxcore/constants';
   styleUrls: ['./properties-panel.component.scss']
 })
 export class PropertiesPanelComponent implements OnInit {
+  guiConfig$ = this.rxCoreService.guiConfig$;
+  dateFormat: IGuiDateFormat;
   markup: any = -1;
   currentType: number = 0;
   visible: boolean = false;
@@ -208,6 +213,11 @@ export class PropertiesPanelComponent implements OnInit {
   }
 
   ngOnInit(): void {
+
+    this.guiConfig$.subscribe(config => {
+      this.dateFormat = config?.dateFormat ?? {} as IGuiDateFormat;
+    })
+
     this.rxCoreService.guiMarkup$.subscribe(({markup, operation}) => {
       this.markup = markup;
 
@@ -267,7 +277,7 @@ export class PropertiesPanelComponent implements OnInit {
       this.infoData = {
         'Type:': (markup as any).getMarkupType().label,
         'Author:': RXCore.getDisplayName(markup.signature),
-        'Time:': (markup as any).GetDateTime(true),
+        'Time:': dayjs(markup.timestamp).format(this.dateFormat?.dateTimeWithSeconds),
         'Page:': Number(markup.pagenumber) + 1,
         'Layer:': markup.layer,
         'GUID' : markup.uniqueID

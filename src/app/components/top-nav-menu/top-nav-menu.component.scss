@@ -133,6 +133,7 @@
                         &.disabled {
                             cursor: not-allowed;
                             opacity: .5;
+                            pointer-events: none;
                         }
 
                         .print-icon {

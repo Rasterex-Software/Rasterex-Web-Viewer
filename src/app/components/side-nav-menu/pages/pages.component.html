@@ -21,18 +21,18 @@
                 <input
                     type="number"
                     placeholder="0"
-                    appNumericRange
-                    [appMin]="1"
-                    [appMax]="thumbnails?.length"
+                    rxNumericRange
+                    [minValue]="1"
+                    [maxValue]="thumbnails?.length"
                     [(ngModel)]="page"
                     (keyup)="onPageSearch($event)" />
             </div>
             <div *ngIf="isPDF" class="page-multiselect">
-                <input 
+                <input
                 [(ngModel)]="checkString"
                 (blur)="onBlurInputCheckString()"
                 type="text" placeholder="Page Range" />
-                <svg 
+                <svg
                 (click)="onClickChangeMultiSelectMode()"
                 xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
                     <path fill="#A4ABAE" *ngIf="multiSelect"
@@ -54,7 +54,7 @@
                     <path d="M7.48474 8.51526H3.51526C3.36927 8.51526 3.2469 8.46624 3.14814 8.36821C3.04938 8.27018 3 8.14741 3 7.9999C3 7.85238 3.04938 7.72965 3.14814 7.63169C3.2469 7.53372 3.36927 7.48474 3.51526 7.48474H7.48474V3.51526C7.48474 3.36927 7.53428 3.2469 7.63336 3.14814C7.73244 3.04938 7.85521 3 8.00167 3C8.14814 3 8.27035 3.04938 8.36831 3.14814C8.46628 3.2469 8.51526 3.36927 8.51526 3.51526V7.48474H12.4847C12.6307 7.48474 12.7531 7.53431 12.8519 7.63346C12.9506 7.7326 13 7.85545 13 8.00201C13 8.15079 12.9506 8.27353 12.8519 8.37021C12.7531 8.46691 12.6307 8.51526 12.4847 8.51526H8.51526V12.4847C8.51526 12.633 8.46572 12.7559 8.36664 12.8535C8.26756 12.9512 8.14479 13 7.99833 13C7.85186 13 7.72965 12.9512 7.63169 12.8535C7.53372 12.7559 7.48474 12.633 7.48474 12.4847V8.51526Z" fill="#A4ABAE"/>
                 </svg>
             </div>
-            <div 
+            <div
             cdkDropList
             (cdkDropListDropped)="onDrop($event)"
             class="pages-list">

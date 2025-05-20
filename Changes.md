@@ -1,3 +1,23 @@
+May 20, 2025
+
+### 1.Fixed an issue in the comparison popup where users could mistakenly select the same file as both base and comparison file causing UI confusion.
+### 2. Disabled the "Compare" option in the burger menu when a 3D file is opened, aligning with feature restrictions.
+### 3. Updated the "Compare Document" popup to exclude unsupported 3D files from the dropdown for better user clarity.
+### 4. Introduced a reusable file category service with a centralized enum and helper methods to streamline type-based operations.
+### 5. Resolved issue where the Grayscale slider tool in the comparison window did not toggle correctly when switching between normal and comparison views. Also added the missing tooltip for better user guidance.
+### 6. Resolved issue where comparison window's toolbar being shown on other windows even if comparison window closed or not active. streamline the behavior aviour of comparison window's toolbar to only appear in compare mode
+
+Updated and new files
+
+src\app\components\compare\create-comparison\create-comparison.component.ts
+src\app\components\compare\top-nav-menu\top-nav-menu.component.ts
+src\app\components\compare\top-nav-menu\top-nav-menu.component.html
+src\app\services\file-category.service.ts
+src\app\shared\enums\file-category.ts
+src\app\components\bottom-toolbar\bottom-toolbar.component.html
+
+
+
 May 16, 2025
 
 ### 1. Implemented locked aspect ratio for image type annoations.

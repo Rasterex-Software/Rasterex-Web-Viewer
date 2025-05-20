@@ -80,17 +80,21 @@
                 max-height: 170px;
 
                 li {
+                    display: flex;
+                    align-items: center;
                     font-weight: 400;
                     font-size: 12px;
                     line-height: 18px;
-                    padding: 8px 18px;
+                    padding: 8px 15px;
                     white-space: nowrap;
                     overflow: hidden;
                     text-overflow: ellipsis;
                     position: relative;
                     min-height: 18px;
                     border-bottom: 1px solid $background-light;
-
+                    img {
+                        width: 15px;
+                    }
                     &.hidden {
                         display: none;
                     }
@@ -110,6 +114,13 @@
                         position: absolute;
                         left: 4px;
                         top: 7px;
+                    }
+
+                    .option-item{ 
+                        width: 100%;
+                        display: flex;
+                        align-items: center;
+                        justify-content: space-between;
                     }
                 }
             }

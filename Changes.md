@@ -1,3 +1,20 @@
+May 20, 2025
+
+### 1. Improved Annotation & Measurement - refined the visual styling of note elements for a more elegant appearance, “Show/Hide All” toggle.
+### 2. Added support for displaying images (imgSrc) alongside dropdown options
+### 3. Introduced an author icon to visually represent the user/creator
+
+RxCore version is now 35.92.
+
+Updated and new files
+
+src/app/components/annotation-tools/note-panel/note-panel.component.ts
+src/app/components/annotation-tools/note-panel/note-panel.component.html
+src/app/components/annotation-tools/note-panel/note-panel.component.scss
+src/app/components/commont/dropdown/dropdown.component.html
+src/app/components/commont/dropdown/dropdown.component.scss
+src/assets/images/author-icon.svg
+
 May 19, 2025
 
 ### 1. Improved dateFormat config (src\assets\config\UIConfig.js), added dateTimeWithSeconds format under properties-panel

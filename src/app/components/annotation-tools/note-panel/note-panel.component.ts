@@ -55,15 +55,13 @@ export class NotePanelComponent implements OnInit {
   //sortByField: 'created' | 'author' = 'created';
   //sortByField: 'created' | 'position' | 'author' = 'created';
   sortByField: 'created' | 'position' | 'author' | 'pagenumber' | 'annotation' = 'created';
-  
-
 
   sortOptions = [
-    { value: "created", label: "Created day" },
-    { value: "author", label: "Author" },
-    { value: "pagenumber", label: "Page" },
-    { value: "position", label: "Position" },
-    { value: 'annotation', label: 'Annotation Type' },
+    { value: "created", label: "Created day", imgSrc: "calendar-ico.svg" },
+    { value: "author", label: "Author", imgSrc: "author-icon.svg" },
+    { value: "pagenumber", label: "Page", imgSrc: "file-ico.svg" },
+    { value: "position", label: "Position", imgSrc: "next-ico.svg" },
+    { value: 'annotation', label: 'Annotation Type', imgSrc: "bookmark-ico.svg" },
   ];
 
  /*added for comment list panel */
@@ -99,7 +97,6 @@ export class NotePanelComponent implements OnInit {
 
   showAnnotations: boolean | undefined = true;
   showMeasurements: boolean | undefined = true;
-  showAll: boolean | undefined = true;
   showAnnotationsOnLoad : boolean | undefined = false;
 
   markupTypes : Array<any> = [];
@@ -730,11 +727,11 @@ export class NotePanelComponent implements OnInit {
       
       if(this.showAnnotationsOnLoad){
         //disable main filters.
-      }else{
+      } else {
         switch(option.label) {
           case "View":
-            this.showAll = false;
-            this.onShowAll(false);
+            this.onShowAnnotations(false);
+            this.onShowMeasurements(false);
             break;
           case "Annotate":
             this.showAnnotations = true;
@@ -750,7 +747,6 @@ export class NotePanelComponent implements OnInit {
             this.onShowAnnotations(false);
             break;  
         }
-  
       }
       
     });
@@ -790,10 +786,8 @@ export class NotePanelComponent implements OnInit {
         }
 
         this.showAnnotationsOnLoad = this.guiConfig.showAnnotationsOnLoad;
-        
         this.showAnnotations = this.showAnnotationsOnLoad;
         this.showMeasurements = this.showAnnotationsOnLoad;
-        this.showAll = this.showAnnotationsOnLoad;
       });
 
 
@@ -855,14 +849,7 @@ export class NotePanelComponent implements OnInit {
           controlarray.push(pagenum);
           this.pageNumbers.push({ value: pagenum + 1, label: pagenum + 1 });
         }
-
-        
-
-        
-
       }
-
-      //this.onShowAll(this.showAll)
 
       this.authorFilter = new Set(this.getUniqueAuthorList());
 
@@ -933,11 +920,7 @@ export class NotePanelComponent implements OnInit {
         this._processList(list, this.rxCoreService.getGuiAnnotList());
       }
 
-      if(this.showAnnotationsOnLoad){
-        this.panelTitle = 'Annotations and Measurements' + " (" + this.calcAllCount() + ")";  
-      }
-
-
+      this.panelTitle = 'Annotations and Measurements' + " (" + this.calcAllCount() + ")";  
     });
 
     this.rxCoreService.guiAnnotList$.subscribe((list = []) => {
@@ -1917,25 +1900,10 @@ export class NotePanelComponent implements OnInit {
                   markup.subtype === MARKUP_TYPES.PAINT.FREEHAND.subType);
   
     }*/
-
-
-
-
   }    
 
-  
-
-  onShowAll(onoff: boolean) {
-    this.showAll = onoff;
-    this.onShowAnnotations(onoff);
-    this.onShowMeasurements(onoff);
-
-  }
-
   private _handleShowMarkupType(type :any, event: any, typeCheck: (markup: any) => boolean) {
-    
     //this.typeFilter[filterProp] = event.target.checked;
-
 
     this._setmarkupTypeDisplayFilter(type,event.target.checked);
 

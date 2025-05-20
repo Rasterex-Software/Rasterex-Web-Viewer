@@ -17,11 +17,6 @@
         />
       </div> -->
       <div class="switch-container" *ngIf="!showAnnotationsOnLoad" >
-        <!-- <h5>Show/Hide</h5> -->
-        <div class="switch-all">
-          <rx-switch [checked]="showAll" (change)="onShowAll($event)"></rx-switch>
-          <span>Show/Hide All ({{ calcAllCount() }})</span>
-        </div>
         <div class="switch-group">
           <div>
             <rx-switch [checked]="showAnnotations" (change)="onShowAnnotations($event)"></rx-switch>

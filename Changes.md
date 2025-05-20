@@ -672,3 +672,12 @@ Component Paths:
   `modified:   src/app/components/user/login/login.component.ts`
   `modified:   src/app/components/user/user.service.ts`
   `new file:   src/app/services/auth-interceptor.service.ts`
+
+
+May 20, 2025
+
+# Fix: Improve Thumbnail and Birdseye display for CAD
+
+Component Paths:
+  `modified:   src/app/components/bottom-toolbar/bottom-toolbar.component.ts`
+  `modified:   src/assets/scripts/iframefoxit.js`

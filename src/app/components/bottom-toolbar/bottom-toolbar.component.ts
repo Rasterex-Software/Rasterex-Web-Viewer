@@ -587,9 +587,16 @@ export class BottomToolbarComponent implements OnInit, AfterViewInit {
     // Clear all existing canvas data
     this.clearBirdseyeCanvases();
 
-    // Set dimensions to default values to ensure proper initialization
-    this.beWidth = 350;
-    this.beHeight = 269;
+    // Check if this is a CAD file for better defaults
+    let isCADFile = false;
+    if (activeFileInfo && activeFileInfo.filename) {
+      const ext = activeFileInfo.filename.split('.').pop().toLowerCase();
+      isCADFile = ['dwg', 'dgn', 'dxf', 'idw', 'igs', 'ifc', 'stp'].indexOf(ext) >= 0;
+    }
+
+    // Set dimensions to improved values for better quality (especially for CAD)
+    this.beWidth = isCADFile ? 400 : 350;  // Increased size for CAD files
+    this.beHeight = isCADFile ? 300 : 269;
 
     // Set canvas dimensions to defaults
     this.birdseyeImage.nativeElement.width =

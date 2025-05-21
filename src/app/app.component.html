@@ -6,9 +6,9 @@
 <div
   class="content"
   [class.full-height]="(guiConfig$ | async).disableTopNavMenu"
-  [class.full-width]="(guiConfig$ | async).disableSideNavMenu"
+  [class.full-width]="!sidebarOpen"
   [ngStyle]="{'filter': eventUploadFile ? 'blur(3px)' : 'none' }">
-  <div id="mainContent" class="main-content" [class.overflow-hidden]="!(numOpenFiles$ | async)">
+  <div id="mainContent" class="main-content" [class.overflow-hidden]="!(numOpenFiles$ | async)" [ngStyle]="{'width': sidebarOpen ? 'calc(100% - 300px); margin-left: 300px ' : '100%'}">
     <div *ngIf="!(numOpenFiles$ | async)" class="welcome-content">
       <img [src]="(guiConfig$ | async).logoUrl" />
       <!-- <div class="btn-choice-file" (click)="handleLoginClick()">Log In</div> -->
@@ -32,7 +32,7 @@
       (window:keyup)="onKeyup($event)">
         <iframe id="foxitframe" src="/assets/html/foxpage.html"></iframe>
         <div id="lineConnector" class="lineconnector-container">&nbsp;</div>
-        
+
         <div *ngIf="isUploadFile" class="progress-container">
           <div class="progress">
               <div>It takes a few seconds to open this document...</div>
@@ -51,7 +51,7 @@
 <!--     <div (click)="pasteMarkUp()" class="paste-markup" [ngStyle]="pasteStyle">
       <img src="/assets/images/paste-ico.svg" /> Paste
     </div>
- -->    
+ -->
   <rx-signature></rx-signature>
     <rx-compare></rx-compare>
   </div>
@@ -59,9 +59,9 @@
   <rx-search-panel class="note-sidebar"></rx-search-panel>
 </div>
 
-<confirmation-modal 
-    [opened]="followLink" 
-    [annotation]="annotation" 
+<confirmation-modal
+    [opened]="followLink"
+    [annotation]="annotation"
     [action]="'FOLLOW'"
     (closed)="followLink = false">
 </confirmation-modal>

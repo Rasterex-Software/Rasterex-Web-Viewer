@@ -27,6 +27,7 @@ export class QuickActionsMenuComponent implements OnInit, OnDestroy {
   visible = false;
   pageRotation : number = 0;
   annotation: any = -1;
+  moveLabelEnabled: boolean = false;
   operation: any = undefined;
   rectangle: any;
   confirmDeleteOpened: boolean = false;
@@ -827,6 +828,14 @@ export class QuickActionsMenuComponent implements OnInit, OnDestroy {
     }
     RXCore.markUpRedraw();
     this.visible = false;
+  }
+
+  onMoveLabelClick(): void {
+    this.moveLabelEnabled = !this.moveLabelEnabled;
+    if(this.moveLabelEnabled) {
+      RXCore.markupRectToAreaSwitch(this.annotation);
+      RXCore.moveLabelEnable(this.moveLabelEnabled);
+    }
   }
  
   onHoleClick(): void { 

@@ -29,9 +29,11 @@ export class TopNavMenuComponent implements OnInit {
   @ViewChild('more') more: ElementRef;
   @Input() state: any;
 
-  guiConfig$ = this.rxCoreService.guiConfig$;
-  guiState$ = this.rxCoreService.guiState$;
-  guiMode$ = this.rxCoreService.guiMode$;
+  //guiConfig$ = this.rxCoreService.guiConfig$;
+  //guiState$ = this.rxCoreService.guiState$;
+  //guiMode$ = this.rxCoreService.guiMode$;
+
+
   GuiMode = GuiMode;
   guiConfig: IGuiConfig = {};
   guiState: any;
@@ -67,6 +69,12 @@ export class TopNavMenuComponent implements OnInit {
     private readonly measurePanelService: MeasurePanelService,
     private readonly sidebarStateService: RxCoreService
   ) {}
+
+
+  get isCompareDisabled(): boolean {
+    return !this.state?.activefile || this.state?.is3D || this.guiConfig.disableBurgerMenuCompare;
+  }
+
 
   private _setOptions(option: any = undefined): void {
     this.options = [

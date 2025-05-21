@@ -1,9 +1,10 @@
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, OnInit, Output } from '@angular/core';
 
 @Component({
   selector: 'rx-links-library',
   templateUrl: './links-library.component.html',
-  styleUrls: ['./links-library.component.scss']
+  styleUrls: ['./links-library.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class LinksLibraryComponent implements OnInit {
   @Output() onClose: EventEmitter<void> = new EventEmitter<void>();
@@ -11,13 +12,15 @@ export class LinksLibraryComponent implements OnInit {
   link: string = "";
   links: any[] = [];
 
+  get isValidLink(): boolean {
+    return this.link !== '' && (this.link.startsWith('http://') || this.link.startsWith('https://'));
+  }
+  
+  
   ngOnInit(): void {
     this.getLinks();
   }
-  isValidLink(): boolean {
-    return this.link === '' || this.link.startsWith('http://') || this.link.startsWith('https://');
-  }
-  
+
   addLink(event: any) {
     const storedLinks = JSON.parse(localStorage.getItem('AddedLinks') || '[]');
     storedLinks.push(this.link);
@@ -52,6 +55,7 @@ export class LinksLibraryComponent implements OnInit {
     `;
     return 'data:image/svg+xml;base64,' + btoa(svg);
   }
+
   deleteLink(index: number): void {
     let links = JSON.parse(localStorage.getItem('AddedLinks') || '[]');
     

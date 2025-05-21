@@ -9,7 +9,7 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 import updateLocale from 'dayjs/plugin/updateLocale';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
-import { Subscription } from 'rxjs';
+import { distinctUntilChanged, Subscription } from 'rxjs';
 import { IGuiConfig } from 'src/rxcore/models/IGuiConfig';
 
 declare var LeaderLine: any;
@@ -149,7 +149,7 @@ export class NotePanelComponent implements OnInit {
       dayjs.extend(updateLocale);
       dayjs.extend(isSameOrAfter);
       dayjs.extend(isSameOrBefore);
-      dayjs.updateLocale('en', {
+      /* dayjs.updateLocale('en', {
         relativeTime: {
           past: "%s",
           s: 'A few seconds ago',
@@ -168,7 +168,7 @@ export class NotePanelComponent implements OnInit {
           y: "A year ago",
           yy: "%d years ago"
         }
-      });
+      }); */
     }
 
   private _showLeaderLine(markup: IMarkup): void {
@@ -562,7 +562,9 @@ export class NotePanelComponent implements OnInit {
 
       item.author = RXCore.getDisplayName(item.signature);
 
-      item.createdStr = dayjs(item.timestamp).format(`MMM D,${dayjs().year() != dayjs(item.timestamp).year() ? 'YYYY ': ''} h:mm A`);
+      //item.createdStr = dayjs(item.timestamp).format(`MMM D,${dayjs().year() != dayjs(item.timestamp).year() ? 'YYYY ': ''} h:mm A`);
+      item.createdStr = dayjs(item.timestamp).format(this.guiConfig?.dateFormat?.dateTimeWithConditionalYear || 'MMM d, [yyyy] h:mm a');
+
       //item.IsExpanded = item?.IsExpanded;
       //item.IsExpanded = this.activeMarkupNumber > 0 ? item?.IsExpanded : false;
       item.IsExpanded = item?.IsExpanded;
@@ -811,8 +813,32 @@ export class NotePanelComponent implements OnInit {
     });*/
 
 
-    this.guiConfig$.subscribe(config => {
+    this.guiConfig$.pipe(distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr))).subscribe(config => {
+      
       this.guiConfig = config;
+
+      if (config?.dateFormat?.locale) {
+        dayjs.updateLocale(config?.dateFormat?.locale, {
+          relativeTime: {
+            past: "%s",
+            s: 'A few seconds ago',
+            m: "A minute ago",
+            mm: function (number) {
+              return number > 10 ? `${number} minutes ago` : "A few minutes ago";
+            },
+            h: "An hour ago",
+            hh:"Today",
+            d: "Yesterday",
+            dd: function (number) {
+              return number > 1 ? `${number} days ago` : "Yesterday";
+            },
+            M: "A month ago",
+            MM: "%d months ago",
+            y: "A year ago",
+            yy: "%d years ago"
+          }
+        });
+      }
 
       
 
@@ -1133,20 +1159,29 @@ export class NotePanelComponent implements OnInit {
 
   onAddNote(markup: any): void {
     if (this.note[markup.markupnumber]) {
+
+      const timestamp = new Date().toISOString();
+
       if (this.noteIndex >= 0) {
-        markup.editComment(this.noteIndex, this.note[markup.markupnumber]);
+        markup.editComment(this.noteIndex, this.note[markup.markupnumber], timestamp);
         this.noteIndex = -1;
       }
       else {
-        /*const commentsObj = {
-          id: markup.comments.length,
-          signature: markup.signature,
-          value: this.note[markup.markupnumber]
-        };*/
 
         let sign = RXCore.getSignature();
+        const timestamp = new Date().toISOString();
+        
+        
 
-        markup.AddComment(markup.comments.length, sign, this.note[markup.markupnumber]);
+
+        //markup.AddComment(markup.comments.length, sign, this.note[markup.markupnumber]);
+        markup.AddComment(markup.comments.length, sign, this.note[markup.markupnumber], timestamp);
+
+        //id : id,
+        //signature : signature,
+        //value: szValue
+
+
         //markup.comments.push(commentsObj);
       }
 

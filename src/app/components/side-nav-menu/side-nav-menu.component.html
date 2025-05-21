@@ -1,5 +1,6 @@
 <div class="side-nav-menu-wrapper">
-    <div class="toggleable-panel" [class.opened]="toggleablePanelOpened">
+    <div #panel class="toggleable-panel" [class.opened]="toggleablePanelOpened">
+    
         <div class="toggleable-panel-header">
             <h4 [ngSwitch]="activeIndex">
                 <ng-container *ngSwitchCase="0">Pages</ng-container>
@@ -30,6 +31,17 @@
             <rx-threed-parts *ngSwitchCase="4"></rx-threed-parts>
             <rx-signature-panel *ngSwitchCase="5"></rx-signature-panel>
             <rx-blocks *ngSwitchCase="6"></rx-blocks>
+        </div>
+        <div
+            *ngIf="activeIndex === 0"
+            class="resizer"
+            [rxResizable]="panel"
+            [minWidth]="288"
+        >
+            <svg width="10" height="30" viewBox="0 0 10 30" xmlns="http://www.w3.org/2000/svg">
+                <line x1="3" y1="5" x2="3" y2="25" stroke="#666" stroke-width="2" stroke-linecap="round"/>
+                <line x1="7" y1="5" x2="7" y2="25" stroke="#666" stroke-width="2" stroke-linecap="round"/>
+            </svg>
         </div>
     </div>
 </div>

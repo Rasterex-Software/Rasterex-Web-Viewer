@@ -3,6 +3,7 @@ import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import weekOfYear from 'dayjs/plugin/weekOfYear';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
+import { IGuiDateFormat } from 'src/rxcore/models/IGuiDateFormat';
 
 @Component({
   selector: 'rx-date-picker',
@@ -14,6 +15,7 @@ import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
   }
 })
 export class DatePickerComponent {
+  @Input() dateFormat: IGuiDateFormat;
   @Input() startDate: dayjs.Dayjs;
   @Input() endDate: dayjs.Dayjs;
   @Output() onSelect = new EventEmitter<{ startDate: dayjs.Dayjs, endDate: dayjs.Dayjs }>();
@@ -39,14 +41,14 @@ export class DatePickerComponent {
   clickCounter: number = 0;
 
   get date(): string {
-    if (!this.startDate && !this.endDate) return 'Select...';
-    if (this.startDate && !this.endDate) return `${this.startDate.format('DD.MM.YYYY')}`;
-    if (this.startDate && this.endDate && this.startDate.isSame(this.endDate)) return `${this.startDate.format('DD.MM.YYYY')}`;
-    return `${this.startDate.format('DD.MM.YYYY')} - ${this.endDate.format('DD.MM.YYYY')}`;
+
+    if (this.startDate && !this.endDate) return `${this.startDate.format(this.dateFormat.dateMonthYear)}`;
+    if (this.startDate && this.endDate && this.startDate.isSame(this.endDate)) return `${this.startDate.format(this.dateFormat.dateMonthYear)}`;
+    return `${this.startDate.format(this.dateFormat.dateMonthYear)} - ${this.endDate.format(this.dateFormat.dateMonthYear)}`;
   }
 
   get month(): string {
-    return this.selectedMonth.format('MMMM');
+    return this.selectedMonth.format(this.dateFormat.month);
   }
 
   isStartDate(date: dayjs.Dayjs): boolean {

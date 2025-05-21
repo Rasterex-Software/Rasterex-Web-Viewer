@@ -28,6 +28,7 @@ export interface IMarkup {
     layer: string;
     rotatedrect: any;
     selected: boolean;
+    timestamp: string;
     AddAttribute: (name: string, value: any) => void;
     GetAttribute: (name: string) => any;
     updateAttribute: (name: string, value: any) => void;
@@ -35,4 +36,9 @@ export interface IMarkup {
     ClearAttributes: () => void;
     getselected : () => boolean;
     setdisplay: (flag: boolean) => void;
+    AddComment: (id: number, signature: string, value: string, timestamp: string) => void;
+    editComment: (id: number, value: string) => void;
+    deleteComment: (id: number) => void;
+    GetComments: () => Array<any>;
+
 }

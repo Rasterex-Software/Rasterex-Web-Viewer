@@ -64,6 +64,7 @@
               </rx-multi-select> -->
               <label>Date of notes creation</label>
               <rx-date-picker
+                [dateFormat]="(guiConfig$ | async).dateFormat"
                 [startDate]="dateFilter.startDate"
                 [endDate]="dateFilter.endDate"
                 (onSelect)="onDateSelect($event)"
@@ -253,7 +254,7 @@
                             <div class="author">{{ item.author }}</div>
                             <div class="comments-date-count">
                               <div class="date-and-time">
-                                {{ item.createdStr }}
+                                {{ item.timestamp | date: (guiConfig$ | async).dateFormat.dateTimeWithoutYear }}
                               </div>
                               <div class="comments-count">
                                 <img src="/assets/images/comment-ico.svg" />{{
@@ -328,7 +329,8 @@
                             <div class="author">{{ itemNote.signature }}</div>
                             <div class="comments-date-count">
                               <div class="date-and-time">
-                                {{ item.createdStr }}
+                                <!-- {{ item.createdStr }} -->
+                                {{ itemNote.timestamp | date: (guiConfig$ | async).dateFormat?.dateTimeWithoutYear }}
                               </div>
                               <div
                                 class="comments-count"

@@ -2,13 +2,12 @@
 <div *ngIf="visible" class="text-editor-container" [ngStyle]="{ 'top.px' : rectangle?.y, 'left.px' : rectangle?.x }">
     <div *ngIf="isTextAreaVisible"
         class="textarea-wrapper"
-        [ngStyle]="{ 'width.px' : rectangle?.w }">
+        [ngStyle]="{ 'width.px' : rectangle?.w, 'height.px' : rectangle?.h }">
         <textarea
             class="auto-expanding-textarea" 
-            [ngStyle]="{'color': color, 'font-size.px': font.size - 4, 'font-family': font.font, 'font-style': font.style.italic ? 'italic' : 'normal', 'font-weight': font.style.bold ? 'bold' : 'normal' }"
+            [ngStyle]="{'color': color, 'font-size.px': font.size - 3, 'font-family': font.font, 'font-style': font.style.italic ? 'italic' : 'normal', 'font-weight': font.style.bold ? 'bold' : 'normal' }"
             [(ngModel)]="text"
-            (ngModelChange)="onTextChange()"
-            (input)="adjustTextareaHeight($event)"
+            (ngModelChange)="onTextChange()"      
             placeholder="Insert text here...">
         </textarea>
     </div>

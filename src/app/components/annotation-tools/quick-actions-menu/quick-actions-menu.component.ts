@@ -31,7 +31,7 @@ export class QuickActionsMenuComponent implements OnInit, OnDestroy {
   operation: any = undefined;
   rectangle: any;
   confirmDeleteOpened: boolean = false;
-  menuwidth: number = 126;
+  menuwidth: number = 186;
   menucenter : number = 0;
   buttongap : number = 10;
   buttonsize : number = 28;
@@ -463,7 +463,7 @@ export class QuickActionsMenuComponent implements OnInit, OnDestroy {
       this.numbuttons = 4;
 
       if(markup.type == 3 && markup.subtype == 6){
-        this.numbuttons = 7;
+        this.numbuttons = 8;
       }
 
       if(markup.type == 10){

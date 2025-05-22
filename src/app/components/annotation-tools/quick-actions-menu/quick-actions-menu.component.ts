@@ -31,7 +31,7 @@ export class QuickActionsMenuComponent implements OnInit, OnDestroy {
   operation: any = undefined;
   rectangle: any;
   confirmDeleteOpened: boolean = false;
-  menuwidth: number = 186;
+  menuwidth: number = 126;
   menucenter : number = 0;
   buttongap : number = 10;
   buttonsize : number = 28;

@@ -99,9 +99,11 @@ import { CommentStatusIconComponent } from './components/annotation-tools/commen
 import { LoginComponent } from './components/user/login/login.component';
 import { RoomPanelComponent } from './components/collab/room-panel.component';
 import { TooltipComponent } from './components/tooltip/tooltip.component';
+import { LoginModalComponent } from './components/user/login-modal/login-modal.component';
 //import { NumericRangeDirective } from "./components/side-nav-menu/pages/numeric-range.directive";
 import { NumericRangeDirective } from "./directives/numeric-range.directive";
 import { ResizableDirective } from './directives/resizable.directive';
+import {IsPinnedPipe} from "./components/top-nav-menu/opened-files-tabs/is-pinned.pipe";
 
 const storeSchema = [
   { name: 'name', keypath: 'name', options: { unique: false } },
@@ -200,10 +202,12 @@ const dbConfig: DBConfig  = {
     HighlightPipe,
     SizeModalComponent,
     SafeHtmlPipe,
+    IsPinnedPipe,
     CommentStatusIconComponent,
     LoginComponent,
     RoomPanelComponent,
-    ResizableDirective
+    ResizableDirective,
+    LoginModalComponent
   ],
   imports: [
     BrowserModule,

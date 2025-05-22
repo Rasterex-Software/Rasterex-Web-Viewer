@@ -1,129 +1,248 @@
 @import "../../../../assets/scss/config.scss";
 
-.tabs {
+.files {
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 48px;
+    gap: 20px;
 
-    .tab-wrapper {
-        height: 100%;
-
-        .tab {
-            border-right: 1px solid #EDF1F2;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            padding: 0 8px;
-            font-size: 12px;
-            cursor: pointer;
-            box-sizing: border-box;
-            border-bottom: 2px solid transparent;
-
-            &.hidden {
-                display: none;
+    .confirm-dialog {
+        ::ng-deep {
+            .rx-modal-dialog-wrapper {
+                backdrop-filter: blur(3px) !important;
             }
+        }
+    }
 
-            .close {
-                cursor: pointer;
-                font-size: 18px;
+    .close-document-modal {
+        min-width: 300px;
+
+        .rx-modal-dialog-header {
+            height: 10px;
+
+            img {
+                right: 14px;
+                top: 10px;
             }
+        }
 
-            &.comparison {
-                .file-list {
+        .body {
+            word-wrap: break-word;
+            padding: 0 24px 18px;
+        }
+    }
+
+    .options-container {
+        position: relative;
+        display: none;
+
+        &.opened {
+            display: block;
+        }
+
+        .comparison {
+            flex-wrap: wrap;
+
+            .file-list {
+                flex: 0 0 100%;
+                order: 2;
+
+                span.file-name {
+                    flex: 1;
+                }
+            }
+        }
+
+        .options-wrapper {
+            position: absolute;
+            width: 250px;
+            top: 12px;
+            left: 0;
+            z-index: 10;
+            background: #FFFFFF;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+            border-radius: 4px;
+
+            ul.options {
+                width: 100%;
+                list-style-type: none;
+                display: flex;
+                flex-direction: column;
+                padding: unset;
+                margin: 6px 0;
+                gap: 6px;
+                overflow: visible;
+                align-items: center;
+                justify-content: center;
+
+                li.option-wrapper {
                     display: flex;
                     align-items: center;
                     gap: 8px;
+                    font-weight: 600;
+                    font-size: 12px;
+                    line-height: 22px;
+                    padding: 6px 0;
+                    white-space: nowrap;
+                    position: relative;
+                    width: 100%;
 
-                    &.reverse {
-                        flex-direction: row-reverse;
+                    &:has(.hidden) {
+                        display: none;
                     }
 
-                    span.file-name {
-                        width: 111px;
-                        height: 32px;
-                        border-radius: 4px;
-                        padding: 4px 8px;
-                        box-sizing: border-box;
-                        box-shadow: 0px -7px 7px 2px #B5B5B517;
-                        background-color: #FFFFFF;
+                    &:has(.active) {
+                        background-color: $top-nav-background-active;
+                    }
+
+                    &.disabled {
+                        cursor: not-allowed;
+                        opacity: .5;
+                    }
+
+                    .tab {
+                        height: 100%;
+                        width: 100%;
                         display: flex;
                         align-items: center;
-                        gap: 4px;
-                        border-width: 1px;
-                        border-style: solid;
-                        border-color: transparent;
+                        justify-content: space-between;
+                        gap: 8px;
+                        padding: 0 8px;
+                        font-size: 12px;
+                        cursor: pointer;
+                        box-sizing: border-box;
+                        border-bottom: 2px solid transparent;
 
-                        &.active {
-                            border-color: $accent;
+                        .actions {
+                          display: flex;
+                          justify-content: center;
+                          align-items: center;
+                          gap: 4px;
+
+                            .close {
+                              cursor: pointer;
+                              font-size: 18px;
+                            }
                         }
 
                         span {
-                            overflow: hidden;
-                            align-items: center;
-                            white-space: nowrap;
                             text-overflow: ellipsis;
+                            white-space: nowrap;
+                            overflow: hidden;
                         }
 
-                        i.color {
-                            min-width: 9px;
-                            min-height: 9px;
-                            max-width: 9px;
-                            max-height: 9px;
-                            border-radius: 50%;
+                        &.hidden {
+                            display: none;
+                        }
+
+                        &.comparison {
+                            .file-list {
+                                display: flex;
+                                align-items: center;
+                                gap: 8px;
+
+                                &.reverse {
+                                    flex-direction: row-reverse;
+                                }
+
+                                span.file-name {
+                                    width: 111px;
+                                    height: 32px;
+                                    border-radius: 4px;
+                                    padding: 4px 8px;
+                                    box-sizing: border-box;
+                                    box-shadow: 0px -7px 7px 2px #B5B5B517;
+                                    background-color: #FFFFFF;
+                                    display: flex;
+                                    align-items: center;
+                                    gap: 4px;
+                                    border-width: 1px;
+                                    border-style: solid;
+                                    border-color: transparent;
+
+                                    &.active {
+                                        border-color: $accent;
+                                    }
+
+                                    span {
+                                        overflow: hidden;
+                                        align-items: center;
+                                        white-space: nowrap;
+                                        text-overflow: ellipsis;
+                                        max-width: 62px;
+                                    }
+
+                                    i.color {
+                                        min-width: 9px;
+                                        min-height: 9px;
+                                        max-width: 9px;
+                                        max-height: 9px;
+                                        border-radius: 50%;
+                                    }
+                                }
+                            }
+                        }
+
+                        &.active {
+                            color: $top-nav-color-active;
+                            border-bottom-color: $top-nav-border-bottom-color-active;
+                        }
+
+                        &:not(.active) {
+                            .close {
+                            display: none;
                         }
                     }
+                  }
+
+                    &.dragging {
+                    box-shadow: 0px 0px 7px 1px #CBCBCB;
+                    z-index: 1;
+                  }
+
+                    &.droppable-zone {
+                    background-color: #DDF4E4;
+                    border-bottom: 1px solid $accent;
+                  }
                 }
             }
-
-            &.active {
-                background-color: $top-nav-background-active;
-                color: $top-nav-color-active;
-                border-bottom-color: $top-nav-border-bottom-color-active;
-            }
-
-            &:not(.active) {
-                .close {
-                    display: none;
-                }
-            }
-        }
-
-        &.dragging {
-            box-shadow: 0px 0px 7px 1px #CBCBCB;
-            z-index: 1;
-        }
-
-        &.droppable-zone {
-            background-color: #DDF4E4;
-            border-bottom: 1px solid $accent;
-        }
-    }
-}
-
-.confirm-dialog {
-    ::ng-deep {
-        .rx-modal-dialog-wrapper {
-            backdrop-filter: blur(3px)!important;
-        }
-    }
-}
-
-.close-document-modal {
-    min-width: 300px;
-    .rx-modal-dialog-header {
-        height: 10px;
-
-        img {
-            right: 14px;
-            top: 10px;
         }
     }
 
-    .body {
-        word-wrap: break-word; 
-        padding: 0 24px 18px;
+    .dropdown {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        padding: 6px 10px 6px 10px;
+        background-color: var(--background-light);
+        border-radius: 4px;
+        border: 1px solid #EDF1F2;
+        cursor: pointer;
+
+        .dropdown-label {
+            font-size: 12px;
+            color: $top-nav-color;
+            line-height: 24px;
+            min-height: 24px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            flex-grow: 1;
+        }
+    }
+
+    .pinned-files {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+
+      .pinned-files-label {
+          font-size: 12px;
+          color: $top-nav-color;
+          line-height: 24px;
+          min-height: 24px;
+      }
     }
 }

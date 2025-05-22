@@ -2,11 +2,13 @@
 <div *ngIf="visible" class="text-editor-container" [ngStyle]="{ 'top.px' : rectangle?.y, 'left.px' : rectangle?.x }">
     <div *ngIf="isTextAreaVisible"
         class="textarea-wrapper"
-        [ngStyle]="{ 'width.px' : rectangle?.w, 'height.px' : rectangle?.h }">
+        [ngStyle]="{ 'width.px' : rectangle?.w }">
         <textarea
+            class="auto-expanding-textarea"
             [ngStyle]="{'color': color, 'font-size.px': font.size - 4, 'font-family': font.font, 'font-style': font.style.italic ? 'italic' : 'normal', 'font-weight': font.style.bold ? 'bold' : 'normal' }"
             [(ngModel)]="text"
             (ngModelChange)="onTextChange()"
+            (input)="adjustTextareaHeight($event)"
             placeholder="Insert text here...">
         </textarea>
     </div>
@@ -18,7 +20,7 @@
                 <button [class.selected]="annotation?.subtype == 2" (click)="onArrowStyleSelect(2)"><img src="/assets/images/arrow-both-end-ico.svg" /></button>
                 <button [class.selected]="annotation?.subtype == 0" (click)="onArrowStyleSelect(0)"><img src="/assets/images/arrow-single-end-ico.svg" /></button>
             </div>
-            <rx-accordion [collapsing]="false" [isBottom]="isBottom">
+            <!-- <rx-accordion [collapsing]="false" [isBottom]="isBottom">
                 <rx-accordion-item *ngIf="isTextAreaVisible" [title]="'Text Style'">
                     <ng-template accordionContent>
                         <rx-text-style-select
@@ -61,7 +63,7 @@
                         </div>
                     </ng-template>
                 </rx-accordion-item>
-            </rx-accordion>
+            </rx-accordion> -->
             <div *ngIf="isSnapVisible" class="snap-section">
                 <span>Snap</span>
                 <rx-switch

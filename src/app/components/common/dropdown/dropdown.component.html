@@ -24,9 +24,15 @@
                     [class.hidden]="item.hidden"
                     [class.selected]="item.value && item.value == value?.value"
                     (click)="handleSelect(item)">
-                        <span *ngIf="item.value && item.value == value?.value" class="selected"></span>
+
+                    <div class="option-item">
                         <span [innerHTML]="item?.label"></span>
-                </li>
+                        <img *ngIf="item.imgSrc" [src]='"/assets/images/" + item.imgSrc' class="btn-dropdown" />
+                    </div>
+
+<!--                         <span *ngIf="item.value && item.value == value?.value" class="selected"></span>
+                        <span [innerHTML]="item?.label"></span>
+ -->                </li>
             </ul>
         </div>
     </div>

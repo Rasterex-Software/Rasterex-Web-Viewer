@@ -8,7 +8,7 @@ import { IGuiConfig } from 'src/rxcore/models/IGuiConfig';
 import { CompareService } from '../compare/compare.service';
 import { TopNavMenuService } from './top-nav-menu.service';
 import { GuiMode } from 'src/rxcore/enums/GuiMode';
-import { Subscription } from 'rxjs';
+import {Subject, Subscription} from 'rxjs';
 import { SideNavMenuService } from '../side-nav-menu/side-nav-menu.service';
 import { MeasurePanelService } from '../annotation-tools/measure-panel/measure-panel.service';
 import { ActionType } from './type';
@@ -91,6 +91,7 @@ export class TopNavMenuComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.handleIconRotation();
     this._setOptions();
 
     this.rxCoreService.guiState$.subscribe((state) => {
@@ -199,6 +200,13 @@ export class TopNavMenuComponent implements OnInit {
       this.moreOpened = this.burgerOpened = this.sidebarOpened = false;
     }
   }
+
+  handleIconRotation(): void {
+    this.service.closeSideNav$.subscribe((value) => {
+      this.sidebarPanelActive = value;
+    })
+  }
+
 
   handlePrint(event: KeyboardEvent) {
     event.preventDefault();

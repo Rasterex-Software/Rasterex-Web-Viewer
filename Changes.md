@@ -1,3 +1,71 @@
+May 22, 2025
+
+### 1. Added insert and delete point functionality for all multi-point annotations (polyline, polygon, counter, and measurement path)
+### 2. Added move label for area measurement.
+### 3. Added move to front/back for annotations.
+### 4. Added spinner to file load.
+### 5. Corrections to text annoation html text area input.
+
+
+### 6. Display open file tabs in dropdown list
+### 7. Correctly update checkString after page toggle in multiSelect mode
+### 8. Add pinned files section next to dropdown list
+
+
+### 9. fixed issue with paginator, added possibility to rotate icon on top-nav-menu when closed from side-nav-menu, reset selected pages when switch from multiselect to single
+
+
+### 10. Improved Annotation & Measurement - refined the visual styling of note elements for a more elegant appearance, “Show/Hide All” toggle.
+### 11. Added support for displaying images (imgSrc) alongside dropdown options
+### 12. Introduced an author icon to visually represent the user/creator
+
+
+
+Updated and new files
+
+RxCore version is now 35.922.
+
+/src/app/components/bottom-toolbar.html
+/src/app/components/bottom-toolbar.scss 
+/src/app/components/side-nav-menu/pages.ts 
+/src/app/components/side-nav-menu.ts 
+/src/app/components/top-nav-menu.html 
+/src/app/components/top-nav-menu.ts 
+/src/app/components/top-nav-menu.service.ts
+
+src\app\components\top-nav-menu\opened-files-tabs\opened-files-tabs.component.html 
+src\app\components\top-nav-menu\opened-files-tabs\opened-files-tabs.component.scss 
+src\app\components\top-nav-menu\opened-files-tabs\opened-files-tabs.component.ts 
+src\app\components\top-nav-menu\opened-files-tabs\is-pinned.pipe.ts
+src\app\components\side-nav-menu\pages\pages.component.ts
+
+
+src\assets\scripts\rxcorefunctions.js
+
+src/app/components/annotation-tools/quick-actions-menu/quick-actions-menu.component.html
+src/app/components/annotation-tools/quick-actions-menu/quick-actions-menu.component.ts
+src\app\components\bottom-toolbar\bottom-toolbar.component.ts
+src\app\components\bottom-toolbar\bottom-toolbar.component.html
+src\app\components\file-galery\file-galery.component.html
+src\app\components\file-galery\file-galery.component.scss
+
+src\app\components\annotation-tools\context-editor\context-editor.component.ts
+src\app\components\annotation-tools\context-editor\context-editor.component.scss
+src\app\components\annotation-tools\context-editor\context-editor.component.html
+
+
+src/assets/images/remove-point.svg
+src\rxcore\index.ts
+
+src/app/components/annotation-tools/note-panel/note-panel.component.ts
+src/app/components/annotation-tools/note-panel/note-panel.component.html
+src/app/components/annotation-tools/note-panel/note-panel.component.scss
+src/app/components/commont/dropdown/dropdown.component.html
+src/app/components/commont/dropdown/dropdown.component.scss
+src/assets/images/author-icon.svg
+
+
+
 May 20, 2025
 
 

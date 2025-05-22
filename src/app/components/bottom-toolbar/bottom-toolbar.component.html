@@ -118,6 +118,16 @@
                     <svg t="1745205971668" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="11522" width="24" height="24"><path d="M884.48 296.106667l-5.973333-10.666667a90.88 90.88 0 0 0-31.146667-29.44l-201.386667-116.48a85.333333 85.333333 0 0 0-42.666666-11.52h-11.946667a81.92 81.92 0 0 0-42.666667 11.52L176.64 354.986667a85.333333 85.333333 0 0 0-31.146667 31.146666l-5.973333 10.666667a85.333333 85.333333 0 0 0-11.52 42.666667v245.76a85.333333 85.333333 0 0 0 11.52 42.666666l5.973333 10.666667a90.88 90.88 0 0 0 31.146667 31.146667l201.386667 114.773333a85.333333 85.333333 0 0 0 42.666666 11.52h11.946667a81.92 81.92 0 0 0 42.666667-11.52l372.053333-215.466667a85.333333 85.333333 0 0 0 31.146667-31.146666l5.973333-10.666667a85.333333 85.333333 0 0 0 11.52-42.666667V338.773333a85.333333 85.333333 0 0 0-11.52-42.666666zM591.36 213.333333h11.946667L768 307.2l-341.333333 197.546667-170.666667-97.28z m213.333333 384L469.333333 789.333333v-210.346666l341.333334-197.973334v203.52z" p-id="11523" fill="#333C4E"></path></svg>
                     <span class="tooltip-text tooltip-top">Block information</span>
                 </li>
+                <li *ngIf="(guiMode$ | async) === 'annotate'" 
+                    (click)="onActionSelect('TOGGLECYCLE')" 
+                    [class.selected]="cycleSelectEnabled" 
+                    class="tooltip">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#333C4E" viewBox="0 0 24 24">
+                        <path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.31-.42 2.52-1.13 3.5l1.46 1.46C19.28 15.02 20 13.11 20 11c0-4.42-3.58-8-8-8zm-6.87 2.5L3.67 5.04C2.72 6.48 2 8.39 2 10.5c0 4.42 3.58 8 8 8v3l4-4-4-4v3c-3.31 0-6-2.69-6-6 0-1.31.42-2.52 1.13-3.5z"/>
+                      </svg>
+                      
+                  <span class="tooltip-text tooltip-top">Toggle Cycle Select</span>
+                </li>
                 <li *ngIf="!(guiConfig$ | async).disableMagnifyingGlassButton" class="separator"></li>
                 <!--  -->
 
@@ -276,7 +286,18 @@
                 <path d="M12 6L8 10" stroke="#333C4E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                 <path d="M12 14L8 10" stroke="#333C4E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
-            <input type="text" [value]="currentpage" (change)="onCurrentPageChange($event.target.value)" /><span>&nbsp;/&nbsp;{{numpages}}</span>
+            <!-- <input type="text" [value]="currentpage" (change)="onCurrentPageChange($event.target.value)" /><span>&nbsp;/&nbsp;{{numpages}}</span> -->
+
+
+            <input type="number"
+            placeholder="0"
+            rxNumericRange
+            [minValue]="1"
+            [maxValue]="numpages"
+            [(ngModel)]="currentpage"
+            (keyup)="onCurrentPageChange($event.target.value)"/>
+            <span>&nbsp;/&nbsp;{{numpages}}</span>
+
             <svg [class.disabled]="currentpage == numpages" (click)="onNextPage()"
                 width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M8 14L12 10" stroke="#333C4E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>

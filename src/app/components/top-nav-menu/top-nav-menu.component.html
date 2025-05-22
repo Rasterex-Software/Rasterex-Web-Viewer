@@ -10,6 +10,7 @@
     <rx-login></rx-login>
   </div>
 
+
   <div class="top-nav-item button sidebar" #sidebar *ngIf="fileLength > 0">
     <!-- Dropdown button shown only when multiple sidebar options are available -->
     <div
@@ -504,10 +505,7 @@
 
 
 
-            *ngIf="
-              guiConfig.canCompare &&
-              !guiConfig.disableBurgerMenuCompare
-            "
+            *ngIf="guiConfig.canCompare && !guiConfig.disableBurgerMenuCompare && fileLength > 0"
             role="option"
             tabindex="0"
             (click)="openModalCompare()"
@@ -556,7 +554,7 @@
             </div>
             <span class="compare-text">Compare</span>
           </li>
-          <ng-container *ngIf="guiConfig.canGetFileInfo">
+          <ng-container *ngIf="guiConfig.canGetFileInfo && fileLength > 0">
             <li class="separator"></li>
             <li role="option" tabindex="0" (click)="fileInfoDialog()">
               <svg

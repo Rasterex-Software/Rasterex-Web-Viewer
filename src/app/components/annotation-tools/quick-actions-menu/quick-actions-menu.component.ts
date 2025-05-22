@@ -27,6 +27,7 @@ export class QuickActionsMenuComponent implements OnInit, OnDestroy {
   visible = false;
   pageRotation : number = 0;
   annotation: any = -1;
+  moveLabelEnabled: boolean = false;
   operation: any = undefined;
   rectangle: any;
   confirmDeleteOpened: boolean = false;
@@ -817,6 +818,18 @@ export class QuickActionsMenuComponent implements OnInit, OnDestroy {
     this.visible = false;
   }
 
+  onDeletePointClick(): void {
+    if (this.annotation.type === MARKUP_TYPES.SHAPE.RECTANGLE.type) {
+      RXCore.markupRectToAreaSwitch(this.annotation);
+    }
+    if (this.operation?.created) {
+      RXCore.selectMarkUp(true);
+    }
+  
+    RXCore.deletePoint();
+    this.visible = false;
+  }
+
   onShowHideLabelClick(): void {    
     if (this.operation?.created) { RXCore.selectMarkUp(true); }
     if(!this.annotation.hidevaluelabel) {
@@ -827,6 +840,14 @@ export class QuickActionsMenuComponent implements OnInit, OnDestroy {
     }
     RXCore.markUpRedraw();
     this.visible = false;
+  }
+
+  onMoveLabelClick(): void {
+    this.moveLabelEnabled = !this.moveLabelEnabled;
+    if(this.moveLabelEnabled) {
+      RXCore.markupRectToAreaSwitch(this.annotation);
+      RXCore.moveLabelEnable(this.moveLabelEnabled);
+    }
   }
  
   onHoleClick(): void { 
@@ -846,6 +867,18 @@ export class QuickActionsMenuComponent implements OnInit, OnDestroy {
       window.open(this.annotation.linkURL, '_blank');
     }
   }
+
+  onMoveToBackClick(): void {
+    RXCore.movetoBack();
+    RXCore.markUpRedraw();
+  }
+
+
+  onMoveToFrontClick(): void {
+    RXCore.movetoFront();
+    RXCore.markUpRedraw();
+  }
+
 
 
 }

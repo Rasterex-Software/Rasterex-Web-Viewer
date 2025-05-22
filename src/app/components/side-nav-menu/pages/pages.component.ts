@@ -274,8 +274,11 @@ export class PagesComponent implements OnInit {
   onClickChangeMultiSelectMode() {
     this.multiSelect = !this.multiSelect;
     if(!this.multiSelect) {
-      this.checkList = this.convertToBooleanArray(this.checkString);
+      this.checkString = '';
+      this.checkList = this.setFirstTrueRestFalse(this.checkList);
+      //this.checkList = this.convertToBooleanArray(this.checkString);
     } else {
+      this.checkString = '1';
       document.getElementById(`page-${this.checkList.findIndex(item => item)}`)?.scrollIntoView({
         behavior: "instant",
         block: "start",
@@ -304,6 +307,9 @@ export class PagesComponent implements OnInit {
     }
   }  
 
+  setFirstTrueRestFalse(arr: boolean[]): boolean[] {
+    return arr.map((_, index) => index === 0);
+  }
 
   
   private _getBookmarks(bookmarks: Array<any>): Array<TreeviewItem> {

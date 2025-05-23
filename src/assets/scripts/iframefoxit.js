@@ -772,22 +772,12 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
             foxview.pdfViewer.getCurrentPDFDoc().getPageByIndex(pagenum).then(function (page) {
                 var pgindex = page.info.index;
 
-                console.log(page.info.mediaWidth);
-                console.log(page.info.mediaHeight);
-
                 var ph = foxview.pagestates[pgindex].height;
                 var pw = foxview.pagestates[pgindex].width;
 
-                // Increase birdseye dimensions for better quality
-                var birdseyeWidth = 400;  // Increased from 350
-                var birdseyeHeight = 300; // Increased from 275
-
-                // Check if this is a CAD file based on extension or mimetype
-                var isCADFile = false;
-                if (foxview.filename) {
-                    var ext = foxview.filename.split('.').pop().toLowerCase();
-                    isCADFile = ['dwg', 'dgn', 'dxf', 'idw', 'igs', 'ifc', 'stp'].indexOf(ext) >= 0;
-                }
+                // Significantly increase dimensions for better line quality
+                var birdseyeWidth = 600;  // Increased from 400
+                var birdseyeHeight = 450; // Increased from 300
 
                 if (pw > ph) {
                     var wscale = birdseyeWidth / pw;
@@ -797,12 +787,11 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
                     hscale = birdseyeWidth / ph;
                 }
 
-                // For CAD files, use a higher quality scaling factor
                 var scale = Math.max(wscale, hscale);
-                if (isCADFile) {
-                    scale = scale * 1.25; // Increase scale for CAD files to improve quality
-                }
-
+                
+                // Use significantly higher scale for thinner lines that match main view
+                scale = scale * 1.75;  // Increased from 1.25
+                
                 var pagescale = scale * PixelToPoint;
                 var rotate = 0;
 
@@ -812,22 +801,20 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
                     area = { x: 0, y: 0, width: page.info.mediaWidth * scale, height: page.info.mediaHeight * scale };
                 }
 
-                // For CAD files, include all content flags for better quality
-                var contentsFlags = isCADFile ?
-                    ["page", "annot", "form", "all"] :
-                    ["page", "annot"];
-
-                var usage = 'view';
-
-                // Use higher quality rendering for CAD files
-                var renderOptions = {};
-                if (isCADFile) {
-                    renderOptions = {
-                        imageSmoothingEnabled: true,
-                        imageQuality: "high",
-                        forceRefresh: true
-                    };
-                }
+                // Match the main viewer rendering settings as closely as possible
+                var contentsFlags = ["page"];
+                var usage = 'print';
+                
+                var renderOptions = {
+                    imageSmoothingEnabled: true,
+                    imageQuality: "high",
+                    enhanceThinLines: true,
+                    useHighQualityPreview: true,
+                    lineWidth: 0.1,  // Significantly reduced from 0.25 to match main view
+                    forceRefresh: true,
+                    antiAliasing: true,
+                    devicePixelRatio: window.devicePixelRatio || 2  // Match the device pixel ratio for consistent rendering
+                };
 
                 page.render(pagescale, rotate, area, contentsFlags, usage, renderOptions).then(function (bitmap) {
                     pgindex = page.info.index;
@@ -856,14 +843,58 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
                             isCADFile = ['dwg', 'dgn', 'dxf', 'idw', 'igs', 'ifc', 'stp'].indexOf(ext) >= 0;
                         }
 
-                        // Use higher scale factor for CAD files to improve thumbnail quality and size
-                        var scaleFactor = isCADFile ? 2.0 : 1.5;
-
-                        page.getThumb(0, scaleFactor).then(function (thumbnail) {
-                            pgindex = page.info.index;
-                            RxCore.setThumbnailFoxit(thumbnail, pagenum);
-                            foxview.pagestates[pagenum].thumbadded = false;
-                        });
+                        // Use higher scale factor for CAD files to improve thumbnail quality
+                        var scaleFactor = isCADFile ? 3.0 : 2.0;
+                        
+                        // Use a custom rendering approach for CAD files
+                        if (isCADFile) {
+                            // For CAD files, render a higher resolution image instead of using getThumb
+                            var pw = foxview.pagestates[pgindex].width;
+                            var ph = foxview.pagestates[pgindex].height;
+                            
+                            // Increase resolution significantly to get thinner lines
+                            var thumbWidth = 300;  // Increased from 200
+                            var thumbHeight = 300; // Increased from 200
+                            
+                            if (pw > ph) {
+                                var scale = thumbWidth / pw;
+                            } else {
+                                scale = thumbHeight / ph;
+                            }
+                            
+                            // Further increase the scale to get finer lines
+                            scale = scale * 1.5;
+                            
+                            var pagescale = scale * PixelToPoint;
+                            var rotate = 0;
+                            var area = { x: 0, y: 0, width: pw * scale, height: ph * scale };
+                            
+                            // Use only the necessary content flags to avoid thicker lines
+                            var contentsFlags = ["page"];
+                            
+                            // Use print quality settings which typically render with finer lines
+                            var usage = 'print';
+                            
+                            var renderOptions = {
+                                imageSmoothingEnabled: true,
+                                imageQuality: "high",
+                                forceRefresh: true,
+                                enhanceThinLines: true,
+                                useHighQualityPreview: true,
+                                lineWidth: 0.25  // Force thinner lines when possible
+                            };
+                            
+                            page.render(pagescale, rotate, area, contentsFlags, usage, renderOptions).then(function(bitmap) {
+                                RxCore.setThumbnailFoxit(bitmap, pagenum);
+                                foxview.pagestates[pagenum].thumbadded = false;
+                            });
+                        } else {
+                            // For standard PDF files, use the regular getThumb with increased scale
+                            page.getThumb(0, scaleFactor).then(function (thumbnail) {
+                                RxCore.setThumbnailFoxit(thumbnail, pagenum);
+                                foxview.pagestates[pagenum].thumbadded = false;
+                            });
+                        }
                     });
                 };
 
@@ -874,6 +905,7 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
         this.getNewThumbnail = async function (pagenum) {
             if (foxview.pdfViewer) {
                 const page = await foxview.pdfViewer.getCurrentPDFDoc().getPageByIndex(pagenum);
+                const pgindex = page.info.index;
 
                 // Check if this is a CAD file based on extension
                 var isCADFile = false;
@@ -882,13 +914,55 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
                     isCADFile = ['dwg', 'dgn', 'dxf', 'idw', 'igs', 'ifc', 'stp'].indexOf(ext) >= 0;
                 }
 
-                // Use higher scale factor for CAD files to improve thumbnail quality and size
-                var scaleFactor = isCADFile ? 2.0 : 1.5;
-
-                const thumbnail = await page.getThumb(0, scaleFactor);
-                RxCore.setThumbnailFoxit(thumbnail, pagenum);
-                foxview.pagestates[pagenum].thumbadded = false;
-                return thumbnail;
+                // Use higher scale factor for CAD files to improve thumbnail quality
+                if (isCADFile) {
+                    // For CAD files, render a higher resolution image
+                    var pw = foxview.pagestates[pgindex].width;
+                    var ph = foxview.pagestates[pgindex].height;
+                    
+                    // Increase resolution significantly to get thinner lines
+                    var thumbWidth = 300;  // Increased from 200
+                    var thumbHeight = 300; // Increased from 200
+                    
+                    if (pw > ph) {
+                        var scale = thumbWidth / pw;
+                    } else {
+                        scale = thumbHeight / ph;
+                    }
+                    
+                    // Further increase the scale to get finer lines
+                    scale = scale * 1.5;
+                    
+                    var pagescale = scale * PixelToPoint;
+                    var rotate = 0;
+                    var area = { x: 0, y: 0, width: pw * scale, height: ph * scale };
+                    
+                    // Use only the necessary content flags to avoid thicker lines
+                    var contentsFlags = ["page"];
+                    
+                    // Use print quality settings which typically render with finer lines
+                    var usage = 'print';
+                    
+                    var renderOptions = {
+                        imageSmoothingEnabled: true,
+                        imageQuality: "high",
+                        forceRefresh: true,
+                        enhanceThinLines: true,
+                        useHighQualityPreview: true,
+                        lineWidth: 0.25  // Force thinner lines when possible
+                    };
+                    
+                    const bitmap = await page.render(pagescale, rotate, area, contentsFlags, usage, renderOptions);
+                    RxCore.setThumbnailFoxit(bitmap, pagenum);
+                    foxview.pagestates[pagenum].thumbadded = false;
+                    return bitmap;
+                } else {
+                    // For standard PDF files, use the regular getThumb with increased scale
+                    const thumbnail = await page.getThumb(0, 2.0);
+                    RxCore.setThumbnailFoxit(thumbnail, pagenum);
+                    foxview.pagestates[pagenum].thumbadded = false;
+                    return thumbnail;
+                }
             }
         };
 

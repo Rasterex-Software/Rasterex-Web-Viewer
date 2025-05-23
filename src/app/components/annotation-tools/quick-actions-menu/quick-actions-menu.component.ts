@@ -463,7 +463,7 @@ export class QuickActionsMenuComponent implements OnInit, OnDestroy {
       this.numbuttons = 4;
 
       if(markup.type == 3 && markup.subtype == 6){
-        this.numbuttons = 7;
+        this.numbuttons = 8;
       }
 
       if(markup.type == 10){
@@ -818,7 +818,7 @@ export class QuickActionsMenuComponent implements OnInit, OnDestroy {
     this.visible = false;
   }
 
-  onDeletePointClick(): void {
+  /*onDeletePointClick(): void {
     if (this.annotation.type === MARKUP_TYPES.SHAPE.RECTANGLE.type) {
       RXCore.markupRectToAreaSwitch(this.annotation);
     }
@@ -828,7 +828,7 @@ export class QuickActionsMenuComponent implements OnInit, OnDestroy {
   
     RXCore.deletePoint();
     this.visible = false;
-  }
+  }*/
 
   onShowHideLabelClick(): void {    
     if (this.operation?.created) { RXCore.selectMarkUp(true); }
@@ -870,13 +870,13 @@ export class QuickActionsMenuComponent implements OnInit, OnDestroy {
 
   onMoveToBackClick(): void {
     RXCore.movetoBack();
-    RXCore.markUpRedraw();
+    //RXCore.markUpRedraw();
   }
 
 
   onMoveToFrontClick(): void {
     RXCore.movetoFront();
-    RXCore.markUpRedraw();
+    //RXCore.markUpRedraw();
   }
 
 

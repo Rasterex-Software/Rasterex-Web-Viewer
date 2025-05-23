@@ -19,6 +19,7 @@ export class RXCore {
     public static DemoFiles: any = UIConfig.ConfigJSON.demofiles;
     //ConfigJSON
 
+
     public static birdseyetool(): void {
         RxCore.birdseyetool();
     }

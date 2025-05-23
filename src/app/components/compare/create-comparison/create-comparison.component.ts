@@ -7,6 +7,8 @@ import { TopNavMenuService } from '../../top-nav-menu/top-nav-menu.service';
 import { RxCoreService } from 'src/app/services/rxcore.service';
 import { Subscription } from 'rxjs';
 import { IComparison } from 'src/rxcore/models/IComparison';
+import { FileCategoryService } from 'src/app/services/file-category.service';
+import { FileCategory } from 'src/app/shared/enums/file-category';
 
 @Component({
   selector: 'rx-create-comparison',
@@ -41,12 +43,31 @@ export class CreateComparisonComponent implements OnInit, OnDestroy {
     private readonly compareService: CompareService,
     private readonly colorHelper: ColorHelper,
     private readonly fileGaleryService: FileGaleryService,
-    private readonly topNavMenuService: TopNavMenuService) {}
+    private readonly topNavMenuService: TopNavMenuService,
+    private readonly fileCategoryService: FileCategoryService
+    ) {}
 
   private _init(setOtherFile: boolean = false): void {
+    
+    
     const fileList = RXCore.getOpenFilesList().filter(file => !this.compareService.findComparisonByFileName(file.name));
+
+        
     this.activeFile = fileList?.find(file => file.isActive);
-    this.fileOptions = fileList?.map(file => ({ value: file, label: file.name }));
+
+        //Skip files which are already selected/active in viewer, it is not a good idea to let user perform comparison with same file
+    //Exclude 3D files from comparison 
+    const threeDFiles = this.fileCategoryService.getCategories(fileList, FileCategory.ThreeD);
+    if (threeDFiles && threeDFiles.length > 0) {
+    this.fileOptions = fileList?.filter(file => !threeDFiles.map(x => x.id).includes(file.id));
+    }else{
+      this.fileOptions = fileList;
+    }
+
+    this.fileOptions = this.fileOptions?.filter(file => !file.isActive ).map(file => ({ value: file, label: file.name }));
+    
+    //this.fileOptions = fileList?.map(file => ({ value: file, label: file.name }));
+
     if (setOtherFile && this.fileOptions?.length) {
       this.otherFile = this.fileOptions[this.fileOptions.length - 1];
     }

@@ -179,12 +179,16 @@
                     </svg>
                     <span class="tooltip-text tooltip-top">Fit height</span>
                 </li>
-                <li *ngIf="(guiConfig$ | async).enableGrayscaleButton" (click)="onActionSelect('GRAYSCALE')" [class.selected]="state?.isActionSelected['GRAYSCALE']">
+
+                <li *ngIf="(guiConfig$ | async).enableGrayscaleButton" (click)="onActionSelect('GRAYSCALE')" [class.selected]="state?.isActionSelected['GRAYSCALE']" class="tooltip">
                     <svg width="15" height="18" viewBox="0 0 15 18" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M13.9 11.3684C13.9 14.6694 11.0656 17.4 7.5 17.4C3.9344 17.4 1.1 14.6694 1.1 11.3684C1.1 10.3204 1.49115 9.11659 2.12834 7.86617C2.76129 6.62407 3.61198 5.38407 4.47361 4.27626C5.33375 3.17036 6.19543 2.20812 6.84272 1.5219C7.10113 1.24795 7.32485 1.01853 7.5 0.842132C7.67515 1.01853 7.89887 1.24795 8.15728 1.5219C8.80457 2.20812 9.66625 3.17036 10.5264 4.27626C11.388 5.38407 12.2387 6.62407 12.8717 7.86617C13.5088 9.11659 13.9 10.3204 13.9 11.3684Z" stroke="#333C4E" stroke-width="1.2"/>
                         <path d="M14 11.3684C14 14.5732 11.378 17.2408 8.00001 17.4822L8.00001 17.4789L8.00005 16.0577L8.00009 11.3684L8.00005 3.90789L8.00002 1.21148C8.07309 1.28765 8.1499 1.36833 8.23003 1.45328C8.87881 2.14109 9.74271 3.10578 10.6053 4.21487C11.4692 5.32554 12.3239 6.57105 12.9608 7.82076C13.6011 9.07742 14 10.2977 14 11.3684Z" fill="#333C4E" stroke="#333C4E"/>
                     </svg>
+                    <span class="tooltip-text tooltip-top">Grayscale Slider</span>
                 </li>
+
+
                 <li *ngIf="state?.isActionSelected['GRAYSCALE']" class="slider-grayscale">
                     <ngx-slider
                         [(value)]="grayscaleValue"

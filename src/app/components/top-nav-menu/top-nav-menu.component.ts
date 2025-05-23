@@ -106,6 +106,14 @@ export class TopNavMenuComponent implements OnInit {
         if (value) {
           this.onModeChange(value, false);
         }
+      }else{
+          //Hide compare toolbar if comparison window is closed Or not active
+          this.onModeChange(false, false);
+
+          //Disable tools which enabled for comparison
+          this.rxCoreService.setGuiConfig({
+              enableGrayscaleButton: this.compareService.isComparisonActive
+          });
       }
     });
 

@@ -502,10 +502,7 @@
             <span class="print-text">Print</span>
           </li>
           <li
-
-
-
-            *ngIf="guiConfig.canCompare && !guiConfig.disableBurgerMenuCompare && fileLength > 0"
+            *ngIf="guiConfig.canCompare && !guiConfig.disableBurgerMenuCompare && !state.is3D && fileLength > 0"
             role="option"
             tabindex="0"
             (click)="openModalCompare()"

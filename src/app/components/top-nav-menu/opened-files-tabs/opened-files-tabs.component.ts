@@ -205,7 +205,11 @@ export class OpenedFilesTabsComponent implements OnInit {
     event.stopPropagation();
 
     console.log("closing tab");
-    this.pinFiles(file);
+    const index = this.pinnedFiles.findIndex(item => item.id === file.id);
+    if (index > -1) {
+      this.pinnedFiles.splice(index, 1); // remove the item
+    }
+    //this.pinFiles(file);
 
     if (file.comparison && RXCore.markupChanged) {
       this.compareService.onUnsavedChanges.next();

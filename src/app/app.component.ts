@@ -77,7 +77,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     // Subscribe to sidebar state changes
     this.sidebarStateSubscription = this.sidebarState$.subscribe((state) => {
       if(state === true) {
-         RXCore.zoomHeight();
+        //  RXCore.zoomHeight();
       }
       this.sidebarOpen = state;
     });

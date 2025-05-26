@@ -1402,6 +1402,7 @@ export class NotePanelComponent implements OnInit {
 
 
       switch (markup.type) {
+        case MARKUP_TYPES.MEASURE.MEASUREARC.type:
         case MARKUP_TYPES.ERASE.type:
         case MARKUP_TYPES.SHAPE.POLYGON.type:
         case MARKUP_TYPES.PAINT.POLYLINE.type:

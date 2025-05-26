@@ -19,6 +19,9 @@ export class RXCore {
     public static DemoFiles: any = UIConfig.ConfigJSON.demofiles;
     //ConfigJSON
 
+    public static measureArc(onoff: boolean): void{
+        RxCore.measureArc(onoff);
+    }
 
     public static birdseyetool(): void {
         RxCore.birdseyetool();

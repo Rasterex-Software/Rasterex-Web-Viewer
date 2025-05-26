@@ -122,7 +122,12 @@ export class PropertiesPanelComponent implements OnInit {
       case MARKUP_TYPES.MEASURE.ANGLECLOCKWISE.type:
           this.title = "Measure Angle";
           break;
-  
+      
+      case MARKUP_TYPES.MEASURE.MEASUREARC.type:
+            this.title = "Measure Arc";
+            break;
+    
+          
 
       case MARKUP_TYPES.MEASURE.PATH.type:
         switch(this.markup.subtype) {
@@ -189,6 +194,7 @@ export class PropertiesPanelComponent implements OnInit {
       || (this.markup.type == MARKUP_TYPES.MEASURE.LENGTH.type)
       || (this.markup.type == MARKUP_TYPES.MEASURE.ANGLECLOCKWISE.type && this.markup.subtype == MARKUP_TYPES.MEASURE.ANGLECLOCKWISE.subType)
       || (this.markup.type == MARKUP_TYPES.MEASURE.ANGLECCLOCKWISE.type && this.markup.subtype == MARKUP_TYPES.MEASURE.ANGLECCLOCKWISE.subType)
+      || (this.markup.type == MARKUP_TYPES.MEASURE.MEASUREARC.type && this.markup.subtype == MARKUP_TYPES.MEASURE.MEASUREARC.subType)
       ){
       this.propertyTabActiveIndex = 1;
       this.isPropertyTabsVisible = false;

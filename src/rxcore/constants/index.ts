@@ -103,6 +103,10 @@ export const MARKUP_TYPES = {
             type: 1,
             subType: 5,
         },
+        MEASUREARC:{
+            type: 14,
+            subType: 0,
+        }
         
     },
     SIGNATURE: {

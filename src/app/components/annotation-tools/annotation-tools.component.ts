@@ -48,7 +48,7 @@ export class AnnotationToolsComponent implements OnInit {
     "MEASURE_LENGTH": false,
     "MEASURE_AREA": false,
     "MEASURE_PATH": false,
-    "MEASURE_ANGLE_CLOCKWISE": false,
+    "MEASURE_ARC": false,
     "MEASURE_ANGLE_CCLOCKWISE": false,
     "SNAP": false,
     "MARKUP_LOCK" : false,
@@ -81,7 +81,7 @@ export class AnnotationToolsComponent implements OnInit {
     return this.isActionSelected["MEASURE_LENGTH"]
       || this.isActionSelected["MEASURE_AREA"]
       || this.isActionSelected["MEASURE_PATH"]
-      || this.isActionSelected["MEASURE_ANGLE_CLOCKWISE"]
+      || this.isActionSelected["MEASURE_ARC"]
       || this.isActionSelected["MEASURE_ANGLE_CCLOCKWISE"];
   };
 
@@ -356,10 +356,10 @@ export class AnnotationToolsComponent implements OnInit {
         
         break;
 
-      case 'MEASURE_ANGLE_CLOCKWISE':
-        this.service.setMeasurePanelDetailState({ visible: this.isActionSelected[actionName], type:  MARKUP_TYPES.MEASURE.ANGLECLOCKWISE.type, created: true });
+      case 'MEASURE_ARC':
+        //this.service.setMeasurePanelDetailState({ visible: this.isActionSelected[actionName], type:  MARKUP_TYPES.MEASURE.ANGLECLOCKWISE.type, created: true });
         //this.service.setPropertiesPanelState({ visible: this.isActionSelected[actionName], markup:  MARKUP_TYPES.MEASURE.PATH, readonly: false });
-        RXCore.markupAngle(this.isActionSelected[actionName], false);
+        RXCore.measureArc(this.isActionSelected[actionName]);
         break;
 
       case 'MEASURE_ANGLE_CCLOCKWISE':

@@ -1,3 +1,26 @@
+May 26, 2025
+
+### 1. New measure tool Arc.
+
+Updated and new files
+
+RxCore version is now 35.924.
+src\assets\scripts\rxcorefunctions.js
+
+
+src\app\components\annotation-tools\annotation-tools.component.html
+src\app\components\annotation-tools\annotation-tools.component.ts
+src\app\components\annotation-tools\annotation-shape-icon\annotation-shape-icon.component.html
+
+src\app\components\annotation-tools\quick-actions-menu\quick-actions-menu.component.ts
+src\app\components\annotation-tools\quick-actions-menu\quick-actions-menu.component.html
+src\app\components\annotation-tools\properties-panel\properties-panel.component.ts
+src\app\components\annotation-tools\note-panel\note-panel.component.ts
+
+src\rxcore\index.ts
+src\rxcore\constants\index.ts
+
+
 May 23, 2025
 
 ### 1. Some fixes to text annotation input element.

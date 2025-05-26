@@ -818,3 +818,12 @@ May 21, 2025
   `modified:   src/rxcore/models/IGuiConfig.ts`
   `new file:   src/rxcore/models/IGuiDateFormat.ts`
   `modified:   src/rxcore/models/IMarkup.ts`
+
+
+May 26, 2025
+
+# Fix: Logout now fully clears demo user annotations.
+
+  `modified:   src/app/app.component.ts`
+  `modified:   src/app/components/annotation-tools/note-panel/note-panel.component.ts`
+  `modified:   src/app/components/user/user.service.ts`

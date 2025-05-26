@@ -4,6 +4,7 @@ import { RXCore } from 'src/rxcore';
 import { IMarkup } from 'src/rxcore/models/IMarkup';
 import { MARKUP_TYPES } from 'src/rxcore/constants';
 import { RxCoreService } from 'src/app/services/rxcore.service';
+import { UserService } from '../../user/user.service';
 import dayjs, { Dayjs } from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import updateLocale from 'dayjs/plugin/updateLocale';
@@ -80,6 +81,7 @@ export class NotePanelComponent implements OnInit {
 
   /*added for comment list panel */
   private guiOnPanUpdatedSubscription: Subscription;
+  private userSubscription: Subscription;
   /*added for comment list panel */
 
   leaderLine: any = undefined;
@@ -144,7 +146,8 @@ export class NotePanelComponent implements OnInit {
   constructor(
     private readonly rxCoreService: RxCoreService,
     private el: ElementRef,
-    private readonly annotationToolsService: AnnotationToolsService) {
+    private readonly annotationToolsService: AnnotationToolsService,
+    private readonly userService: UserService) {
       dayjs.extend(relativeTime);
       dayjs.extend(updateLocale);
       dayjs.extend(isSameOrAfter);
@@ -555,7 +558,7 @@ export class NotePanelComponent implements OnInit {
       if(this.authorFilter.size > 0) {
         return this.authorFilter.has(RXCore.getDisplayName(item.signature));
       }
-      return false;
+      return true; // Show all annotations when no author filter is applied
     })
     .map((item: any) => {
       //item.author = item.title !== '' ? item.title : RXCore.getDisplayName(item.signature);
@@ -676,6 +679,16 @@ export class NotePanelComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    // Subscribe to user state changes to clear authorFilter when user logs out
+    this.userSubscription = this.userService.currentUser$.subscribe(user => {
+      if (!user) {
+        // User has logged out, clear the author filter to ensure all annotations are visible
+        console.log('User logged out, clearing author filter');
+        this.authorFilter.clear();
+        this._processList(this.rxCoreService.getGuiMarkupList());
+      }
+    });
+
     //this.annotationToolsService.notePanelState$.subscribe(state => {
     this.annotationToolsService.notePanelState$.subscribe((state) => {  
       /*added for comment list panel */
@@ -1330,6 +1343,9 @@ export class NotePanelComponent implements OnInit {
 
   ngOnDestroy(): void {
     this.guiOnPanUpdatedSubscription.unsubscribe();
+    if (this.userSubscription) {
+      this.userSubscription.unsubscribe();
+    }
   }
 
   onSelectAnnotation(markup: any): void {

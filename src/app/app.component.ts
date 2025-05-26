@@ -158,6 +158,9 @@ export class AppComponent implements AfterViewInit, OnDestroy {
         // Only log out if we previously had a user (avoid duplicate init)
         console.log('User logged out, clearing RXCore user');
         RXCore.setUser('', '');
+        
+        // Reset user markup display settings to ensure all annotations are visible after logout
+        this.resetUserMarkupDisplaySettings();
       }
     });
 
@@ -974,5 +977,21 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     /*     RXCore.pasteMarkUp();
     this.pasteStyle = { display: 'none' };
  */
+  }
+
+  resetUserMarkupDisplaySettings() {
+    try {
+      const users = RXCore.getUsers();
+      console.log('Resetting markup display for all users:', users.length);
+      
+      // Reset display settings for all users to true (visible)
+      for (let i = 0; i < users.length; i++) {
+        RXCore.SetUserMarkupdisplay(i, true);
+      }
+      
+      console.log('User markup display settings reset successfully');
+    } catch (error) {
+      console.error('Error resetting user markup display settings:', error);
+    }
   }
 }

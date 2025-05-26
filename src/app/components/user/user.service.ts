@@ -188,6 +188,9 @@ export class UserService {
           // Clear localStorage
           this.saveAuthState('', null);
 
+          // Reset user markup display settings to ensure all annotations are visible after logout
+          this.resetUserMarkupDisplaySettings();
+
           console.log('logout result:', v);
           resolve();
         },
@@ -197,6 +200,26 @@ export class UserService {
         }
       });
     });
+  }
+
+  /**
+   * Resets all user markup display settings to make all user annotations visible.
+   * This ensures that when a user logs out, no user annotations remain hidden.
+   */
+  private resetUserMarkupDisplaySettings(): void {
+    try {
+      const users = RXCore.getUsers();
+      console.log('Resetting markup display for all users:', users.length);
+      
+      // Reset display settings for all users to true (visible)
+      for (let i = 0; i < users.length; i++) {
+        RXCore.SetUserMarkupdisplay(i, true);
+      }
+      
+      console.log('User markup display settings reset successfully');
+    } catch (error) {
+      console.error('Error resetting user markup display settings:', error);
+    }
   }
 
     /**

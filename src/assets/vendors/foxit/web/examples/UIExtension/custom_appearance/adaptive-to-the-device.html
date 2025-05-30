@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no">
+    <!-- default(white), black, black-translucent -->
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-touch-fullscreen" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Foxit PDF SDK for Web">
+    <meta name="App-Config" content="fullscreen=yes,useHistoryState=no,transition=no">
+    <meta name="format-detaction" content="telephone=no,email=no">
+    <meta http-equiv="Cache-Control" content="no-siteapp" />
+    <meta name="HandheldFriendly" content="true">
+    <meta name="MobileOptimized" content="750">
+    <meta name="screen-orientation" content="portrait">
+    <meta name="x5-orientation" content="portrait">
+    <meta name="full-screen" content="yes">
+    <meta name="x5-fullscreen" content="true">
+    <meta name="browsermode" content="application">
+    <meta name="x5-page-mode" content="app">
+    <meta name="msapplication-tap-highlight" content="no">
+    <meta name="renderer" content="webkit">
+
+    <title>Foxit PDF SDK for Web</title>
+    <link rel="shortcut icon" href="../../assets/favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" href="../../../lib/UIExtension.css">
+    <style>
+        body {
+            height: 100vh;
+            height: 100dvh;
+            height: calc(var(--vh, 1dvh) * 100);
+        }
+        #pdf-ui {
+            top: 40px;
+            bottom: 0;
+            position: absolute;
+            width: 100vw;
+        }
+
+        .fv__ui-mobile #pdf-ui {
+            top: 0;
+        }
+        .fv__ui-mobile .fv__ui-nav
+        {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="fv__ui-nav">
+        <a class="fv__ui-nav-logo" href="javascript:location.reload()">
+            <i class="fv__icon-logo"></i>
+        </a>
+    </div>
+    <div id="pdf-ui"></div>
+    <template role="pc-layout-template-container">
+        <webpdf>
+            <toolbar name="toolbar">
+                <div style="display: flex; flex-direction: row; padding: 6px;">
+                    <open-file-dropdown></open-file-dropdown>
+                    <download-file-button></download-file-button>
+                </div>
+            </toolbar>
+            <div class="fv__ui-body">
+                <viewer @zoom-on-pinch @zoom-on-doubletap @zoom-on-wheel @touch-to-scroll></viewer>
+            </div>
+            <template name="template-container">
+                <create-stamp-dialog></create-stamp-dialog>
+                <print:print-dialog></print:print-dialog>
+                <loupe-tool-dialog></loupe-tool-dialog>
+                <create-ink-sign-dialog></create-ink-sign-dialog>
+                <distance:measurement-popup></distance:measurement-popup>
+                <fpmodule:file-property-dialog></fpmodule:file-property-dialog>
+                <redaction:redaction-page-dialog></redaction:redaction-page-dialog>
+                <!-- contextmenus -->
+                <page-contextmenu></page-contextmenu>
+                <default-annot-contextmenu></default-annot-contextmenu>
+                <markup-contextmenu></markup-contextmenu>
+                <markup-contextmenu name="fv--line-contextmenu"></markup-contextmenu>
+                <markup-contextmenu name="fv--linearrow-contextmenu"></markup-contextmenu>
+                <markup-contextmenu name="fv--polylinedimention-contextmenu"></markup-contextmenu>
+                <markup-contextmenu name="fv--polygondimension-contextmenu"></markup-contextmenu>
+                <markup-contextmenu name="fv--circle-contextmenu"></markup-contextmenu>
+                <markup-contextmenu name="fv--square-contextmenu"></markup-contextmenu>
+                <markup-contextmenu name="fv--polyline-contextmenu"></markup-contextmenu>
+                <markup-contextmenu name="fv--polygon-contextmenu"></markup-contextmenu>
+                <markup-contextmenu name="fv--polygoncloud-contextmenu"></markup-contextmenu>
+                <markup-contextmenu name="fv--ink-contextmenu"></markup-contextmenu>
+                <markup-contextmenu name="fv--stamp-contextmenu"></markup-contextmenu>
+                <markup-contextmenu name="fv--text-contextmenu"></markup-contextmenu>
+                <markup-contextmenu name="fv--areahighlight-contextmenu"></markup-contextmenu>
+                <markup-contextmenu name="fv--replace-contextmenu"></markup-contextmenu>
+                <measurement-contextmenu></measurement-contextmenu>
+                <default-annot-contextmenu name="fv--caret-contextmenu"></default-annot-contextmenu>
+                <textmarkup-contextmenu name="fv--highlight-contextmenu"></textmarkup-contextmenu>
+                <textmarkup-contextmenu name="fv--strikeout-contextmenu"></textmarkup-contextmenu>
+                <textmarkup-contextmenu name="fv--underline-contextmenu"></textmarkup-contextmenu>
+                <textmarkup-contextmenu name="fv--squiggly-contextmenu"></textmarkup-contextmenu>
+                <freetext-contextmenu name="fv--typewriter-contextmenu"></freetext-contextmenu>
+                <freetext-contextmenu name="fv--callout-contextmenu"></freetext-contextmenu>
+                <freetext-contextmenu name="fv--textbox-contextmenu"></freetext-contextmenu>
+                <action-annot-contextmenu name="fv--image-contextmenu"></action-annot-contextmenu>
+                <action-annot-contextmenu name="fv--link-contextmenu"></action-annot-contextmenu>
+                <comment-card-contextmenu></comment-card-contextmenu>
+                <fileattachment-contextmenu></fileattachment-contextmenu>
+                <media-contextmenu></media-contextmenu>
+                <sound-contextmenu></sound-contextmenu>
+                <redact-contextmenu></redact-contextmenu>
+                <text-sel:text-selection-tooltip></text-sel:text-selection-tooltip>
+                <freetext:freetext-tooltip></freetext:freetext-tooltip>
+            </template>
+        </webpdf>
+    </template>
+    <template role="mobile-layout-template-container">
+        <webpdf>
+            <div class="fv__ui-mobile-header" name="fv--mobile-header">
+                <div class="fv__ui-mobile-header-right" name="fv--mobile-header-right" style="margin-left: auto;">
+                    <hand-button icon-class="fv__icon-mobile-topbar-hand"></hand-button>
+                    <mobile:pageview-dropdown name="fv--mobile-pageview-dropdown">
+                        <single-page-button></single-page-button>
+                        <continuous-page-button></continuous-page-button>
+                    </mobile:pageview-dropdown>
+                    <dropdown class="fv__ui-mobile-topbar-tools-dropdown fv__ui-dropdown-hide-text" name="fv--mobile-topbar-tools-dropdown" @cannotBeDisabled>
+                        <open-localfile-button @cannotBeDisabled></open-localfile-button>
+                        <open-fromurl-button @cannotBeDisabled></open-fromurl-button>
+                        <print:print-button></print:print-button>
+                        <download-file-button></download-file-button>
+                        <full-screen:toggle-full-screen-button name="fv--toggle-full-screen-button" @hide-on-device="ios"></full-screen:toggle-full-screen-button>
+                        <fpmodule:file-property-button name="fv--file-property-button"></fpmodule:file-property-button>
+                    </dropdown>
+                </div>
+            </div>
+            <div class="fv__ui-body">
+                <viewer @zoom-on-pinch @zoom-on-doubletap @touch-to-scroll></viewer>
+            </div>
+            <template name="template-container">
+                <create-stamp-dialog></create-stamp-dialog>
+                <print:print-dialog></print:print-dialog>
+                <loupe-tool-dialog></loupe-tool-dialog>
+                <create-ink-sign-dialog></create-ink-sign-dialog>
+                <distance:measurement-popup></distance:measurement-popup>
+                <fpmodule:file-property-dialog></fpmodule:file-property-dialog>
+                <redaction:redaction-page-dialog></redaction:redaction-page-dialog>
+                <!-- contextmenus -->
+                <page-contextmenu></page-contextmenu>
+                <default-annot-contextmenu></default-annot-contextmenu>
+                <markup-contextmenu></markup-contextmenu>
+                <markup-contextmenu name="fv--line-contextmenu"></markup-contextmenu>
+                <markup-contextmenu name="fv--linearrow-contextmenu"></markup-contextmenu>
+                <markup-contextmenu name="fv--polylinedimention-contextmenu"></markup-contextmenu>
+                <markup-contextmenu name="fv--polygondimension-contextmenu"></markup-contextmenu>
+                <markup-contextmenu name="fv--circle-contextmenu"></markup-contextmenu>
+                <markup-contextmenu name="fv--square-contextmenu"></markup-contextmenu>
+                <markup-contextmenu name="fv--polyline-contextmenu"></markup-contextmenu>
+                <markup-contextmenu name="fv--polygon-contextmenu"></markup-contextmenu>
+                <markup-contextmenu name="fv--polygoncloud-contextmenu"></markup-contextmenu>
+                <markup-contextmenu name="fv--ink-contextmenu"></markup-contextmenu>
+                <markup-contextmenu name="fv--stamp-contextmenu"></markup-contextmenu>
+                <markup-contextmenu name="fv--text-contextmenu"></markup-contextmenu>
+                <markup-contextmenu name="fv--areahighlight-contextmenu"></markup-contextmenu>
+                <markup-contextmenu name="fv--replace-contextmenu"></markup-contextmenu>
+                <measurement-contextmenu></measurement-contextmenu>
+                <default-annot-contextmenu name="fv--caret-contextmenu"></default-annot-contextmenu>
+                <textmarkup-contextmenu name="fv--highlight-contextmenu"></textmarkup-contextmenu>
+                <textmarkup-contextmenu name="fv--strikeout-contextmenu"></textmarkup-contextmenu>
+                <textmarkup-contextmenu name="fv--underline-contextmenu"></textmarkup-contextmenu>
+                <textmarkup-contextmenu name="fv--squiggly-contextmenu"></textmarkup-contextmenu>
+                <freetext-contextmenu name="fv--typewriter-contextmenu"></freetext-contextmenu>
+                <freetext-contextmenu name="fv--callout-contextmenu"></freetext-contextmenu>
+                <freetext-contextmenu name="fv--textbox-contextmenu"></freetext-contextmenu>
+                <action-annot-contextmenu name="fv--image-contextmenu"></action-annot-contextmenu>
+                <action-annot-contextmenu name="fv--link-contextmenu"></action-annot-contextmenu>
+                <comment-card-contextmenu></comment-card-contextmenu>
+                <fileattachment-contextmenu></fileattachment-contextmenu>
+                <media-contextmenu></media-contextmenu>
+                <sound-contextmenu></sound-contextmenu>
+                <redact-contextmenu></redact-contextmenu>
+            </template>
+        </webpdf>
+    </template>
+    <script src="../../license-key.js"></script>
+    <script src="../../../lib/preload-jr-worker.js"></script>
+    <script>
+        var readyWorker = preloadJrWorker({
+            workerPath: '../../../lib/',
+            enginePath: '../lib/jr-engine/gsdk',
+            fontPath: '../external/brotli',
+            licenseSN: licenseSN,
+            licenseKey: licenseKey
+        })
+    </script>
+    <script src="../../../lib/UIExtension.full.js"></script>
+    <script>
+        /*
+         * The 'Appearance' class is used to implement some of the UE requirements for different layout templates,
+         * you should override the 'getLayoutTemplate' method to provide the string content of layout template,  
+         * override the 'beforeMounted' method to prepare component's css-style, 
+         * override the 'afterMounted' method to achieve some UE feature.
+         * override the 'enableAll' method to enable buttons after a PDF file is openned,
+         * ovrride the 'disableAll' method to disable buttons after a pdf file is closed.
+         * Notice: the root component of layout template must be <webpdf>!
+         * The following example shows how to customize the appearance:
+         */
+
+        var PCAppearance = PDFViewCtrl.shared.createClass({
+            constructor: function() {
+                // CONSTRUCTOR
+            },
+            getLayoutTemplate: function () {
+                var template = document.querySelector('[role=pc-layout-template-container]');
+                return template.innerHTML;
+            },
+            beforeMounted: function(rootComponent) {
+                this.rootComponent = rootComponent;
+                this.toolbarComponent = rootComponent.getComponentByName('toolbar');
+            },
+            disableAll: function() {
+                this.toolbarComponent && this.toolbarComponent.disable();
+            },
+            enableAll: function() {
+                this.toolbarComponent && this.toolbarComponent.enable();
+            }
+        }, UIExtension.appearances.Appearance);
+
+        var MobileAppearance = PDFViewCtrl.shared.createClass({
+            getLayoutTemplate: function () {
+                var template = document.querySelector('[role=mobile-layout-template-container]');
+                return template.innerHTML;
+            },
+            beforeMounted: function (rootComponent) {
+                this.rootComponent = rootComponent;
+                document.documentElement.classList.add('fv__ui-mobile');
+                this.headerComponent = rootComponent.getComponentByName('fv--mobile-header');
+            },
+            disableAll: function () {
+                this.headerComponent && this.headerComponent.disable();
+            },
+            enableAll: function () {
+                this.headerComponent && this.headerComponent.enable();
+            }
+        }, UIExtension.appearances.Appearance);
+
+        setup(UIExtension.PDFViewCtrl.DeviceInfo.isMobile ? MobileAppearance : PCAppearance);
+
+        function setup(appearance) {
+            var PDFUI = UIExtension.PDFUI;
+            var Events = UIExtension.PDFViewCtrl.Events;
+            var pdfui = window.pdfui = new PDFUI({
+                viewerOptions: {
+                    libPath: '../../../lib',
+                    jr: {
+                        readyWorker: readyWorker,
+                        licenseSN: licenseSN,
+                        licenseKey: licenseKey
+                    }
+                },
+                renderTo: '#pdf-ui',
+                appearance: appearance,
+                fragments: [],
+                addons: 
+                UIExtension.PDFViewCtrl.DeviceInfo.isMobile ? [
+            "../../../lib/uix-addons/comparison",
+            "../../../lib/uix-addons/custom-dynamic-stamp",
+            "../../../lib/uix-addons/digital-stamp",
+            "../../../lib/uix-addons/doc-attachment",
+            "../../../lib/uix-addons/dynamic-xfa",
+            "../../../lib/uix-addons/edit-graphics",
+            "../../../lib/uix-addons/export-form",
+            "../../../lib/uix-addons/file-property",
+            "../../../lib/uix-addons/find-replace",
+            "../../../lib/uix-addons/form-to-sheet",
+            "../../../lib/uix-addons/full-screen",
+            "../../../lib/uix-addons/h-continuous",
+            "../../../lib/uix-addons/h-facing",
+            "../../../lib/uix-addons/h-single",
+            "../../../lib/uix-addons/import-form",
+            "../../../lib/uix-addons/javascript-form",
+            "../../../lib/uix-addons/manage-comments",
+            "../../../lib/uix-addons/mobile-edit-properties",
+            "../../../lib/uix-addons/multi-media",
+            "../../../lib/uix-addons/page-editor",
+            "../../../lib/uix-addons/page-template",
+            "../../../lib/uix-addons/password-protect",
+            "../../../lib/uix-addons/path-objects",
+            "../../../lib/uix-addons/preview",
+            "../../../lib/uix-addons/print",
+            "../../../lib/uix-addons/range-input",
+            "../../../lib/uix-addons/read-aloud",
+            "../../../lib/uix-addons/recognition-form",
+            "../../../lib/uix-addons/redaction",
+            "../../../lib/uix-addons/rotate-pages",
+            "../../../lib/uix-addons/search",
+            "../../../lib/uix-addons/sign-certify",
+            "../../../lib/uix-addons/thumbnail",
+            "../../../lib/uix-addons/undo-redo",
+            "../../../lib/uix-addons/xfa-form"
+            ]:[
+            "../../../lib/uix-addons/comparison",
+            "../../../lib/uix-addons/custom-dynamic-stamp",
+            "../../../lib/uix-addons/digital-stamp",
+            "../../../lib/uix-addons/doc-attachment",
+            "../../../lib/uix-addons/dynamic-xfa",
+            "../../../lib/uix-addons/edit-graphics",
+            "../../../lib/uix-addons/export-form",
+            "../../../lib/uix-addons/file-property",
+            "../../../lib/uix-addons/find-replace",
+            "../../../lib/uix-addons/form-designer",
+            "../../../lib/uix-addons/form-to-sheet",
+            "../../../lib/uix-addons/full-screen",
+            "../../../lib/uix-addons/h-continuous",
+            "../../../lib/uix-addons/h-facing",
+            "../../../lib/uix-addons/h-single",
+            "../../../lib/uix-addons/import-form",
+            "../../../lib/uix-addons/javascript-form",
+            "../../../lib/uix-addons/manage-comments",
+            "../../../lib/uix-addons/multi-media",
+            "../../../lib/uix-addons/page-editor",
+            "../../../lib/uix-addons/page-template",
+            "../../../lib/uix-addons/password-protect",
+            "../../../lib/uix-addons/path-objects",
+            "../../../lib/uix-addons/preview",
+            "../../../lib/uix-addons/print",
+            "../../../lib/uix-addons/range-input",
+            "../../../lib/uix-addons/read-aloud",
+            "../../../lib/uix-addons/recognition-form",
+            "../../../lib/uix-addons/redaction",
+            "../../../lib/uix-addons/rotate-pages",
+            "../../../lib/uix-addons/search",
+            "../../../lib/uix-addons/sign-certify",
+            "../../../lib/uix-addons/text-object",
+            "../../../lib/uix-addons/thumbnail",
+            "../../../lib/uix-addons/undo-redo",
+            "../../../lib/uix-addons/xfa-form",
+            "../../../lib/uix-addons/aria"
+            ]
+            });
+            pdfui.addUIEventListener('fullscreenchange', function (isFullscreen) {
+                if (isFullscreen) {
+                    document.body.classList.add('fv__pdfui-fullscreen-mode');
+                } else {
+                    document.body.classList.remove('fv__pdfui-fullscreen-mode');
+                }
+            });
+
+            function openLoadingLayer() {
+                return pdfui.loading();
+            }
+            var loadingComponentPromise = openLoadingLayer();
+
+            pdfui.addViewerEventListener(Events.beforeOpenFile, function () {
+                if (loadingComponentPromise) {
+                    loadingComponentPromise = loadingComponentPromise
+                        .then(function (component) {
+                            component.close();
+                        })
+                        .then(openLoadingLayer);
+                } else {
+                    loadingComponentPromise = openLoadingLayer();
+                }
+            });
+            pdfui.addViewerEventListener(Events.openFileSuccess, function () {
+                loadingComponentPromise.then(function (component) {
+                    component.close();
+                });
+            });
+            pdfui.addViewerEventListener(Events.openFileFailed, function () {
+                loadingComponentPromise.then(function (component) {
+                    component.close();
+                });
+            });
+
+
+            pdfui.openPDFByHttpRangeRequest({
+                range: {
+                    url: '../../../docs/FoxitPDFSDKforWeb_DemoGuide.pdf',
+                }
+            }, {
+                fileName: 'FoxitPDFSDKforWeb_DemoGuide.pdf'
+            })
+
+        }
+    </script>
+</body>
+
+</html>

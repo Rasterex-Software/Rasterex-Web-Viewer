@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Foxit PDF SDK For Web</title>
+    <link rel="shortcut icon" href="../../../assets/favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" href="../../../../lib/PDFViewCtrl.css"/>
+    <style>
+        #app {
+            width: 100vw;
+            height: calc(100vh - 40px);
+            overflow: auto;
+            --facing-margin: 0;
+        }
+        .aria-sr-only {
+            position: fixed;
+            display: inline-block;
+            width: 0;
+            height: 0;
+            clip: rect(0,0,0,0);
+            opacity: 0;
+        }
+
+        :focus-visible {
+            outline: none;
+        }
+    </style>
+</head>
+<body>
+<input type="file" name="file" id="file" accept=".pdf" multiple="multiple">
+<hr>
+
+<div id="app">
+    <div id="pdf-viewer"></div>
+</div>
+
+<script src="../../../license-key.js"></script>
+<script src="../../../../lib/PDFViewCtrl.full.js"></script>
+<script src="../../../../lib/PDFViewCtrl/addon/EditGraphicsAddonModule.js"></script>
+<script src="../../../../lib/PDFViewCtrl/addon/CreateAnnotAddonModule.js"></script>
+<script src="../../../../lib/PDFViewCtrl/addon/HContinuousViewMode.js"></script>
+<script src="../../../../lib/PDFViewCtrl/addon/FacingContinuousViewMode.js"></script>
+<script src="../../../../lib/PDFViewCtrl/addon/FacingPageViewMode.js"></script>
+
+<script>
+    function _inherits(subClass, superClass) {
+        if (typeof superClass !== "function" && superClass !== null) {
+            throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
+        }
+        subClass.prototype = Object.create(superClass && superClass.prototype, {
+            constructor: {
+                value: subClass,
+                enumerable: false,
+                writable: true,
+                configurable: true
+            }
+        });
+        if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
+    }
+    function throttle (callback, limit) {
+        var waiting = false;
+        var cancelled = false;
+        function wrapper() {
+            if(cancelled) {
+                return;
+            }
+            if (!waiting) {
+                callback.apply(this, arguments);
+                waiting = true;
+                setTimeout(function () {
+                    waiting = false;
+                }, limit);
+            }
+        }
+        wrapper.cancel = function(){
+            cancelled = true;
+        };
+        return wrapper;
+    }
+</script>
+<script>
+    var PDFViewer = PDFViewCtrl.PDFViewer;
+    var pdfViewer = new PDFViewer({
+        libPath: '../../../../lib',
+        jr: {
+            licenseSN: licenseSN,
+            licenseKey: licenseKey,
+        },
+        customs: {
+            ScrollWrap: PDFViewCtrl.DivScrollWrap.create(document.getElementById('app'))
+        }
+    });
+    (new PDFViewCtrl_EditGraphicsAddonModule.EditGraphicsAddon(pdfViewer)).init();
+    (new PDFViewCtrl_CreateAnnotAddonModule.CreateAnnotAddon(pdfViewer)).init();
+    pdfViewer.init('#pdf-viewer');
+
+    document.getElementById('file').onchange = function (e) {
+        if (!this.value) {
+            return;
+        }
+        var pdf,fdf;
+        for (var i = e.target.files.length; i--;) {
+            var file = e.target.files[i];
+            var filename = file.name;
+            if (/\.pdf$/i.test(filename)) {
+                pdf = file
+            } else if (/\.(x)?fdf$/i.test(filename)) {
+                fdf = file
+            }
+        }
+        pdfViewer.openPDFByFile(pdf, {password: '', fdf: {file: fdf}});
+        this.value = '';
+    };
+
+    var PagePointType = PDFViewCtrl.constants.PagePointType;
+    var STATE_HANDLER_HAND = PDFViewCtrl.constants.STATE_HANDLER_NAMES.STATE_HANDLER_HAND;
+    var ViewerEvents = PDFViewCtrl.ViewerEvents;
+    var Graphics_ObjectType = PDFViewCtrl.PDF.constant.Graphics_ObjectType;
+
+    (function() {
+        var disposeLast = function() {};
+        function handle() {
+            var docRender = pdfViewer.getPDFDocRender();
+            var $container = docRender.$container;
+
+            var lastLineRect;
+            var lastText;
+            function getTextLineUnderPoint(page, pdfPoint) {
+                return page.getGraphicsObjectAtPoint([pdfPoint.x, pdfPoint.y], 0, Graphics_ObjectType.Text)
+                    .then(function(textObject) {
+                        if(!textObject) {
+                            return '';
+                        }
+                        var textPDFRect = textObject.getRect();
+                        var lineRect = {
+                            left: 0,
+                            right: page.getWidth(),
+                            top: textPDFRect.top,
+                            bottom: textPDFRect.bottom
+                        };
+                        if (isSameLine(lastLineRect, lineRect)) {
+                            return lastText || '';
+                        }
+                        lastLineRect = lineRect;
+                        return page.getGraphicsObjectsByRect({
+                            rect: lineRect,
+                            tolerance: 0,
+                            type: Graphics_ObjectType.Text,
+                            isInRect: false
+                        }).then(function(textGraphicsObjects) {
+                            return lastText = textGraphicsObjects.map(function(it){
+                                return it.getText();
+                            }).join('');
+                        });
+                    });
+            }
+
+            var handleOnMove = throttle(function (pageIndex, clientX, clientY) {
+                var pageRender = docRender.getPDFPageRender(pageIndex);
+                var span = pageRender.$element.find('.aria-mouseover-page-text')[0];
+                if(!span) {
+                    span = document.createElement('span');
+                    span.classList.add('aria-sr-only', 'aria-mouseover-page-text');
+                    span.id = Math.random().toString(36).slice(2);
+                    pageRender.$element.append(span);
+                    pageRender.$element.attr('aria-labelledby', span.id);
+                }
+
+                return pageRender.transformPoint({
+                    point: {
+                        x: clientX,
+                        y: clientY
+                    },
+                    srcType: PagePointType.viewport,
+                    destType: PagePointType.pdf
+                }).then(function(pdfPoint) {
+                    if(lastLineRect && isPointInRect(pdfPoint, lastLineRect)) {
+                        return;
+                    }
+                    return pageRender.getPDFPage().then(function(page) {
+                        return getTextLineUnderPoint(page, pdfPoint);
+                    }).then(function(text) {
+                        var originText = span.innerText.trim();
+                        if(originText !== text.trim()) {
+                            span.innerHTML = '';
+                            span.appendChild(document.createTextNode(text));
+                        }
+                    });
+                });
+            }, 100)
+            function moveListener(e) {
+                var pageLayoutElement = e.target.closest(".fv__pdf-page-layout");
+                if (!pageLayoutElement) {
+                    return;
+                }
+                var pageIndex = +pageLayoutElement.getAttribute("data-index");
+                if (!isFinite(pageIndex)) {
+                    return;
+                }
+                handleOnMove(pageIndex, e.clientX, e.clientY);
+            };
+            $container[0].addEventListener("mousemove", moveListener, true);
+            disposeLast = function() {
+                handleOnMove.cancel();
+                $container[0].removeEventListener("mousemove", moveListener, true);
+            };
+        }
+        pdfViewer.eventEmitter.on(ViewerEvents.openFileSuccess, function () {
+            disposeLast();
+            handle();
+        });
+        pdfViewer.eventEmitter.on(ViewerEvents.renderPageSuccess, function(pageRender) {
+            pageRender.$element.attr({
+                'aria-live': 'assertive',
+                'aria-relevant': 'all',
+                'aria-busy': 'false'
+            });
+        });
+        function isPointInRect(point, rect) {
+            return point.x >= rect.left && point.x <= rect.right && point.y >= rect.bottom && point.y <= rect.top;
+        }
+        function isSameLine(lastLineRect, currentLineRect) {
+            if(!lastLineRect || !currentLineRect) {
+                return false;
+            }
+            return isRectContainsOther(lastLineRect, currentLineRect) || isRectContainsOther(currentLineRect, lastLineRect);
+        }
+        function isRectContainsOther(a, b) {
+            if(!a || !b) {
+                return false;
+            }
+            return a.left <= b.left && a.right >= b.right && a.top >= b.top && a.bottom <= b.bottom;
+        }
+    })();
+
+</script>
+</body>
+</html>

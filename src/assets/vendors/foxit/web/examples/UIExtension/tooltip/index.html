@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Foxit PDF SDK for Web</title>
+    <link rel="shortcut icon" href="../../assets/favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" href="../../../lib/UIExtension.css">
+    <style>
+        body {
+            height: 100vh;
+            height: 100dvh;
+        }
+        #pdf-ui {
+            top: 0;
+            bottom: 0;
+            position: absolute;
+            width: 100vw;
+        }
+    </style>
+</head>
+<body>
+    <template role="layout-template-container">
+        <webpdf>
+            <toolbar name="toolbar">
+                <div style="display: flex; flex-direction: row; padding: 6px;">
+                    <!-- tooltip-placement enumerations: 'top', 'left', 'right', 'bottom'. default 'bottom' -->
+                    <open-localfile-button @tooltip tooltip-title="Open Local file" tooltip-placement="right"></open-localfile-button>
+                    <open-fromurl-button @tooltip tooltip-title="Open URL file"></open-fromurl-button>
+                    <download-file-button @tooltip tooltip-title="Download file" tooltip-placement="left"></download-file-button>
+                </div>
+            </toolbar>
+            <div class="fv__ui-body">
+                <sidebar name="sidebar" @controller="sidebar:SidebarController">
+                    <bookmark-sidebar-panel></bookmark-sidebar-panel>
+                    <commentlist-sidebar-panel @tooltip tooltip-title="Comment list" tooltip-placement="right">
+                        <slot for="header">
+                            <dropdown class="comment-list-dropdown" icon-class="fv__icon-toolbar-more">
+                                <comment-list:expand-pages-button></comment-list:expand-pages-button>
+                                <comment-list:collapse-pages-button></comment-list:collapse-pages-button>
+                                <comment-list:import-comment-button></comment-list:import-comment-button>
+                                <dropdown-item>
+                                    <comment-list:export-comment-dropdown></comment-list:export-comment-dropdown>
+                                </dropdown-item>
+                            </dropdown>
+                        </slot>
+                    </commentlist-sidebar-panel>
+                    <layer-sidebar-panel></layer-sidebar-panel>
+                    <search-sidebar-panel></search-sidebar-panel>
+                    <attachment-sidebar-panel></attachment-sidebar-panel>
+                </sidebar>
+                <viewer @zoom-on-pinch @zoom-on-doubletap @zoom-on-wheel @touch-to-scroll></viewer>
+            </div>
+            <template name="template-container">
+                <create-stamp-dialog></create-stamp-dialog>
+                <print:print-dialog></print:print-dialog>
+                <loupe-tool-dialog></loupe-tool-dialog>
+                <create-ink-sign-dialog></create-ink-sign-dialog>
+                <distance:measurement-popup></distance:measurement-popup>
+                <fpmodule:file-property-dialog></fpmodule:file-property-dialog>
+                <redaction:redaction-page-dialog></redaction:redaction-page-dialog>
+                <!-- contextmenus -->
+                <page-contextmenu></page-contextmenu>
+                <default-annot-contextmenu></default-annot-contextmenu>
+                <markup-contextmenu></markup-contextmenu>
+                <markup-contextmenu name="fv--line-contextmenu"></markup-contextmenu>
+                <markup-contextmenu name="fv--linearrow-contextmenu"></markup-contextmenu>
+                <markup-contextmenu name="fv--polylinedimention-contextmenu"></markup-contextmenu>
+                <markup-contextmenu name="fv--polygondimension-contextmenu"></markup-contextmenu>
+                <markup-contextmenu name="fv--circle-contextmenu"></markup-contextmenu>
+                <markup-contextmenu name="fv--square-contextmenu"></markup-contextmenu>
+                <markup-contextmenu name="fv--polyline-contextmenu"></markup-contextmenu>
+                <markup-contextmenu name="fv--polygon-contextmenu"></markup-contextmenu>
+                <markup-contextmenu name="fv--polygoncloud-contextmenu"></markup-contextmenu>
+                <markup-contextmenu name="fv--ink-contextmenu"></markup-contextmenu>
+                <markup-contextmenu name="fv--stamp-contextmenu"></markup-contextmenu>
+                <markup-contextmenu name="fv--text-contextmenu"></markup-contextmenu>
+                <markup-contextmenu name="fv--areahighlight-contextmenu"></markup-contextmenu>
+                <markup-contextmenu name="fv--replace-contextmenu"></markup-contextmenu>
+                <measurement-contextmenu></measurement-contextmenu>
+                <default-annot-contextmenu name="fv--caret-contextmenu"></default-annot-contextmenu>
+                <textmarkup-contextmenu name="fv--highlight-contextmenu"></textmarkup-contextmenu>
+                <textmarkup-contextmenu name="fv--strikeout-contextmenu"></textmarkup-contextmenu>
+                <textmarkup-contextmenu name="fv--underline-contextmenu"></textmarkup-contextmenu>
+                <textmarkup-contextmenu name="fv--squiggly-contextmenu"></textmarkup-contextmenu>
+                <freetext-contextmenu name="fv--typewriter-contextmenu"></freetext-contextmenu>
+                <freetext-contextmenu name="fv--callout-contextmenu"></freetext-contextmenu>
+                <freetext-contextmenu name="fv--textbox-contextmenu"></freetext-contextmenu>
+                <action-annot-contextmenu name="fv--image-contextmenu"></action-annot-contextmenu>
+                <action-annot-contextmenu name="fv--link-contextmenu"></action-annot-contextmenu>
+                <comment-card-contextmenu></comment-card-contextmenu>
+                <fileattachment-contextmenu></fileattachment-contextmenu>
+                <media-contextmenu></media-contextmenu>
+                <sound-contextmenu></sound-contextmenu>
+                <redact-contextmenu></redact-contextmenu>
+                <text-sel:text-selection-tooltip></text-sel:text-selection-tooltip>
+                <freetext:freetext-tooltip></freetext:freetext-tooltip>
+            </template>
+        </webpdf>
+    </template>
+    <div id="pdf-ui"></div>
+    <script src="../../license-key.js"></script>
+    <script src="../../../lib/preload-jr-worker.js"></script>
+    <script>
+        var readyWorker = preloadJrWorker({
+            workerPath: '../../../lib/',
+            enginePath: '../lib/jr-engine/gsdk',
+            fontPath: '../external/brotli',
+            licenseSN: licenseSN,
+            licenseKey: licenseKey
+        })
+    </script>
+    <script src="../../../lib/UIExtension.full.js"></script>
+    <script>
+        var PDFUI = UIExtension.PDFUI;
+        var Events = UIExtension.PDFViewCtrl.Events;
+        PDFViewCtrl.Log.setLogLevel(PDFViewCtrl.Log.LEVELS.LEVEL_ERROR);
+        var CustomAppearance = PDFViewCtrl.shared.createClass({
+            getLayoutTemplate: function() {
+                var template = document.querySelector('[role=layout-template-container]');
+                return template.innerHTML;
+            },
+            beforeMounted: function(rootComponent) {
+                this.rootComponent = rootComponent;
+                this.toolbarComponent = rootComponent.getComponentByName('toolbar');
+                this.sidebarComponent = rootComponent.getComponentByName('sidebar');
+            },
+            disableAll: function() {
+                this.toolbarComponent.disable(); 
+                this.sidebarComponent.disable();
+            },
+            enableAll: function() {
+                this.toolbarComponent.enable(); 
+                this.sidebarComponent.enable();
+            }
+        }, UIExtension.appearances.Appearance);
+        
+        var pdfui = new PDFUI({
+            viewerOptions: {
+                libPath: '../../../lib',
+                jr: {
+                    readyWorker: readyWorker
+                }
+            },
+            renderTo: '#pdf-ui',
+            appearance: CustomAppearance,
+            fragments: [],
+            addons: [
+                '../../../lib/uix-addons/thumbnail'
+            ]
+        });
+        
+        pdfui.openPDFByHttpRangeRequest({
+            range:{
+                url:'../../../docs/FoxitPDFSDKforWeb_DemoGuide.pdf',
+            }
+        },{fileName:'FoxitPDFSDKforWeb_DemoGuide.pdf'})
+    </script>
+</body>
+</html>

@@ -1,0 +1,41 @@
+{
+  "toolbar": {
+    "createDynamicStampTextBtnText": "Crea timbro dinamico personalizzato"
+  },
+  "dialog": {
+    "header": "Crea timbro dinamico personalizzato",
+    "backgroundColor": "Colore sfondo:",
+    "template": "Modello:",
+    "templatePlaceholder": "scrivi qui per assegnare un nome a un nuovo modello",
+    "browse": "Sfoglia",
+    "category": "Categoria:",
+    "categoryPlaceholder": "scrivi qui per assegnare un nome a una nuova categoria",
+    "name": "Nome:",
+    "font": "Carattere:",
+    "stampText": "Testo del timbro:",
+    "stampTextPlaceholder": "scrivi qui per inserire un testo",
+    "fontSize": "Dimensioni carattere:",
+    "color": "Colore:",
+    "stampTextType": {
+      "customText": "scrivi qui per inserire un testo",
+      "name": "nome autore",
+      "nameDateTime": "nome autore, data e ora",
+      "dateTime": "data e ora",
+      "date": "data"
+    }
+  },
+  "alert": {
+    "typeText": "'<scrivi qui per inserire il testo>'",
+    "categoryText": "'<scrivi qui per assegnare un nome a una nuova categoria>'",
+    "templateText": "'< scrivi qui per assegnare un nome a un nuovo modello>'",
+    "textError": "${1} è un testo predefinito: devi selezionarne uno dal menu a discesa o crearne uno nuovo.",
+    "categoryError": "${1} è una categoria predefinita e non può essere utilizzata per timbri personalizzati. Scegliere una categoria diversa.",
+    "templateError": "${1} è un modello predefinito e non può essere utilizzato per timbri personalizzati. Scegliere un modello diverso.",
+    "fileError": "Il file è vuoto.",
+    "nameError": "Il nome è obbligatorio.",
+    "templateNameError": "Esiste già un timbro con questo nome. Rinominare il timbro da importare.",
+    "spaceError": "Lo spazio non può essere nella categoria.",
+    "sameName": "Il timbro di nome \"${1}\" esiste già.",
+    "specialError": "I caratteri speciali non sono validi."
+  }
+}

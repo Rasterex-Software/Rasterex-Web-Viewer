@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no">
+    <!-- default(white), black, black-translucent -->
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-touch-fullscreen" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Foxit PDF SDK for Web">
+    <meta name="App-Config" content="fullscreen=yes,useHistoryState=no,transition=no">
+    <meta name="format-detaction" content="telephone=no,email=no">
+    <meta http-equiv="Cache-Control" content="no-siteapp" />
+    <meta name="HandheldFriendly" content="true">
+    <meta name="MobileOptimized" content="750">
+    <meta name="screen-orientation" content="portrait">
+    <meta name="x5-orientation" content="portrait">
+    <meta name="full-screen" content="yes">
+    <meta name="x5-fullscreen" content="true">
+    <meta name="browsermode" content="application">
+    <meta name="x5-page-mode" content="app">
+    <meta name="msapplication-tap-highlight" content="no">
+    <meta name="renderer" content="webkit">
+
+    <title>Foxit PDF SDK for Web</title>
+    <link rel="shortcut icon" href="../../assets/favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" href="../../../lib/UIExtension.css">
+    <style>
+        html {
+            overflow: hidden;
+        }
+        body {
+            height: 100vh;
+            height: 100dvh;
+            height: calc(var(--vh, 1dvh) * 100);
+        }
+        #pdf-ui {
+            top: 40px;
+            bottom: 0;
+            position: absolute;
+            width: 100vw;
+        }
+
+        .fv__ui-mobile #pdf-ui {
+            top: 0;
+        }
+        .fv__ui-mobile .fv__ui-nav
+        {
+            display: none;
+        }
+        .cus--measurement-format-dialog .collapse-panel .header {
+            display: none;
+        }
+        .cus--measurement-format-dialog [name=snap],
+        .cus--measurement-format-dialog [name=measure-export-title],
+        .cus--measurement-format-dialog [name=measure-export-container],
+        .cus--measurement-format-dialog [name=measure-settings-title],
+        .cus--measurement-format-dialog [name=measure-settings-container],
+        .cus--measurement-format-dialog [name=measure-add-label-title],
+        .cus--measurement-format-dialog [name=measure-add-label-container]
+        {
+            display: none!important;
+        }
+        .fv__ui-layer.fv__ui-measurement-layer {
+            right: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="fv__ui-nav">
+        <a class="fv__ui-nav-logo" href="javascript:location.reload()">
+            <i class="fv__icon-logo"></i>
+        </a>
+    </div>
+    <div id="pdf-ui"></div>
+    <script src="../../license-key.js"></script>
+    <script src="../../../lib/preload-jr-worker.js"></script>
+    <script>
+        var readyWorker = preloadJrWorker({
+            workerPath: '../../../lib/',
+            enginePath: '../lib/jr-engine/gsdk',
+            fontPath: '../external/brotli',
+            licenseSN: licenseSN,
+            licenseKey: licenseKey
+        })
+    </script>
+    <script src="../../../lib/UIExtension.full.js"></script>
+    <script src="./storage-driver.js"></script>
+    <script src="./base.js"></script>
+    <script src="./example.js"></script>
+</body>
+
+</html>

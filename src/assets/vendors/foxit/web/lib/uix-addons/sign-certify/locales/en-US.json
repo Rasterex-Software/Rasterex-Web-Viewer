@@ -1,0 +1,120 @@
+{
+    "header": "Sign Document",
+    "signAs": "Sign As:",
+    "info": "Info",
+    "previewer": "Signature Preview",
+    "apType": "Appearance Type:",
+    "create": "Create",
+    "text": "Configure Text",
+    "location": "Location:",
+    "lock": "Lock Document After Signing",
+    "mulfile": "Apply to Multiple Files",
+    "sign": "Sign",
+    "cancel": "Cancel",
+    "issuer":"Certificate Issuer",
+    "newId": "New ID...",
+    "incorrectPwd":"Incorrect password!",
+    "emptyPwd":"Please enter the password!",
+    "ap": {
+        "standard": "Standard Style",
+        "clear": "Clear",
+        "title":"Title:"
+    },
+    "createNewID": "No digital id found. Click OK button to create one.",
+    "reason": {
+        "title": "Reason:",
+        "0": "I am the author of this document",
+        "1": "I have reviewed this document",
+        "2": "I am approving this document",
+        "3": "I am approving this document with my legally binding signature",
+        "4": "I attest to the accuracy and integrity of this document",
+        "5": "I agree to the terms defined by the placement of my signature in this document",
+        "6": "I agree to specified parts of this document"
+    },
+    "text-direction": {
+        "title": "Text Direction",
+        "auto": "Auto",
+        "ltr": "Left to right",
+        "rtl": "Right to left"
+    },
+    "moreSigns":"More than one unsigned fields have been found, but only the first signature field will be signed, do you want to continue?",
+    "fontsize": "font/size",
+    "logo": {
+        "title": "Configure Logo",
+        "prop": "Logo Property"
+    },
+    "placeSig": {
+        "tip": "Place a signature field and digitally sign the document.",
+        "text": "Place Signature..."
+    },
+    "signDoc": {
+        "tip": "Sign the document with a digital signature.",
+        "text": "Sign Document..."
+    },
+    "signLater":"You have placed an empty signature in the document, if you want it to take effect, you must sign document",
+    "commonName":"your common name here",
+    "distinguishName":"your distinguished name",
+    "staticReason":"your signing reason here",
+    "staticLocation":"your signing location here",
+    "specialError": "Special characters is invalid.",
+    "certify":{
+        "perm":"Permitted Actions After Certifying",
+        "noSpecified": "Keep default",
+        "perm0":"No changes allowed",
+        "perm1":"Form fill-in and digital signatures",
+        "perm2":"Commenting, filling form, signing existing signature fields",
+        "visible":"Certify with Visible Signature",
+        "visibleDesc":"Digitally certify the document with a visible signature",
+        "invisible":"Certify without Visible Signature",
+        "invisibleDesc":"Digitally certify the document with an invisible signature",
+        "trustCerts":"Trusted Certificates",
+        "trustCertsDesc":"Manage trusted certificates for digital signatures",
+        "header":"Trusted Certificates",
+        "edit":"Edit",
+        "add":"Add",
+        "view":"View",
+        "export":"Export",
+        "delete":"Delete",
+        "name":"Name",
+        "issuedBy":"Issued By",
+        "trust":"Trust",
+        "expiredData":"Expired Data",
+        "close":"Close",
+        "certName":"Name:",
+        "issuer":"Issuer:",
+        "validFrom":"Valid From:",
+        "validTo":"Valid To:",
+        "intent":"Intended Key Usage:",
+        "deleteConfirm":"Are you sure you want to delete this Certificate? You will no longer be able to verify the identity of the owner if you do.",
+        "notCert":"Not a certificate."
+    },
+    "trustedRoot":"Trusted Root",
+    "nonTrustedRoot":"Non-Trusted Root",
+    "viewCert":{
+        "header":"Edit Certificate Trust",
+        "detailTitle":"Certificate Details",
+        "subject":"Subject:",
+        "usage":"Usage:",
+        "expiration":"Expiration:",
+        "trust":"Trust",
+        "trustInfo":"A certificate used to sign a document must either be designated as a trust anchor or chain up to a trust anchor in order for signature validation to succeed. Revocation checking is not performed on or above a trust anchor.",
+        "trustRoot":"Use this certificate as a trusted root",
+        "afterSign":"If signature succeeds, trust this certificate for:",
+        "valid":"Validating signatures",
+        "validCert":"Validating certified documents",
+        "ok":"OK",
+        "cancel":"Cancel"
+    },
+    "exportCert":{
+        "header":"Export Certificates",
+        "subtitle":"The following data will be exported:",
+        "certTitle":"My Certificate(s)",
+        "certInfo":"Certificates can be used by recipients to validate signatures created by you and encrypt documents for you. Your private key will not be exported with the certificate.",
+        "option":{
+            "title":"Export options:",
+            "formatHint":"Select how you want to export the data:",
+            "email":"Share the data through email",
+            "file":"Save the data to a file"
+        }
+    }
+}

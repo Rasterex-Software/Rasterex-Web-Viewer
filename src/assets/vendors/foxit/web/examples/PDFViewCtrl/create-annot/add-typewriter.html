@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no"/>
+    <title>Foxit PDF SDK For Web</title>
+    <link rel="shortcut icon" href="../../assets/favicon.ico" type="image/x-icon"/>
+    <link rel="stylesheet" href="../../../lib/PDFViewCtrl.css">
+</head>
+<body>
+<div id="pdf-viewer"></div>
+<script src="../../license-key.js"></script>
+<script src="../../../lib/PDFViewCtrl.full.js"></script>
+<script>
+    window.$ = PDFViewCtrl.jQuery;
+    let IStateHandler = PDFViewCtrl.IStateHandler;
+    var PDFViewer = PDFViewCtrl.PDFViewer;
+    var pdfViewer = new PDFViewer({
+        libPath: '../../../lib',
+        jr: {
+            licenseSN: licenseSN,
+            licenseKey: licenseKey,
+        }
+    });
+    pdfViewer.init('#pdf-viewer');
+
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', './butterfiles.pdf', true);
+    xhr.responseType = 'blob';
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState !== 4) {
+            return;
+        }
+        var status = xhr.status;
+        if ((status >= 200 && status < 300) || status === 304) {
+            pdfViewer.openPDFByFile(xhr.response).catch(function (e) {
+                if (e.error === 11 && e.encryptDict.Filter === 'FOPN_foweb') {
+                    var fileOpenKey = getFileOpenKey(e.encryptDict);
+                    pdfViewer.reopenPDFDoc(e.pdfDoc, {
+                        fileOpen: {
+                            encryptKey: fileOpenKey
+                        }
+                    })
+                }
+            })
+        }
+    };
+    xhr.send();
+
+    //The following example will guide you how to add and register a StateHandler class of typewriter type, so to implement the logic for creating a typewriter.
+
+    //Create a StateHandler of type Typewriter
+    var TypewriterStateHandler = function () {
+    };
+    _inherits(TypewriterStateHandler, IStateHandler);
+    TypewriterStateHandler.getStateName = function () {
+        return "createTypewriter";
+    };
+    TypewriterStateHandler.prototype.pageHandler = function (pageRender) {
+        const textboxWidth = 100;
+        const textboxHeight = 20;
+        var Hammer = PDFViewCtrl.Hammer;
+        var $handler = pageRender.$handler;
+        let eHandler = $handler[0];
+        let hammer = this.hammer = new Hammer.Manager(eHandler, {
+            recognizers: [
+                [Hammer.Tap]
+            ]
+        });
+        
+        hammer.on('tap', function (e) {
+            let point = getDevicePagePoint(eHandler, e);
+            const createInputElement = (page) => {
+                const deviceWidth = (textboxWidth * pageRender.scale * 4) / 3;
+                const deviceHalfHeight =
+                    (textboxHeight * pageRender.scale * 2) / 3;
+                let deviceRect = {
+                    left: point.x,
+                    right: point.x + deviceWidth,
+                    top: point.y ,
+                    bottom: point.y + deviceHalfHeight*2,
+                };
+                const input = this.input = document.createElement("div");
+                input.contentEditable = true;
+                
+                const getDefaultAnnotConfig = pdfViewer.getDefaultAnnotConfig()
+                
+                const defaultConfig = deepCloneAssign({
+                    defaultAppearance: {
+                        textColor: 0x0000FF,
+                        textSize: 12
+                    }
+                }, 
+                    typeof getDefaultAnnotConfig === 'function' ? 
+                    getDefaultAnnotConfig('freetext', 'FreeTextTypewriter') : {}
+                );
+                
+                let fs = defaultConfig.defaultAppearance.textSize*pageRender.scale*4/3;
+                input.style.cssText = `
+                    position: absolute;
+                    left: ${deviceRect.left}px;
+                    top: ${deviceRect.top}px;
+                    min-width: ${fs}px;
+                    min-height: ${fs}px;
+                    font-size: ${fs}px;
+                    line-height: 1;
+                    font-family: FoxitPDFSDKForWeb;
+                    color: ${PDFViewCtrl.shared.convertFromNumberToHex(defaultConfig.defaultAppearance.textColor)};
+                    outline:1px solid #5aa;
+                    outline-offset:1px;
+                `;
+                eHandler.appendChild(input);
+                input.focus();
+                setTimeout(() => input.focus());
+                input.onmousedown = input.ontouchstart = input.onpointerdown = e => {e.preventDefault(),e.stopPropagation();}
+                input.onblur = () => {
+                    if (input.innerText.trim().length === 0) {
+                        eHandler.removeChild(input);
+                        this.input = null;
+                    } else {
+                        const inputRect = input.getBoundingClientRect();
+                        deviceRect.right = deviceRect.left + inputRect.width;
+                        deviceRect.bottom = deviceRect.top + inputRect.height;
+                        const rect = page.reverseDeviceRect(
+                            deviceRect,
+                            pageRender.scale,
+                            pageRender.getRotation()
+                        );
+                        // input.innerHTML=input.innerHTML.replace(/<div><br><\/div>/ig,"<p></p>");
+                        input.innerText=input.innerText.replace(/\n{2}/ig,"\n");
+
+                        const annotJson = {
+                            //color:"FFFF0000",
+                            type: "freetext",
+                            intent: "FreeTextTypewriter",
+                            subject: "FreeTextTypewriter",
+                            rect,
+                            contents: input.innerText.trim(),
+                            rotate: ((360-page.getRotation()*90 - pageRender.getRotation()) % 360 + 360) % 360,
+                            flags: 4,
+                            // date:"D:20190114113256+08'00'",
+                            // creationdate:"D:20190114113256+08'00'",
+                        };
+                        page.addAnnot(annotJson).then(annots => {
+                            eHandler.removeChild(input);
+                            const annot = annots[0];
+                            const component = pageRender.annotsRender.getAnnotRender(annot.getId()).component;
+                            component.$textInput.get(0).blur();
+                        });
+                    }
+                };
+            };
+            if(pageRender.page) {
+                createInputElement(pageRender.page);
+            } else {
+                pageRender.getPDFPage().then(createInputElement);
+            }
+        });
+
+    };
+    TypewriterStateHandler.prototype.destroyPageHandler = function () {
+        this.hammer && this.hammer.destroy();
+    };
+    TypewriterStateHandler.prototype.out = function () {
+        this.destroyPageHandler();
+    };
+    //Registers the state handler of typewriter type to the StateHandlerManager and switch
+    let stateHandlerManager = pdfViewer.getStateHandlerManager();
+    stateHandlerManager.register(TypewriterStateHandler);
+    stateHandlerManager.switchTo("createTypewriter");
+
+    //Removes the selection range marker
+    function removeSelectMark($parent) {
+        $parent.find(".mark-typewriter-blank").remove();
+    }
+
+    //Gets the device coordinate point relative to the page
+    function getDevicePagePoint(elem, event) {
+        let pageRect = elem.getBoundingClientRect();
+        let srcEvent = event.srcEvent;
+        const clientX = getClientX(srcEvent);
+        const clientY = getClientY(srcEvent);
+        return {
+            x: clientX - pageRect.left - event.deltaX,
+            y: clientY - pageRect.top - event.deltaY,
+        };
+    };
+
+    //Gets the X-axis coordinates of the client
+    function getClientX(e) {
+        if ('clientX' in e) {
+            return e.clientX;
+        } else {
+            switch (e.type) {
+                case 'touchstart':
+                case 'touchmove':
+                    return e.touches[0].clientX;
+                case 'touchend':
+                case 'touchcancel':
+                    return e.changedTouches[0].clientX;
+            }
+        }
+    }
+
+    //Gets the Y-axis coordinates of the client
+    function getClientY(e) {
+        if ('clientY' in e) {
+            return e.clientY;
+        } else {
+            switch (e.type) {
+                case 'touchstart':
+                case 'touchmove':
+                    return e.touches[0].clientY;
+                case 'touchend':
+                case 'touchcancel':
+                    return e.changedTouches[0].clientY;
+            }
+        }
+    }
+
+    //Gets device rectangle
+    function getRect(startPoints, endPoints) {
+        let left = startPoints[0];
+        let top = startPoints[1];
+        let right = endPoints[0];
+        let bottom = endPoints[1];
+        let temp;
+        if (right < left) {
+            temp = left;
+            left = right;
+            right = temp;
+        }
+        if (bottom < top) {
+            temp = top;
+            top = bottom;
+            bottom = temp;
+        }
+        return {left: left, top: top, right: right, bottom: bottom};
+    }
+
+    function _inherits(subClass, superClass) {
+        if (typeof superClass !== "function" && superClass !== null) {
+            throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
+        }
+        subClass.prototype = Object.create(superClass && superClass.prototype, {
+            constructor: {
+                value: subClass,
+                enumerable: false,
+                writable: true,
+                configurable: true
+            }
+        });
+        if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
+    }
+
+    function deepCloneAssign(origin = {}, ...args){
+        for (let i in args) {
+            for (let key in args[i]) {
+                if(args[i].hasOwnProperty(key)){
+                    let value = args[i][key];
+                    if(value && typeof value === 'object'){
+                        if(!(args[i][key] instanceof HTMLElement)){
+                            value = deepCloneAssign(Array.isArray(value) ? [] : {}, origin[key], value)
+                        }
+                    }
+                    origin[key] = value;
+                }
+            }
+        }
+        return origin;
+    }
+</script>
+</body>
+</html>

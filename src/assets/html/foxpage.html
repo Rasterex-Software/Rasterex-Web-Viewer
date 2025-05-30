@@ -4,35 +4,38 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no"/>
         <title>Foxit PDF SDK For Web</title>
-        <link rel="stylesheet" href="../vendors/foxit/lib/PDFViewCtrl.css">
+        <link rel="stylesheet" href="../vendors/foxit/web/lib/PDFViewCtrl.css">
 
         <style>
 
             html{
                 margin: 0 !important;
                 padding: 0 !important;
-                /* --facing-margin: 0px; */
+
             }
 
             body {    
                 margin: 0 !important;
                 padding: 0 !important;
-                /* --facing-margin: 0px; */
-            } 
+
+            }
 
         </style>
 
     </head>
-    <body onload="winload()">
+    <body onload="winload()" style="background: rgb(214,218,220)">
         <div id="foxitdocs">
             <div id="pdf-viewer"></div>
         </div>
-        <script src="https://test.rasterex.com/assets/vendors/foxit/webdev/license-key.js"></script>
-        <script src="../vendors/foxit/lib/PDFViewCtrl.full.js"></script>
+        <!--C:\inetpub\wwwroot\assets\vendors\foxit\web\examples-->
+        <!--background-color: #d6dadc;-->
+        <script src="../vendors/foxit/web/examples/license-key.js"></script>
+        <script src="../vendors/foxit/web/lib/PDFViewCtrl.full.js"></script>
         <script src="../scripts/iframefoxit.js"></script>
         <script>
             function winload(){
-                window.parent.iframeload(addfoxitdoc('../vendors/foxit/lib'));
+                //window.parent.iframeload(addfoxitdoc('../vendors/foxit/lib'));
+                window.parent.iframeload(addfoxitdoc('../vendors/foxit/web/lib'));
             }
         </script>
     </body>

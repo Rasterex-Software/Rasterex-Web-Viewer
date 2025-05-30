@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no">
+    <!-- default(white), black, black-translucent -->
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-touch-fullscreen" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Foxit PDF SDK for Web">
+    <meta name="App-Config" content="fullscreen=yes,useHistoryState=no,transition=no">
+    <meta name="format-detaction" content="telephone=no,email=no">
+    <meta http-equiv="Cache-Control" content="no-siteapp" />
+    <meta name="HandheldFriendly" content="true">
+    <meta name="MobileOptimized" content="750">
+    <meta name="screen-orientation" content="portrait">
+    <meta name="x5-orientation" content="portrait">
+    <meta name="full-screen" content="yes">
+    <meta name="x5-fullscreen" content="true">
+    <meta name="browsermode" content="application">
+    <meta name="x5-page-mode" content="app">
+    <meta name="msapplication-tap-highlight" content="no">
+    <meta name="renderer" content="webkit">
+
+    <title>Foxit PDF SDK for Web</title>
+    <link rel="shortcut icon" href="../../assets/favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" href="../../../lib/UIExtension.css">
+    <style>
+        body {
+            height: 100vh;
+            height: 100dvh;
+            height: calc(var(--vh, 1dvh) * 100);
+        }
+        #pdf-ui {
+            top: 40px;
+            bottom: 0;
+            position: absolute;
+            width: 100vw;
+        }
+
+        .fv__ui-mobile #pdf-ui {
+            top: 0;
+        }
+        .fv__ui-mobile .fv__ui-nav
+        {
+            display: none;
+        }
+        .fv__icon-toolbar-areaSquare{
+            background-image: url('./square.svg');
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+    </style>
+    <link rel="stylesheet" href="./popup.css">
+</head>
+
+<body>
+    <div class="fv__ui-nav">
+        <a class="fv__ui-nav-logo" href="javascript:location.reload()">
+            <i class="fv__icon-logo"></i>
+        </a>
+    </div>
+    <div id="pdf-ui"></div>
+
+    <script src="../../license-key.js"></script>
+    <script src="../../../lib/preload-jr-worker.js"></script>
+    <script>
+        var readyWorker = preloadJrWorker({
+            workerPath: '../../../lib/',
+            enginePath: '../lib/jr-engine/gsdk',
+            fontPath: '../external/brotli',
+            licenseSN: licenseSN,
+            licenseKey: licenseKey
+        })
+    </script>
+    <script type="text/javascript" src="../../../lib/UIExtension.full.js"></script>
+    <script type="text/html" id="custom-measurement-popup-template">
+        <layer class="panel right bottom" name="custom-measurement-popup" @draggable="" @controller="custom:CustomMeasurementPopupController" focus="false">
+            <layer-header class="fv__ui-measurement-header" title="measurement.popup.title" name="measurement.popup.title"></layer-header>
+            <ul class="ratio">
+                <li class="user-space-scale"> 
+                    <input type="text" name="userSpaceScale">
+                </li>
+                <li class="user-space-unit">
+                    <select name="userSpaceUnit" >
+                    </select>
+                </li>
+                <li > = </li>
+                <li class="rw-scale">
+                    <input name="realScale" type="text">
+                </li>
+                <li class="rw-unit">
+                    <select name="realUnit">
+                    </select>
+                </li>
+            </ul>
+            <table class="popup-table">
+                <tr class="row">
+                    <th>Distance:</th>
+                    <td name="distanceValue"></td>
+                    <th class="popup-offset-item-label">ΔX:</th>
+                    <td name="deltaXValue"></td>
+                </tr>
+                <tr class="row">
+                    <th>Angle:</th>
+                    <td name="angleValue"></td>
+                    <th class="popup-offset-item-label">ΔY:</th>
+                    <td name="deltaYValue"></td>
+                </tr>
+                <tr class="row">
+                    <th>Scale:</th>
+                    <td name="scaleValue" colspan="3"></td>
+                </tr>
+                <tr class="fv__ui-measurement-fieldset-row-perimeter" class="row">
+                    <th >Perimeter:</th>
+                    <td name="perimeterValue" colspan="3"></td>
+                </tr>
+                <tr class="fv__ui-measurement-fieldset-row-area" class="row">
+                    <th>Area:</th>
+                    <td name="areaValue" colspan="3"></td>
+                </tr>
+                <tr class="fv__ui-measurement-fieldset-row-Embeddedscale" class="row">
+                    <th>Embedded Scale Ratio:</th>
+                    <td name="embeddedRatio" colspan="3"></td>
+                </tr>
+            </table>
+        </layer>
+    </script>
+    <script type="text/javascript" src="./index.js"></script>
+
+</body>
+
+</html>

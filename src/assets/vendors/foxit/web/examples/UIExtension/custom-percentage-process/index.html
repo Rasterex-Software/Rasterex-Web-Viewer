@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no">
+    <!-- default(white), black, black-translucent -->
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-touch-fullscreen" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Foxit PDF SDK for Web">
+    <meta name="App-Config" content="fullscreen=yes,useHistoryState=no,transition=no">
+    <meta name="format-detaction" content="telephone=no,email=no">
+    <meta http-equiv="Cache-Control" content="no-siteapp" />
+    <meta name="HandheldFriendly" content="true">
+    <meta name="MobileOptimized" content="750">
+    <meta name="screen-orientation" content="portrait">
+    <meta name="x5-orientation" content="portrait">
+    <meta name="full-screen" content="yes">
+    <meta name="x5-fullscreen" content="true">
+    <meta name="browsermode" content="application">
+    <meta name="x5-page-mode" content="app">
+    <meta name="msapplication-tap-highlight" content="no">
+    <meta name="renderer" content="webkit">
+
+    <title>Foxit PDF SDK for Web</title>
+    <link rel="shortcut icon" href="../../assets/favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" href="../../../lib/UIExtension.css">
+    <style>
+        body {
+            height: 100vh;
+            height: 100dvh;
+            height: calc(var(--vh, 1dvh) * 100);
+        }
+        #pdf-ui {
+            top: 40px;
+            bottom: 0;
+            position: absolute;
+            width: 100vw;
+        }
+
+        .fv__ui-mobile #pdf-ui {
+            top: 0;
+        }
+        .fv__ui-mobile .fv__ui-nav
+        {
+            display: none;
+        }
+        #progressbar{
+            display: none;
+            position: fixed;
+            left: 0;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            background: white;
+            z-index: 99999;
+        }
+        #progressbar .border{
+            border: 1px solid #777;
+            width: 275px;
+            height: 14px;
+            padding: 1px;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            border-radius: 7px;
+            transform: translate(-50%,-50%);
+            box-sizing: content-box;
+            padding: 0;
+        }
+        #progressbar .bar{
+            background-color: #73c944;
+            width: 50%;
+            height: 14px;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        #progressbar .desc{
+            text-align: center;
+            font-size: 12px;
+            line-height: 24px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="fv__ui-nav">
+        <a class="fv__ui-nav-logo" href="javascript:location.reload()">
+            <i class="fv__icon-logo"></i>
+        </a>
+    </div>
+    <div id="pdf-ui"></div>
+    <!-- percentage process -->
+    <div id="progressbar">
+        <div class="border">
+            <div class="bar">&nbsp;</div>
+            <div class="desc"></div>
+        </div>
+    </div>
+    <script src="../../license-key.js"></script>
+    <script src="../../../lib/preload-jr-worker.js"></script>
+    <script>
+        var readyWorker = preloadJrWorker({
+            workerPath: '../../../lib/',
+            enginePath: '../lib/jr-engine/gsdk',
+            fontPath: '../external/brotli',
+            licenseSN: licenseSN,
+            licenseKey: licenseKey
+        })
+    </script>
+    <script src="../../../lib/UIExtension.full.js"></script>
+    <script>
+        var PDFUI = UIExtension.PDFUI;
+        var $ = UIExtension.jQuery;
+        var Events = UIExtension.PDFViewCtrl.Events;
+        var pdfui = new PDFUI({
+            viewerOptions: {
+                libPath: '../../../lib',
+                jr: {
+                    readyWorker: readyWorker
+                }
+            },
+            renderTo: '#pdf-ui',
+            appearance: UIExtension.appearances.adaptive,
+            fragments: [],
+            addons: UIExtension.PDFViewCtrl.DeviceInfo.isMobile ?
+            '../../../lib/uix-addons/allInOne.mobile.js':
+            '../../../lib/uix-addons/allInOne.js'
+        });
+
+        pdfui.addUIEventListener('fullscreenchange', function (isFullscreen) {
+            if (isFullscreen) {
+                document.body.classList.add('fv__pdfui-fullscreen-mode');
+            } else {
+                document.body.classList.remove('fv__pdfui-fullscreen-mode');
+            }
+        });
+        var processBarLayer
+        pdfui.addViewerEventListener(Events.beforeOpenFile, ()=>{
+            processBarLayer = processBar()
+        });
+        pdfui.addViewerEventListener(Events.openFileSuccess, function () {
+            openFileError = null
+            processBarLayer.remove();
+        });
+        pdfui.addViewerEventListener(Events.openFileFailed, function (data) {
+            openFileError = data
+            if(openFileError&&openFileError.error===passwordErrorCode)return
+            processBarLayer.remove();
+        });
+        
+        pdfui.openPDFByHttpRangeRequest({
+            range: {
+                url: '../../../docs/FoxitPDFSDKforWeb_DemoGuide.pdf',
+            }
+        }, { fileName: 'FoxitPDFSDKforWeb_DemoGuide.pdf' })
+        var processBar = function(){
+            var ct = document.getElementById("progressbar"),
+                desc = ct.getElementsByTagName("div"),
+                idx = 0, time = 500, bar = desc[1], desc = desc[2],timer;
+            ct.style.display = "block"
+            bar.setValue = function(n){
+                n = parseInt(n)
+                this.style.width = n + "%";
+                desc.innerHTML = n + "%"
+            };
+            void function(){
+                bar.setValue(idx += (100 - idx) * .2);
+                timer = setTimeout(arguments.callee, time += 100);
+            }();
+            return {
+                remove: function(){
+                    clearTimeout(timer);
+                    desc.innerHTML = "100%";
+                    bar.setValue(100);
+                    setTimeout(function(){
+                        ct.style.display="none";
+                    },500);
+                }
+            };
+        };
+
+    </script>
+</body>
+
+</html>

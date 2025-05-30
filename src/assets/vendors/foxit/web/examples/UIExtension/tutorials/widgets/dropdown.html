@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Foxit PDF SDK for Web</title>
+    <link rel="shortcut icon" href="../../../assets/favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" href="../../../../lib/UIExtension.css">
+    <style>
+        #pdf-ui {
+            width: 100vw;
+            height: 100vh;
+        }
+        .button-list .fv__ui-dropdown {
+            height: 24px;
+            line-height: 24px;
+            display: inline-flex;
+            flex-flow: row nowrap;
+            align-items: center;
+            margin-top: 6px;
+        }
+        .pdf-ui-example {
+            display: flex;
+            flex-flow: column nowrap;
+            justify-content: flex-start;
+            align-items: stretch;
+        }
+        .widget-list {
+            padding: 20px 10px;
+            display: flex;
+            flex-flow: column nowrap;
+            align-items: center;
+        }
+        .form-inline {
+            display: inline-flex;
+            flex-flow: row nowrap;
+            align-items: stretch;
+            min-width: 0;
+        }
+        .form-inline label {
+            flex: 1;
+            line-height: 1;
+        }
+        .form-inline label input {
+            width: 100%;
+        }
+        .form-inline button {
+            margin-left: 6px;
+            border: 1px solid #f0f0f0;
+            background: #f7f7f7;
+            font-size: 12px;
+        }
+        .custom-icon-class {
+            background-image:radial-gradient(closest-side, #3f87a6, #ebf8e1, #f69d3c);
+        }
+    </style>
+</head>
+
+<body>
+    <div id="pdf-ui"></div>
+    <template id="pdf-ui-template">
+        <div class="pdf-ui-example">
+            <div name="widget-list" class="widget-list">
+                <dropdown name="dropdown-1">
+                    <dropdown-button name="dropdown-button" icon-class="fv__icon-comment-item-menu-copy">ext:dropdown.button0</dropdown-button>
+                    <dropdown-button name="file-selector-button" file-selector icon-class="fv__icon-toolbar-open" accept=".png,.jpg,.gif,.svg">ext:dropdown.fselector</dropdown-button>
+                    <dropdown-item>
+                        <form name="form" class="form-inline" onsubmit="return false;">
+                            <label>
+                                <input name="formfield">
+                            </label>
+                            <button type="submit">submit</button>
+                        </form>
+                    </dropdown-item>
+                    <dropdown-item>
+                        <dropdown icon-class="fv__icon-comment-item-menu-settings" text="ext:dropdown.nested">
+                            <dropdown-button icon-class="fv__icon-comment-state-menu-none">None</dropdown-button>
+                            <dropdown-button icon-class="fv__icon-comment-state-menu-accepted">Accepted</dropdown-button>
+                            <dropdown-button icon-class="fv__icon-comment-state-menu-rejected">Rejected</dropdown-button>
+                            <dropdown-button icon-class="fv__icon-comment-state-menu-cancelled">Cancelled</dropdown-button>
+                            <dropdown-button icon-class="fv__icon-comment-state-menu-completed">Completed</dropdown-button>
+                            <!-- <dropdown-button icon-class="fv__icon-comment-state-menu-deferred">Deferred</dropdown-button>
+                            <dropdown-button icon-class="fv__icon-comment-state-menu-future">Future</dropdown-button> -->
+                        </dropdown>
+                    </dropdown-item>
+                </dropdown>
+            </div>
+            <viewer></viewer>
+        </div>
+    </template>
+</body>
+<script src="../../../license-key.js"></script>
+<script src="../../../../lib/UIExtension.full.js"></script>
+<script>
+    class I18NAddon extends UIExtension.UIXAddon {
+        static getName(){
+            return 'ext';
+        }
+        getI18NResources() {
+            return {
+                'en-US': {
+                    'dropdown': {
+                        'button0': 'dropdown button',
+                        'fselector': 'select a file',
+                        'nested': 'settings',
+                        'append-button': 'append button'
+                    }
+                },
+                'zh-CN': {
+                    'dropdown': {
+                        'button0': '下拉菜单按钮',
+                        'fselector': '选择文件',
+                        'nested': '设置',
+                        'append-button': '追加按钮'
+                    }
+                }
+            };
+        }
+    }
+    
+    let PDFUI = UIExtension.PDFUI;
+    let pdfui = new PDFUI({
+        viewerOptions: {
+            libPath: '../../../../lib',
+            jr: {
+                licenseSN: licenseSN,
+                licenseKey: licenseKey
+            }
+        },
+        renderTo: '#pdf-ui',
+        template: document.getElementById('pdf-ui-template').innerHTML.trim(),
+        addons: [ I18NAddon ],
+        fragments: [{
+            target: 'file-selector-button',
+            config: {
+                callback: function(file) {
+                    alert(`selected: ${file.name}, size: ${Math.round(file.size / 1024 * 100)/100}KB`);
+                    console.log(file);
+                }
+            }
+        }, {
+            target: 'form',
+            config: {
+                callback: class extends UIExtension.Controller {
+                    mounted() {
+                        this.component.element.addEventListener('mouseup', e => {
+                            e.stopPropagation();
+                        })
+                    }
+                }
+            }
+        }, {
+            target: 'dropdown-1',
+            action: UIExtension.UIConsts.FRAGMENT_ACTION.APPEND,
+            template: '<dropdown-button name="append-dropdown-button" icon-class="custom-icon-class">ext:dropdown.append-button</dropdown-button>',
+            config: {
+                target: 'append-dropdown-button',
+                callback: class extends UIExtension.Controller {
+                    handle() {
+                        console.log('append-dropdown-button clicked');
+                    }
+                }
+            }
+        }]
+    });
+</script>
+
+</html>

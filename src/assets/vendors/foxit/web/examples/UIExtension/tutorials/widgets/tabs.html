@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Foxit PDF SDK for Web</title>
+    <link rel="shortcut icon" href="../../../assets/favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" href="../../../../lib/UIExtension.css">
+    <style>
+        #pdf-ui {
+            width: 100vw;
+            height: 100vh;
+        }
+        .pdf-ui-example {
+            display: flex;
+            flex-flow: column nowrap;
+            justify-content: flex-start;
+            align-items: stretch;
+        }
+        .cuz-demo {
+            margin-bottom: 10px;
+            border: 1px solid #f0f0f0;
+            height: 180px;
+            display: flex;
+            flex-flow: row nowrap;
+            align-items: stretch;
+        }
+        .fv__ui-button {
+            border: 1px solid #f0f0f0;
+            padding: 6px 4px;
+            margin: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="pdf-ui"></div>
+    <template id="pdf-ui-template">
+        <div class="pdf-ui-example">
+            <div class="cuz-demo">
+                <tabs>
+                    <tab text="ext:tabs.tab1"></tab>
+                    <tab text="ext:tabs.tab2"></tab>
+                </tabs>
+            </div>
+            <div class="cuz-demo">
+                <tabs>
+                    <tab text="ext:tabs.tab1"></tab>
+                    <tab active="true" text="ext:tabs.tab2"></tab>
+                </tabs>
+            </div>
+            <div class="cuz-demo">
+                <tabs>
+                    <tab text="ext:tabs.tab1"></tab>
+                    <tab active="true" text="ext:tabs.tab2"></tab>
+                </tabs>
+            </div>
+            <viewer></viewer>
+        </div>
+    </template>
+</body>
+<script src="../../../license-key.js"></script>
+<script src="../../../../lib/UIExtension.full.js"></script>
+<script>
+    class I18NAddon extends UIExtension.UIXAddon {
+        static getName(){
+            return 'ext';
+        }
+        getI18NResources() {
+            return {
+                'en-US': {
+                    'tabs': {
+                        'tab1': 'Home',
+                        'tab2': 'Comments'
+                    },
+                    'buttons': {
+                        'collapse': 'Collapse sidebar',
+                        'collapse-totally': 'Collapse sidebar totally',
+                        'expand': 'Expand sidebar',
+                        'active-layers': 'Switch to layers panel',
+                        'active-bookmark': 'Switch to bookmark panel'
+                    }
+                },
+                'zh-CN': {
+                    'tabs': {
+                        'tab1': '主页',
+                        'tab2': '注释'
+                    },
+                    'buttons': {
+                        'collapse': '收缩侧边栏',
+                        'collapse-totally': '完全收缩侧边栏',
+                        'expand': '展开侧边栏',
+                        'active-layers': '切换到图层面板',
+                        'active-bookmark': '切换到书签面板'
+                    }
+                }
+            };
+        }
+    }
+    
+    let PDFUI = UIExtension.PDFUI;
+    let pdfui = new PDFUI({
+        viewerOptions: {
+            libPath: '../../../../lib',
+            jr: {
+                licenseSN: licenseSN,
+                licenseKey: licenseKey
+            }
+        },
+        renderTo: '#pdf-ui',
+        template: document.getElementById('pdf-ui-template').innerHTML.trim(),
+        addons: [ I18NAddon ],
+        fragments: []
+    });
+</script>
+
+</html>

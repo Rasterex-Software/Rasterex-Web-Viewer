@@ -1,0 +1,92 @@
+{
+    "name": "@foxitsoftware/foxit-pdf-sdk-for-web-library",
+    "version": "10.0.0",
+    "description": "Foxit pdf sdk for web.",
+    "author": "Foxit Software Inc.",
+    "main": "./lib/UIExtension.full.js",
+    "types": "./lib/UIExtension.full.d.ts",
+    "typings": "./lib/UIExtension.full.d.ts",
+    "scripts": {
+        "start": "concurrently --kill-others \"npm run start-http-server\" \"npm run start-snapshot-server\"",
+        "start-snapshot-server": "node ./server/snapshot/src/index -p 3002",
+        "start-http-server": "node ./server/index"
+    },
+    "license": "Commercial",
+    "devDependencies": {
+        "boxen": "^4.1.0",
+        "chalk": "^2.4.1",
+        "concurrently": "^8.2.2",
+        "http-proxy-middleware": "^3.0.0",
+        "koa": "^2.7.0",
+        "koa-body": "^4.0.4",
+        "koa-body-parser": "^1.1.2",
+        "koa-cors": "0.0.16",
+        "koa-router": "^7.4.0",
+        "koa-serve-list": "^1.0.1",
+        "koa-static": "^5.0.0",
+        "koa2-connect": "^1.0.2",
+        "lru-cache": "^4.1.3",
+        "raw-body": "^2.3.3",
+        "require-dir": "^1.0.0",
+        "serve-handler": "^6.0.2",
+        "sockjs": "^0.3.21",
+        "ws": "^7.3.1"
+    },
+    "dependencies": {
+        "@csstools/normalize.css": "^10.1.0",
+        "@types/hammerjs": "^2.0.36",
+        "@types/jquery": "^3.3.29",
+        "bootstrap-datepicker": "^1.9.0",
+        "core-js": "3.35.1",
+        "dayjs": "^1.11.1",
+        "dayjs-plugin-utc": "^0.1.2",
+        "dialog-polyfill": "^0.4.10",
+        "dom4": "^2.1.4",
+        "es6-promise": "^4.2.5",
+        "eventemitter3": "^3.1.0",
+        "fast-printf": "^1.6.9",
+        "flatpickr": "4.6.9",
+        "hammerjs": "^2.0.8",
+        "human-format": "^0.11.0",
+        "i18next": "^23.8.1",
+        "i18next-chained-backend": "^4.6.2",
+        "i18next-localstorage-backend": "^4.2.0",
+        "i18next-xhr-backend": "^3.2.2",
+        "jquery": "^3.4.1",
+        "jquery-contextmenu": "^2.7.1",
+        "jszip": "^3.7.1",
+        "lodash": "^4.17.21",
+        "papaparse": "^5.4.1",
+        "print-area": "^0.1.4",
+        "punycode": "^2.1.1",
+        "sortablejs": "~1.9.0",
+        "whatwg-fetch": "^3.0.0"
+    },
+    "resolutions": {
+        "jquery": "^3.4.1",
+        "core-js": "3.35.1",
+        "qs": ">=6.0.4"
+    },
+    "overrides": {
+        "jquery": "^3.4.1",
+        "core-js": "3.35.1",
+        "qs": ">=6.0.4"
+    },
+    "serve": {
+        "port": 8080,
+        "public": "/",
+        "proxy": {
+            "target": "http://127.0.0.1:3002",
+            "changeOrigin": true,
+            "pathFilter": "/snapshot"
+        }
+    },
+    "files": [
+        "lib",
+        "server",
+        "legal.txt",
+        "locales_changelog.txt",
+        "MigrationNode.txt",
+        "ReleaseNote.txt"
+    ]
+}

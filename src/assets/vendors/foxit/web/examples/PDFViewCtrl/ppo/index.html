@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no"/>
+    <title>Foxit PDF SDK For Web</title>
+    <link rel="shortcut icon" href="../../assets/favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" href="../../../lib/PDFViewCtrl.css">
+</head>
+<body>
+    <button type="button" id="plus">Zoom In</button>
+    <button type="button" id="sub">Zoom Out</button>
+    <div>
+        <span>insertPage:</span>
+        <label><span>pageIndex:</span><input type="number" id="insertPage-pageIndex" min="0"></label>
+        <label><span>width:</span><input type="number" id="insertPage-width" min="1"></label>
+        <label><span>height:</span><input type="number" id="insertPage-height" min="1"></label>
+        <button type="button" id="insertPage">insertPage</button>
+    </div>
+   <div>
+       <span>movePageTo:</span>
+       <label><span>pageIndex:</span><input type="number" id="movePageTo-pageIndex" min="0"></label>
+       <label><span>destIndex:</span><input type="number" id="movePageTo-destIndex" min="0"></label>
+       <button type="button" id="movePageTo">movePageTo</button>
+   </div>
+   <div>
+       <span>removePage:</span>
+       <label><span>pageIndex:</span><input type="number" id="removePage-pageIndex" min="0"></label>
+       <button type="button" id="removePage">removePage</button>
+   </div>
+   <div>
+       <span>insertPages:</span>
+       <label><span>destIndex:</span><input type="number" id="insertPages-destIndex" min="0"></label>
+       <label><span>password:</span><input type="text" id="insertPages-password" ></label>
+       <label><span>flags:</span><input type="number" id="insertPages-flags" ></label>
+       <label><span>layerName:</span><input type="text" id="insertPages-layerName" ></label>
+       <label><span>startIndex:</span><input type="number" id="insertPages-startIndex"  min="0"></label>
+       <label><span>endIndex:</span><input type="number" id="insertPages-endIndex"  min="0"></label>
+       <input type="file" name="file" id="insertPages-file" accept=".pdf" multiple="multiple">
+   </div>
+   <div>
+       <span>extractPages:</span>
+       <label><span>start:</span><input type="number" id="extractPages-start" min="0"></label>
+       <label><span>end:</span><input type="number" id="extractPages-end" min="0"></label>
+       <button type="button" id="extractPages">extractPages</button>
+   </div>
+    <hr>
+    <div id="pdf-viewer"></div>
+<script src="../../license-key.js"></script>
+<script src="../../../lib/PDFViewCtrl.full.js"></script>
+<script>
+
+var PDFViewer = PDFViewCtrl.PDFViewer;
+var pdfViewer = new PDFViewer({
+    libPath: '../../../lib',
+    jr: {
+        licenseSN: licenseSN,
+        licenseKey: licenseKey,
+    }
+});
+pdfViewer.init('#pdf-viewer');
+
+var xhr = new XMLHttpRequest();
+xhr.open('GET', '../../../docs/FoxitPDFSDKforWeb_DemoGuide.pdf', true);
+xhr.responseType = 'blob';
+xhr.onreadystatechange = function () {
+    if (xhr.readyState !== 4) {
+        return;
+    }
+    var status = xhr.status;
+    if ((status >= 200 && status < 300) || status === 304) {
+        pdfViewer.openPDFByFile(xhr.response).catch(function (e) {
+            if (e.error === 11 && e.encryptDict.Filter === 'FOPN_foweb') {
+                var fileOpenKey = getFileOpenKey(e.encryptDict);
+                pdfViewer.reopenPDFDoc(e.pdfDoc, {
+                    fileOpen: {
+                        encryptKey: fileOpenKey
+                    }
+                })
+            }
+        })
+    }
+};
+xhr.send();
+let scale = 1;
+document.getElementById('plus').onclick = function () {
+    scale += 0.25;
+    pdfViewer.zoomTo(scale).catch(function(){});
+};
+document.getElementById('sub').onclick = function () {
+    scale -= 0.25;
+    pdfViewer.zoomTo(scale).catch(function(){});
+};
+document.getElementById('insertPage').onclick = function () {
+    var pageIndex=document.getElementById('insertPage-pageIndex').value,
+        width=document.getElementById('insertPage-width').value,
+        height=document.getElementById('insertPage-height').value;
+    pdfViewer.getCurrentPDFDoc().insertPage(Number(pageIndex),Number(width),Number(height));
+};
+document.getElementById('movePageTo').onclick = function () {
+    var pageIndex=document.getElementById('movePageTo-pageIndex').value,
+        destIndex=document.getElementById('movePageTo-destIndex').value;
+    pdfViewer.getCurrentPDFDoc().movePageTo(Number(pageIndex),Number(destIndex)).then(()=>{
+        pdfViewer.redraw(true);
+    });
+};
+document.getElementById('removePage').onclick = function () {
+    var pageIndex=document.getElementById('removePage-pageIndex').value;
+    pdfViewer.getCurrentPDFDoc().removePage(Number(pageIndex));
+};
+document.getElementById('insertPages-file').onchange = function (e) {
+    var file=e.target.files[0];
+    var destIndex=document.getElementById('insertPages-destIndex').value,
+        password=document.getElementById('insertPages-password').value,
+        flags=document.getElementById('insertPages-flags').value,
+        layerName=document.getElementById('insertPages-layerName').value,
+        startIndex=document.getElementById('insertPages-startIndex').value,
+        endIndex=document.getElementById('insertPages-endIndex').value;
+    pdfViewer.getCurrentPDFDoc().insertPages({destIndex:Number(destIndex),file:file,password:password,flags:Number(flags),layerName:layerName,startIndex:Number(startIndex),endIndex:Number(endIndex)});
+};
+document.getElementById('extractPages').onclick = function () {
+    var start=document.getElementById('extractPages-start').value,
+        end=document.getElementById('extractPages-end').value;
+    pdfViewer.getCurrentPDFDoc().extractPages([[Number(start),Number(end)]]).then((buffer)=>{
+        //buffer:Array buffer of PDF document
+    });
+};
+</script>
+</body>
+</html>

@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Foxit PDF SDK for Web</title>
+    <link rel="shortcut icon" href="../../../assets/favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" href="../../../../lib/UIExtension.css">
+    <style>
+        #pdf-ui {
+            width: 100vw;
+            height: 100vh;
+        }
+        .pdf-ui-example {
+            display: flex;
+            flex-flow: column nowrap;
+            justify-content: flex-start;
+            align-items: stretch;
+        }
+        .cuz-demo {
+            margin-bottom: 10px;
+            border: 1px solid #f0f0f0;
+            height: 180px;
+            display: flex;
+            flex-flow: row nowrap;
+            align-items: stretch;
+        }
+        .cuz-demo-content {
+            flex: 1;
+        }
+        .fv__ui-button {
+            border: 1px solid #f0f0f0;
+            padding: 6px 4px;
+            margin: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="pdf-ui"></div>
+    <template id="pdf-ui-template">
+        <div class="pdf-ui-example">
+            <div class="cuz-demo">
+                <sidebar open="true">
+                    <sidebar-panel icon-class="fv__icon-sidebar-bookmark" title="ext:sidebar.bookmark"></sidebar-panel>
+                </sidebar>
+                <div class="cuz-demo-content">
+                    Content
+                </div>
+            </div>
+            <div class="cuz-demo">
+                <sidebar>
+                    <sidebar-panel icon-class="fv__icon-sidebar-search" title="ext:sidebar.search"></sidebar-panel>
+                </sidebar>
+                <div class="cuz-demo-content">
+                    Content
+                </div>
+            </div>
+            <div class="cuz-demo">
+                <sidebar name="sidebar3">
+                    <sidebar-panel name="sidebar3-layers" icon-class="fv__icon-sidebar-page-manager" title="ext:sidebar.layers"></sidebar-panel>
+                    <sidebar-panel name="sidebar3-bookmark" active="true" icon-class="fv__icon-sidebar-bookmark" title="ext:sidebar.bookmark"></sidebar-panel>
+                </sidebar>
+                <div class="cuz-demo-content">
+                    <xbutton name="btn-collapse">ext:buttons.collapse</xbutton>
+                    <xbutton name="btn-collapse-totally">ext:buttons.collapse-totally</xbutton>
+                    <xbutton name="btn-expand">ext:buttons.expand</xbutton>
+                    <xbutton name="btn-active-layers">ext:buttons.active-layers</xbutton>
+                    <xbutton name="btn-active-bookmark">ext:buttons.active-bookmark</xbutton>
+                </div>
+            </div>
+            <viewer></viewer>
+        </div>
+    </template>
+</body>
+<script src="../../../license-key.js"></script>
+<script src="../../../../lib/UIExtension.full.js"></script>
+<script>
+    class I18NAddon extends UIExtension.UIXAddon {
+        static getName(){
+            return 'ext';
+        }
+        getI18NResources() {
+            return {
+                'en-US': {
+                    'sidebar': {
+                        'bookmark': 'Bookmark',
+                        'search': 'Search',
+                        'layers': 'Layers'
+                    },
+                    'buttons': {
+                        'collapse': 'Collapse sidebar',
+                        'collapse-totally': 'Collapse sidebar totally',
+                        'expand': 'Expand sidebar',
+                        'active-layers': 'Switch to layers panel',
+                        'active-bookmark': 'Switch to bookmark panel'
+                    }
+                },
+                'zh-CN': {
+                    'sidebar': {
+                        'bookmark': '书签',
+                        'search': '搜索',
+                        'layers': '图层'
+                    },
+                    'buttons': {
+                        'collapse': '收缩侧边栏',
+                        'collapse-totally': '完全收缩侧边栏',
+                        'expand': '展开侧边栏',
+                        'active-layers': '切换到图层面板',
+                        'active-bookmark': '切换到书签面板'
+                    }
+                }
+            };
+        }
+    }
+    
+    let PDFUI = UIExtension.PDFUI;
+    let pdfui = new PDFUI({
+        viewerOptions: {
+            libPath: '../../../../lib',
+            jr: {
+                licenseSN: licenseSN,
+                licenseKey: licenseKey
+            }
+        },
+        renderTo: '#pdf-ui',
+        template: document.getElementById('pdf-ui-template').innerHTML.trim(),
+        addons: [ I18NAddon ],
+        fragments: [{
+            target: 'btn-collapse',
+            config: {
+                callback: function() {
+                    this.getComponentByName('sidebar3').collapse();
+                }
+            }
+        }, {
+            target: 'btn-collapse-totally',
+            config: {
+                callback: function(){
+                    this.getComponentByName('sidebar3').collapseTotally();
+                }
+            }
+        }, {
+            target: 'btn-expand',
+            config: {
+                callback: function() {
+                    this.getComponentByName('sidebar3').expand();
+                }
+            }
+        }, {
+            target: 'btn-active-layers',
+            config: {
+                callback: function() {
+                    this.getComponentByName('sidebar3-layers').active();
+                }
+            }
+        }, {
+            target: 'btn-active-bookmark',
+            config: {
+                callback: function() {
+                    this.getComponentByName('sidebar3-bookmark').active();
+                }
+            }
+        }]
+    });
+</script>
+
+</html>

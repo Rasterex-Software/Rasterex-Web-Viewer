@@ -1,0 +1,120 @@
+{
+  "header": "Dokument signieren",
+  "signAs": "Signieren als:",
+  "info": "Informationen",
+  "previewer": "Signaturvorschau",
+  "apType": "Darstellungstyp:",
+  "create": "Erstellen",
+  "text": "Text konfigurieren",
+  "location": "Ort:",
+  "lock": "Dokument nach der Signierung sperren",
+  "mulfile": "Für mehrere Dateien",
+  "sign": "Signieren",
+  "cancel": "Abbrechen",
+  "issuer": "Aussteller des Zertifikats",
+  "newId": "Neue ID ...",
+  "incorrectPwd": "Falsches Passwort!",
+  "emptyPwd": "Geben Sie das Kennwort ein.",
+  "ap": {
+    "standard": "Standardformat",
+    "clear": "Löschen",
+    "title": "Titel:"
+  },
+  "createNewID": "Keine digitale ID gefunden. Klicken Sie auf die Schaltfläche OK, um eine zu erstellen.",
+  "reason": {
+    "title": "Grund:",
+    "0": "Ich bin der Autor dieses Dokuments",
+    "1": "Ich habe dieses Dokument geprüft",
+    "2": "Ich stimme diesem Dokument zu",
+    "3": "Ich bestätige dieses Dokument mit meiner rechtsverbindlichen Unterschrift",
+    "4": "Ich bestätige die Richtigkeit und Vollständigkeit dieses Dokuments",
+    "5": "Ich stimme den Bedingungen zu, die durch die Platzierung meiner Unterschrift in diesem Dokument definiert sind",
+    "6": "Ich stimme bestimmten Teilen dieses Dokuments zu"
+  },
+  "text-direction": {
+    "title": "Textausrichtung",
+    "auto": "Automatisch",
+    "ltr": "Von links nach rechts",
+    "rtl": "Rechts nach links"
+  },
+  "moreSigns": "Es wurde mehr als ein nicht signiertes Feld gefunden, aber nur das erste Signaturfeld wird signiert. Möchten Sie den Vorgang fortsetzen?",
+  "fontsize": "Schriftgröße",
+  "logo": {
+    "title": "Logo konfigurieren",
+    "prop": "Logo-Eigenschaft"
+  },
+  "placeSig": {
+    "tip": "Platzieren Sie ein Signaturfeld und signieren Sie das Dokument digital.",
+    "text": "Signatur platzieren ..."
+  },
+  "signDoc": {
+    "tip": "Signieren Sie das Dokument mit einer digitalen Signatur.",
+    "text": "Dokument signieren..."
+  },
+  "signLater": "Sie haben eine leere Signatur in das Dokument eingefügt, wenn Sie möchten, dass sie wirksam wird, müssen Sie das Dokument signieren",
+  "commonName": "hier den allgemeinen Namen ein",
+  "distinguishName": "Ihr bekannter Name",
+  "staticReason": "hier den Grund für die Signierung ein",
+  "staticLocation": "hier den Ort der Signierung ein",
+  "specialError": "Sonderzeichen sind ungültig.",
+  "certify": {
+    "perm": "Zulässige Aktionen nach der Zertifizierung",
+    "noSpecified": "Standard beibehalten",
+    "perm0": "Keine Änderungen erlaubt",
+    "perm1": "Ausfüllen von Formularen und digitale Signaturen",
+    "perm2": "Kommentieren, Formulare ausfüllen, vorhandene Signaturfelder signieren",
+    "visible": "Mit sichtbarer Signatur zertifizieren",
+    "visibleDesc": "Das Dokument digital mit einer sichtbaren Signatur zertifizieren",
+    "invisible": "Ohne sichtbare Signatur zertifizieren",
+    "invisibleDesc": "Das Dokument digital mit einer unsichtbaren Signatur zertifizieren",
+    "trustCerts": "Vertrauenswürdige Zertifikate",
+    "trustCertsDesc": "Vertrauenswürdige Zertifikate für digitale Signaturen verwalten",
+    "header": "Vertrauenswürdige Zertifikate",
+    "edit": "Bearbeiten",
+    "add": "Hinzufügen",
+    "view": "Ansicht",
+    "export": "Exportieren",
+    "delete": "Löschen",
+    "name": "Name",
+    "issuedBy": "Ausgestellt von",
+    "trust": "Vertrauen",
+    "expiredData": "Abgelaufene Daten",
+    "close": "Schließen",
+    "certName": "Name:",
+    "issuer": "Aussteller:",
+    "validFrom": "Gültig ab:",
+    "validTo": "Gültig bis:",
+    "intent": "Verwendungszweck des Schlüssels:",
+    "deleteConfirm": "Sind Sie sicher, dass Sie dieses Zertifikat löschen möchten? In diesem Fall können Sie die Identität des Eigentümers nicht mehr überprüfen.",
+    "notCert": "Kein Zertifikat."
+  },
+  "trustedRoot": "Vertrauenswürdiges Wurzelzertifikat",
+  "nonTrustedRoot": "Nicht vertrauenswürdiger Stamm",
+  "viewCert": {
+    "header": "Vertrauenszertifikat bearbeiten",
+    "detailTitle": "Zertifikatsdetails",
+    "subject": "Betreff:",
+    "usage": "Nutzung:",
+    "expiration": "Ablauf:",
+    "trust": "Vertrauen",
+    "trustInfo": "Ein Zertifikat zur Dokumentsignierung muss als Vertrauensanker oder als Kette bis zu einem Vertrauensanker bestimmt werden, damit die Signaturvalidierung gelingt. Widerrufsüberprüfung eines Ankers oder übergeordneten Objekts wird nicht durchgeführt.",
+    "trustRoot": "Dieses Zertifikat als vertrauenswürdiges Wurzelzertifikat verwenden",
+    "afterSign": "Wenn die Signatur validiert wurde, diesem Zertifikat für Folgendes vertrauen:",
+    "valid": "Validierung von Signaturen",
+    "validCert": "Validierung zertifizierter Dokumente",
+    "ok": "OK",
+    "cancel": "Abbrechen"
+  },
+  "exportCert": {
+    "header": "Zertifikate exportieren",
+    "subtitle": "Folgende Daten werden exportiert:",
+    "certTitle": "Mein(e) Zertifikat(e)",
+    "certInfo": "Zertifikate können verwendet werden, damit Empfänger die von Ihnen erstellten Signaturen validieren und Sie Dokumente verschlüsseln können. Ihr privater Schlüssel wird nicht zusammen mit dem Zertifikat exportiert.",
+    "option": {
+      "title": "Exportoptionen:",
+      "formatHint": "Wie möchten Sie die Daten exportieren:",
+      "email": "Daten per E-Mail weitergeben",
+      "file": "Daten in einer Datei speichern"
+    }
+  }
+}

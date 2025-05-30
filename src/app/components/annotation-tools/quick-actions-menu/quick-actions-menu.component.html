@@ -4,75 +4,170 @@
     [ngStyle]="{ 'top.px' : rectangle.y, 'left.px' : rectangle.x }">
     <ul *ngIf="((canUpdateAnnotation | async) || (canDeleteAnnotation | async))"
     class="menu" [class.bottom]="rectangle.position == 'bottom'">
-        <li
+        <!-- <li
             *ngIf="(annotation.type != 11 && annotation.type != 20) && (canUpdateAnnotation | async)"
             (click)="onEditClick()">
                 <img id="quickActionsMenuEdit" src="/assets/images/pen-ico.svg" />
+        </li> -->
+        <li
+            *ngIf="(editButton)"
+            (click)="onEditClick()">
+                <img id="quickActionsMenuEdit" src="/assets/images/pen-ico.svg" />
         </li>
-        <li *ngIf="(canDeleteAnnotation | async)" 
+
+
+<!--         <li *ngIf="(canDeleteAnnotation | async)" 
             (click)="onDeleteClick()">
                 <img src="/assets/images/trash-ico.svg" />
         </li>
-        <li *ngIf="(annotation.type != 20) && (canUpdateAnnotation | async)">
+ -->        
+        <li *ngIf="deleteButton" 
+            (click)="onDeleteClick()">
+                <img src="/assets/images/trash-ico.svg" />
+        </li>
+
+
+<!--         <li *ngIf="(annotation.type != 20) && (canUpdateAnnotation | async)">
             <img src="/assets/images/copy-ico.svg" (click)="copyMarkUp()"/>
         </li>
+ -->
+        <li *ngIf="copyMarkupButton">
+            <img src="/assets/images/copy-ico.svg" (click)="copyMarkUp()"/>
+        </li>
+
+
 <!--         <li (click)="onNoteClick()">
             <img src="/assets/images/comment-ico.svg" />
         </li>
- -->        <li
+ -->        
+<!--         <li
             *ngIf="(annotation.bCanHaveLink && !annotation.bhaveLink) && (canUpdateAnnotation | async)"
             (click)="addLink = true;"
             [ngClass]="{'is-link': addLink}">
                 <img src="/assets/images/link-ico.svg" />
-            </li>
+        </li>
+ -->        
         <li
+            *ngIf="linkButton"
+            (click)="addLink = true;"
+            [ngClass]="{'is-link': addLink}">
+                <img src="/assets/images/link-ico.svg" />
+        </li>
+
+
+<!--         <li
             *ngIf="annotation.bhaveLink && (canUpdateAnnotation | async)"
             (click)="addLink = true; message = 'Edit link'">
                 <img src="/assets/images/unlink.svg" />
-        </li>
+        </li> -->
+
         <li
+            *ngIf="editlinkButton"
+            (click)="addLink = true; message = 'Edit link'">
+                <img src="/assets/images/unlink.svg" />
+        </li>
+
+
+<!--         <li
             *ngIf="(annotation.type == 6 && annotation.subtype < 4) && (canUpdateAnnotation | async)"
             (click)="onSnapClick()"
             [class.is-link]="snap">
                 <img src="/assets/images/snap-ico.svg" />
         </li>
+ -->
         <li
+            *ngIf="snapButton"
+            (click)="onSnapClick()"
+            [class.is-link]="snap">
+                <img src="/assets/images/snap-ico.svg" />
+        </li>
+
+
+<!--         <li
             *ngIf="annotation.type == 11"
             (click)="onInfoClick()">
                 <img src="/assets/images/markup-info-ico.svg" />
         </li>
+ -->
+        <li
+            *ngIf="infoButton"
+            (click)="onInfoClick()">
+            <img src="/assets/images/markup-info-ico.svg" />
+        </li>
 
-        <li *ngIf="annotation.type == 20 && (canUpdateAnnotation | async)" (click)="onRedirectClick()">
+
+<!--         <li *ngIf="annotation.type == 20 && (canUpdateAnnotation | async)" (click)="onRedirectClick()">
+            <img src="/assets/images/link.svg"  />
+        </li>
+ -->
+        <li *ngIf="redirectButton">
             <img src="/assets/images/link.svg"  />
         </li>
 
-        <li
+
+        <!-- <li
             *ngIf="((guiMode$ | async) == 'annotate' || (guiMode$ | async) == 'measure') && (havepointinsert)"
+            (click)="onInsertClick()">
+                <img id="quickActionsMenuInsertPoint" src="/assets/images/insert-point.svg" height="48" />
+        </li> -->
+
+        <li
+            *ngIf="insertPointButton"
             (click)="onInsertClick()">
                 <img id="quickActionsMenuInsertPoint" src="/assets/images/insert-point.svg" height="48" />
         </li>
 
-        <li
+
+<!--         <li
             *ngIf="((guiMode$ | async) == 'annotate' || (guiMode$ | async) == 'measure') && (havepointdelete)"
+            (click)="onDeletePointClick()">
+                <img id="quickActionsMenuRemovePoint" src="/assets/images/remove-point.svg" height="48" />
+        </li>
+ -->
+        <li
+            *ngIf="deletePointButton"
             (click)="onDeletePointClick()">
                 <img id="quickActionsMenuRemovePoint" src="/assets/images/remove-point.svg" height="48" />
         </li>
 
 
-        <li
+    <!--     <li
             *ngIf="(guiMode$ | async) == 'measure' && (annotation.type === 8 || (annotation.type === 3 && annotation.subtype === 6)) && annotation.parentmarkupnumber === 0"
             (click)="onHoleClick()">
             <img id="quickActionsHole" src="/assets/images/insert-area-hole.svg" height="28" />
         </li>
-        
+ -->
         <li
+            *ngIf="addHoleButton"
+            (click)="onHoleClick()">
+            <img id="quickActionsHole" src="/assets/images/insert-area-hole.svg" height="28" />
+        </li>
+
+
+<!--         <li
             *ngIf="(guiMode$ | async) == 'measure' && ((annotation.type === 1 && annotation.subtype === 3) || (annotation.type === 3 && annotation.subtype === 6) || annotation.type === 7 || annotation.type === 8)"
+            (click)="onShowHideLabelClick()">
+            <img id="quickActionsMenuShowHideLabel" src="/assets/images/label-remove.svg" height="23" />
+            <!-- <span class="tooltip-text tooltip-top">Hide Label</span> 
+        </li>       -->
+ 
+        <li
+            *ngIf="hideLabelButton"
             (click)="onShowHideLabelClick()">
             <img id="quickActionsMenuShowHideLabel" src="/assets/images/label-remove.svg" height="23" />
             <!-- <span class="tooltip-text tooltip-top">Hide Label</span> -->
         </li>       
+
         
-        <li *ngIf="(guiMode$ | async) == 'measure' && ((annotation.type === 3))"
+        <!-- <li *ngIf="(guiMode$ | async) == 'measure' && ((annotation.type === 8))"
+            (click)="onMoveLabelClick()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2L15 5H13V11H11V5H9L12 2ZM12 22L9 19H11V13H13V19H15L12 22ZM2 12L5 15V13H11V11H5V9L2 12ZM22 12L19 9V11H13V13H19V15L22 12Z" fill="#333C4E"/>
+            </svg>
+
+        </li>  -->
+
+        <li *ngIf="moveLabelButton"
             (click)="onMoveLabelClick()">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M12 2L15 5H13V11H11V5H9L12 2ZM12 22L9 19H11V13H13V19H15L12 22ZM2 12L5 15V13H11V11H5V9L2 12ZM22 12L19 9V11H13V13H19V15L22 12Z" fill="#333C4E"/>
@@ -80,8 +175,9 @@
 
         </li> 
 
+
         <li
-            *ngIf="(guiMode$ | async) === 'annotate'"
+            *ngIf="movetoBackButton"
             (click)="onMoveToBackClick()">
             <svg xmlns="http://www.w3.org/2000/svg" height="23" viewBox="0 0 24 24" fill="none" stroke="#444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M3 3h18v18H3V3z" stroke="#888"/>
@@ -92,7 +188,7 @@
 
 
         <li
-            *ngIf="(guiMode$ | async) === 'annotate'"
+            *ngIf="movetoFrontButton"
             (click)="onMoveToFrontClick()">
             <svg xmlns="http://www.w3.org/2000/svg" height="23" viewBox="0 0 24 24" fill="none" stroke="#444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M3 3h18v18H3V3z" stroke="#888"/>

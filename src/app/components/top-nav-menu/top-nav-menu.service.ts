@@ -19,6 +19,9 @@ export class TopNavMenuService {
   public closeTab: Subject<any> = new Subject<any>();
   public closeTab$: Observable<any> = this.closeTab.asObservable();
 
+  public closeSideNav: Subject<boolean> = new Subject<boolean>();
+  public closeSideNav$: Observable<boolean> = this.closeSideNav.asObservable();
+
   public openModalPrint: Subject<void> = new Subject<void>();
   public openModalPrint$: Observable<void> = this.openModalPrint.asObservable();
 

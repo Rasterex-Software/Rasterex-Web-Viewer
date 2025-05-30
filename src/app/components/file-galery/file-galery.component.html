@@ -33,7 +33,7 @@
                     </div>
                     <br>
                     <br>
-                    <!-- <p class="copyright">PDF Reader powered by Foxit. Copyright (c) 2003-2024 by Foxit Software Incorporated</p> -->
+                    <p class="copyright">PDF Reader powered by Foxit. Copyright (c) 2003-2024 by Foxit Software Incorporated</p>
                 </div>
             </div>
             <div *ngSwitchCase="1">
@@ -92,7 +92,10 @@
 
 <div *ngIf="isUploadFile" class="progress-container">
     <div class="progress">
-        <div>It takes a few seconds to open this document...</div>
+        <div class="progress-text-and-loader">
+            <div>It takes a few seconds to open this document...</div>
+            <div class="spinner"></div>
+        </div>
         <progress value="0" max="100" #progressBar></progress>
     </div>
 </div>

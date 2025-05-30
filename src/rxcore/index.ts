@@ -17,9 +17,13 @@ export class RXCore {
   public static DemoFiles: any = UIConfig.ConfigJSON.demofiles;
   //ConfigJSON
 
-  public static birdseyetool(): void {
-    RxCore.birdseyetool();
-  }
+    public static measureArc(onoff: boolean): void{
+        RxCore.measureArc(onoff);
+    }
+
+    public static birdseyetool(): void {
+        RxCore.birdseyetool();
+    }
 
   public static blockhoverevent(onoff: boolean): void {
     RxCore.blockhoverevent(onoff);
@@ -32,6 +36,22 @@ export class RXCore {
   public static disablewelcome(onoff: boolean): void {
     RxCore.disablewelcome(onoff);
   }
+    public static movetoBack(): void {
+        RxCore.movetoBack();
+    }
+
+    public static movetoFront(): void {
+        RxCore.movetoFront();
+    } 
+
+    public static toggleCycleSelect(): void {
+        RxCore.toggleCycleSelect();
+    } 
+
+
+    public static moveLabelEnable(onoff: boolean): void {
+        RxCore.moveLabelEnable(onoff);
+    }
 
   public static overrideLinewidth(onoff: boolean, thickness: number): void {
     RxCore.overrideLinewidth(onoff, thickness);

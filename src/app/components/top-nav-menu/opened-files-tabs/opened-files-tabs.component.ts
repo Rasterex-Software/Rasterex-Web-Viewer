@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit } from '@angular/core';
 import { CompareService } from '../../compare/compare.service';
 import { RXCore } from 'src/rxcore';
 import { RxCoreService } from 'src/app/services/rxcore.service';
@@ -17,7 +17,10 @@ declare var hideAllIframes;
 @Component({
   selector: 'rx-opened-files-tabs',
   templateUrl: './opened-files-tabs.component.html',
-  styleUrls: ['./opened-files-tabs.component.scss']
+  styleUrls: ['./opened-files-tabs.component.scss'],
+  host: {
+    '(document:click)': 'handleClickOutside($event)'
+  }
 })
 export class OpenedFilesTabsComponent implements OnInit {
   guiState$ = this.rxCoreService.guiState$;
@@ -26,10 +29,14 @@ export class OpenedFilesTabsComponent implements OnInit {
   guiConfig: IGuiConfig | undefined;
 
   markupSaveConfirm : boolean | undefined = true;
-  openedFiles: any = [];
+  openedFiles: any[] = [];
+  pinnedFiles: any[] = [];
   activeFile: any = null;
+
   droppableIndex: number | undefined = undefined;
   closeDocumentModal: boolean = false;
+
+  sidebarOpened: boolean = false;
 
   constructor(
     private readonly rxCoreService: RxCoreService,
@@ -39,7 +46,8 @@ export class OpenedFilesTabsComponent implements OnInit {
     private readonly compareService: CompareService,
     private readonly measurePanelService: MeasurePanelService,
     private readonly annotationToolsService: AnnotationToolsService,
-    private readonly sideNavMenuService: SideNavMenuService
+    private readonly sideNavMenuService: SideNavMenuService,
+    private readonly elem: ElementRef
     ) {}
 
   private _getOpenFilesList(): Array<any> {
@@ -106,6 +114,7 @@ export class OpenedFilesTabsComponent implements OnInit {
         this._selectTab(file);
       }
     } else {
+      this.activeFile = null;
       hideAllIframes();
       RXCore.hidedisplayCanvas(false);
       this.bottomToolbarService.nextState();
@@ -196,6 +205,11 @@ export class OpenedFilesTabsComponent implements OnInit {
     event.stopPropagation();
 
     console.log("closing tab");
+    const index = this.pinnedFiles.findIndex(item => item.id === file.id);
+    if (index > -1) {
+      this.pinnedFiles.splice(index, 1); // remove the item
+    }
+    //this.pinFiles(file);
 
     if (file.comparison && RXCore.markupChanged) {
       this.compareService.onUnsavedChanges.next();
@@ -213,6 +227,16 @@ export class OpenedFilesTabsComponent implements OnInit {
       
     }
   }
+
+  pinFiles(file): void {
+    this.toggleItem(this.pinnedFiles, file);
+  }
+
+  toggleItem(arr, newItem): void {
+    const index = arr.findIndex(index => index.id === newItem.id);
+    index > -1 ? arr.splice(index, 1) : arr.push(newItem);
+  }
+
 
   handleSelectTab(file): void {
     if (this.activeFile?.index === file?.index) return;
@@ -243,4 +267,14 @@ export class OpenedFilesTabsComponent implements OnInit {
     this._closeTab(this.activeFile);
     this.closeDocumentModal = false;
   }
+
+  /* Listeners */
+  handleClickOutside(event: any) {
+    if (!this.sidebarOpened) return;
+    const clickedInside = this.elem.nativeElement.contains(event.target);
+    if (!clickedInside) {
+      this.sidebarOpened = false;
+    }
+  }
+
 }

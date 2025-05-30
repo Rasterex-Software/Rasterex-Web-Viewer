@@ -108,7 +108,7 @@
             cursor: not-allowed;
         }
 
-        input[type="text"] {
+        input[type="number"] {
             color: $toolbar-color;
             background: transparent;
             border: 1px solid #EDF1F2;
@@ -119,12 +119,23 @@
             box-sizing: border-box;
             outline: none;
             transition: 0.3s;
-            background: transparent;
+            //background: transparent;
 
             &:focus {
                 border-color: $main;
             }
         }
+
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button {
+          -webkit-appearance: none;
+          margin: 0;
+        }
+
+        input[type=number] {
+          appearance: textfield;
+        }
+
     }
 }
 

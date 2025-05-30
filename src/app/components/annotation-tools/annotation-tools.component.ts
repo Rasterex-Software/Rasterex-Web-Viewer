@@ -24,39 +24,39 @@ export class AnnotationToolsComponent implements OnInit, OnDestroy {
   private strokeCounter = 0;
 
   isActionSelected = {
-    TEXT: false,
-    CALLOUT: false,
-    SHAPE_RECTANGLE: false,
-    SHAPE_RECTANGLE_ROUNDED: false,
-    SHAPE_ELLIPSE: false,
-    SHAPE_CLOUD: false,
-    SHAPE_POLYGON: false,
-    NOTE: false,
-    ERASE: false,
-    ARROW_FILLED_BOTH_ENDS: false,
-    ARROW_FILLED_SINGLE_END: false,
-    ARROW_BOTH_ENDS: false,
-    ARROW_SINGLE_END: false,
-    PAINT_HIGHLIGHTER: false,
-    PAINT_FREEHAND: false,
-    PAINT_TEXT_HIGHLIGHTING: false,
-    PAINT_POLYLINE: false,
-    COUNT: false,
-    STAMP: false,
-    SCALE_SETTING: false,
-    IMAGES_LIBRARY: false,
-    SYMBOLS_LIBRARY: false,
-    LINKS_LIBRARY: false,
-    CALIBRATE: false,
-    MEASURE_CONTINUOUS: false,
-    MEASURE_LENGTH: false,
-    MEASURE_AREA: false,
-    MEASURE_PATH: false,
-    MEASURE_ANGLE_CLOCKWISE: false,
-    MEASURE_ANGLE_CCLOCKWISE: false,
-    SNAP: false,
-    MARKUP_LOCK: false,
-    NO_SCALE: false,
+    "TEXT": false,
+    "CALLOUT": false,
+    "SHAPE_RECTANGLE": false,
+    "SHAPE_RECTANGLE_ROUNDED": false,
+    "SHAPE_ELLIPSE": false,
+    "SHAPE_CLOUD": false,
+    "SHAPE_POLYGON": false,
+    "NOTE": false,
+    "ERASE": false,
+    "ARROW_FILLED_BOTH_ENDS": false,
+    "ARROW_FILLED_SINGLE_END": false,
+    "ARROW_BOTH_ENDS": false,
+    "ARROW_SINGLE_END": false,
+    "PAINT_HIGHLIGHTER": false,
+    "PAINT_FREEHAND": false,
+    "PAINT_TEXT_HIGHLIGHTING": false,
+    "PAINT_POLYLINE": false,
+    "COUNT": false,
+    "STAMP": false,
+    "SCALE_SETTING": false,
+    "IMAGES_LIBRARY": false,
+    "SYMBOLS_LIBRARY": false,
+    "LINKS_LIBRARY": false,
+    "CALIBRATE": false,
+    "MEASURE_CONTINUOUS" : false,
+    "MEASURE_LENGTH": false,
+    "MEASURE_AREA": false,
+    "MEASURE_PATH": false,
+    "MEASURE_ARC": false,
+    "MEASURE_ANGLE_CCLOCKWISE": false,
+    "SNAP": false,
+    "MARKUP_LOCK" : false,
+    "NO_SCALE": false
   };
 
   get isPaintSelected(): boolean {
@@ -442,14 +442,10 @@ export class AnnotationToolsComponent implements OnInit, OnDestroy {
 
         break;
 
-      case 'MEASURE_ANGLE_CLOCKWISE':
-        this.service.setMeasurePanelDetailState({
-          visible: this.isActionSelected[actionName],
-          type: MARKUP_TYPES.MEASURE.ANGLECLOCKWISE.type,
-          created: true,
-        });
+      case 'MEASURE_ARC':
+        //this.service.setMeasurePanelDetailState({ visible: this.isActionSelected[actionName], type:  MARKUP_TYPES.MEASURE.ANGLECLOCKWISE.type, created: true });
         //this.service.setPropertiesPanelState({ visible: this.isActionSelected[actionName], markup:  MARKUP_TYPES.MEASURE.PATH, readonly: false });
-        RXCore.markupAngle(this.isActionSelected[actionName], false);
+        RXCore.measureArc(this.isActionSelected[actionName]);
         break;
 
       case 'MEASURE_ANGLE_CCLOCKWISE':

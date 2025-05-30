@@ -1,6 +1,7 @@
 <app-message-broker />
 
-<top-nav-menu style="z-index: 3; position: fixed; top: 0; left: 0; width: 100%;" [class.hidden]="(guiConfig$ | async).disableTopNavMenu" [state]="state" [ngStyle]="{'filter': eventUploadFile ? 'blur(3px)' : 'none' }"></top-nav-menu>
+<!-- <top-nav-menu style="z-index: 3; position: fixed; top: 0; left: 0; width: 100%;" [class.hidden]="(guiConfig$ | async).disableTopNavMenu" [state]="state" [ngStyle]="{'filter': eventUploadFile ? 'blur(3px)' : 'none' }"></top-nav-menu> -->
+<top-nav-menu *ngIf="enableLandingPage" style="z-index: 3; position: fixed; top: 0; left: 0; width: 100%;" [class.hidden]="(guiConfig$ | async).disableTopNavMenu" [state]="state" [ngStyle]="{'filter': eventUploadFile ? 'blur(3px)' : 'none' }"></top-nav-menu>
 <side-nav-menu style="z-index: 2; position: fixed; top: 49px; left: 0; height: calc(100% - 49px);" *ngIf="!(guiConfig$ | async).disableSideNavMenu"></side-nav-menu>
 
 <div
@@ -8,8 +9,9 @@
   [class.full-height]="(guiConfig$ | async).disableTopNavMenu"
   [class.full-width]="!sidebarOpen"
   [ngStyle]="{'filter': eventUploadFile ? 'blur(3px)' : 'none' }">
-  <div id="mainContent" class="main-content" [class.overflow-hidden]="!(numOpenFiles$ | async)" [ngStyle]="{'width': sidebarOpen ? 'calc(100% - 300px); margin-left: 300px ' : '100%'}">
-    <div *ngIf="!(numOpenFiles$ | async)" class="welcome-content">
+  <div id="mainContent" class="main-content" [class.overflow-hidden]="!(numOpenFiles$ | async)">
+    <div *ngIf="!(numOpenFiles$ | async) && enableLandingPage" class="welcome-content">
+    <!-- <div *ngIf="!(numOpenFiles$ | async)" class="welcome-content"> -->
       <img [src]="(guiConfig$ | async).logoUrl" />
       <!-- <div class="btn-choice-file" (click)="handleLoginClick()">Log In</div> -->
       <div *ngIf="!eventUploadFile" class="main-text">
@@ -91,3 +93,5 @@
         </div>
     </div>
 </rx-panel>
+
+<app-login-modal></app-login-modal>

@@ -332,6 +332,10 @@ export class BottomToolbarComponent implements OnInit, AfterViewInit {
       case 'SELECT_TEXT':
         RXCore.textSelect(this.state.isActionSelected[action]);
         break;
+      case 'TOGGLECYCLE':
+        RXCore.toggleCycleSelect();
+        RXCore.markUpRedraw();
+        break;
       case 'GRAYSCALE':
         break;
       default:

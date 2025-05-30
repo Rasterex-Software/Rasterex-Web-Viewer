@@ -60,11 +60,12 @@ export class NotePanelComponent implements OnInit {
 
 
   sortOptions = [
-    { value: "created", label: "Created day" },
-    { value: "author", label: "Author" },
-    { value: "pagenumber", label: "Page" },
-    { value: "position", label: "Position" },
-    { value: 'annotation', label: 'Annotation Type' },
+
+    { value: "created", label: "Created day", imgSrc: "calendar-ico.svg" },
+    { value: "author", label: "Author", imgSrc: "author-icon.svg" },
+    { value: "pagenumber", label: "Page", imgSrc: "file-ico.svg" },
+    { value: "position", label: "Position", imgSrc: "next-ico.svg" },
+    { value: 'annotation', label: 'Annotation Type', imgSrc: "bookmark-ico.svg" },
   ];
 
  /*added for comment list panel */
@@ -583,6 +584,8 @@ export class NotePanelComponent implements OnInit {
 
       //item.createdStr = dayjs(item.timestamp).format(`MMM D,${dayjs().year() != dayjs(item.timestamp).year() ? 'YYYY ': ''} h:mm A`);
       item.createdStr = dayjs(item.timestamp).format(this.guiConfig?.dateFormat?.dateTimeWithConditionalYear || 'MMM d, [yyyy] h:mm a');
+      
+      
 
       //item.IsExpanded = item?.IsExpanded;
       //item.IsExpanded = this.activeMarkupNumber > 0 ? item?.IsExpanded : false;
@@ -811,8 +814,12 @@ export class NotePanelComponent implements OnInit {
       }else{
         switch(option.label) {
           case "View":
-            this.showAll = false;
-            this.onShowAll(false);
+            //this.showAll = false;
+            //this.onShowAll(false);
+            this.onShowAnnotations(false);
+            this.onShowMeasurements(false);
+
+
             break;
           case "Annotate":
             this.showAnnotations = true;
@@ -1460,6 +1467,7 @@ export class NotePanelComponent implements OnInit {
 
 
       switch (markup.type) {
+        case MARKUP_TYPES.MEASURE.MEASUREARC.type:
         case MARKUP_TYPES.ERASE.type:
         case MARKUP_TYPES.SHAPE.POLYGON.type:
         case MARKUP_TYPES.PAINT.POLYLINE.type:

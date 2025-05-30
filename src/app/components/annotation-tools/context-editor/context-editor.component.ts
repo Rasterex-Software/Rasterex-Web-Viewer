@@ -242,6 +242,12 @@ export class ContextEditorComponent implements OnInit {
     });
   }
 
+  /*adjustTextareaHeight(event: Event): void {
+    const textarea = event.target as HTMLTextAreaElement;
+    textarea.style.height = 'auto';
+    textarea.style.height = `${textarea.scrollHeight}px`;
+  }*/
+
   showContextEditor(right, left, bottom, top, isArrow: boolean = false) {
 
     isArrow = false;

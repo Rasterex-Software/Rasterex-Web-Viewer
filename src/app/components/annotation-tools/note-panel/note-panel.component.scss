@@ -29,7 +29,7 @@
     border-bottom: 1px solid #edf1f2;
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: left;
     padding: 12px;
     gap: 12px;
 
@@ -170,9 +170,15 @@
       .list-item {
         width: 100%;
         .note {
+
+          border-radius: 8px;
+          padding: 1px;
+          background-image: linear-gradient(to right, var(--accent), rgb(0, 223, 175));
+          margin: 5px 0;
+
           width: 100%;
-          box-shadow: 0 4px 16px rgba(134, 142, 150, 0.24), 0 0 4px 0 #868e96;
-          border-radius: 4px;
+          //box-shadow: 0 4px 16px rgba(134, 142, 150, 0.24), 0 0 4px 0 #868e96;
+          //border-radius: 4px;
 
           box-sizing: border-box;
           display: flex;
@@ -185,12 +191,18 @@
 
           &.is-active {
             .note-comment-list {
+              border-bottom-left-radius: 0;
+              border-bottom-right-radius: 0;
+
               .note-comment {
                 padding-bottom: 20px;
                 display: block;
               }
             }
             .note-input {
+              border-top-left-radius: 0;
+              border-top-right-radius: 0;
+
               display: flex;
             }
           }
@@ -206,6 +218,9 @@
           }
 
           .note-comment-list {
+            border-radius: 7px;
+            background-image: linear-gradient(to right, rgb(250, 250, 250), rgb(245, 254, 251));
+
             padding: 8px 12px;
 
             .note-comment {
@@ -229,7 +244,14 @@
                     flex: 1;
 
                     .comment-img {
-                      display: block;
+                      background: linear-gradient(90deg, rgba(0, 223, 175, .12) 0%, rgba(54, 105, 246, .12) 100%), radial-gradient(49.87% 49.85% at 50.13% 15.27%, rgba(255, 255, 255, .8) .85%, rgba(255, 255, 255, 0) 100%), linear-gradient(0deg, rgba(255, 255, 255, .2), rgba(255, 255, 255, .2)) #ffffff;
+                      width: 2rem;
+                      height: 2rem;
+                      border-radius: .5rem;
+                      padding: 0.2rem;
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
                     }
 
                     p {
@@ -374,9 +396,12 @@
           }
 
           .note-input {
-            border-top: 1px solid var(--background-light);
+            //border-top: 1px solid var(--background-light);
             padding: 8px 12px;
             display: none;
+            border-radius: 7px;
+            background-image: linear-gradient(to right, rgb(250, 250, 250), rgb(245, 254, 251));
+
 
             input[type="text"] {
               font-size: 12px;

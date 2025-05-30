@@ -47,10 +47,18 @@
         </li>
 
         <li
-            *ngIf="(guiMode$ | async) == 'measure' && (annotation.type === 8 || (annotation.type === 3 && annotation.subtype === 6))"
+            *ngIf="((guiMode$ | async) == 'annotate' || (guiMode$ | async) == 'measure') && (havepointinsert)"
             (click)="onInsertClick()">
                 <img id="quickActionsMenuInsertPoint" src="/assets/images/insert-point.svg" height="48" />
         </li>
+
+        <li
+            *ngIf="((guiMode$ | async) == 'annotate' || (guiMode$ | async) == 'measure') && (havepointdelete)"
+            (click)="onDeletePointClick()">
+                <img id="quickActionsMenuRemovePoint" src="/assets/images/remove-point.svg" height="48" />
+        </li>
+
+
         <li
             *ngIf="(guiMode$ | async) == 'measure' && (annotation.type === 8 || (annotation.type === 3 && annotation.subtype === 6)) && annotation.parentmarkupnumber === 0"
             (click)="onHoleClick()">
@@ -62,7 +70,39 @@
             (click)="onShowHideLabelClick()">
             <img id="quickActionsMenuShowHideLabel" src="/assets/images/label-remove.svg" height="23" />
             <!-- <span class="tooltip-text tooltip-top">Hide Label</span> -->
-        </li>        
+        </li>       
+        
+        <li *ngIf="(guiMode$ | async) == 'measure' && ((annotation.type === 3))"
+            (click)="onMoveLabelClick()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2L15 5H13V11H11V5H9L12 2ZM12 22L9 19H11V13H13V19H15L12 22ZM2 12L5 15V13H11V11H5V9L2 12ZM22 12L19 9V11H13V13H19V15L22 12Z" fill="#333C4E"/>
+            </svg>
+
+        </li> 
+
+        <li
+            *ngIf="(guiMode$ | async) === 'annotate'"
+            (click)="onMoveToBackClick()">
+            <svg xmlns="http://www.w3.org/2000/svg" height="23" viewBox="0 0 24 24" fill="none" stroke="#444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 3h18v18H3V3z" stroke="#888"/>
+                <path d="M8 8h8v8H8z" fill="#444"/>
+                <path d="M12 20v-8m0 8l-3-3m3 3l3-3"/>
+            </svg>
+        </li>
+
+
+        <li
+            *ngIf="(guiMode$ | async) === 'annotate'"
+            (click)="onMoveToFrontClick()">
+            <svg xmlns="http://www.w3.org/2000/svg" height="23" viewBox="0 0 24 24" fill="none" stroke="#444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 3h18v18H3V3z" stroke="#888"/>
+                <path d="M8 8h8v8H8z" fill="#444"/>
+                <path d="M12 4v8m0-8l-3 3m3-3l3 3"/>
+              </svg>
+        </li>
+
+
+
 
     </ul>
 </div>

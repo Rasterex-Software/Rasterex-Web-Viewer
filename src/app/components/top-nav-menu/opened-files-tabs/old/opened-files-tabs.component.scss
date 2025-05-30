@@ -1,0 +1,129 @@
+@import "../../../../assets/scss/config.scss";
+
+.tabs {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 48px;
+
+    .tab-wrapper {
+        height: 100%;
+
+        .tab {
+            border-right: 1px solid #EDF1F2;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 0 8px;
+            font-size: 12px;
+            cursor: pointer;
+            box-sizing: border-box;
+            border-bottom: 2px solid transparent;
+
+            &.hidden {
+                display: none;
+            }
+
+            .close {
+                cursor: pointer;
+                font-size: 18px;
+            }
+
+            &.comparison {
+                .file-list {
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+
+                    &.reverse {
+                        flex-direction: row-reverse;
+                    }
+
+                    span.file-name {
+                        width: 111px;
+                        height: 32px;
+                        border-radius: 4px;
+                        padding: 4px 8px;
+                        box-sizing: border-box;
+                        box-shadow: 0px -7px 7px 2px #B5B5B517;
+                        background-color: #FFFFFF;
+                        display: flex;
+                        align-items: center;
+                        gap: 4px;
+                        border-width: 1px;
+                        border-style: solid;
+                        border-color: transparent;
+
+                        &.active {
+                            border-color: $accent;
+                        }
+
+                        span {
+                            overflow: hidden;
+                            align-items: center;
+                            white-space: nowrap;
+                            text-overflow: ellipsis;
+                        }
+
+                        i.color {
+                            min-width: 9px;
+                            min-height: 9px;
+                            max-width: 9px;
+                            max-height: 9px;
+                            border-radius: 50%;
+                        }
+                    }
+                }
+            }
+
+            &.active {
+                background-color: $top-nav-background-active;
+                color: $top-nav-color-active;
+                border-bottom-color: $top-nav-border-bottom-color-active;
+            }
+
+            &:not(.active) {
+                .close {
+                    display: none;
+                }
+            }
+        }
+
+        &.dragging {
+            box-shadow: 0px 0px 7px 1px #CBCBCB;
+            z-index: 1;
+        }
+
+        &.droppable-zone {
+            background-color: #DDF4E4;
+            border-bottom: 1px solid $accent;
+        }
+    }
+}
+
+.confirm-dialog {
+    ::ng-deep {
+        .rx-modal-dialog-wrapper {
+            backdrop-filter: blur(3px)!important;
+        }
+    }
+}
+
+.close-document-modal {
+    min-width: 300px;
+    .rx-modal-dialog-header {
+        height: 10px;
+
+        img {
+            right: 14px;
+            top: 10px;
+        }
+    }
+
+    .body {
+        word-wrap: break-word; 
+        padding: 0 24px 18px;
+    }
+}

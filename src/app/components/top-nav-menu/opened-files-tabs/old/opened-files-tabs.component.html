@@ -1,0 +1,67 @@
+<div class="tabs">
+    <ng-container *ngFor="let file of openedFiles">
+        <div
+            *ngIf="file.index !== activeFile?.index || file.comparison || openedFiles.length < 2 || (guiState$ | async).is3D; else draggableTab"
+            class="tab-wrapper"
+            [class.droppable-zone]="file.index !== activeFile?.index && file.index == droppableIndex">
+                <ng-container *ngTemplateOutlet="tab; context: {file : file}"></ng-container>
+        </div>
+        <ng-template #draggableTab>
+            <div class="tab-wrapper tooltip"
+                [draggableFileTab]="file.index == activeFile?.index"
+                (onDroppableZone)="onDroppableZone($event)"
+                (onDrop)="onDrop()">
+                    <ng-container *ngTemplateOutlet="tab; context: {file : file}"></ng-container>
+                    <span *ngIf="droppableIndex != undefined" class="tooltip-text tooltip-bottom">Drop to start comparing these documents.</span>
+            </div>
+        </ng-template>
+    </ng-container>
+</div>
+
+<ng-template #tab let-file="file">
+    <div
+        class="tab"
+        [attr.data-index]="file.index"
+        [class.hidden]="file.hidden"
+        [class.comparison]="file.comparison"
+        [class.active]="file.index == activeFile?.index"
+        (click)="handleSelectTab(file)">
+        <span *ngIf="!file.comparison; else comparisonTemplate">{{file.name}}</span>
+        <ng-template #comparisonTemplate>
+            <b>{{file.comparison.name}}</b>
+            <div class="file-list" [class.reverse]="file.comparison.activeSetAs.value == 'overlay'">
+                <span
+                    class="file-name"
+                    [class.active]="activeFile?.index == file.comparison.activeFile?.index"
+                    (click)="handleSelectSubTab($event, file.comparison.activeFile)">
+                    <i class="color" [ngStyle]="{'background-color': file.comparison.activeColor.value}"></i>
+                    <span>{{file.comparison.activeFile.name}}</span>
+                </span>
+                <span
+                    class="file-name"
+                    [class.active]="activeFile?.index == file.comparison.otherFile?.index"
+                    (click)="handleSelectSubTab($event, file.comparison.otherFile)">
+                    <i class="color" [ngStyle]="{'background-color': file.comparison.otherColor.value}"></i>
+                    <span>{{file.comparison.otherFile.name}}</span>
+                </span>
+            </div>
+        </ng-template>
+        <span class="close" (click)="handleCloseTab($event, file)">&times;</span>
+    </div>
+</ng-template>
+
+<rx-modal-dialog *ngIf="(guiConfig$ | async).localStoreAnnotation" [opened]="closeDocumentModal">
+    <div class="confirm-modal-container close-document-modal">
+        <div class="rx-modal-dialog-header">
+            <img (click)="closeDocumentModal = false;" class="close" src="/assets/images/close-modal-ico.svg" />
+            <span class="title"></span>
+        </div>
+        <div class="body">
+            <p>Do you want to save markup?</p>
+        </div>
+        <div class="footer">
+            <button (click)="closeDocumentModal = false;saveMarkupAndClose(false)" class="btn btn-light">No</button>
+            <button (click)="saveMarkupAndClose(true)" class="btn btn-primary">SAVE</button>
+        </div>
+    </div>
+</rx-modal-dialog>

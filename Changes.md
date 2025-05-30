@@ -1,3 +1,139 @@
+May 26, 2025
+
+### 1. New measure tool Arc.
+
+Updated and new files
+
+RxCore version is now 35.924.
+src\assets\scripts\rxcorefunctions.js
+
+
+src\app\components\annotation-tools\annotation-tools.component.html
+src\app\components\annotation-tools\annotation-tools.component.ts
+src\app\components\annotation-tools\annotation-shape-icon\annotation-shape-icon.component.html
+
+src\app\components\annotation-tools\quick-actions-menu\quick-actions-menu.component.ts
+src\app\components\annotation-tools\quick-actions-menu\quick-actions-menu.component.html
+src\app\components\annotation-tools\properties-panel\properties-panel.component.ts
+src\app\components\annotation-tools\note-panel\note-panel.component.ts
+
+src\rxcore\index.ts
+src\rxcore\constants\index.ts
+
+
+May 23, 2025
+
+### 1. Some fixes to text annotation input element.
+### 2. Some fixes to Annotation context menu.
+### 3. Some fixes to Annotation context menu.
+
+### 4. Resolve issue with close and pin actions causing duplicate pinned tabs 
+
+### 5. Fixed an issue with Annotation comment list JSON input/ouput.
+
+
+### 6.Fixed an issue in the comparison popup where users could mistakenly select the same file as both base and comparison file causing UI confusion.
+### 7. Disabled the "Compare" option in the burger menu when a 3D file is opened, aligning with feature restrictions.
+### 8. Updated the "Compare Document" popup to exclude unsupported 3D files from the dropdown for better user clarity.
+### 9. Introduced a reusable file category service with a centralized enum and helper methods to streamline type-based operations.
+### 10. Resolved issue where the Grayscale slider tool in the comparison window did not toggle correctly when switching between normal and comparison views. Also added the missing tooltip for better user guidance.
+### 11. Resolved issue where comparison window's toolbar being shown on other windows even if comparison window closed or not active. streamline the behavior aviour of comparison window's toolbar to only appear in compare mode
+
+### 12. Solved issue with comment panel overlapping the annotation and measurement toolbars.
+
+
+Updated and new files
+
+RxCore version is now 35.923.
+src\assets\scripts\rxcorefunctions.js
+
+src\app\components\compare\create-comparison\create-comparison.component.ts
+src\app\components\compare\top-nav-menu\top-nav-menu.component.ts
+src\app\components\compare\top-nav-menu\top-nav-menu.component.html
+src\app\services\file-category.service.ts
+src\app\shared\enums\file-category.ts 
+src\app\components\bottom-toolbar\bottom-toolbar.component.html
+
+src\app\components\top-nav-menu\opened-files-tabs\opened-files-tabs.component.scss src\app\components\top-nav-menu\opened-files-tabs\opened-files-tabs.component.ts
+
+src\app\components\annotation-tools\quick-actions-menu\quick-actions-menu.component.ts
+
+src\app\components\annotation-tools\context-editor\context-editor.component.ts
+src\app\components\annotation-tools\context-editor\context-editor.component.html
+src\app\components\annotation-tools\context-editor\context-editor.component.scss
+
+src\app\components\annotation-tools\note-panel\note-panel.component.scss
+
+
+
+May 22, 2025
+
+### 1. Added insert and delete point functionality for all multi-point annotations (polyline, polygon, counter, and measurement path)
+### 2. Added move label for area measurement.
+### 3. Added move to front/back for annotations.
+### 4. Added spinner to file load.
+### 5. Corrections to text annoation html text area input.
+
+
+### 6. Display open file tabs in dropdown list
+### 7. Correctly update checkString after page toggle in multiSelect mode
+### 8. Add pinned files section next to dropdown list
+
+
+### 9. fixed issue with paginator, added possibility to rotate icon on top-nav-menu when closed from side-nav-menu, reset selected pages when switch from multiselect to single
+
+
+### 10. Improved Annotation & Measurement - refined the visual styling of note elements for a more elegant appearance, “Show/Hide All” toggle.
+### 11. Added support for displaying images (imgSrc) alongside dropdown options
+### 12. Introduced an author icon to visually represent the user/creator
+
+
+
+Updated and new files
+
+RxCore version is now 35.922.
+
+/src/app/components/bottom-toolbar.html
+/src/app/components/bottom-toolbar.scss 
+/src/app/components/side-nav-menu/pages.ts 
+/src/app/components/side-nav-menu.ts 
+/src/app/components/top-nav-menu.html 
+/src/app/components/top-nav-menu.ts 
+/src/app/components/top-nav-menu.service.ts
+
+src\app\components\top-nav-menu\opened-files-tabs\opened-files-tabs.component.html 
+src\app\components\top-nav-menu\opened-files-tabs\opened-files-tabs.component.scss 
+src\app\components\top-nav-menu\opened-files-tabs\opened-files-tabs.component.ts 
+src\app\components\top-nav-menu\opened-files-tabs\is-pinned.pipe.ts
+src\app\components\side-nav-menu\pages\pages.component.ts
+
+
+src\assets\scripts\rxcorefunctions.js
+
+src/app/components/annotation-tools/quick-actions-menu/quick-actions-menu.component.html
+src/app/components/annotation-tools/quick-actions-menu/quick-actions-menu.component.ts
+src\app\components\bottom-toolbar\bottom-toolbar.component.ts
+src\app\components\bottom-toolbar\bottom-toolbar.component.html
+src\app\components\file-galery\file-galery.component.html
+src\app\components\file-galery\file-galery.component.scss
+
+src\app\components\annotation-tools\context-editor\context-editor.component.ts
+src\app\components\annotation-tools\context-editor\context-editor.component.scss
+src\app\components\annotation-tools\context-editor\context-editor.component.html
+
+
+src/assets/images/remove-point.svg
+src\rxcore\index.ts
+
+src/app/components/annotation-tools/note-panel/note-panel.component.ts
+src/app/components/annotation-tools/note-panel/note-panel.component.html
+src/app/components/annotation-tools/note-panel/note-panel.component.scss
+src/app/components/commont/dropdown/dropdown.component.html
+src/app/components/commont/dropdown/dropdown.component.scss
+src/assets/images/author-icon.svg
+
+
+
 May 20, 2025
 
 

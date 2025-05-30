@@ -14,6 +14,7 @@ import { CollabService } from './services/collab.service';
 import { AnnotationStorageService } from './services/annotation-storage.service';
 import { TooltipService } from './components/tooltip/tooltip.service';
 import { Subscription } from 'rxjs';
+import { LoginService } from './services/login.service';
 
 
 
@@ -27,6 +28,7 @@ import { Subscription } from 'rxjs';
 export class AppComponent implements AfterViewInit, OnDestroy {
   //@ViewChild('progressBar') progressBar: ElementRef;
 
+  enableLandingPage = false;
   guiConfig$ = this.rxCoreService.guiConfig$;
   guiConfig: IGuiConfig | undefined;
   title: string = 'rasterex-viewer';
@@ -62,7 +64,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   private sidebarStateSubscription: Subscription;
   sidebarOpen = false;
 
-  constructor(
+  constructor(  public loginService: LoginService,
     private readonly recentfilesService: RecentFilesService,
     private readonly rxCoreService: RxCoreService,
     private readonly fileGaleryService: FileGaleryService,
@@ -87,6 +89,10 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   ngOnInit() {
 
 
+    this.loginService.enableLandingPage$.subscribe(enable => {
+      this.enableLandingPage = enable;
+    });
+    
     this.guiConfig$.subscribe(config => {
       this.guiConfig = config;
       this.convertPDFAnnots = this.guiConfig.convertPDFAnnots;
@@ -96,6 +102,13 @@ export class AppComponent implements AfterViewInit, OnDestroy {
       RXCore.markupDisplayOnload(this.showAnnotationsOnLoad);
 
     });
+
+    if(this.guiConfig?.forceLogin){
+      this.loginService.showLoginModal(this.guiConfig?.forceLogin);
+   }else{
+     this.enableLandingPage = true;
+   }
+
 
     this.titleService.setTitle(this.title);
     this.fileGaleryService.getEventUploadFile().subscribe(event => this.eventUploadFile = event);

@@ -1,20 +1,64 @@
-<div class="tabs">
-    <ng-container *ngFor="let file of openedFiles">
+<div class="files">
+    <div class="dropdown-wrapper button sidebar" *ngIf="openedFiles.length">
         <div
-            *ngIf="file.index !== activeFile?.index || file.comparison || openedFiles.length < 2 || (guiState$ | async).is3D; else draggableTab"
-            class="tab-wrapper"
-            [class.droppable-zone]="file.index !== activeFile?.index && file.index == droppableIndex">
-                <ng-container *ngTemplateOutlet="tab; context: {file : file}"></ng-container>
+            class="dropdown"
+            (click)="sidebarOpened = !sidebarOpened"
+        >
+            <span class="dropdown-label">{{ activeFile?.name }}</span>
+            <svg
+                width="20"
+                height="20"
+                viewBox="0 0 20 20"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                [ngStyle]="{
+                    transform: sidebarOpened ? 'rotate(180deg)' : 'rotate(0deg)',
+                    transition: 'transform 0.3s ease'
+              }"
+            >
+                <path d="M6 8L10 12" stroke="#A4ABAE" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M14 8L10 12" stroke="#A4ABAE" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
         </div>
-        <ng-template #draggableTab>
-            <div class="tab-wrapper tooltip"
-                [draggableFileTab]="file.index == activeFile?.index"
-                (onDroppableZone)="onDroppableZone($event)"
-                (onDrop)="onDrop()">
-                    <ng-container *ngTemplateOutlet="tab; context: {file : file}"></ng-container>
-                    <span *ngIf="droppableIndex != undefined" class="tooltip-text tooltip-bottom">Drop to start comparing these documents.</span>
+
+        <div [class.opened]="sidebarOpened" class="options-container">
+            <div class="options-wrapper">
+                <ul class="options tabs" role="listbox" aria-expanded="false">
+                    <ng-container *ngFor="let file of openedFiles">
+                        <li *ngIf="file.index !== activeFile?.index || file.comparison || openedFiles.length < 2 || (guiState$ | async).is3D; else draggableTab"
+                            class="option-wrapper"
+                            [class.droppable-zone]="file.index !== activeFile?.index && file.index == droppableIndex">
+
+                            <ng-container *ngTemplateOutlet="tab; context: { file: file }"></ng-container>
+                        </li>
+                        <ng-template #draggableTab>
+                            <li class="option-wrapper tooltip"
+                                [draggableFileTab]="file.index == activeFile?.index"
+                                (onDroppableZone)="onDroppableZone($event)"
+                                (onDrop)="onDrop()">
+                                    <ng-container *ngTemplateOutlet="tab; context: { file: file }"></ng-container>
+                                    <span *ngIf="droppableIndex != undefined" class="tooltip-text tooltip-bottom">
+                                        Drop to start comparing these documents.
+                                    </span>
+                            </li>
+                        </ng-template>
+                    </ng-container>
+                </ul>
             </div>
-        </ng-template>
+        </div>
+    </div>
+
+    <ng-container *ngIf="pinnedFiles.length">
+      <div class="pinned-files" *ngFor="let pinnedFile of pinnedFiles">
+
+        <span class="pinned-files-label" (click)="handleSelectTab(pinnedFile)">{{ pinnedFile?.name }}</span>
+
+        <svg (click)="pinFiles(pinnedFile)" xmlns="http://www.w3.org/2000/svg" width="15px" height="15px" viewBox="0 0 24 24" fill="none">
+          <path d="M17.1218 1.87023C15.7573 0.505682 13.4779 0.76575 12.4558 2.40261L9.75191 6.73289L11.1969 8.17793C11.2355 8.1273 11.2723 8.07415 11.3071 8.01845L14.1523 3.46191C14.493 2.91629 15.2528 2.8296 15.7076 3.28445L20.6359 8.21274C21.0907 8.66759 21.0041 9.42737 20.4584 9.76806L15.9019 12.6133C15.8462 12.6481 15.793 12.6848 15.7424 12.7234L17.1874 14.1684L21.5177 11.4645C23.1546 10.4424 23.4147 8.16307 22.0501 6.79852L17.1218 1.87023Z" fill="#0F0F0F"/>
+          <path d="M3.56525 8.85242C3.6015 8.26612 3.84962 7.68582 4.32883 7.27422L5.77735 8.72274C5.75784 8.72967 5.73835 8.7368 5.71886 8.74414C5.64516 8.7719 5.61855 8.80285 5.60548 8.82181C5.58877 8.84604 5.56651 8.8937 5.56144 8.97583C5.55046 9.15333 5.62872 9.40686 5.82846 9.6066L14.3137 18.0919C14.5135 18.2916 14.767 18.3699 14.9445 18.3589C15.0266 18.3538 15.0743 18.3316 15.0985 18.3149C15.1175 18.3018 15.1484 18.2752 15.1762 18.2015C15.1835 18.182 15.1907 18.1625 15.1976 18.143L16.6461 19.5915C16.2345 20.0707 15.6542 20.3188 15.0679 20.3551C14.2853 20.4035 13.4808 20.0874 12.8995 19.5061L9.36397 15.9705L2.68394 22.6506C2.29342 23.0411 1.66025 23.0411 1.26973 22.6506C0.879206 22.26 0.879206 21.6269 1.26973 21.2363L7.94975 14.5563L4.41425 11.0208C3.83293 10.4395 3.51687 9.63502 3.56525 8.85242Z" fill="#0F0F0F"/>
+          <path d="M2.00789 2.00786C1.61736 2.39838 1.61736 3.03155 2.00789 3.42207L20.5862 22.0004C20.9767 22.3909 21.6099 22.3909 22.0004 22.0004C22.391 21.6099 22.391 20.9767 22.0004 20.5862L3.4221 2.00786C3.03158 1.61733 2.39841 1.61733 2.00789 2.00786Z" fill="#0F0F0F"/>
+        </svg>
+      </div>
     </ng-container>
 </div>
 
@@ -36,6 +80,17 @@
                     (click)="handleSelectSubTab($event, file.comparison.activeFile)">
                     <i class="color" [ngStyle]="{'background-color': file.comparison.activeColor.value}"></i>
                     <span>{{file.comparison.activeFile.name}}</span>
+                    <svg *ngIf="!(file.comparison.activeFile | isPinned : pinnedFiles)" (click)="pinFiles(file.comparison.activeFile)"
+                         xmlns="http://www.w3.org/2000/svg"
+                         fill="#000000" width="15px" height="15px" viewBox="-2.5 -2.5 24 24" preserveAspectRatio="xMinYMin" class="jam jam-pin">
+                      <path d="M12.626 11.346l-.184-1.036 4.49-4.491-2.851-2.852-4.492 4.49-1.035-.184a5.05 5.05 0 0 0-2.734.269l6.538 6.537a5.05 5.05 0 0 0 .268-2.733zm-4.25 1.604L2.67 18.654a1.008 1.008 0 0 1-1.426-1.426l5.705-5.704L2.67 7.245a7.051 7.051 0 0 1 6.236-1.958l3.747-3.747a2.017 2.017 0 0 1 2.853 0l2.852 2.853a2.017 2.017 0 0 1 0 2.852l-3.747 3.747a7.051 7.051 0 0 1-1.958 6.236L8.376 12.95z"/>
+                    </svg>
+
+                    <svg *ngIf="file.comparison.activeFile | isPinned : pinnedFiles" (click)="pinFiles(file.comparison.activeFile)" xmlns="http://www.w3.org/2000/svg" width="15px" height="15px" viewBox="0 0 24 24" fill="none">
+                      <path d="M17.1218 1.87023C15.7573 0.505682 13.4779 0.76575 12.4558 2.40261L9.75191 6.73289L11.1969 8.17793C11.2355 8.1273 11.2723 8.07415 11.3071 8.01845L14.1523 3.46191C14.493 2.91629 15.2528 2.8296 15.7076 3.28445L20.6359 8.21274C21.0907 8.66759 21.0041 9.42737 20.4584 9.76806L15.9019 12.6133C15.8462 12.6481 15.793 12.6848 15.7424 12.7234L17.1874 14.1684L21.5177 11.4645C23.1546 10.4424 23.4147 8.16307 22.0501 6.79852L17.1218 1.87023Z" fill="#0F0F0F"/>
+                      <path d="M3.56525 8.85242C3.6015 8.26612 3.84962 7.68582 4.32883 7.27422L5.77735 8.72274C5.75784 8.72967 5.73835 8.7368 5.71886 8.74414C5.64516 8.7719 5.61855 8.80285 5.60548 8.82181C5.58877 8.84604 5.56651 8.8937 5.56144 8.97583C5.55046 9.15333 5.62872 9.40686 5.82846 9.6066L14.3137 18.0919C14.5135 18.2916 14.767 18.3699 14.9445 18.3589C15.0266 18.3538 15.0743 18.3316 15.0985 18.3149C15.1175 18.3018 15.1484 18.2752 15.1762 18.2015C15.1835 18.182 15.1907 18.1625 15.1976 18.143L16.6461 19.5915C16.2345 20.0707 15.6542 20.3188 15.0679 20.3551C14.2853 20.4035 13.4808 20.0874 12.8995 19.5061L9.36397 15.9705L2.68394 22.6506C2.29342 23.0411 1.66025 23.0411 1.26973 22.6506C0.879206 22.26 0.879206 21.6269 1.26973 21.2363L7.94975 14.5563L4.41425 11.0208C3.83293 10.4395 3.51687 9.63502 3.56525 8.85242Z" fill="#0F0F0F"/>
+                      <path d="M2.00789 2.00786C1.61736 2.39838 1.61736 3.03155 2.00789 3.42207L20.5862 22.0004C20.9767 22.3909 21.6099 22.3909 22.0004 22.0004C22.391 21.6099 22.391 20.9767 22.0004 20.5862L3.4221 2.00786C3.03158 1.61733 2.39841 1.61733 2.00789 2.00786Z" fill="#0F0F0F"/>
+                    </svg>
                 </span>
                 <span
                     class="file-name"
@@ -43,10 +98,36 @@
                     (click)="handleSelectSubTab($event, file.comparison.otherFile)">
                     <i class="color" [ngStyle]="{'background-color': file.comparison.otherColor.value}"></i>
                     <span>{{file.comparison.otherFile.name}}</span>
+                    <svg *ngIf="!(file.comparison.otherFile | isPinned : pinnedFiles)" (click)="pinFiles(file.comparison.otherFile)"
+                                           xmlns="http://www.w3.org/2000/svg"
+                                           fill="#000000" width="15px" height="15px" viewBox="-2.5 -2.5 24 24" preserveAspectRatio="xMinYMin" class="jam jam-pin">
+                      <path d="M12.626 11.346l-.184-1.036 4.49-4.491-2.851-2.852-4.492 4.49-1.035-.184a5.05 5.05 0 0 0-2.734.269l6.538 6.537a5.05 5.05 0 0 0 .268-2.733zm-4.25 1.604L2.67 18.654a1.008 1.008 0 0 1-1.426-1.426l5.705-5.704L2.67 7.245a7.051 7.051 0 0 1 6.236-1.958l3.747-3.747a2.017 2.017 0 0 1 2.853 0l2.852 2.853a2.017 2.017 0 0 1 0 2.852l-3.747 3.747a7.051 7.051 0 0 1-1.958 6.236L8.376 12.95z"/>
+                    </svg>
+
+                    <svg *ngIf="file.comparison.otherFile | isPinned : pinnedFiles" (click)="pinFiles(file.comparison.otherFile)" xmlns="http://www.w3.org/2000/svg" width="15px" height="15px" viewBox="0 0 24 24" fill="none">
+                      <path d="M17.1218 1.87023C15.7573 0.505682 13.4779 0.76575 12.4558 2.40261L9.75191 6.73289L11.1969 8.17793C11.2355 8.1273 11.2723 8.07415 11.3071 8.01845L14.1523 3.46191C14.493 2.91629 15.2528 2.8296 15.7076 3.28445L20.6359 8.21274C21.0907 8.66759 21.0041 9.42737 20.4584 9.76806L15.9019 12.6133C15.8462 12.6481 15.793 12.6848 15.7424 12.7234L17.1874 14.1684L21.5177 11.4645C23.1546 10.4424 23.4147 8.16307 22.0501 6.79852L17.1218 1.87023Z" fill="#0F0F0F"/>
+                      <path d="M3.56525 8.85242C3.6015 8.26612 3.84962 7.68582 4.32883 7.27422L5.77735 8.72274C5.75784 8.72967 5.73835 8.7368 5.71886 8.74414C5.64516 8.7719 5.61855 8.80285 5.60548 8.82181C5.58877 8.84604 5.56651 8.8937 5.56144 8.97583C5.55046 9.15333 5.62872 9.40686 5.82846 9.6066L14.3137 18.0919C14.5135 18.2916 14.767 18.3699 14.9445 18.3589C15.0266 18.3538 15.0743 18.3316 15.0985 18.3149C15.1175 18.3018 15.1484 18.2752 15.1762 18.2015C15.1835 18.182 15.1907 18.1625 15.1976 18.143L16.6461 19.5915C16.2345 20.0707 15.6542 20.3188 15.0679 20.3551C14.2853 20.4035 13.4808 20.0874 12.8995 19.5061L9.36397 15.9705L2.68394 22.6506C2.29342 23.0411 1.66025 23.0411 1.26973 22.6506C0.879206 22.26 0.879206 21.6269 1.26973 21.2363L7.94975 14.5563L4.41425 11.0208C3.83293 10.4395 3.51687 9.63502 3.56525 8.85242Z" fill="#0F0F0F"/>
+                      <path d="M2.00789 2.00786C1.61736 2.39838 1.61736 3.03155 2.00789 3.42207L20.5862 22.0004C20.9767 22.3909 21.6099 22.3909 22.0004 22.0004C22.391 21.6099 22.391 20.9767 22.0004 20.5862L3.4221 2.00786C3.03158 1.61733 2.39841 1.61733 2.00789 2.00786Z" fill="#0F0F0F"/>
+                    </svg>
                 </span>
             </div>
         </ng-template>
-        <span class="close" (click)="handleCloseTab($event, file)">&times;</span>
+        <div class="actions">
+            <span class="close" (click)="handleCloseTab($event, file)">
+              &times;
+            </span>
+            <svg *ngIf="!(file | isPinned : pinnedFiles)" (click)="pinFiles(file)"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="#000000" width="18px" height="18px" viewBox="-2.5 -2.5 24 24" preserveAspectRatio="xMinYMin" class="jam jam-pin">
+              <path d="M12.626 11.346l-.184-1.036 4.49-4.491-2.851-2.852-4.492 4.49-1.035-.184a5.05 5.05 0 0 0-2.734.269l6.538 6.537a5.05 5.05 0 0 0 .268-2.733zm-4.25 1.604L2.67 18.654a1.008 1.008 0 0 1-1.426-1.426l5.705-5.704L2.67 7.245a7.051 7.051 0 0 1 6.236-1.958l3.747-3.747a2.017 2.017 0 0 1 2.853 0l2.852 2.853a2.017 2.017 0 0 1 0 2.852l-3.747 3.747a7.051 7.051 0 0 1-1.958 6.236L8.376 12.95z"/>
+            </svg>
+
+            <svg *ngIf="file | isPinned : pinnedFiles" (click)="pinFiles(file)" xmlns="http://www.w3.org/2000/svg" width="15px" height="15px" viewBox="0 0 24 24" fill="none">
+              <path d="M17.1218 1.87023C15.7573 0.505682 13.4779 0.76575 12.4558 2.40261L9.75191 6.73289L11.1969 8.17793C11.2355 8.1273 11.2723 8.07415 11.3071 8.01845L14.1523 3.46191C14.493 2.91629 15.2528 2.8296 15.7076 3.28445L20.6359 8.21274C21.0907 8.66759 21.0041 9.42737 20.4584 9.76806L15.9019 12.6133C15.8462 12.6481 15.793 12.6848 15.7424 12.7234L17.1874 14.1684L21.5177 11.4645C23.1546 10.4424 23.4147 8.16307 22.0501 6.79852L17.1218 1.87023Z" fill="#0F0F0F"/>
+              <path d="M3.56525 8.85242C3.6015 8.26612 3.84962 7.68582 4.32883 7.27422L5.77735 8.72274C5.75784 8.72967 5.73835 8.7368 5.71886 8.74414C5.64516 8.7719 5.61855 8.80285 5.60548 8.82181C5.58877 8.84604 5.56651 8.8937 5.56144 8.97583C5.55046 9.15333 5.62872 9.40686 5.82846 9.6066L14.3137 18.0919C14.5135 18.2916 14.767 18.3699 14.9445 18.3589C15.0266 18.3538 15.0743 18.3316 15.0985 18.3149C15.1175 18.3018 15.1484 18.2752 15.1762 18.2015C15.1835 18.182 15.1907 18.1625 15.1976 18.143L16.6461 19.5915C16.2345 20.0707 15.6542 20.3188 15.0679 20.3551C14.2853 20.4035 13.4808 20.0874 12.8995 19.5061L9.36397 15.9705L2.68394 22.6506C2.29342 23.0411 1.66025 23.0411 1.26973 22.6506C0.879206 22.26 0.879206 21.6269 1.26973 21.2363L7.94975 14.5563L4.41425 11.0208C3.83293 10.4395 3.51687 9.63502 3.56525 8.85242Z" fill="#0F0F0F"/>
+              <path d="M2.00789 2.00786C1.61736 2.39838 1.61736 3.03155 2.00789 3.42207L20.5862 22.0004C20.9767 22.3909 21.6099 22.3909 22.0004 22.0004C22.391 21.6099 22.391 20.9767 22.0004 20.5862L3.4221 2.00786C3.03158 1.61733 2.39841 1.61733 2.00789 2.00786Z" fill="#0F0F0F"/>
+            </svg>
+        </div>
     </div>
 </ng-template>
 

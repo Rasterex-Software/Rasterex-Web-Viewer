@@ -27,6 +27,9 @@ export class QuickActionsMenuComponent implements OnInit, OnDestroy {
   visible = false;
   pageRotation : number = 0;
   annotation: any = -1;
+  havepointdelete: boolean = false;
+  havepointinsert: boolean = false;
+  moveLabelEnabled: boolean = false;
   operation: any = undefined;
   rectangle: any;
   confirmDeleteOpened: boolean = false;
@@ -186,12 +189,15 @@ export class QuickActionsMenuComponent implements OnInit, OnDestroy {
         };
         break;
       }
+      
+      case MARKUP_TYPES.MEASURE.MEASUREARC.type:
       case MARKUP_TYPES.ERASE.type:
       case MARKUP_TYPES.SHAPE.POLYGON.type:
       case MARKUP_TYPES.PAINT.POLYLINE.type:
       case MARKUP_TYPES.MEASURE.PATH.type:
       case MARKUP_TYPES.MEASURE.ANGLECLOCKWISE.type:
       case MARKUP_TYPES.MEASURE.ANGLECCLOCKWISE.type:
+      
       case MARKUP_TYPES.MEASURE.AREA.type: {
 
 
@@ -462,7 +468,7 @@ export class QuickActionsMenuComponent implements OnInit, OnDestroy {
       this.numbuttons = 4;
 
       if(markup.type == 3 && markup.subtype == 6){
-        this.numbuttons = 7;
+        this.numbuttons = 8;
       }
 
       if(markup.type == 10){
@@ -626,6 +632,15 @@ export class QuickActionsMenuComponent implements OnInit, OnDestroy {
     this.guiMarkupSubscription = this.rxCoreService.guiMarkup$.subscribe(({markup, operation}) => {
       this.visible = false;
       this.annotation = markup;
+      //*ngIf="((guiMode$ | async) == 'annotate' || (guiMode$ | async) == 'measure') && ((annotation.type === 1 && [1, 2, 3].includes(annotation.subtype)) || annotation.type === 13 || annotation.type === 8 || (annotation.type === 3 && annotation.subtype === 6)))"
+
+      this.havepointinsert = (this.annotation.type == 1 && (this.annotation.subtype == 1 || this.annotation.subtype == 2 || this.annotation.subtype == 3) || this.annotation.type === 13 || this.annotation.type === 8 || (this.annotation.type === 3 && this.annotation.subtype === 6));
+      this.havepointdelete = (this.annotation.type == 1 && (this.annotation.subtype == 1 || this.annotation.subtype == 2 || this.annotation.subtype == 3) || this.annotation.type === 13 || this.annotation.type === 8);
+      
+      
+      this.moveLabelEnabled = (this.annotation.type === 8);
+  
+
       this.operation = operation;
       this.snap = RXCore.getSnapState();
 
@@ -817,6 +832,18 @@ export class QuickActionsMenuComponent implements OnInit, OnDestroy {
     this.visible = false;
   }
 
+  onDeletePointClick(): void {
+    if (this.annotation.type === MARKUP_TYPES.SHAPE.RECTANGLE.type) {
+      RXCore.markupRectToAreaSwitch(this.annotation);
+    }
+    if (this.operation?.created) {
+      RXCore.selectMarkUp(true);
+    }
+  
+    RXCore.deletePoint();
+    this.visible = false;
+  }
+
   onShowHideLabelClick(): void {    
     if (this.operation?.created) { RXCore.selectMarkUp(true); }
     if(!this.annotation.hidevaluelabel) {
@@ -827,6 +854,14 @@ export class QuickActionsMenuComponent implements OnInit, OnDestroy {
     }
     RXCore.markUpRedraw();
     this.visible = false;
+  }
+
+  onMoveLabelClick(): void {
+    this.moveLabelEnabled = !this.moveLabelEnabled;
+    if(this.moveLabelEnabled) {
+      RXCore.markupRectToAreaSwitch(this.annotation);
+      RXCore.moveLabelEnable(this.moveLabelEnabled);
+    }
   }
  
   onHoleClick(): void { 
@@ -846,6 +881,18 @@ export class QuickActionsMenuComponent implements OnInit, OnDestroy {
       window.open(this.annotation.linkURL, '_blank');
     }
   }
+
+  onMoveToBackClick(): void {
+    RXCore.movetoBack();
+    //RXCore.markUpRedraw();
+  }
+
+
+  onMoveToFrontClick(): void {
+    RXCore.movetoFront();
+    //RXCore.markUpRedraw();
+  }
+
 
 
 }

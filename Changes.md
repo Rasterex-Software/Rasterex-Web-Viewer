@@ -827,3 +827,9 @@ May 26, 2025
   `modified:   src/app/app.component.ts`
   `modified:   src/app/components/annotation-tools/note-panel/note-panel.component.ts`
   `modified:   src/app/components/user/user.service.ts`
+
+May 30, 3025
+
+# Fix: 
+
+  `modified:   src/app/components/annotation-tools/note-panel/note-panel.component.ts`

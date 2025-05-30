@@ -25,7 +25,7 @@ declare var LeaderLine: any;
 })
 export class NotePanelComponent implements OnInit {
   visible: boolean = false;
-  
+
   list: { [key: string]: Array<IMarkup> };
   annotlist: Array<IMarkup>;
   search: string;
@@ -56,7 +56,7 @@ export class NotePanelComponent implements OnInit {
   //sortByField: 'created' | 'author' = 'created';
   //sortByField: 'created' | 'position' | 'author' = 'created';
   sortByField: 'created' | 'position' | 'author' | 'pagenumber' | 'annotation' = 'created';
-  
+
 
 
   sortOptions = [
@@ -105,7 +105,7 @@ export class NotePanelComponent implements OnInit {
   showAnnotationsOnLoad : boolean | undefined = false;
 
   markupTypes : Array<any> = [];
-  
+
   //getMarkupTypes
 
 
@@ -219,7 +219,7 @@ export class NotePanelComponent implements OnInit {
 
 
   }
-  
+
   private _setmarkupTypeDisplay(markup, onoff) : void{
 
     let markuptype = RXCore.getMarkupType(markup.type, markup.subtype);
@@ -239,12 +239,12 @@ export class NotePanelComponent implements OnInit {
       }
 
     }
-    
+
     this.rxTypeFilterLoaded = this.rxTypeFilter.filter((rxtype) => rxtype.loaded);
 
   }
-    
-  
+
+
   private _getmarkupTypeDisplay(markup): boolean | undefined{
 
     let showtype : boolean = false;
@@ -259,11 +259,11 @@ export class NotePanelComponent implements OnInit {
     //labelType.type = 'PEN';
 
     if(Array.isArray(markuptype.type)){
-      
+
       typename = markuptype.type[1];
 
     }
-    
+
 
     for(let mi=0; mi < this.rxTypeFilter.length;mi++){
 
@@ -274,7 +274,7 @@ export class NotePanelComponent implements OnInit {
 
       }
 
-      
+
 
     }
 
@@ -284,7 +284,7 @@ export class NotePanelComponent implements OnInit {
     }else{
       return this.showAnnotations;
     }
-    
+
 
 
   }
@@ -299,10 +299,10 @@ export class NotePanelComponent implements OnInit {
       for(let mi=0; mi < this.markupTypes.length;mi++){
 
         this.rxTypeFilter.push({
-          typename : this.markupTypes[mi].typename, 
-          label: this.markupTypes[mi].label, 
-          type : this.markupTypes[mi].type, 
-          subtype : this.markupTypes[mi].subtype, 
+          typename : this.markupTypes[mi].typename,
+          label: this.markupTypes[mi].label,
+          type : this.markupTypes[mi].type,
+          subtype : this.markupTypes[mi].subtype,
           loaded : false,
           show : true
         });
@@ -337,7 +337,7 @@ export class NotePanelComponent implements OnInit {
     //labelType.type = 'PEN';
 
     if(Array.isArray(markuptype.type)){
-      
+
       typename = markuptype.type[1];
 
     }
@@ -359,11 +359,11 @@ export class NotePanelComponent implements OnInit {
 
       }*/
 
-      
+
 
     }
 
-    
+
 
 
   }
@@ -395,12 +395,12 @@ export class NotePanelComponent implements OnInit {
     listContainer.addEventListener("scrollend", (event) => {
 
       this.scrolled = true;
-      
+
       if(showleader){
         this.SetActiveCommentSelect(annotitem);
         showleader = false;
       }
-      
+
 
     });
 
@@ -421,6 +421,22 @@ export class NotePanelComponent implements OnInit {
     }
   }
 
+  /**
+   * Helper method to safely recalculate position for active comment
+   */
+  private recalculateActiveCommentPosition(): void {
+    if (this.activeMarkupNumber > 0) {
+      this._hideLeaderLine();
+      const allMarkups = [...(this.rxCoreService.getGuiMarkupList() || []), ...(this.rxCoreService.getGuiAnnotList() || [])];
+      const activeMarkup = allMarkups.find(markup => markup.markupnumber === this.activeMarkupNumber);
+      if (activeMarkup) {
+        setTimeout(() => {
+          this._setPosition(activeMarkup);
+        }, 100);
+      }
+    }
+  }
+
   private _processList(list: Array<IMarkup> = [], annotList: Array<IMarkup> = []): void {
     /*modified for comment list panel */
 
@@ -438,7 +454,7 @@ export class NotePanelComponent implements OnInit {
 
 
           return this._getmarkupTypeDisplay(i);
-          
+
           //RXCore.getMarkupType()
 
           /*if(i.type === MARKUP_TYPES.TEXT.type) {
@@ -452,11 +468,11 @@ export class NotePanelComponent implements OnInit {
           if(i.type === MARKUP_TYPES.CALLOUT.type && i.subtype === MARKUP_TYPES.CALLOUT.subType) {
             return this.typeFilter.showCallout;
           }
-  
+
           if(i.type === MARKUP_TYPES.SHAPE.RECTANGLE.type && i.subtype === MARKUP_TYPES.SHAPE.RECTANGLE.subType) {
             return this.typeFilter.showRectangle;
           }
-  
+
           if(i.type === MARKUP_TYPES.PAINT.POLYLINE.type && i.subtype === MARKUP_TYPES.PAINT.POLYLINE.subType) {
             return this.typeFilter.showPolyline;
           }
@@ -464,7 +480,7 @@ export class NotePanelComponent implements OnInit {
           if(i.type === MARKUP_TYPES.SHAPE.POLYGON.type && i.subtype === MARKUP_TYPES.SHAPE.POLYGON.subType) {
             return this.typeFilter.showPolygon;
           }
-          
+
           if(i.type === MARKUP_TYPES.SHAPE.CLOUD.type && i.subtype === MARKUP_TYPES.SHAPE.CLOUD.subtype) {
             return this.typeFilter.showCloud;
           }
@@ -587,7 +603,7 @@ export class NotePanelComponent implements OnInit {
 
             //return a.y - b.y;
         case 'pagenumber':
-            
+
         return a.pagenumber - b.pagenumber;
 
         case 'annotation':
@@ -690,14 +706,14 @@ export class NotePanelComponent implements OnInit {
     });
 
     //this.annotationToolsService.notePanelState$.subscribe(state => {
-    this.annotationToolsService.notePanelState$.subscribe((state) => {  
+    this.annotationToolsService.notePanelState$.subscribe((state) => {
       /*added for comment list panel */
       this.activeMarkupNumber = state?.markupnumber;
       if (this.activeMarkupNumber) {
         this.markupNoteList.push(this.activeMarkupNumber);
         this.markupNoteList = [...new Set(this.markupNoteList)];
 
-        
+
         let markupList = this.rxCoreService.getGuiMarkupList();
 
         if(markupList){
@@ -708,7 +724,7 @@ export class NotePanelComponent implements OnInit {
               (markupItem.type === MARKUP_TYPES.MEASURE.PATH.type &&
                 markupItem.subtype === MARKUP_TYPES.MEASURE.PATH.subType) ||
               (markupItem.type === MARKUP_TYPES.MEASURE.RECTANGLE.type &&
-                markupItem.subtype === MARKUP_TYPES.MEASURE.RECTANGLE.subType)) 
+                markupItem.subtype === MARKUP_TYPES.MEASURE.RECTANGLE.subType))
                 markupItem.setdisplay(this.objectType === "measure");
             else markupItem.setdisplay(this.objectType !== "measure");
           } */
@@ -721,7 +737,7 @@ export class NotePanelComponent implements OnInit {
                   let page = i.pagenumber + 1;
                   this.pageNumbers = [];
                   this.pageNumbers.push({ value: -1, label: 'Select' });
-                  
+
                   for (let itm = 1; page >= itm; itm++) {
                     this.pageNumbers.push({ value: itm, label: itm });
                   }
@@ -737,7 +753,7 @@ export class NotePanelComponent implements OnInit {
       }
       /*added for comment list panel */
 
-      
+
       this.visible = state?.visible;
       if(this.visible){
 
@@ -763,7 +779,7 @@ export class NotePanelComponent implements OnInit {
               (markupItem.type === MARKUP_TYPES.MEASURE.PATH.type &&
                 markupItem.subtype === MARKUP_TYPES.MEASURE.PATH.subType) ||
               (markupItem.type === MARKUP_TYPES.MEASURE.RECTANGLE.type &&
-                markupItem.subtype === MARKUP_TYPES.MEASURE.RECTANGLE.subType)) 
+                markupItem.subtype === MARKUP_TYPES.MEASURE.RECTANGLE.subType))
                 markupItem.setdisplay(this.objectType === "measure");
             else markupItem.setdisplay(this.objectType !== "measure");
           }
@@ -775,7 +791,7 @@ export class NotePanelComponent implements OnInit {
 
       this._hideLeaderLine();
 
-      
+
 
     });
 
@@ -789,7 +805,7 @@ export class NotePanelComponent implements OnInit {
 
 
     this.annotationToolsService.selectedOption$.subscribe(option => {
-      
+
       if(this.showAnnotationsOnLoad){
         //disable main filters.
       }else{
@@ -810,11 +826,11 @@ export class NotePanelComponent implements OnInit {
 
             this.onShowMeasurements(true);
             this.onShowAnnotations(false);
-            break;  
+            break;
         }
-  
+
       }
-      
+
     });
 
 
@@ -827,7 +843,7 @@ export class NotePanelComponent implements OnInit {
 
 
     this.guiConfig$.pipe(distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr))).subscribe(config => {
-      
+
       this.guiConfig = config;
 
       if (config?.dateFormat?.locale) {
@@ -853,11 +869,11 @@ export class NotePanelComponent implements OnInit {
         });
       }
 
-      
 
-    
+
+
       //const result = words.filter((word) => word.length > 6);
-    
+
 
 
       this.showAnnotationsOnLoad = this.guiConfig.showAnnotationsOnLoad;
@@ -867,7 +883,7 @@ export class NotePanelComponent implements OnInit {
       this.showAll = this.showAnnotationsOnLoad;
 
 
-      
+
 
 
     });
@@ -876,14 +892,19 @@ export class NotePanelComponent implements OnInit {
     this.guiZoomUpdated$.subscribe(({params, zoomtype}) => {
       if(zoomtype == 0 || zoomtype == 1){
         this._hideLeaderLine();
+        // Recalculate position for active comment after zoom change
+        this.recalculateActiveCommentPosition();
       }
 
     });
-      
+
     this.guiRotatePage$.subscribe(({degree, pageIndex}) => {
 
         //this.pageNumber = pageIndex;
         this.pageRotation = degree;
+
+        // Recalculate position for active comment after rotation change
+        this.recalculateActiveCommentPosition();
 
     });
 
@@ -912,7 +933,7 @@ export class NotePanelComponent implements OnInit {
       this.createdByFilter = new Set();
 
       /*if (list.length > 0){
-        
+
       }*/
       this._updateRxFilter();
       this.annotlist = list;
@@ -924,8 +945,8 @@ export class NotePanelComponent implements OnInit {
       for(let li = 0; li < list.length; li++){
 
         let pageexist = false;
-        let pagenum = list[li].pagenumber;  
-        
+        let pagenum = list[li].pagenumber;
+
 
         for(let ci = 0; ci < controlarray.length; ci++){
           if(controlarray[ci] == pagenum){
@@ -937,9 +958,9 @@ export class NotePanelComponent implements OnInit {
           this.pageNumbers.push({ value: pagenum + 1, label: pagenum + 1 });
         }
 
-        
 
-        
+
+
 
       }
 
@@ -959,7 +980,7 @@ export class NotePanelComponent implements OnInit {
 
 
       //this.setloadedtypeFilter
-      
+
 
       if (this.activeMarkupNumber > 0){
         //this.createdByFilterOptions = Object.values(list.filter(i => i.text.length > 0).reduce((options, item) => {
@@ -974,10 +995,10 @@ export class NotePanelComponent implements OnInit {
           }
           return options;
         }, {}));
-        
-        
+
+
         if (list.length > 0){
-        
+
           //this._processList(list);
           setTimeout(() => {
             list.filter((itm: any) => {
@@ -995,11 +1016,11 @@ export class NotePanelComponent implements OnInit {
 
         }else{
           this._processList(list, this.rxCoreService.getGuiAnnotList());
-        } 
-        
+        }
+
       }
 
-      
+
 
       if (list.length > 0 && !this.isHideAnnotation){
 
@@ -1015,7 +1036,7 @@ export class NotePanelComponent implements OnInit {
       }
 
       if(this.showAnnotationsOnLoad){
-        this.panelTitle = 'Annotations and Measurements' + " (" + this.calcAllCount() + ")";  
+        this.panelTitle = 'Annotations and Measurements' + " (" + this.calcAllCount() + ")";
       }
 
 
@@ -1035,6 +1056,9 @@ export class NotePanelComponent implements OnInit {
         this._hideLeaderLine();
       }
 
+      // Recalculate position for active comment after page change
+      this.recalculateActiveCommentPosition();
+
     });
 
 
@@ -1047,7 +1071,7 @@ export class NotePanelComponent implements OnInit {
       }
 
       if(operation.created){
-       
+
         this.addTextNote(markup);
       }
 
@@ -1064,11 +1088,11 @@ export class NotePanelComponent implements OnInit {
         if(!this.scrolled){
           this.SetActiveCommentSelect(markup);
         }
-        
+
       }
 
       if(operation.created){
-       
+
         this.addTextNote(markup);
       }
 
@@ -1082,6 +1106,10 @@ export class NotePanelComponent implements OnInit {
         this.connectorLine.hide();
         this._hideLeaderLine();
       }
+      // Recalculate position after pan with a small delay
+      setTimeout(() => {
+        this.recalculateActiveCommentPosition();
+      }, 100);
     });
 
     this.guiOnPanUpdatedSubscription = this.rxCoreService.resetLeaderLine$.subscribe((response: boolean) => {
@@ -1091,6 +1119,10 @@ export class NotePanelComponent implements OnInit {
         this.connectorLine.hide();
         this._hideLeaderLine();
       }
+      // Recalculate position after reset
+      setTimeout(() => {
+        this.recalculateActiveCommentPosition();
+      }, 100);
     });
 
 
@@ -1126,7 +1158,7 @@ export class NotePanelComponent implements OnInit {
   }
  */
 
- 
+
   onSortFieldChanged(event): void {
     this.sortByField = event.value;
     this._processList(this.rxCoreService.getGuiMarkupList());
@@ -1159,8 +1191,9 @@ export class NotePanelComponent implements OnInit {
     this.rxCoreService.setCommentSelected(false);
   }
 
-  onWindowResize(event): void {
-    this._hideLeaderLine();
+  onWindowResize(event: any): void {
+    // Recalculate position for active comment after window resize
+    this.recalculateActiveCommentPosition();
   }
 
   addTextNote(markup : any) : void{
@@ -1183,8 +1216,8 @@ export class NotePanelComponent implements OnInit {
 
         let sign = RXCore.getSignature();
         const timestamp = new Date().toISOString();
-        
-        
+
+
 
 
         //markup.AddComment(markup.comments.length, sign, this.note[markup.markupnumber]);
@@ -1198,7 +1231,7 @@ export class NotePanelComponent implements OnInit {
         //markup.comments.push(commentsObj);
       }
 
-      
+
 
       this.note[markup.markupnumber] = "";
     }
@@ -1230,7 +1263,7 @@ export class NotePanelComponent implements OnInit {
 
   OnRemoveComment(event, markup: any, id: number, index: number): void {
     event.stopPropagation();
-    
+
     markup.deleteComment(id);
     if (markup.comments.length === 0) {
       if (this.connectorLine)
@@ -1279,6 +1312,8 @@ export class NotePanelComponent implements OnInit {
 
     if (markupNo) {
       this.activeMarkupNumber = markupNo;
+      // Hide any existing leader lines first
+      this._hideLeaderLine();
       //this.onSelectAnnotation(markup);
       this._setPosition(markup);
     }
@@ -1298,6 +1333,12 @@ export class NotePanelComponent implements OnInit {
     if (markupNo) {
       this.activeMarkupNumber = markupNo;
       this.onSelectAnnotation(markup);
+
+
+
+      // Hide any existing leader lines first
+      this._hideLeaderLine();
+
       const frame: any = document.getElementById('foxitframe')
 
 
@@ -1310,8 +1351,10 @@ export class NotePanelComponent implements OnInit {
 
 
 
+
+        // Ensure position is calculated with current rotation state
         this._setPosition(markup);
-      }, 100);
+      }, 150); // Slightly increased timeout to ensure DOM updates
 
       Object.values(this.list || {}).forEach((comments) => {
         comments.forEach((comment: any) => {
@@ -1357,7 +1400,7 @@ export class NotePanelComponent implements OnInit {
 
   }
 
-  
+
   private _setPosition(markup: any): void {
     //RXCore.unSelectAllMarkup();
     //this.rxCoreService.setGuiMarkup(markup, {});
@@ -1365,7 +1408,7 @@ export class NotePanelComponent implements OnInit {
     //this.lineConnectorNativElement.style.left = (markup.xscaled + markup.wscaled - 5) + 'px';
     //this.DrawConnectorLine(document.getElementById('note-panel-' + this.activeMarkupNumber), this.lineConnectorNativElement);
 
-    
+
 
     if (markup.bisTextArrow && markup.textBoxConnected != null) {
       markup = markup.textBoxConnected;
@@ -1377,6 +1420,12 @@ export class NotePanelComponent implements OnInit {
       const xscaled = (markup.xscaled || markup.x) / window.devicePixelRatio;
       const yscaled = (markup.yscaled || markup.y) / window.devicePixelRatio;
 
+      // Unscaled coordinates for getrotatedPoint calls
+      const wscaledus = (markup.wscaled || markup.w);
+      const hscaledus = (markup.hscaled || markup.h);
+      const xscaledus = (markup.xscaled || markup.x);
+      const yscaledus = (markup.yscaled || markup.y);
+
 
       let rely = yscaled + (hscaled  * 0.5);
       let absy = yscaled + ((hscaled - yscaled) * 0.5);
@@ -1387,12 +1436,12 @@ export class NotePanelComponent implements OnInit {
         y : absy
       }
 
-      
+
       let sidepointrel = {
         x : xscaled + wscaled,
         y : rely
       }
-      
+
 
 
 
@@ -1426,41 +1475,41 @@ export class NotePanelComponent implements OnInit {
 
           //let absy = yscaled + ((hscaled - yscaled) * 0.5);
           //let absx = xscaled + ((wscaled - xscaled) * 0.5);
-    
+
           /*let sidepointabsright = {
             x : wscaled,
             y : absy
           }*/
-    
+
 
           xval = sidepointabsright.x;
           yval = sidepointabsright.y;
 
 
           if(this.pageRotation != 0){
-            let rotpoint1 = markup.getrotatedPoint(xscaled, yscaled);
-            let rotpoint2 = markup.getrotatedPoint(absx, hscaled);
-            let rotpoint3 = markup.getrotatedPoint(absx, yscaled);
-            let rotpoint4 = markup.getrotatedPoint(xscaled, absy);
-  
+            let rotpoint1 = markup.getrotatedPoint(xscaledus, yscaledus);
+            let rotpoint2 = markup.getrotatedPoint(absx * window.devicePixelRatio, hscaledus);
+            let rotpoint3 = markup.getrotatedPoint(absx * window.devicePixelRatio, yscaledus);
+            let rotpoint4 = markup.getrotatedPoint(xscaledus, absy * window.devicePixelRatio);
+
             if (this.pageRotation == 90){
-              xval = rotpoint3.x;
-              yval = rotpoint3.y;
+              xval = rotpoint3.x / window.devicePixelRatio;
+              yval = rotpoint3.y / window.devicePixelRatio;
             }
-  
+
             if (this.pageRotation == 180){
-              xval = rotpoint4.x;
-              yval = rotpoint4.y;
+              xval = rotpoint4.x / window.devicePixelRatio;
+              yval = rotpoint4.y / window.devicePixelRatio;
             }
 
             if (this.pageRotation == 270){
-              xval = rotpoint2.x;
-              yval = rotpoint2.y;
+              xval = rotpoint2.x / window.devicePixelRatio;
+              yval = rotpoint2.y / window.devicePixelRatio;
             }
-       
-  
+
+
           }
-    
+
 
           this.rectangle = {
             //x: (p.x / window.devicePixelRatio) - (markup.subtype == MARKUP_TYPES.SHAPE.POLYGON.subType ? 26 : 4),
@@ -1472,7 +1521,7 @@ export class NotePanelComponent implements OnInit {
             y_1: yscaled - 20,
           };
 
-          
+
 
 
           break;
@@ -1487,35 +1536,35 @@ export class NotePanelComponent implements OnInit {
             y : rely
           }*/
 
-          
-    
+
+
 
           xval = sidepointrel.x;
           yval = sidepointrel.y;
-    
+
 
           if(this.pageRotation != 0){
-            let rotpoint1 = markup.getrotatedPoint(xscaled, yscaled);
-            let rotpoint2 = markup.getrotatedPoint(xscaled + (wscaled * 0.5), yscaled + hscaled);
-            let rotpoint3 = markup.getrotatedPoint(xscaled + (wscaled * 0.5), yscaled);
-            let rotpoint4 = markup.getrotatedPoint(xscaled, yscaled + (hscaled * 0.5));
-  
+            let rotpoint1 = markup.getrotatedPoint(xscaledus, yscaledus);
+            let rotpoint2 = markup.getrotatedPoint(xscaledus + (wscaledus * 0.5), yscaledus + hscaledus);
+            let rotpoint3 = markup.getrotatedPoint(xscaledus + (wscaledus * 0.5), yscaledus);
+            let rotpoint4 = markup.getrotatedPoint(xscaledus, yscaledus + (hscaledus * 0.5));
+
             if (this.pageRotation == 90){
-              xval = rotpoint3.x;
-              yval = rotpoint3.y;
+              xval = rotpoint3.x / window.devicePixelRatio;
+              yval = rotpoint3.y / window.devicePixelRatio;
             }
-  
+
             if (this.pageRotation == 180){
-              xval = rotpoint4.x;
-              yval = rotpoint4.y;
+              xval = rotpoint4.x / window.devicePixelRatio;
+              yval = rotpoint4.y / window.devicePixelRatio;
             }
 
             if (this.pageRotation == 270){
-              xval = rotpoint2.x;
-              yval = rotpoint2.y;
+              xval = rotpoint2.x / window.devicePixelRatio;
+              yval = rotpoint2.y / window.devicePixelRatio;
             }
-       
-  
+
+
           }
 
           this.rectangle = {
@@ -1549,47 +1598,47 @@ export class NotePanelComponent implements OnInit {
           }
 
           if(this.pageRotation != 0){
-            let rotpoint1 = markup.getrotatedPoint(xscaled, yscaled);
-            let rotpoint2 = markup.getrotatedPoint(wscaled, hscaled);
-  
-    
+            let rotpoint1 = markup.getrotatedPoint(xscaledus, yscaledus);
+            let rotpoint2 = markup.getrotatedPoint(wscaledus, hscaledus);
+
+
             if (this.pageRotation == 90){
               if(rotpoint1.x > rotpoint2.x){
-                xright = rotpoint1.x;
-                yright = rotpoint1.y;
+                xright = rotpoint1.x / window.devicePixelRatio;
+                yright = rotpoint1.y / window.devicePixelRatio;
               }else{
-                xright = rotpoint2.x;
-                yright = rotpoint2.y;
-      
+                xright = rotpoint2.x / window.devicePixelRatio;
+                yright = rotpoint2.y / window.devicePixelRatio;
+
               }
             }
-  
+
             if (this.pageRotation == 180){
-              
+
               if(rotpoint1.x > rotpoint2.x){
-                xright = rotpoint1.x;
-                yright = rotpoint1.y;
+                xright = rotpoint1.x / window.devicePixelRatio;
+                yright = rotpoint1.y / window.devicePixelRatio;
               }else{
-                xright = rotpoint2.x;
-                yright = rotpoint2.y;
-      
+                xright = rotpoint2.x / window.devicePixelRatio;
+                yright = rotpoint2.y / window.devicePixelRatio;
+
               }
-  
-              
+
+
             }
-  
+
             if (this.pageRotation == 270){
               if(rotpoint1.x > rotpoint2.x){
-                xright = rotpoint1.x;
-                yright = rotpoint1.y;
+                xright = rotpoint1.x / window.devicePixelRatio;
+                yright = rotpoint1.y / window.devicePixelRatio;
               }else{
-                xright = rotpoint2.x;
-                yright = rotpoint2.y;
-      
+                xright = rotpoint2.x / window.devicePixelRatio;
+                yright = rotpoint2.y / window.devicePixelRatio;
+
               }
             }
-  
-  
+
+
           }
 
           this.rectangle = {
@@ -1614,43 +1663,43 @@ export class NotePanelComponent implements OnInit {
 
 
         if(this.pageRotation != 0){
-          let rotpoint1 = markup.getrotatedPoint(xscaled, yscaled);
-          let rotpoint2 = markup.getrotatedPoint(wscaled, hscaled);
+          let rotpoint1 = markup.getrotatedPoint(xscaledus, yscaledus);
+          let rotpoint2 = markup.getrotatedPoint(wscaledus, hscaledus);
 
-  
+
           if (this.pageRotation == 90){
             if(rotpoint1.x > rotpoint2.x){
-              xright = rotpoint1.x;
-              yright = rotpoint1.y;
+              xright = rotpoint1.x / window.devicePixelRatio;
+              yright = rotpoint1.y / window.devicePixelRatio;
             }else{
-              xright = rotpoint2.x;
-              yright = rotpoint2.y;
-    
+              xright = rotpoint2.x / window.devicePixelRatio;
+              yright = rotpoint2.y / window.devicePixelRatio;
+
             }
           }
 
           if (this.pageRotation == 180){
-            
+
             if(rotpoint1.x > rotpoint2.x){
-              xright = rotpoint1.x;
-              yright = rotpoint1.y;
+              xright = rotpoint1.x / window.devicePixelRatio;
+              yright = rotpoint1.y / window.devicePixelRatio;
             }else{
-              xright = rotpoint2.x;
-              yright = rotpoint2.y;
-    
+              xright = rotpoint2.x / window.devicePixelRatio;
+              yright = rotpoint2.y / window.devicePixelRatio;
+
             }
 
-            
+
           }
 
           if (this.pageRotation == 270){
             if(rotpoint1.x > rotpoint2.x){
-              xright = rotpoint1.x;
-              yright = rotpoint1.y;
+              xright = rotpoint1.x / window.devicePixelRatio;
+              yright = rotpoint1.y / window.devicePixelRatio;
             }else{
-              xright = rotpoint2.x;
-              yright = rotpoint2.y;
-    
+              xright = rotpoint2.x / window.devicePixelRatio;
+              yright = rotpoint2.y / window.devicePixelRatio;
+
             }
           }
 
@@ -1679,29 +1728,29 @@ export class NotePanelComponent implements OnInit {
 
 
           if(this.pageRotation != 0){
-            let rotpoint1 = markup.getrotatedPoint(xscaled, yscaled);
-            let rotpoint2 = markup.getrotatedPoint(xscaled + (wscaled * 0.5), yscaled + hscaled);
-            let rotpoint3 = markup.getrotatedPoint(xscaled + (wscaled * 0.5), yscaled);
-            let rotpoint4 = markup.getrotatedPoint(xscaled, yscaled + (hscaled * 0.5));
-  
+            let rotpoint1 = markup.getrotatedPoint(xscaledus, yscaledus);
+            let rotpoint2 = markup.getrotatedPoint(xscaledus + (wscaledus * 0.5), yscaledus + hscaledus);
+            let rotpoint3 = markup.getrotatedPoint(xscaledus + (wscaledus * 0.5), yscaledus);
+            let rotpoint4 = markup.getrotatedPoint(xscaledus, yscaledus + (hscaledus * 0.5));
+
             if (this.pageRotation == 90){
-              xval = rotpoint3.x;
-              yval = rotpoint3.y;
+              xval = rotpoint3.x / window.devicePixelRatio;
+              yval = rotpoint3.y / window.devicePixelRatio;
             }
-  
+
             if (this.pageRotation == 180){
-              xval = rotpoint4.x;
-              yval = rotpoint4.y;
+              xval = rotpoint4.x / window.devicePixelRatio;
+              yval = rotpoint4.y / window.devicePixelRatio;
             }
 
             if (this.pageRotation == 270){
-              xval = rotpoint2.x;
-              yval = rotpoint2.y;
+              xval = rotpoint2.x / window.devicePixelRatio;
+              yval = rotpoint2.y / window.devicePixelRatio;
             }
-       
-  
+
+
           }
-  
+
 
 
           this.rectangle = {
@@ -1740,14 +1789,14 @@ export class NotePanelComponent implements OnInit {
       //this.lineConnectorNativElement.style.top = this.rectangle.y + (hscaled / 2) + 10 + 'px';
       //this.lineConnectorNativElement.style.left = this.rectangle.x + (wscaled / 2) + 20 + 'px';
 
-      
+
 
       this.lineConnectorNativElement.style.top = this.rectangle.y + 'px';
       this.lineConnectorNativElement.style.left = this.rectangle.x + 'px';
       /* bugfix 2 */
 
       this.lineConnectorNativElement.style.position = this.rectangle.position;
-      
+
       /* bugfix 2 */
       //this.DrawConnectorLine(document.getElementById('note-panel-' + this.activeMarkupNumber), this.lineConnectorNativElement);
 
@@ -1780,7 +1829,7 @@ export class NotePanelComponent implements OnInit {
     }
     event.stopPropagation();
   }
-  
+
   @HostListener('scroll', ['$event'])
   scrollHandler(event) {
     if(event.type == 'scroll'){
@@ -1792,15 +1841,20 @@ export class NotePanelComponent implements OnInit {
         this._hideLeaderLine();
         event.stopPropagation();
       }
-  
+
+      // Recalculate position after scroll with a small delay
+      setTimeout(() => {
+        this.recalculateActiveCommentPosition();
+      }, 100);
+
     }
   }
 
   zoomTo(markup : any){
-    
+
     let padding = {x : 30, y : 30, w : 150, h : 150};
 
-    
+
     markup.zoomTo(padding);
 
   }
@@ -1855,11 +1909,11 @@ export class NotePanelComponent implements OnInit {
         //console.log("measurecheck");
         //console.log(markup.ismeasure);
         //console.log(markup.type, markup.subtype);
-        
+
         markup.setdisplay(onoff);
 
         this._setmarkupTypeDisplay(markup, onoff);
-        
+
       }
     }
     RXCore.markUpRedraw();
@@ -1893,7 +1947,7 @@ export class NotePanelComponent implements OnInit {
     const markupList = this.rxCoreService.getGuiMarkupList();
     this.showAnnotations = onoff;
 
-    
+
     /*this.typeFilter.showEllipse = onoff;
     this.typeFilter.showFreehand = onoff;
     this.typeFilter.showText = onoff;
@@ -1939,7 +1993,7 @@ export class NotePanelComponent implements OnInit {
 
 
     this._updateMarkupDisplay(markupList, (markup) => markup.ismeasure, onoff);
-      
+
       /*(markup) =>
         markup.type === MARKUP_TYPES.MEASURE.LENGTH.type ||
         (markup.type === MARKUP_TYPES.MEASURE.AREA.type &&
@@ -1950,37 +2004,42 @@ export class NotePanelComponent implements OnInit {
           markup.subtype === MARKUP_TYPES.MEASURE.RECTANGLE.subType),
       onoff
     );*/
+
   }
 
+  onShowAll(onoff: boolean) {
+    this.showAll = onoff;
+    this.onShowAnnotations(onoff);
+    this.onShowMeasurements(onoff);
+  }
 
-  /* onShowMarkups(onoff: boolean) {
-    const markupList = this.rxCoreService.getGuiMarkupList();
-    this.showMarkups = onoff;
-    if(!markupList) return;
-    for (const markupItem of markupList) {
-      if (
-          markupItem.type === MARKUP_TYPES.MEASURE.LENGTH.type ||
-          (markupItem.type === MARKUP_TYPES.MEASURE.AREA.type &&
-            markupItem.subtype === MARKUP_TYPES.MEASURE.AREA.subType) ||
-          (markupItem.type === MARKUP_TYPES.MEASURE.PATH.type &&
-            markupItem.subtype === MARKUP_TYPES.MEASURE.PATH.subType) ||
-          (markupItem.type === MARKUP_TYPES.MEASURE.RECTANGLE.type &&
-            markupItem.subtype === MARKUP_TYPES.MEASURE.RECTANGLE.subType)
-      )
-        markupItem.setdisplay(onoff);
-    }
-    this._processList(markupList);
-  } */
+  private _handleShowMarkupType(type :any, event: any, typeCheck: (markup: any) => boolean) {
+
+    this._setmarkupTypeDisplayFilter(type,event.target.checked);
+
+    this.rxTypeFilterLoaded = this.rxTypeFilter.filter((rxtype) => rxtype.loaded);
+
+    this._updateMarkupDisplay(
+      this.rxCoreService.getGuiMarkupList(),
+      typeCheck,
+      event.target.checked
+    );
+  }
+
+  private _handleShowMarkup(filterProp: string, event: any, typeCheck: (markup: any) => boolean) {
+
+    this.typeFilter[filterProp] = event.target.checked;
+
+    this._updateMarkupDisplay(
+      this.rxCoreService.getGuiMarkupList(),
+      typeCheck,
+      event.target.checked
+    );
+  }
 
   showType(type: any){
 
     let showtype : boolean = false;
-
-    //labelType.label = "Freehand pen";
-    //labelType.type = 'PEN';
-
-    
-    
 
     for(let mi=0; mi < this.rxTypeFilter.length;mi++){
 
@@ -1993,125 +2052,45 @@ export class NotePanelComponent implements OnInit {
 
     return showtype;
 
-    
-    
   }
 
   onShowType($event: any, type : any) {
 
-
-    /*let typename = type.typename;
-
-
-    if(Array.isArray(typename)){
-
-      typename = type.typename[1];
-
-    }*/
-    
-
-
     this._handleShowMarkupType(type, $event, markup => markup.getMarkupType().label === type.label);
 
-
-    /*onShowFreehand($event: any) {
-      this._handleShowMarkup('showFreehand', $event,
-        markup => markup.type === MARKUP_TYPES.PAINT.FREEHAND.type && 
-                  markup.subtype === MARKUP_TYPES.PAINT.FREEHAND.subType);
-  
-    }*/
-
-
-
-
-  }    
-
-  
-
-  onShowAll(onoff: boolean) {
-    this.showAll = onoff;
-    this.onShowAnnotations(onoff);
-    this.onShowMeasurements(onoff);
-
-  }
-
-  private _handleShowMarkupType(type :any, event: any, typeCheck: (markup: any) => boolean) {
-    
-    //this.typeFilter[filterProp] = event.target.checked;
-
-
-    this._setmarkupTypeDisplayFilter(type,event.target.checked);
-
-    this.rxTypeFilterLoaded = this.rxTypeFilter.filter((rxtype) => rxtype.loaded);
-
-
-    this._updateMarkupDisplay(
-      this.rxCoreService.getGuiMarkupList(),
-      typeCheck,
-      event.target.checked
-    );
-  }
-
-
-  private _handleShowMarkup(filterProp: string, event: any, typeCheck: (markup: any) => boolean) {
-    
-    this.typeFilter[filterProp] = event.target.checked;
-
-
-    this._updateMarkupDisplay(
-      this.rxCoreService.getGuiMarkupList(),
-      typeCheck,
-      event.target.checked
-    );
   }
 
   onShowEllipse($event: any) {
-    this._handleShowMarkup('showEllipse', $event, 
+    this._handleShowMarkup('showEllipse', $event,
       markup => markup.type === MARKUP_TYPES.SHAPE.ELLIPSE.type);
   }
 
   onShowFreehand($event: any) {
     this._handleShowMarkup('showFreehand', $event,
-      markup => markup.type === MARKUP_TYPES.PAINT.FREEHAND.type && 
+      markup => markup.type === MARKUP_TYPES.PAINT.FREEHAND.type &&
                 markup.subtype === MARKUP_TYPES.PAINT.FREEHAND.subType);
-
-
-
-
   }
 
   onShowText($event: any) {
     this._handleShowMarkup('showText', $event,
       markup => markup.type === MARKUP_TYPES.TEXT.type);
-
-
-
-
   }
 
   onShowPolyline($event: any) {
     this._handleShowMarkup('showPolyline', $event,
-      markup => markup.type === MARKUP_TYPES.PAINT.POLYLINE.type && 
+      markup => markup.type === MARKUP_TYPES.PAINT.POLYLINE.type &&
                 markup.subtype === MARKUP_TYPES.PAINT.POLYLINE.subType);
-
-
-
-
   }
 
   onShowRectangle($event: any) {
     this._handleShowMarkup('showRectangle', $event,
-      markup => markup.type === MARKUP_TYPES.SHAPE.RECTANGLE.type && 
+      markup => markup.type === MARKUP_TYPES.SHAPE.RECTANGLE.type &&
                 markup.subtype === MARKUP_TYPES.SHAPE.RECTANGLE.subType);
-
-
-
-
   }
 
   onShowStamp($event: any) {
     this._handleShowMarkup('showStamp', $event,
-      markup => markup.type === MARKUP_TYPES.STAMP.type && 
+      markup => markup.type === MARKUP_TYPES.STAMP.type &&
                 markup.subtype === MARKUP_TYPES.STAMP.subType);
   }
 
@@ -2154,7 +2133,7 @@ export class NotePanelComponent implements OnInit {
     this._handleShowMarkup('showMeasureRectangle', $event,
       markup => markup.type === MARKUP_TYPES.MEASURE.RECTANGLE.type);
   }
-  
+
   onShowRoundedRectangle($event: any) {
     this._handleShowMarkup('showRoundedRectangle', $event,
       markup => markup.type === MARKUP_TYPES.SHAPE.ROUNDED_RECTANGLE.type);
@@ -2360,7 +2339,7 @@ export class NotePanelComponent implements OnInit {
 
     if(this.authorFilter.has(author)) {
       this.authorFilter.delete(author);
-      
+
       //turn off display for this user
       RXCore.SetUserMarkupdisplay(userindx, false);
 

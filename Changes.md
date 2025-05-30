@@ -969,13 +969,3 @@ May 30, 3025
 # Fix: the issue with comment history card indication when the file is rotated
 
   `modified:   src/app/components/annotation-tools/note-panel/note-panel.component.ts`
-
-
-May 30, 3025
-
-# Fix: Progress bar will remain clearly visible and functional.
-
-  `modified:   src/app/app.component.html`
-  `modified:   src/app/app.component.scss`
-  `modified:   src/app/app.component.ts`
-  `modified:   src/app/components/file-galery/file-galery.component.ts`

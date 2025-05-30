@@ -123,10 +123,7 @@ export class FileGaleryComponent implements OnInit {
   ngOnInit() {
     this.fileGaleryService.getStatusActiveDocument().subscribe(status => {
       if (status === 'awaitingSetActiveDocument' && this.progressBar) this.progressBar.nativeElement.value = 100;
-      else if (status === 'uploadComplete') {
-        this.isUploadFile = false;
-        this.clearData();
-      } else {
+      else {
         this.clearData();
         this.leftTabActiveIndex = 0;
       }
@@ -170,12 +167,6 @@ export class FileGaleryComponent implements OnInit {
     console.log('Clearing annotations before opening file:', item.file);
     RXCore.clearMarkup();
 
-    // Notify that upload is starting for demo files too
-    this.fileGaleryService.sendStatusActiveDocument('uploadStarted');
-    
-    // Open the file
-    RXCore.openFile(`${RXCore.Config.baseFileURL}${item.file}`);
-
     this.onSelect.emit(item);
     this.fileGaleryService.closeModal();
   }
@@ -204,7 +195,6 @@ export class FileGaleryComponent implements OnInit {
   }
 
   onSelectRecentFile(file) {
-    console.log('Recent file selected:', file);
     const newFile = {
       "id": Math.ceil(random() * 10000),
       "name": file.name,
@@ -212,43 +202,59 @@ export class FileGaleryComponent implements OnInit {
       "type": "PDF",
       "size": 1024
     }
-    this.fileType = newFile.type;
-    
-    // Notify that upload is starting
-    this.fileGaleryService.sendStatusActiveDocument('uploadStarted');
-    
     this.uploadFile(newFile);
+    this.fileType = newFile.type;
     this.onSelect.emit(newFile);
   }
 
 
   uploadFile(fileSelect) {
-    console.log('uploadFile called with:', fileSelect ? 'fileSelect' : 'this.file', this.file);
-    
     if (this.file || fileSelect) {
       this.isUploadFile = true;
-      console.log('Setting isUploadFile to true');
-      
-      // Notify the service that upload is starting so the app component can also show its progress bar
-      this.fileGaleryService.sendStatusActiveDocument('uploadStarted');
-      
-      // If this is a file from the UI, use RXCore to open it directly
-      if (this.file) {
-        console.log('Opening file with RXCore:', this.file.name);
-        // Use RXCore to open the file directly, which will trigger the progress callbacks
-        RXCore.openFile(this.file);
-        this.onSelect.emit(this.file);
-      } else if (fileSelect) {
-        console.log('Opening predefined file:', fileSelect.file);
-        // For pre-selected files, open using the standard path
-        RXCore.openFile(`${RXCore.Config.baseFileURL}${fileSelect.file}`);
-        this.onSelect.emit(fileSelect);
-      }
-      
-      this.fileGaleryService.closeModal();
+      const fileSize = this.file?.size || fileSelect.size;
+      const chunkSize = 1024 * 1024;
+      const totalChunks = Math.ceil(fileSize / chunkSize);
+      let currentChunk = 0;
+
+      const reader = new FileReader();
+
+      reader.onload = () => {
+        currentChunk++;
+
+        const progressBar = this.progressBar.nativeElement;
+        const increment = 1;
+        const intervalDelay = 20;
+        const finalValue = (currentChunk / totalChunks) * 95;
+
+        let currentValue = 0;
+
+        const interval = setInterval(() => {
+          currentValue += increment;
+          progressBar.value = currentValue;
+
+          if (currentValue >= finalValue) {
+            clearInterval(interval);
+          }
+        }, intervalDelay);
+
+        if (currentChunk < totalChunks) loadNextChunk();
+      };
+
+      const loadNextChunk = () => {
+        const start = currentChunk * chunkSize;
+        const end = Math.min(start + chunkSize, fileSize);
+        const blob = this.file
+          ? this.file.slice(start, end)
+          : fileSelect
+          ? new Blob([fileSelect], { type: fileSelect.type })
+          : null;
+        if (blob) reader.readAsBinaryString(blob);
+      };
+
+      loadNextChunk();
     }
-    
     this.fileGaleryService.sendEventUploadFile();
+
     if (this.file) this.onUpload.emit();
   }
 
@@ -256,10 +262,7 @@ export class FileGaleryComponent implements OnInit {
     this.file = undefined;
     this.selectedFileName = '';
     this.isUploadFile = false;
-    this.fileType = '';
-    if (this.progressBar && this.progressBar.nativeElement) {
-      this.progressBar.nativeElement.value = 0;
-    }
+    if (this.progressBar) this.progressBar.nativeElement.value = 0;
   }
 
   handleCloseModalFileGalery() {

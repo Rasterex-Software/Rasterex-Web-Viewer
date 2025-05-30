@@ -1,24 +1,14 @@
 <app-message-broker />
 
 <!-- <top-nav-menu style="z-index: 3; position: fixed; top: 0; left: 0; width: 100%;" [class.hidden]="(guiConfig$ | async).disableTopNavMenu" [state]="state" [ngStyle]="{'filter': eventUploadFile ? 'blur(3px)' : 'none' }"></top-nav-menu> -->
-<top-nav-menu *ngIf="enableLandingPage" style="z-index: 3; position: fixed; top: 0; left: 0; width: 100%;" [class.hidden]="(guiConfig$ | async).disableTopNavMenu" [state]="state" [ngStyle]="{'filter': (eventUploadFile || isUploadFile) ? 'blur(3px)' : 'none' }"></top-nav-menu>
-<side-nav-menu style="z-index: 2; position: fixed; top: 49px; left: 0; height: calc(100% - 49px);" *ngIf="!(guiConfig$ | async).disableSideNavMenu" [ngStyle]="{'filter': (eventUploadFile || isUploadFile) ? 'blur(3px)' : 'none' }"></side-nav-menu>
-
-<!-- Progress container moved outside blurred content -->
-<div *ngIf="isUploadFile" class="progress-container">
-  <div class="progress">
-      <div>It takes a few seconds to open this document...</div>
-      <div class="progress-bar-container">
-        <progress value="0" max="100" #progressBar></progress>
-      </div>
-  </div>
-</div>
+<top-nav-menu *ngIf="enableLandingPage" style="z-index: 3; position: fixed; top: 0; left: 0; width: 100%;" [class.hidden]="(guiConfig$ | async).disableTopNavMenu" [state]="state" [ngStyle]="{'filter': eventUploadFile ? 'blur(3px)' : 'none' }"></top-nav-menu>
+<side-nav-menu style="z-index: 2; position: fixed; top: 49px; left: 0; height: calc(100% - 49px);" *ngIf="!(guiConfig$ | async).disableSideNavMenu"></side-nav-menu>
 
 <div
   class="content"
   [class.full-height]="(guiConfig$ | async).disableTopNavMenu"
   [class.full-width]="!sidebarOpen"
-  [ngStyle]="{'filter': (eventUploadFile || isUploadFile) ? 'blur(3px)' : 'none' }">
+  [ngStyle]="{'filter': eventUploadFile ? 'blur(3px)' : 'none' }">
   <div id="mainContent" class="main-content" [class.overflow-hidden]="!(numOpenFiles$ | async)">
     <div *ngIf="!(numOpenFiles$ | async) && enableLandingPage" class="welcome-content">
     <!-- <div *ngIf="!(numOpenFiles$ | async)" class="welcome-content"> -->
@@ -44,6 +34,14 @@
       (window:keyup)="onKeyup($event)">
         <iframe id="foxitframe" src="/assets/html/foxpage.html"></iframe>
         <div id="lineConnector" class="lineconnector-container">&nbsp;</div>
+
+        <div *ngIf="isUploadFile" class="progress-container">
+          <div class="progress">
+              <div>It takes a few seconds to open this document...</div>
+              <progress value="0" max="100" #progressBar></progress>
+          </div>
+      </div>
+
     </div>
     <rx-annotation-tools></rx-annotation-tools>
     <rx-bottom-toolbar *ngIf="numOpenFiles$ | async" [(isVisible)]="isVisible" [lists]="lists"></rx-bottom-toolbar>

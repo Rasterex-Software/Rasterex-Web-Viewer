@@ -63,6 +63,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   sidebarState$ = this.sidebarStateService.sidebarState$;
   private sidebarStateSubscription: Subscription;
   sidebarOpen = false;
+  private uploadSub?: Subscription;
 
   constructor(  public loginService: LoginService,
     private readonly recentfilesService: RecentFilesService,
@@ -75,6 +76,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     private readonly annotationStorageService: AnnotationStorageService,
     private titleService:Title,
     private readonly sidebarStateService: RxCoreService,
+    private uploadFileService: FileGaleryService,
     private el: ElementRef) {
     // Subscribe to sidebar state changes
     this.sidebarStateSubscription = this.sidebarState$.subscribe((state) => {
@@ -92,7 +94,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     this.loginService.enableLandingPage$.subscribe(enable => {
       this.enableLandingPage = enable;
     });
-    
+
     this.guiConfig$.subscribe(config => {
       this.guiConfig = config;
       this.convertPDFAnnots = this.guiConfig.convertPDFAnnots;
@@ -111,8 +113,21 @@ export class AppComponent implements AfterViewInit, OnDestroy {
 
 
     this.titleService.setTitle(this.title);
-    this.fileGaleryService.getEventUploadFile().subscribe(event => this.eventUploadFile = event);
+    this.fileGaleryService.getEventUploadFile().subscribe(event => {
+      console.log("event: ", event)
+      if(event){
+      this.eventUploadFile = event
+      this.isUploadFile = false
+      }
+    });
+
+    this.uploadSub = this.uploadFileService.getEventUploadFile().subscribe(flag => {
+      console.log("flag: ", flag)
+      this.isUploadFile = flag;
+    });
+
     this.fileGaleryService.modalOpened$.subscribe(opened => {
+      console.log("opened: ", opened)
       if (!opened) {
         this.eventUploadFile = false;
       }
@@ -171,7 +186,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
         // Only log out if we previously had a user (avoid duplicate init)
         console.log('User logged out, clearing RXCore user');
         RXCore.setUser('', '');
-        
+
         // Reset user markup display settings to ensure all annotations are visible after logout
         this.resetUserMarkupDisplaySettings();
       }
@@ -526,6 +541,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
       });
 
       console.log('RxCore onGuiFileLoadComplete:');
+      this.isUploadFile = false;
       const path = RXCore.getOriginalPath();
       if (this.guiConfig?.localStoreAnnotation === false && path) {
         this.annotationStorageService
@@ -996,12 +1012,12 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     try {
       const users = RXCore.getUsers();
       console.log('Resetting markup display for all users:', users.length);
-      
+
       // Reset display settings for all users to true (visible)
       for (let i = 0; i < users.length; i++) {
         RXCore.SetUserMarkupdisplay(i, true);
       }
-      
+
       console.log('User markup display settings reset successfully');
     } catch (error) {
       console.error('Error resetting user markup display settings:', error);

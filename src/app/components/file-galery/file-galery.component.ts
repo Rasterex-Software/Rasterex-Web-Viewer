@@ -169,6 +169,7 @@ export class FileGaleryComponent implements OnInit {
 
     this.onSelect.emit(item);
     this.fileGaleryService.closeModal();
+    this.fileGaleryService.sendEventUploadFile();
   }
 
   handleFileUpload(event) {

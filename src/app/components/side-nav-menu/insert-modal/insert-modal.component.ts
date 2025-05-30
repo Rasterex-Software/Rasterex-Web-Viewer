@@ -12,7 +12,7 @@ type PDFLoadingStatus = 'NONE' | 'LOADING' | 'LOADED'
     styleUrls: ['./insert-modal.component.scss']
 })
 export class InsertModalComponent implements OnInit {
-    @ViewChild('fileToUpload') fileToUpload: ElementRef; 
+    @ViewChild('fileToUpload') fileToUpload: ElementRef;
 
     visible: ModalType = 'NONE';
     leftTabIndex: number = 0;
@@ -65,7 +65,7 @@ export class InsertModalComponent implements OnInit {
     selectedRadioValue = '1';
     selectedPresets = '1';
     selectedUnits = '1';
-    
+
 
     constructor(
         private sideNavMenuService: SideNavMenuService,
@@ -74,7 +74,7 @@ export class InsertModalComponent implements OnInit {
     ) {}
 
     ngOnInit(): void {
-        this.clearData(); 
+        this.clearData();
         this.leftTabActiveIndex = 0;
         this.sideNavMenuService.insertModalChanged$.subscribe(value => {
             this.visible = value
@@ -278,7 +278,7 @@ export class InsertModalComponent implements OnInit {
     }
 
     convertArrayToString(array) {
-        return array.map(range => 
+        return array.map(range =>
             range.length === 2 ? `${range[0] + 1}-${range[1] + 1}` : `${range[0] + 1}`
         ).join(',');
     }
@@ -320,52 +320,86 @@ export class InsertModalComponent implements OnInit {
     }
 
     handleFileUpload(event) {
-        const file = this.file = event.target ? event.target.files[0] : event[0];
+        const file = event.target ? event.target.files[0] : event[0];
 
         if (file) {
-        this.selectedFileName = file.name;
-        const bytes = file.size;
+            this.file = file;
+            this.selectedFileName = file.name;
+            const bytes = file.size;
 
-        if (bytes < 1024) {
-            this.fileSize = parseFloat(bytes.toFixed(2)); 
-            this.fileSizeUnits = 'B';
-        } else if (bytes < 1024 * 1024) {
-            this.fileSize = parseFloat((bytes / 1024).toFixed(2));
-            this.fileSizeUnits = 'КB';
-        } else if (bytes < 1024 * 1024 * 1024) {
-            this.fileSize = parseFloat((bytes / (1024 * 1024)).toFixed(2));
-            this.fileSizeUnits = 'МB';
-        } else {
-            this.fileSize = parseFloat((bytes / (1024 * 1024 * 1024)).toFixed(2));
-            this.fileSizeUnits = 'GB';
-        }
+            // Get file type for validation
+            this.fileType = file.type || '';
+
+            if (bytes < 1024) {
+                this.fileSize = parseFloat(bytes.toFixed(2));
+                this.fileSizeUnits = 'B';
+            } else if (bytes < 1024 * 1024) {
+                this.fileSize = parseFloat((bytes / 1024).toFixed(2));
+                this.fileSizeUnits = 'КB';
+            } else if (bytes < 1024 * 1024 * 1024) {
+                this.fileSize = parseFloat((bytes / (1024 * 1024)).toFixed(2));
+                this.fileSizeUnits = 'МB';
+            } else {
+                this.fileSize = parseFloat((bytes / (1024 * 1024 * 1024)).toFixed(2));
+                this.fileSizeUnits = 'GB';
+            }
+
+            // For image files, automatically start processing
+            if (this.fileType.startsWith('image/')) {
+                this.uploadFile(true);
+            }
         }
     }
 
-    uploadFile(fileSelect) {
+    uploadFile(fileSelect?: any) {
         if (this.file || fileSelect) {
+            // Set loading status immediately
             this.loadingStatus = 'LOADING';
-            RXCore.getAllThumbnailsFromFile(this.file).then(value => {
-                this.thumbnails = value;
-                this.loadingStatus = 'LOADED';
-                this.checkedPageList = new Array(value.length).fill(true);
-                this.checkedPageRangeStr = `1-${value.length}`
-            }).catch(() => {
-                this.loadingStatus = 'NONE';
-            }) 
+
+            // Add a timeout to ensure UI updates before starting heavy processing
+            setTimeout(() => {
+                // Clear any previous data
+                this.thumbnails = [];
+
+                RXCore.getAllThumbnailsFromFile(this.file)
+                    .then(value => {
+                        this.thumbnails = value;
+                        this.loadingStatus = 'LOADED';
+                        this.checkedPageList = new Array(value.length).fill(true);
+                        this.checkedPageRangeStr = `1-${value.length}`;
+                    })
+                    .catch((error) => {
+                        console.error('Error loading thumbnails:', error);
+                        this.loadingStatus = 'NONE';
+                        // Display user-friendly error message
+                        alert('Failed to process file. Please try again.');
+                    });
+            }, 100);
         }
     }
 
     clearData() {
         this.file = undefined;
-        this.selectedFileName = ''; 
+        this.selectedFileName = '';
         this.isUploadFile = false;
+        this.thumbnails = [];
     }
 
 
     public onDrop(files: FileList): void {
-        this.handleFileUpload(files);
-        this.fileToUpload.nativeElement.files = files;
+        if (files && files.length > 0) {
+            this.handleFileUpload(files);
+            // Instead of directly setting files, we create a new DataTransfer object
+            try {
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(files[0]);
+                this.fileToUpload.nativeElement.files = dataTransfer.files;
+            } catch (error) {
+                console.error('Error handling dropped file:', error);
+                // Fallback for browsers that don't support DataTransfer
+                this.fileToUpload.nativeElement.files = files;
+            }
+        }
     }
 
     public onChooseClick() {
@@ -378,7 +412,7 @@ export class InsertModalComponent implements OnInit {
 
     selectPages() {
         const count = this.selectedCount();
-        this.checkedPageRangeStr = count === 0 ? `1-${this.checkedPageList.length}` : ``;  
+        this.checkedPageRangeStr = count === 0 ? `1-${this.checkedPageList.length}` : ``;
         this.checkedPageList = new Array(this.checkedPageList.length).fill(count === 0);
     }
 
@@ -415,7 +449,7 @@ export class InsertModalComponent implements OnInit {
                 })
             })
         }
-        
+
         this.loadingStatus = 'LOADING';
         RXCore.importPages(this.file, newPageRange, checkedPages, this.visible === 'REPLACE', this.selectedCount()).then(() => {
             this.loadingStatus = 'NONE';

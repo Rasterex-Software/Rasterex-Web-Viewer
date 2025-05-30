@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, OnDestroy } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnDestroy, ViewChild } from '@angular/core';
 import { FileGaleryService } from './components/file-galery/file-galery.service';
 import { RxCoreService } from './services/rxcore.service';
 import { RXCore } from 'src/rxcore';
@@ -26,7 +26,7 @@ import { LoginService } from './services/login.service';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements AfterViewInit, OnDestroy {
-  //@ViewChild('progressBar') progressBar: ElementRef;
+  @ViewChild('progressBar') progressBar: ElementRef;
 
   enableLandingPage = false;
   guiConfig$ = this.rxCoreService.guiConfig$;
@@ -52,6 +52,8 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   binitfileopened : boolean = false;
   timeoutId: any;
   isUploadFile: boolean = false;
+  progressTimeout: any; // Add timeout for progress bar
+  simulatedProgressInterval: any; // Add simulated progress interval
   pasteStyle: { [key: string]: string } = { display: 'none' };
     // This roomName is only used for document-collaboration.html page, in which, it generates
   // a random roomName.
@@ -115,6 +117,46 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     this.fileGaleryService.modalOpened$.subscribe(opened => {
       if (!opened) {
         this.eventUploadFile = false;
+      }
+    });
+
+    // Subscribe to upload status changes from file gallery
+    this.fileGaleryService.getStatusActiveDocument().subscribe(status => {
+      console.log('App component received status:', status);
+      if (status === 'uploadStarted') {
+        this.isUploadFile = true;
+        console.log('App component: Setting isUploadFile to true due to uploadStarted');
+        
+        // Initialize progress bar to 0
+        if (this.progressBar && this.progressBar.nativeElement) {
+          this.progressBar.nativeElement.value = 0;
+        }
+        
+        // Start simulated progress as fallback
+        this.startSimulatedProgress();
+        
+        // Set a fallback timeout to hide progress bar after 30 seconds
+        if (this.progressTimeout) {
+          clearTimeout(this.progressTimeout);
+        }
+        this.progressTimeout = setTimeout(() => {
+          console.log('Progress bar timeout reached, forcing hide');
+          this.isUploadFile = false;
+          this.fileGaleryService.sendStatusActiveDocument('uploadComplete');
+        }, 30000); // 30 second timeout
+        
+      } else if (status === 'uploadComplete') {
+        this.isUploadFile = false;
+        console.log('App component: Setting isUploadFile to false due to uploadComplete');
+        
+        // Clear the timeout since upload completed normally
+        if (this.progressTimeout) {
+          clearTimeout(this.progressTimeout);
+          this.progressTimeout = null;
+        }
+        
+        // Clear simulated progress
+        this.stopSimulatedProgress();
       }
     });
 
@@ -498,6 +540,11 @@ export class AppComponent implements AfterViewInit, OnDestroy {
 
       this.rxCoreService.guiFileLoadComplete.next();
 
+      // Hide the progress bar when file loading is complete
+      console.log('File load complete, hiding progress bar');
+      this.isUploadFile = false;
+      this.fileGaleryService.sendStatusActiveDocument('uploadComplete');
+
       this.userService.currentUser$.subscribe((user) => {
         const username = user?.username || '';
         const displayName = user?.displayName || '';
@@ -871,21 +918,42 @@ export class AppComponent implements AfterViewInit, OnDestroy {
       }
     });
 
-    /*RXCore.onGuiUpload((upload :any) =>{
-
+    RXCore.onGuiUpload((upload: any) => {
+      console.log('Upload progress:', upload);
+      console.log('App component isUploadFile before:', this.isUploadFile);
       this.isUploadFile = true;
+      console.log('App component isUploadFile after:', this.isUploadFile);
 
-      if(upload < 100){
-
-        if(this.progressBar){
+      if (typeof upload === 'number') {
+        // Stop simulated progress since we have real progress
+        this.stopSimulatedProgress();
+        
+        if (this.progressBar && this.progressBar.nativeElement) {
           this.progressBar.nativeElement.value = upload;
+          console.log('Progress bar updated to:', upload);
+        } else {
+          console.log('Progress bar element not found');
         }
 
-      }else{
+        if (upload >= 100) {
+          console.log('Upload complete, hiding progress bar');
+          setTimeout(() => {
+            this.isUploadFile = false;
+            this.fileGaleryService.sendStatusActiveDocument('uploadComplete');
+          }, 500); // Small delay to show 100% completion
+        }
+      } else if (upload === 'show') {
+        // Handle show command
+        this.isUploadFile = true;
+        if (this.progressBar && this.progressBar.nativeElement) {
+          this.progressBar.nativeElement.value = 0;
+        }
+      } else if (upload === 'hide') {
+        // Handle hide command
         this.isUploadFile = false;
+        this.fileGaleryService.sendStatusActiveDocument('uploadComplete');
       }
-
-    });*/
+    });
   }
 
   ngOnDestroy() {
@@ -893,6 +961,17 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     if (this.sidebarStateSubscription) {
       this.sidebarStateSubscription.unsubscribe();
     }
+    
+    // Clean up progress timeout
+    if (this.progressTimeout) {
+      clearTimeout(this.progressTimeout);
+    }
+    
+    // Clean up simulated progress
+    if (this.simulatedProgressInterval) {
+      clearInterval(this.simulatedProgressInterval);
+    }
+    
     this.tooltipService.closeTooltip();
     this.infoPanelVisible = false;
   }
@@ -976,6 +1055,12 @@ export class AppComponent implements AfterViewInit, OnDestroy {
       RXCore.pageLock(true);
       console.log(event.key, 'kay pressed');
     }
+    
+    // Emergency hide progress bar with Escape key
+    if (event.key === 'Escape' && this.isUploadFile) {
+      console.log('Escape pressed, hiding progress bar');
+      this.hideProgressBar();
+    }
   }
 
   onKeyup(event): void {
@@ -1005,6 +1090,44 @@ export class AppComponent implements AfterViewInit, OnDestroy {
       console.log('User markup display settings reset successfully');
     } catch (error) {
       console.error('Error resetting user markup display settings:', error);
+    }
+  }
+
+  hideProgressBar(): void {
+    console.log('Manually hiding progress bar');
+    this.isUploadFile = false;
+    this.fileGaleryService.sendStatusActiveDocument('uploadComplete');
+    if (this.progressTimeout) {
+      clearTimeout(this.progressTimeout);
+      this.progressTimeout = null;
+    }
+  }
+
+  startSimulatedProgress() {
+    if (this.simulatedProgressInterval) {
+      clearInterval(this.simulatedProgressInterval);
+    }
+    
+    let progress = 0;
+    this.simulatedProgressInterval = setInterval(() => {
+      if (this.progressBar && this.progressBar.nativeElement) {
+        progress += Math.random() * 10; // Random progress increment
+        if (progress > 95) progress = 95; // Don't go to 100% until real completion
+        this.progressBar.nativeElement.value = progress;
+        console.log('Simulated progress:', progress);
+      }
+    }, 500); // Update every 500ms
+  }
+
+  stopSimulatedProgress() {
+    if (this.simulatedProgressInterval) {
+      clearInterval(this.simulatedProgressInterval);
+      this.simulatedProgressInterval = null;
+    }
+    
+    // Set to 100% briefly before hiding
+    if (this.progressBar && this.progressBar.nativeElement) {
+      this.progressBar.nativeElement.value = 100;
     }
   }
 }

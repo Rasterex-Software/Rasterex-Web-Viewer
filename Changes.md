@@ -830,6 +830,6 @@ May 26, 2025
 
 May 30, 3025
 
-# Fix: 
+# Fix: the issue with comment history card indication when the file is rotated
 
   `modified:   src/app/components/annotation-tools/note-panel/note-panel.component.ts`

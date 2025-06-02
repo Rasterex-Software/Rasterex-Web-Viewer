@@ -6,6 +6,7 @@ import { ColorHelper } from 'src/app/helpers/color.helper';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { StampStorageService } from './stamp-storage.service';
 import { UserService } from '../../user/user.service';
+// import { HttpClient } from '@angular/common/http'; // Uncomment when implementing actual backend API
 
 @Component({
   selector: 'rx-stamp-panel',
@@ -60,11 +61,21 @@ export class StampPanelComponent implements OnInit {
   text: string = '';
   strokeThickness: number = 1;
   safeSvgContents: SafeHtml[] = [];
+  isDragOver: boolean = false;
+  isSyncing: boolean = false;
+  syncStatus: { message: string; type: 'success' | 'error' | 'info' } | null = null;
+
+  // Add permission observables
+  canAddAnnotation = this.userService.canAddAnnotation$;
+  canUpdateAnnotation = this.userService.canUpdateAnnotation$;
+  canDeleteAnnotation = this.userService.canDeleteAnnotation$;
+  isLoggedIn = this.userService.currentUser$;
 
   constructor(  private readonly rxCoreService: RxCoreService, private cdr: ChangeDetectorRef,
                 private readonly colorHelper: ColorHelper,private sanitizer: DomSanitizer,
                 private readonly storageService: StampStorageService,
                 private readonly userService: UserService
+                // private readonly http: HttpClient // Uncomment when implementing actual backend API
   ) {}
   private _setDefaults(): void {
 
@@ -497,61 +508,14 @@ getSvgData(): string {
   
 handleImageUpload(event: any) {
   const files = event.target.files;
-  const uploadPromises: Promise<void>[] = [];
-
-  for (let i = 0; i < files.length; i++) {
-    const file = files[i];
-    const reader = new FileReader();
-
-    const uploadPromise = new Promise<void>((resolve, reject) => {
-      reader.onload = async (e) => {
-        const imageDataWithPrefix = e.target?.result as string;
-
-        // // Dynamically determine the prefix and remove it
-        // const base64Index = imageDataWithPrefix.indexOf('base64,') + 'base64,'.length;
-        // const imageData = imageDataWithPrefix.substring(base64Index);
-        //const {imageData, width, height} = await this.convertUrlToBase64Data(imageDataWithPrefix, 210);
-        const {imageData, width, height} = await this.convertUrlToBase64Data(imageDataWithPrefix);
-
-        const imageName = file.name + '_' + new Date().getTime();
-        //const imageType = file.type;
-        const imageType = "image/png";
-
-        const imageObject = {
-          content: imageData,
-          name: imageName,
-          type: imageType,
-          width, 
-          height
-        };
-        
-        this.storageService.addUploadImageStamp(imageObject).then(async (item: any) => {
-          console.log('Upload image stamp added successfully:', item);
-          const stampData = await this.convertToStampData({id: item.id, ...imageObject});
-          this.uploadImageStamps.push(stampData);
-
-          resolve(); // Resolve the promise after storing the image
-
-        }).catch(error => {
-          reject(error);
-        });
-
-      };
-
-      reader.onerror = (error) => {
-        reject(error); // Reject the promise if there's an error
-      };
-
-      // Read the file as data URL
-      reader.readAsDataURL(file);
-    });
-
-    uploadPromises.push(uploadPromise); // Push the upload promise to the array
+  if (files && files.length > 0) {
+    // Convert FileList to Array for consistency with drag and drop
+    const fileArray: File[] = Array.from(files);
+    this.handleFileUpload(fileArray);
   }
-
-  Promise.all(uploadPromises).then(() => {
-     console.log('Image stamps uploaded successfully');
-  });
+  
+  // Clear the input value to allow re-uploading the same file
+  event.target.value = '';
 }
 
 deleteImageStamp(id: number): void {
@@ -613,5 +577,195 @@ deleteImageStamp(id: number): void {
     //Logic to edit
   }
 
+  // Drag and Drop Methods
+  onDragOver(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragOver = true;
+  }
+
+  onDragLeave(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragOver = false;
+  }
+
+  onDrop(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragOver = false;
+
+    const files = event.dataTransfer?.files;
+    if (files && files.length > 0) {
+      this.processDroppedFiles(files);
+    }
+  }
+
+  onDropZoneClick(): void {
+    // Get reference to the hidden file input and trigger click
+    const fileInput = document.querySelector('input[type="file"][accept*="jpg"]') as HTMLInputElement;
+    if (fileInput) {
+      fileInput.click();
+    }
+  }
+
+  private processDroppedFiles(files: FileList): void {
+    const validFiles: File[] = [];
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      if (allowedTypes.includes(file.type)) {
+        validFiles.push(file);
+      } else {
+        console.warn(`File ${file.name} is not a valid image type. Only JPG, JPEG, and PNG are allowed.`);
+      }
+    }
+
+    if (validFiles.length > 0) {
+      this.handleFileUpload(validFiles);
+    }
+  }
+
+  private handleFileUpload(files: File[]): void {
+    const uploadPromises: Promise<void>[] = [];
+
+    for (const file of files) {
+      const reader = new FileReader();
+
+      const uploadPromise = new Promise<void>((resolve, reject) => {
+        reader.onload = async (e) => {
+          try {
+            const imageDataWithPrefix = e.target?.result as string;
+            const {imageData, width, height} = await this.convertUrlToBase64Data(imageDataWithPrefix);
+
+            const imageName = file.name + '_' + new Date().getTime();
+            const imageType = "image/png";
+
+            const imageObject = {
+              content: imageData,
+              name: imageName,
+              type: imageType,
+              width,
+              height
+            };
+            
+            const item = await this.storageService.addUploadImageStamp(imageObject);
+            console.log('Upload image stamp added successfully:', item);
+            const stampData = await this.convertToStampData({id: item.id, ...imageObject});
+            this.uploadImageStamps.push(stampData);
+            resolve();
+
+          } catch (error) {
+            console.error('Error processing file:', error);
+            reject(error);
+          }
+        };
+
+        reader.onerror = (error) => {
+          reject(error);
+        };
+
+        reader.readAsDataURL(file);
+      });
+
+      uploadPromises.push(uploadPromise);
+    }
+
+    Promise.all(uploadPromises).then(() => {
+      console.log('All image stamps uploaded successfully');
+    }).catch(error => {
+      console.error('Error uploading some files:', error);
+    });
+  }
+
+  // Backend Sync Methods
+  async syncToBackend(): Promise<void> {
+    if (this.uploadImageStamps.length === 0) {
+      this.syncStatus = { message: 'No stamps to sync', type: 'info' };
+      setTimeout(() => this.syncStatus = null, 3000);
+      return;
+    }
+
+    this.isSyncing = true;
+    this.syncStatus = { message: 'Starting sync to backend...', type: 'info' };
+
+    try {
+      console.log('Starting sync to backend...');
+      
+      // Get all stamps from IndexDB
+      const stamps = await this.storageService.getAllUploadImageStamps();
+      
+      for (let i = 0; i < stamps.length; i++) {
+        const stamp = stamps[i];
+        const stampData = JSON.parse(stamp.data);
+        
+        this.syncStatus = {
+          message: `Syncing stamp ${i + 1} of ${stamps.length}...`,
+          type: 'info'
+        };
+        
+        // Prepare data for backend
+        const backendData = {
+          id: stamp.id,
+          name: stampData.name,
+          type: stampData.type,
+          content: stampData.content,
+          width: stampData.width,
+          height: stampData.height,
+          createdAt: new Date().toISOString()
+        };
+
+        // TODO: Replace with actual backend API call
+        await this.sendToBackend(backendData);
+      }
+
+      this.syncStatus = {
+        message: `Successfully synced ${stamps.length} stamps to backend!`,
+        type: 'success'
+      };
+      
+      console.log('Sync to backend completed successfully');
+      
+      // Optionally, you can clear IndexDB after successful sync
+      // await this.clearIndexDBAfterSync();
+      
+    } catch (error) {
+      console.error('Error syncing to backend:', error);
+      this.syncStatus = {
+        message: 'Error syncing to backend. Please try again.',
+        type: 'error'
+      };
+    } finally {
+      this.isSyncing = false;
+      // Clear status after 5 seconds
+      setTimeout(() => this.syncStatus = null, 5000);
+    }
+  }
+
+  private async sendToBackend(stampData: any): Promise<void> {
+    console.log('Sending stamp to backend:', stampData);
+    
+    // For now, just simulate the API call
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        console.log('Stamp sent to backend:', stampData.name);
+        resolve();
+      }, 100);
+    });
+  }
+
+  private async clearIndexDBAfterSync(): Promise<void> {
+    try {
+      // Clear all upload image stamps from IndexDB after successful sync
+      for (const stamp of this.uploadImageStamps) {
+        await this.storageService.deleteUploadImageStamp(stamp.id);
+      }
+      this.uploadImageStamps = [];
+      console.log('IndexDB cleared after successful sync');
+    } catch (error) {
+      console.error('Error clearing IndexDB:', error);
+    }
+  }
 
 }

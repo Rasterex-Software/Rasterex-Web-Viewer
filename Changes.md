@@ -1,3 +1,14 @@
+May 30, 2025
+
+### 1. Restructured annoation context menu component. Number of buttons and button states are now set in new method.
+
+Updated and new files
+
+src\app\components\annotation-tools\quick-actions-menu\quick-actions-menu.component.html
+src\app\components\annotation-tools\quick-actions-menu\quick-actions-menu.component.ts
+
+
+
 May 26, 2025
 
 ### 1. New measure tool Arc.

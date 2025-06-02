@@ -45,6 +45,26 @@ export class QuickActionsMenuComponent implements OnInit, OnDestroy {
   message: string = 'Add link';
   snap: boolean = false;
 
+  //quick buttons
+  editButton: boolean = false; 
+  deleteButton : boolean = false;
+  copyMarkupButton : boolean = false;
+  linkButton : boolean = false;
+  editlinkButton : boolean = false;
+  snapButton : boolean = false;
+  infoButton : boolean = false;
+  redirectButton : boolean = false;
+  insertPointButton : boolean = false;
+  deletePointButton : boolean = false;
+  addHoleButton : boolean = false;
+  hideLabelButton : boolean = false;
+  moveLabelButton : boolean = false;
+
+  movetoFrontButton : boolean = false;
+  movetoBackButton : boolean = false;
+
+
+
   canUpdateAnnotation = this.userService.canUpdateAnnotation$;
   canDeleteAnnotation = this.userService.canDeleteAnnotation$;
 
@@ -55,6 +75,155 @@ export class QuickActionsMenuComponent implements OnInit, OnDestroy {
     private readonly notificationService: NotificationService,
     private readonly userService: UserService) {}
 
+  private _setButtons() : void {
+
+    this.editButton = false; 
+    this.deleteButton = false;
+    this.copyMarkupButton = false;
+    this.linkButton  = false;
+    this.editlinkButton  = false;
+    this.snapButton = false;
+    this.infoButton = false;
+    this.redirectButton = false;
+    this.insertPointButton = false;
+    this.deletePointButton = false;
+    this.addHoleButton = false;
+    this.hideLabelButton = false;
+    this.moveLabelButton = false;
+    this.movetoFrontButton = false;
+    this.movetoBackButton = false;
+
+    let numbuttons = 0;
+  
+
+    //new method to set which button should be visible on menu
+    //move logic from html template here and set the button state
+    //in html template use the button state only.
+    //calculate number of buttons here also.
+
+    //*ngIf="(annotation.type != 11 && annotation.type != 20) && (canUpdateAnnotation | async)"
+
+    if((this.annotation.type != 11 && this.annotation.type != 20) && this.canUpdateAnnotation){
+      this.editButton = true;
+      numbuttons += 1;
+    }
+        
+    //<li *ngIf="(canDeleteAnnotation | async)" 
+    if(this.canDeleteAnnotation){
+      this.deleteButton = true;
+      numbuttons += 1;
+    }
+
+    //<li *ngIf="(annotation.type != 20) && (canUpdateAnnotation | async)">
+    //this.copyMarkupButton = true;
+
+    if(this.annotation.type != 20 && this.canUpdateAnnotation){
+      this.copyMarkupButton = true;
+      numbuttons += 1;
+    }
+
+    //*ngIf="(annotation.bCanHaveLink && !annotation.bhaveLink) && (canUpdateAnnotation | async)"
+    //(click)="addLink = true;"
+
+    if(this.annotation.bCanHaveLink && this.annotation.bhaveLink && this.canUpdateAnnotation){
+     this.linkButton = true;
+     numbuttons += 1;
+    }
+
+    //<li *ngIf="annotation.type == 20 && (canUpdateAnnotation | async)" (click)="onRedirectClick()">
+    //<img src="/assets/images/link.svg"  />
+
+    if(this.annotation.type == 20 && this.canUpdateAnnotation){
+      this.redirectButton = true;
+      numbuttons += 1;
+    }
+
+    
+    //*ngIf="annotation.bhaveLink && (canUpdateAnnotation | async)"
+    //(click)="addLink = true; message = 'Edit link'">
+
+    if(this.annotation.bhaveLink && this.canUpdateAnnotation){
+      this.editlinkButton = true;
+      numbuttons += 1;
+    }
+
+    
+    //*ngIf="(annotation.type == 6 && annotation.subtype < 4) && (canUpdateAnnotation | async)"
+    //(click)="onSnapClick()"
+
+    if((this.annotation.type == 6 && this.annotation.subtype < 4) && this.canUpdateAnnotation){
+      this.snapButton = true;
+      numbuttons += 1;
+
+    }
+
+    //*ngIf="annotation.type == 11"
+    //(click)="onInfoClick()">
+
+    if(this.annotation.type == 11){
+      this.infoButton = true;
+      numbuttons += 1;
+    }
+
+    //*ngIf="((guiMode$ | async) == 'annotate' || (guiMode$ | async) == 'measure') && (havepointinsert)"
+    //(click)="onInsertClick()">
+
+    if(this.havepointinsert){
+      this.insertPointButton = true;
+      numbuttons += 1;
+    }
+    
+    //*ngIf="((guiMode$ | async) == 'annotate' || (guiMode$ | async) == 'measure') && (havepointdelete)"
+    //(click)="onDeletePointClick()">
+
+    if(this.havepointdelete){
+      this.deletePointButton = true;
+      numbuttons += 1;
+    }
+    
+    //*ngIf="(guiMode$ | async) == 'measure' && (annotation.type === 8 || (annotation.type === 3 && annotation.subtype === 6)) && annotation.parentmarkupnumber === 0"
+    //(click)="onHoleClick()">
+
+
+    if((this.annotation.type === 8 || (this.annotation.type === 3 && this.annotation.subtype === 6)) && this.annotation.parentmarkupnumber === 0){
+      this.addHoleButton = true;
+      numbuttons += 1;
+    }
+
+    //*ngIf="(guiMode$ | async) == 'measure' && ((annotation.type === 1 && annotation.subtype === 3) || (annotation.type === 3 && annotation.subtype === 6) || annotation.type === 7 || annotation.type === 8)"
+    //(click)="onShowHideLabelClick()">
+
+    if(((this.annotation.type === 1 && this.annotation.subtype === 3) || (this.annotation.type === 3 && this.annotation.subtype === 6) || this.annotation.type === 7 || this.annotation.type === 8)){
+      this.hideLabelButton = true;
+      numbuttons += 1;
+    }
+
+    //<li *ngIf="(guiMode$ | async) == 'measure' && ((annotation.type === 8))"
+    //(click)="onMoveLabelClick()">
+
+    if(this.annotation.type === 8){
+      this.moveLabelButton = true;
+      numbuttons += 1;
+    }
+
+    this.movetoFrontButton = true;
+    this.movetoBackButton = true;
+    numbuttons += 1;
+    numbuttons += 1;
+
+    this.numbuttons = numbuttons;
+
+    //*ngIf="(guiMode$ | async) === 'annotate'"
+    //(click)="onMoveToBackClick()">
+
+
+    //*ngIf="(guiMode$ | async) === 'annotate'"
+    //(click)="onMoveToFrontClick()">
+
+
+  
+
+  }  
   private _setPosition(): void {
     const markup = this.annotation;
 
@@ -298,15 +467,15 @@ export class QuickActionsMenuComponent implements OnInit, OnDestroy {
         //topcentery = topcentery / window.devicePixelRatio;
 
         
-        this.numbuttons = (markup.subtype == MARKUP_TYPES.SHAPE.POLYGON.subType ? 4 : 3);
+        //this.numbuttons = (markup.subtype == MARKUP_TYPES.SHAPE.POLYGON.subType ? 4 : 3);
 
-        if (markup.type == MARKUP_TYPES.MEASURE.AREA.type){
+        /*if (markup.type == MARKUP_TYPES.MEASURE.AREA.type){
           this.numbuttons = 6;
-        }
+        }*/
 
-        if (markup.type == MARKUP_TYPES.ERASE.type){
+        /*if (markup.type == MARKUP_TYPES.ERASE.type){
           this.numbuttons = 3;
-        }
+        }*/
         
 
         this.menuwidth = (this.buttonsize * this.numbuttons) + (this.buttongap * (this.numbuttons + 1));
@@ -357,7 +526,7 @@ export class QuickActionsMenuComponent implements OnInit, OnDestroy {
       case MARKUP_TYPES.MEASURE.LENGTH.type:
 
 
-      this.numbuttons = 4;
+      //this.numbuttons = 4;
       this.menuwidth = (this.buttonsize * this.numbuttons) + (this.buttongap * (this.numbuttons + 1));
       this.menucenter = this.menuwidth * 0.5; 
 
@@ -465,15 +634,15 @@ export class QuickActionsMenuComponent implements OnInit, OnDestroy {
 
       default:
 
-      this.numbuttons = 4;
+      //this.numbuttons = 4;
 
-      if(markup.type == 3 && markup.subtype == 6){
+      /*if(markup.type == 3 && markup.subtype == 6){
         this.numbuttons = 8;
-      }
+      }*/
 
-      if(markup.type == 10){
+      /*if(markup.type == 10){
         this.numbuttons = 3;
-      }
+      }*/
 
 
       this.menuwidth = (this.buttonsize * this.numbuttons) + (this.buttongap * (this.numbuttons + 1));
@@ -638,7 +807,7 @@ export class QuickActionsMenuComponent implements OnInit, OnDestroy {
       this.havepointdelete = (this.annotation.type == 1 && (this.annotation.subtype == 1 || this.annotation.subtype == 2 || this.annotation.subtype == 3) || this.annotation.type === 13 || this.annotation.type === 8);
       
       
-      this.moveLabelEnabled = (this.annotation.type === 8);
+      //this.moveLabelEnabled = (this.annotation.type === 8);
   
 
       this.operation = operation;
@@ -653,18 +822,22 @@ export class QuickActionsMenuComponent implements OnInit, OnDestroy {
         || markup.GetAttribute("Signature")?.value
         ) return;
 
+      this._setButtons();        
       this._setPosition();
+      
 
       this.visible = true;
     });
 
     this.quickActionsMenuVisibleSubscription = this.annotationToolsService.quickActionsMenuVisible$.subscribe((visibility: boolean) => {
       this.visible = visibility;
+      this._setButtons();        
       this._setPosition();
     });
 
     this.guiOnResizeSubscription = this.rxCoreService.guiOnResize$.subscribe(() => {
       if (this.visible) {
+        this._setButtons();        
         this._setPosition();
       }
     });
@@ -859,7 +1032,10 @@ export class QuickActionsMenuComponent implements OnInit, OnDestroy {
   onMoveLabelClick(): void {
     this.moveLabelEnabled = !this.moveLabelEnabled;
     if(this.moveLabelEnabled) {
-      RXCore.markupRectToAreaSwitch(this.annotation);
+
+      if(this.annotation.type == 3){
+        RXCore.markupRectToAreaSwitch(this.annotation);
+      }
       RXCore.moveLabelEnable(this.moveLabelEnabled);
     }
   }

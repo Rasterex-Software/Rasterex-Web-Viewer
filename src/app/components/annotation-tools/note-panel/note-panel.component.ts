@@ -1,4 +1,4 @@
-import { Component, ElementRef, HostListener, OnInit } from '@angular/core';
+import { Component, ElementRef, HostListener, OnInit, AfterViewInit } from '@angular/core';
 import { AnnotationToolsService } from '../annotation-tools.service';
 import { RXCore } from 'src/rxcore';
 import { IMarkup } from 'src/rxcore/models/IMarkup';
@@ -23,7 +23,7 @@ declare var LeaderLine: any;
     '(window:resize)': 'onWindowResize($event)'
   }
 })
-export class NotePanelComponent implements OnInit {
+export class NotePanelComponent implements OnInit, AfterViewInit {
   visible: boolean = false;
 
   list: { [key: string]: Array<IMarkup> };
@@ -572,8 +572,8 @@ export class NotePanelComponent implements OnInit {
         }
     })
     .filter((item: any) => {
-      if(this.authorFilter.size > 0) {
-        return this.authorFilter.has(RXCore.getDisplayName(item.signature));
+      if(this.createdByFilter.size > 0) {
+        return this.createdByFilter.has(item.signature);
       }
       return true; // Show all annotations when no author filter is applied
     })
@@ -974,6 +974,7 @@ export class NotePanelComponent implements OnInit {
       //this.onShowAll(this.showAll)
 
       this.authorFilter = new Set(this.getUniqueAuthorList());
+      this._updateCreatedByFilterOptions(list);
 
       this._setloadedtypeFilterOff();
 
@@ -1173,6 +1174,99 @@ export class NotePanelComponent implements OnInit {
 
   onCreatedByFilterChange(values): void {
     this.createdByFilter = new Set(values);
+    this._processList(this.rxCoreService.getGuiMarkupList());
+  }
+
+  ngAfterViewInit(): void {
+    // Force proper positioning for multi-select dropdowns
+    this._forceDropdownPositioning();
+  }
+
+  private _forceDropdownPositioning(): void {
+    // Immediate fix
+    this._applyDropdownFixes();
+    
+    // Wait for component initialization and apply again
+    setTimeout(() => this._applyDropdownFixes(), 50);
+    setTimeout(() => this._applyDropdownFixes(), 200);
+    setTimeout(() => this._applyDropdownFixes(), 500);
+
+    // Monitor for any changes and reapply fixes
+    const observer = new MutationObserver(() => {
+      this._applyDropdownFixes();
+    });
+
+    observer.observe(this.el.nativeElement, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeOldValue: true
+    });
+  }
+
+  private _applyDropdownFixes(): void {
+    const multiSelects = this.el.nativeElement.querySelectorAll('rx-multi-select');
+    
+    multiSelects.forEach((multiSelect: HTMLElement) => {
+      // Force container positioning
+      multiSelect.style.position = 'relative';
+      multiSelect.style.width = '100%';
+      
+      const container = multiSelect.querySelector('.dropdown-container');
+      if (container) {
+        (container as HTMLElement).style.position = 'relative';
+        (container as HTMLElement).style.width = '100%';
+      }
+      
+      // Force options container positioning
+      const optionsContainer = multiSelect.querySelector('.options-container');
+      if (optionsContainer) {
+        (optionsContainer as HTMLElement).style.position = 'absolute';
+        (optionsContainer as HTMLElement).style.top = 'calc(100% + 1px)';
+        (optionsContainer as HTMLElement).style.left = '0';
+        (optionsContainer as HTMLElement).style.right = '0';
+        (optionsContainer as HTMLElement).style.zIndex = '9999';
+        (optionsContainer as HTMLElement).style.transform = 'none';
+      }
+      
+      // Force options wrapper positioning
+      const optionsWrapper = multiSelect.querySelector('.options-wrapper');
+      if (optionsWrapper) {
+        (optionsWrapper as HTMLElement).style.position = 'relative';
+        (optionsWrapper as HTMLElement).style.top = '0';
+        (optionsWrapper as HTMLElement).style.left = '0';
+        (optionsWrapper as HTMLElement).style.right = '0';
+        (optionsWrapper as HTMLElement).style.bottom = 'auto';
+        (optionsWrapper as HTMLElement).style.width = '100%';
+        (optionsWrapper as HTMLElement).style.transform = 'none';
+        (optionsWrapper as HTMLElement).style.margin = '0';
+      }
+    });
+  }
+
+  private _updateCreatedByFilterOptions(list: Array<IMarkup>): void {
+    // Create options for multi-select from all available authors
+    const authorOptions = {};
+    
+    list.forEach((item: any) => {
+      const authorDisplayName = RXCore.getDisplayName(item.signature);
+      if (!authorOptions[item.signature]) {
+        authorOptions[item.signature] = {
+          value: item.signature,
+          label: authorDisplayName,
+          selected: this.authorFilter.has(authorDisplayName)
+        };
+      }
+    });
+
+    this.createdByFilterOptions = Object.values(authorOptions);
+    
+    // Convert authorFilter (display names) to createdByFilter (signatures)
+    this.createdByFilter = new Set(
+      list
+        .filter((item: any) => this.authorFilter.has(RXCore.getDisplayName(item.signature)))
+        .map((item: any) => item.signature)
+    );
   }
 
   onDateSelect(dateRange: { startDate: dayjs.Dayjs, endDate: dayjs.Dayjs }): void {
@@ -2064,7 +2158,18 @@ export class NotePanelComponent implements OnInit {
 
   onShowType($event: any, type : any) {
 
-    this._handleShowMarkupType(type, $event, markup => markup.getMarkupType().label === type.label);
+    // For button clicks, we need to toggle the current state
+    const currentState = this.showType(type);
+    const newState = !currentState;
+    
+    // Create a mock event object that mimics checkbox behavior for compatibility
+    const mockEvent = {
+      target: {
+        checked: newState
+      }
+    };
+
+    this._handleShowMarkupType(type, mockEvent, markup => markup.getMarkupType().label === type.label);
 
   }
 
@@ -2364,5 +2469,7 @@ export class NotePanelComponent implements OnInit {
 
     this._processList(this.rxCoreService.getGuiMarkupList());
   }
+
+
 
 }

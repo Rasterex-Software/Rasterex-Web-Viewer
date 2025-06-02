@@ -969,3 +969,15 @@ May 30, 3025
 # Fix: the issue with comment history card indication when the file is rotated
 
   `modified:   src/app/components/annotation-tools/note-panel/note-panel.component.ts`
+
+
+
+June 01, 3025
+
+# Improve UI of Filters
+
+  `modified:   src/app/components/annotation-tools/note-panel/note-panel.component.html`
+  `modified:   src/app/components/annotation-tools/note-panel/note-panel.component.scss`
+  `modified:   src/app/components/annotation-tools/note-panel/note-panel.component.ts  `
+  `modified:   src/app/components/common/dropdown-menu/dropdown-menu.component.scss`
+  `modified:   src/app/components/common/dropdown/dropdown.component.scss`

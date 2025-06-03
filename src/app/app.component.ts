@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnDestroy } from '@angular/core';
 import { FileGaleryService } from './components/file-galery/file-galery.service';
 import { RxCoreService } from './services/rxcore.service';
 import { RXCore } from 'src/rxcore';
@@ -13,6 +13,7 @@ import { IVectorBlock } from 'src/rxcore/models/IVectorBlock';
 import { CollabService } from './services/collab.service';
 import { AnnotationStorageService } from './services/annotation-storage.service';
 import { TooltipService } from './components/tooltip/tooltip.service';
+import { Subscription } from 'rxjs';
 import { LoginService } from './services/login.service';
 
 
@@ -24,8 +25,9 @@ import { LoginService } from './services/login.service';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
-export class AppComponent implements AfterViewInit {
+export class AppComponent implements AfterViewInit, OnDestroy {
   //@ViewChild('progressBar') progressBar: ElementRef;
+
   enableLandingPage = false;
   guiConfig$ = this.rxCoreService.guiConfig$;
   guiConfig: IGuiConfig | undefined;
@@ -58,6 +60,10 @@ export class AppComponent implements AfterViewInit {
   infoData: Array<any> = [];
   infoPanelVisible: boolean = false;
 
+  sidebarState$ = this.sidebarStateService.sidebarState$;
+  private sidebarStateSubscription: Subscription;
+  sidebarOpen = false;
+  private uploadSub?: Subscription;
 
   constructor(  public loginService: LoginService,
     private readonly recentfilesService: RecentFilesService,
@@ -66,17 +72,29 @@ export class AppComponent implements AfterViewInit {
     private readonly notificationService: NotificationService,
     private readonly tooltipService: TooltipService,
     private readonly userService: UserService,
-    private readonly collabService: CollabService,  
+    private readonly collabService: CollabService,
     private readonly annotationStorageService: AnnotationStorageService,
     private titleService:Title,
-    private el: ElementRef) { }
-    
+    private readonly sidebarStateService: RxCoreService,
+    private uploadFileService: FileGaleryService,
+    private el: ElementRef) {
+    // Subscribe to sidebar state changes
+    this.sidebarStateSubscription = this.sidebarState$.subscribe((state) => {
+      if(state === true) {
+        //  RXCore.zoomHeight();
+      }
+      this.sidebarOpen = state;
+    });
+  }
+
+
   ngOnInit() {
+
 
     this.loginService.enableLandingPage$.subscribe(enable => {
       this.enableLandingPage = enable;
     });
-    
+
     this.guiConfig$.subscribe(config => {
       this.guiConfig = config;
       this.convertPDFAnnots = this.guiConfig.convertPDFAnnots;
@@ -95,8 +113,21 @@ export class AppComponent implements AfterViewInit {
 
 
     this.titleService.setTitle(this.title);
-    this.fileGaleryService.getEventUploadFile().subscribe(event => this.eventUploadFile = event);
+    this.fileGaleryService.getEventUploadFile().subscribe(event => {
+      console.log("event: ", event)
+      if(event){
+      this.eventUploadFile = event
+      this.isUploadFile = false
+      }
+    });
+
+    this.uploadSub = this.uploadFileService.getEventUploadFile().subscribe(flag => {
+      console.log("flag: ", flag)
+      this.isUploadFile = flag;
+    });
+
     this.fileGaleryService.modalOpened$.subscribe(opened => {
+      console.log("opened: ", opened)
       if (!opened) {
         this.eventUploadFile = false;
       }
@@ -116,44 +147,51 @@ export class AppComponent implements AfterViewInit {
       // TODO: there should be a better logic to open a file!
       this.fileGaleryService.openModal();
     }
-    
-    this.rxCoreService.guiSelectedVectorBlock$.subscribe((block)=>{
+
+    this.rxCoreService.guiSelectedVectorBlock$.subscribe((block) => {
       setTimeout(() => {
         this.showBlockInfo(block);
       });
     });
-
-    
   }
-  
 
   ngAfterViewInit(): void {
-    
-
     /*this.guiConfig$.subscribe(config => {
 
       RXCore.convertPDFAnnots(config.convertPDFAnnots);
-      
+
     });*/
 
     RXCore.convertPDFAnnots(this.convertPDFAnnots);
     RXCore.usePDFAnnotProxy(this.createPDFAnnotproxy);
 
+    // Get the current user from the service to ensure we use authenticated data
     const user = this.userService.getCurrentUser();
+    console.log('App initializing with user:', user?.username || 'none');
 
     let JSNObj = [
       {
-          Command: "GetConfig",
-          UserName: user?.username || "Demo",
-          DisplayName : user?.displayName || "Demo User"
-      }
+        Command: 'GetConfig',
+        UserName: user?.username || 'Demo',
+        DisplayName: user?.displayName || 'Demo User',
+      },
     ];
 
+    // Subscribe to user changes to update RXCore when authentication state changes
+    this.userService.currentUser$.subscribe(updatedUser => {
+      if (updatedUser) {
+        console.log('User authenticated, updating RXCore user:', updatedUser.username);
+        RXCore.setUser(updatedUser.username, updatedUser.displayName || updatedUser.username);
+      } else if (user !== null) {
+        // Only log out if we previously had a user (avoid duplicate init)
+        console.log('User logged out, clearing RXCore user');
+        RXCore.setUser('', '');
 
+        // Reset user markup display settings to ensure all annotations are visible after logout
+        this.resetUserMarkupDisplaySettings();
+      }
+    });
 
-
-    
-    
     RXCore.setJSONConfiguration(JSNObj);
     RXCore.limitZoomOut(false);
     RXCore.usePanToMarkup(true);
@@ -163,9 +201,7 @@ export class AppComponent implements AfterViewInit {
     RXCore.restrictPan(false);
     RXCore.overrideLinewidth(true, 1.0);
 
-
     //guiConfig
-
 
     //RXCore.setThumbnailSize(240,334);
 
@@ -178,48 +214,48 @@ export class AppComponent implements AfterViewInit {
 
     //this.markuptypes = RXCore.getMarkupTypes();
 
-    if (this.guiConfig?.localStoreAnnotation === false){
+    if (this.guiConfig?.localStoreAnnotation === false) {
       RXCore.usedbmarkup(true);
-    }else{
+    } else {
       RXCore.usedbmarkup(false);
     }
 
-
-    RXCore.initialize({ offsetWidth: 0, offsetHeight: 0});
+    RXCore.initialize({ offsetWidth: 0, offsetHeight: 0 });
 
     RXCore.onGui2DBlock((block: IVectorBlock) => {
-
       console.log('onGui2DBlock');
       RXCore.unselectAllBlocks();
       let lastBlock = this.rxCoreService.getSelectedVectorBlock();
       if (lastBlock) {
-          // if select the same block, then unselect it
-          if (block && block.index === lastBlock.index) {
-            // @ts-ignore
-            lastBlock.selected = false;
-            RXCore.markUpRedraw();
-            this.rxCoreService.setSelectedVectorBlock(undefined);
-            return;
-          }
+        // if select the same block, then unselect it
+        if (block && block.index === lastBlock.index) {
           // @ts-ignore
           lastBlock.selected = false;
+          RXCore.markUpRedraw();
+          this.rxCoreService.setSelectedVectorBlock(undefined);
+          return;
+        }
+        // @ts-ignore
+        lastBlock.selected = false;
       }
 
       if (block) {
         // @ts-ignore
-        block.selected = true;     
+        block.selected = true;
         //RXCore.selectVectorBlock(block.index);
       }
       RXCore.markUpRedraw();
       this.rxCoreService.setSelectedVectorBlock(block);
 
 
-      
+
     });
 
     RXCore.onGui2DBlockHoverEvent((result, mouse) => {
 
-      
+
+
+
       if (result) {
         const insert = result.insert;
 
@@ -236,217 +272,201 @@ export class AppComponent implements AfterViewInit {
           offsetY = 30;
         } else {
           offsetY = -80;
-
-
-        } 
+        }
 
         const attributes = RXCore.getBlockAttributes(result.index);
         //const tag = attributes.length == 0 ? ' (No Attribute)' : '';
         const tag = attributes.length > 0 ? '<br>Attribute: Yes' : '';
-
 
         this.tooltipService.tooltip({
           title: 'Block Information',
           message: `Name: ${result.name}${tag}`,
 
           duration: 3000,
-          position: [mouse.x / window.devicePixelRatio + offsetX, mouse.y / window.devicePixelRatio + offsetY],
+          position: [
+            mouse.x / window.devicePixelRatio + offsetX,
+            mouse.y / window.devicePixelRatio + offsetY,
+          ],
         });
-
       } else {
         this.tooltipService.closeTooltip();
-
       }
-    })
-
-    
-    RXCore.onGui2DEntityInfo((vectorinfo : any, screenmouse :any, pathindex : any) => {
-
-      if(vectorinfo.Block != undefined){
-
-        if(vectorinfo.Block.listed){
-
-
-          //this.infoPanelVisible = true;
-          this.showBlockInfo(vectorinfo.Block);
-          //this.infoData = getBlockAttributes(vectorinfo.Block);
-  
-        }else{
-  
-          this.infoPanelVisible = false;
-  
-        }
-
-      }
-
-
-
     });
 
-    RXCore.onGui2DEntityInfoScreen((vectorinfo : any, screenmouse :any, pathindex : any) => {
-      // to use with vector entity selection tool mouse over.
-      
-
-      if(pathindex.index){
-
-        let messagetext : string = 'Type: ' +  vectorinfo.Entity.typename + '<br>' +
-        //'Block: ' + vectorinfo.Block.name + '<br>' +
-
-        'Layer: ' + vectorinfo.Layername;
-
-
-        if(vectorinfo.Block != undefined){
-
-          if(vectorinfo.Block.listed){
-
-
-            const attributes = RXCore.getBlockAttributes(vectorinfo.Block.index);
-            
-            const tag = attributes.length > 0 ? '<br>Attribute: Yes' : '';
-
-            //const tag = attributes.length == 0 ? ' (No Attribute)' : '';
-  
-            messagetext = 'Type: ' +  vectorinfo.Entity.typename + '<br>' +
-
-            'Block: ' + vectorinfo.Block.name + tag + '<br>' +
-            'Layer: ' + vectorinfo.Layername;
-  
-          }else{
-            messagetext = 'Type: ' +  vectorinfo.Entity.typename + '<br>' +
-  
-            'Layer: ' + vectorinfo.Layername;
-  
+    RXCore.onGui2DEntityInfo(
+      (vectorinfo: any, screenmouse: any, pathindex: any) => {
+        if (vectorinfo.Block != undefined) {
+          if (vectorinfo.Block.listed) {
+            //this.infoPanelVisible = true;
+            this.showBlockInfo(vectorinfo.Block);
+            //this.infoData = getBlockAttributes(vectorinfo.Block);
+          } else {
             this.infoPanelVisible = false;
-  
           }
-  
-
         }
-        //entity = {type : vectorobj.entityType.type, handle : vectorobj.entityType.handleLow, typename : getvectorType(vectorobj.entityType.type), startp : startpoint, endp : endpoint, length : length};
-        if(vectorinfo.Entity.length != undefined && !isNaN(vectorinfo.Entity.length)){
+      }
+    );
 
-          messagetext = messagetext + '<br> Length: ' + vectorinfo.Entity.length.toFixed(2);
+    RXCore.onGui2DEntityInfoScreen(
+      (vectorinfo: any, screenmouse: any, pathindex: any) => {
+        // to use with vector entity selection tool mouse over.
 
-        
+        if (pathindex.index) {
+          let messagetext: string =
+            'Type: ' +
+            vectorinfo.Entity.typename +
+            '<br>' +
+            //'Block: ' + vectorinfo.Block.name + '<br>' +
 
-        }
-        if(vectorinfo.Entity.area != undefined && !isNaN(vectorinfo.Entity.area)){
+            'Layer: ' +
+            vectorinfo.Layername;
 
-          messagetext = messagetext + '<br> Area: ' + vectorinfo.Entity.area.toFixed(2);
+          if (vectorinfo.Block != undefined) {
+            if (vectorinfo.Block.listed) {
+              const attributes = RXCore.getBlockAttributes(
+                vectorinfo.Block.index
+              );
 
-        
+              const tag = attributes.length > 0 ? '<br>Attribute: Yes' : '';
 
-        }
+              //const tag = attributes.length == 0 ? ' (No Attribute)' : '';
 
-        if(vectorinfo.Entity.sweep != undefined && !isNaN(vectorinfo.Entity.sweep)){
+              messagetext =
+                'Type: ' +
+                vectorinfo.Entity.typename +
+                '<br>' +
+                'Block: ' +
+                vectorinfo.Block.name +
+                tag +
+                '<br>' +
+                'Layer: ' +
+                vectorinfo.Layername;
+            } else {
+              messagetext =
+                'Type: ' +
+                vectorinfo.Entity.typename +
+                '<br>' +
+                'Layer: ' +
+                vectorinfo.Layername;
 
-          //entity = {type : vectorobj.entityType.type, handle : vectorobj.entityType.handleLow, typename : getvectorType(vectorobj.entityType.type), length : length, sweep : sweep, radius : radius};
-          messagetext = messagetext + '<br> Sweep Angle: ' + vectorinfo.Entity.sweep.toFixed(2);
+              this.infoPanelVisible = false;
+            }
+          }
+          //entity = {type : vectorobj.entityType.type, handle : vectorobj.entityType.handleLow, typename : getvectorType(vectorobj.entityType.type), startp : startpoint, endp : endpoint, length : length};
+          if (
+            vectorinfo.Entity.length != undefined &&
+            !isNaN(vectorinfo.Entity.length)
+          ) {
+            messagetext =
+              messagetext +
+              '<br> Length: ' +
+              vectorinfo.Entity.length.toFixed(2);
+          }
+          if (
+            vectorinfo.Entity.area != undefined &&
+            !isNaN(vectorinfo.Entity.area)
+          ) {
+            messagetext =
+              messagetext + '<br> Area: ' + vectorinfo.Entity.area.toFixed(2);
+          }
 
-        
+          if (
+            vectorinfo.Entity.sweep != undefined &&
+            !isNaN(vectorinfo.Entity.sweep)
+          ) {
+            //entity = {type : vectorobj.entityType.type, handle : vectorobj.entityType.handleLow, typename : getvectorType(vectorobj.entityType.type), length : length, sweep : sweep, radius : radius};
+            messagetext =
+              messagetext +
+              '<br> Sweep Angle: ' +
+              vectorinfo.Entity.sweep.toFixed(2);
+          }
 
-        }
+          if (
+            vectorinfo.Entity.radius != undefined &&
+            !isNaN(vectorinfo.Entity.radius)
+          ) {
+            //entity = {type : vectorobj.entityType.type, handle : vectorobj.entityType.handleLow, typename : getvectorType(vectorobj.entityType.type), length : length, sweep : sweep, radius : radius};
+            messagetext =
+              messagetext +
+              '<br> Radius: ' +
+              vectorinfo.Entity.radius.toFixed(2);
+          }
 
-
-        if(vectorinfo.Entity.radius != undefined && !isNaN(vectorinfo.Entity.radius)){
-
-          //entity = {type : vectorobj.entityType.type, handle : vectorobj.entityType.handleLow, typename : getvectorType(vectorobj.entityType.type), length : length, sweep : sweep, radius : radius};
-          messagetext = messagetext + '<br> Radius: ' + vectorinfo.Entity.radius.toFixed(2);
-
-        
-
-        }
-
-
-
-        //entity = {type : vectorobj.entityType.type, handle : vectorobj.entityType.handleLow, typename : getvectorType(vectorobj.entityType.type), startp : startpoint, endp : endpoint, length : length};
-        /*if(vectorinfo.Entity.length != undefined && !isNaN(vectorinfo.Entity.length)){
+          //entity = {type : vectorobj.entityType.type, handle : vectorobj.entityType.handleLow, typename : getvectorType(vectorobj.entityType.type), startp : startpoint, endp : endpoint, length : length};
+          /*if(vectorinfo.Entity.length != undefined && !isNaN(vectorinfo.Entity.length)){
 
           messagetext = messagetext + '\n Length: ' + vectorinfo.Entity.length.toFixed(2);
-                    
-          
+
+
         }*/
 
-        const isLeft = screenmouse.x < window.innerWidth / 2;
-        const isTop = screenmouse.y < window.innerHeight / 2;
-        let offsetX = 0;
-        let offsetY = 0;
-        if (isLeft) {
-          offsetX = 30;
+          const isLeft = screenmouse.x < window.innerWidth / 2;
+          const isTop = screenmouse.y < window.innerHeight / 2;
+          let offsetX = 0;
+          let offsetY = 0;
+          if (isLeft) {
+            offsetX = 30;
+          } else {
+            offsetX = -160;
+          }
+          if (isTop) {
+            offsetY = 30;
+          } else {
+            offsetY = -120;
+          }
+
+          this.tooltipService.tooltip({
+            title: 'Entity Information',
+            message: messagetext,
+            duration: 3000,
+            position: [
+              screenmouse.x / window.devicePixelRatio + offsetX,
+              screenmouse.y / window.devicePixelRatio + offsetY,
+            ],
+          });
         } else {
-          offsetX = -160;
+          //console.log("nothing found");
+          this.tooltipService.closeTooltip();
         }
-        if (isTop) {
-          offsetY = 30;
-        } else {
-          offsetY = -120;
-
-
-        } 
-        
-
-
-        this.tooltipService.tooltip({
-          title: 'Entity Information',
-          message: messagetext,
-          duration: 3000,
-          position: [screenmouse.x / window.devicePixelRatio + offsetX, screenmouse.y / window.devicePixelRatio + offsetY],
-        });
-
-
-        
-      }else{
-        //console.log("nothing found");
-        this.tooltipService.closeTooltip();
-        
-      }      
-
-    });
+      }
+    );
 
     RXCore.onGuiReady((initialDoc: any) => {
-
       this.bguireadycalled = true;
       //this.bfoxitreadycalled = true;
 
       console.log('RxCore GUI_Ready.');
       console.log(`Read Only Mode - ${RXCore.getReadOnly()}.`);
-      console.log('UI version',this.uiversion);
+      console.log('UI version', this.uiversion);
 
       RXCore.setLayout(0, 0, false);
-      RXCore.doResize(false,0, 0);/*added to set correct canvas size on startup */
+      RXCore.doResize(
+        false,
+        0,
+        0
+      ); /*added to set correct canvas size on startup */
 
-
-      RXCore.setdisplayBackground(document.documentElement.style.getPropertyValue("--background") || '#D6DADC');
+      RXCore.setdisplayBackground(
+        document.documentElement.style.getPropertyValue('--background') ||
+          '#D6DADC'
+      );
       RXCore.setrxprintdiv(document.getElementById('printdiv'));
 
-      this.openInitFile(initialDoc);  
-      
+      this.openInitFile(initialDoc);
 
       /*if(this.bguireadycalled){
         return;
       }*/
-
-            
-
     });
 
-
     RXCore.onGuiFoxitReady((initialDoc: any) => {
-
-
       this.bfoxitreadycalled = true;
 
-      
-      if(this.bguireadycalled){
+      if (this.bguireadycalled) {
         this.openInitFile(initialDoc);
       }
 
-
-
       this.rxCoreService.guiFoxitReady.next();
-
-
-
     });
 
     RXCore.onGuiState((state: any) => {
@@ -457,30 +477,32 @@ export class AppComponent implements AfterViewInit {
       this.rxCoreService.setNumOpenFiles(state?.numOpenFiles);
       this.rxCoreService.setGuiState(state);
 
-      if (this.eventUploadFile) this.fileGaleryService.sendStatusActiveDocument('awaitingSetActiveDocument');
-      if ((state.source === 'forcepagesState' && state.isPDF) || (state.source === 'setActiveDocument' && !state.isPDF)) {
-        
+      if (this.eventUploadFile)
+        this.fileGaleryService.sendStatusActiveDocument(
+          'awaitingSetActiveDocument'
+        );
+      if (
+        (state.source === 'forcepagesState' && state.isPDF) ||
+        (state.source === 'setActiveDocument' && !state.isPDF)
+      ) {
         this.fileGaleryService.sendStatusActiveDocument(state.source);
         this.eventUploadFile = false;
       }
 
-      if(state.isPDF && state.numpages > 1){
+      if (state.isPDF && state.numpages > 1) {
         RXCore.usePanToMarkup(true);
-      }else{
+      } else {
         RXCore.usePanToMarkup(false);
       }
 
       //
-
     });
 
     RXCore.onGuiPage((state) => {
-     this.rxCoreService.guiPage.next(state);
+      this.rxCoreService.guiPage.next(state);
     });
 
     RXCore.onGuiFileLoadComplete(() => {
-      
-
       let FileInfo = RXCore.getCurrentFileInfo();
 
       //this.title = FileInfo.name;
@@ -489,7 +511,6 @@ export class AppComponent implements AfterViewInit {
 
       this.recentfilesService.addRecentFile(FileInfo);
 
-            
       this.rxCoreService.guiFileLoadComplete.next();
 
       this.userService.currentUser$.subscribe((user) => {
@@ -501,14 +522,13 @@ export class AppComponent implements AfterViewInit {
 
         let JSNObj = [
           {
-              Command: "GetConfig",
-              UserName: user?.username || "Demo",
-              DisplayName : user?.displayName || "Demo User"
-          }
+            Command: 'GetConfig',
+            UserName: user?.username || 'Demo',
+            DisplayName: user?.displayName || 'Demo User',
+          },
         ];
         RXCore.setJSONConfiguration(JSNObj);
       });
-
 
       // TODO: The settings are effective after the file is loaded completely.
       this.userService.canUpdateAnnotation$.subscribe((canUpdate) => {
@@ -519,46 +539,47 @@ export class AppComponent implements AfterViewInit {
       this.userService.canViewAnnotation$.subscribe((canView) => {
         //RXCore.hideMarkUp();
       });
-      
+
       console.log('RxCore onGuiFileLoadComplete:');
+      this.isUploadFile = false;
       const path = RXCore.getOriginalPath();
       if (this.guiConfig?.localStoreAnnotation === false && path) {
-        this.annotationStorageService.getAnnotations(1, path).then((annotations)=>{
-          annotations.forEach((annotation)=>{
-
-            if (RXCore.setUniqueMarkupfromJSON) {
-              RXCore.setUniqueMarkupfromJSON(annotation.data, null);
-              
-            }
-            const markupObj = JSON.parse(annotation.data);
-            const markupUniqueID = !markupObj.Entity.UniqueID ? null : markupObj.Entity.UniqueID;
-            let lastMarkup;
-            
-            if (markupUniqueID) {
-              lastMarkup = RXCore.getmarkupobjByGUID(markupUniqueID);
-            } else {
-              lastMarkup = RXCore.getLastMarkup();
-            }
-
-            //const lastMarkup = RXCore.getLastMarkup();
-
-
-            if (lastMarkup && lastMarkup != -1) {
-              const markup = lastMarkup as any;
-              markup.dbUniqueID = annotation.id;
-
-              if (markup.bhasArrow && markup.markupArrowConnected) {
-                markup.markupArrowConnected.dbUniqueID = annotation.id;
-              } else if (markup.bisTextArrow && markup.textBoxConnected) {
-                markup.textBoxConnected.dbUniqueID = annotation.id;
+        this.annotationStorageService
+          .getAnnotations(1, path)
+          .then((annotations) => {
+            annotations.forEach((annotation) => {
+              if (RXCore.setUniqueMarkupfromJSON) {
+                RXCore.setUniqueMarkupfromJSON(annotation.data, null);
               }
-            }
-          })   
-        });
+              const markupObj = JSON.parse(annotation.data);
+              const markupUniqueID = !markupObj.Entity.UniqueID
+                ? null
+                : markupObj.Entity.UniqueID;
+              let lastMarkup;
+
+              if (markupUniqueID) {
+                lastMarkup = RXCore.getmarkupobjByGUID(markupUniqueID);
+              } else {
+                lastMarkup = RXCore.getLastMarkup();
+              }
+
+              //const lastMarkup = RXCore.getLastMarkup();
+
+              if (lastMarkup && lastMarkup != -1) {
+                const markup = lastMarkup as any;
+                markup.dbUniqueID = annotation.id;
+
+                if (markup.bhasArrow && markup.markupArrowConnected) {
+                  markup.markupArrowConnected.dbUniqueID = annotation.id;
+                } else if (markup.bisTextArrow && markup.textBoxConnected) {
+                  markup.textBoxConnected.dbUniqueID = annotation.id;
+                }
+              }
+            });
+          });
       }
 
-      if(this.guiConfig?.watermarkdemo){
-
+      if (this.guiConfig?.watermarkdemo) {
         RXCore.addWatermarkToAllPages('Rasterex', {
           position: 'Center',
           offsetX: 0,
@@ -567,22 +588,15 @@ export class AppComponent implements AfterViewInit {
           opacity: 50,
           font: 4,
           rotation: 45,
-          flags : 2
+          flags: 2,
         });
-    
-
       }
-
-      
-      
-
     });
-    
+
     RXCore.onGuiScaleListLoadComplete(() => {
       this.rxCoreService.guiScaleListLoadComplete.next();
     });
 
-    
     RXCore.onGuiMarkup((annotation: any, operation: any) => {
       console.log('RxCore GUI_Markup:', annotation, operation);
       if (annotation !== -1 || this.rxCoreService.lastGuiMarkup.markup !== -1) {
@@ -591,51 +605,53 @@ export class AppComponent implements AfterViewInit {
         if (annotation !== -1 && (operation.created || operation.deleted)) {
           // Handle addition, deletion
           const path = RXCore.getOriginalPath();
-          const storageAnnotation = this.guiConfig?.localStoreAnnotation === false && path != '';
+          const storageAnnotation =
+            this.guiConfig?.localStoreAnnotation === false && path != '';
 
           // If collab feature is enabled, send the markup message to the server
           const roomName = this.getRoomName();
           const collaboration = roomName && this.canCollaborate;
           // Text with an arrow. Handles it in the onGuiTextInput callback.
-          if ((storageAnnotation || collaboration) && !(operation.created && ((annotation.type == MARKUP_TYPES.TEXT.type && annotation.bhasArrow) || (annotation.type == MARKUP_TYPES.CALLOUT.type && annotation.bisTextArrow)))) {
-            
-            annotation.getJSONUniqueID(operation).then((jsonData)=>{
-
+          if (
+            (storageAnnotation || collaboration) &&
+            !(
+              operation.created &&
+              ((annotation.type == MARKUP_TYPES.TEXT.type &&
+                annotation.bhasArrow) ||
+                (annotation.type == MARKUP_TYPES.CALLOUT.type &&
+                  annotation.bisTextArrow))
+            )
+          ) {
+            annotation.getJSONUniqueID(operation).then((jsonData) => {
               if (storageAnnotation) {
                 const user = this.userService.getCurrentUser();
                 if (operation.created && annotation.dbUniqueID == null) {
-                    this.annotationStorageService.createAnnotation(1, path, jsonData,user?.id).then((result)=>{
+                  this.annotationStorageService
+                    .createAnnotation(1, path, jsonData, user?.id)
+                    .then((result) => {
                       // Retain the returned unique ID.
                       annotation.dbUniqueID = result.id;
                     });
-
                 } else if (operation.deleted && annotation.dbUniqueID != null) {
-                  this.annotationStorageService.deleteAnnotation(annotation.dbUniqueID);
-
+                  this.annotationStorageService.deleteAnnotation(
+                    annotation.dbUniqueID
+                  );
                 }
-
               }
 
               if (collaboration) {
-                  let cs = this.collabService;
-                  cs.sendMarkupMessage(roomName, jsonData, operation);
+                let cs = this.collabService;
+                cs.sendMarkupMessage(roomName, jsonData, operation);
               }
-
             });
           }
         }
       }
-
-    });    
-
-    RXCore.onGuiMarkupJSON((list: String) => {
-      
-
-      console.log('RxCore GUI_MarkupJSON:', list);
-
-
     });
 
+    RXCore.onGuiMarkupJSON((list: String) => {
+      console.log('RxCore GUI_MarkupJSON:', list);
+    });
 
     RXCore.onGuiMarkupIndex((annotation: any, operation: any) => {
       console.log('RxCore GUI_Markup index:', annotation, operation);
@@ -652,7 +668,6 @@ export class AppComponent implements AfterViewInit {
       }
     });
 
-
     RXCore.onGuiMarkupHover((markup, x, y) => {
       this.rxCoreService.setGuiMarkupHover(markup, x, y);
     });
@@ -663,35 +678,30 @@ export class AppComponent implements AfterViewInit {
 
     RXCore.onRotatePage((degree: number, pageIndex: number) => {
       this.rxCoreService.setGuiRotatePage(degree, pageIndex);
-
     });
 
     RXCore.onRotateDocument((degree: number) => {
       this.rxCoreService.setGuiRotateDocument(degree);
-
     });
 
-    RXCore.onZoomUpdated((zoomparams:any, type : number) => {
+    RXCore.onZoomUpdated((zoomparams: any, type: number) => {
       this.rxCoreService.setGuiZoomUpdated(zoomparams, type);
     });
 
-
-    
-
-    RXCore.onGuiMarkupList(list => {
-
-      if (list){
+    RXCore.onGuiMarkupList((list) => {
+      if (list) {
         this.rxCoreService.setGuiMarkupList(list);
-        this.lists = list?.filter(markup => markup.type != MARKUP_TYPES.SIGNATURE.type && markup.subtype != MARKUP_TYPES.SIGNATURE.subType);
-        this.lists?.forEach(list => {
+        this.lists = list?.filter(
+          (markup) =>
+            markup.type != MARKUP_TYPES.SIGNATURE.type &&
+            markup.subtype != MARKUP_TYPES.SIGNATURE.subType
+        );
+        this.lists?.forEach((list) => {
           setTimeout(() => {
             list.rectangle = { x: list.x + list.w - 20, y: list.y - 20 };
-
-
           }, 100);
         });
       }
-      
     });
 
     /*RXCore.onGuiMarkupPaths((pathlist) => {
@@ -706,37 +716,41 @@ export class AppComponent implements AfterViewInit {
     RXCore.onGuiTextInput((rectangle: any, operation: any) => {
       this.rxCoreService.setGuiTextInput(rectangle, operation);
       console.log('onGuiTextInput:', rectangle, operation);
-      if(operation.start && operation.markup){
-
+      if (operation.start && operation.markup) {
         const path = RXCore.getOriginalPath();
-        const storageAnnotation = this.guiConfig?.localStoreAnnotation === false && path != '';
+        const storageAnnotation =
+          this.guiConfig?.localStoreAnnotation === false && path != '';
 
         const roomName = this.getRoomName();
         const collaboration = roomName && this.canCollaborate;
 
         if (storageAnnotation || collaboration) {
-
           const annotation = operation.markup;
-          annotation.getJSONUniqueID({ created: true}).then((jsonData)=>{
-
+          annotation.getJSONUniqueID({ created: true }).then((jsonData) => {
             if (storageAnnotation) {
               const user = this.userService.getCurrentUser();
-              this.annotationStorageService.createAnnotation(1, path, jsonData, user?.id).then((result)=>{
-                // Retain the returned unique ID.
-                annotation.dbUniqueID = result.id;
-                if (annotation.bhasArrow && annotation.markupArrowConnected) {
-                  annotation.markupArrowConnected.dbUniqueID = annotation.dbUniqueID;
-                } else if (annotation.bisTextArrow && annotation.textBoxConnected) {
-                  annotation.textBoxConnected.dbUniqueID = annotation.dbUniqueID;
-                }
-              });
+              this.annotationStorageService
+                .createAnnotation(1, path, jsonData, user?.id)
+                .then((result) => {
+                  // Retain the returned unique ID.
+                  annotation.dbUniqueID = result.id;
+                  if (annotation.bhasArrow && annotation.markupArrowConnected) {
+                    annotation.markupArrowConnected.dbUniqueID =
+                      annotation.dbUniqueID;
+                  } else if (
+                    annotation.bisTextArrow &&
+                    annotation.textBoxConnected
+                  ) {
+                    annotation.textBoxConnected.dbUniqueID =
+                      annotation.dbUniqueID;
+                  }
+                });
             }
 
             if (collaboration) {
               const cs = this.collabService;
-              cs.sendMarkupMessage(roomName, jsonData, { created: true});
+              cs.sendMarkupMessage(roomName, jsonData, { created: true });
             }
-
           });
         }
 
@@ -745,17 +759,15 @@ export class AppComponent implements AfterViewInit {
             //&& (operation.created || operation.deleted)
             let cs = this.collabService;
             operation.markup.getJSONUniqueID({ created: true}).then(function(jsondata){
-  
+
               //const data = JSON.parse(jsondata);
               //data.operation = operation;
               cs.sendMarkupMessage(roomName, jsondata, { created: true});
-  
+
             });
-          
+
         }*/
-
       }
-
     });
 
     RXCore.onGuiVectorLayers((layers) => {
@@ -770,7 +782,7 @@ export class AppComponent implements AfterViewInit {
       this.rxCoreService.setGui3DParts(parts);
     });
 
-    RXCore.onGui3DPartInfo(info => {
+    RXCore.onGui3DPartInfo((info) => {
       this.rxCoreService.setGui3DPartInfo(info);
     });
 
@@ -787,7 +799,10 @@ export class AppComponent implements AfterViewInit {
     });
 
     RXCore.onGuiMarkupSave(() => {
-      this.notificationService.notification({message: 'Markups have been successfully saved.', type: 'success'});
+      this.notificationService.notification({
+        message: 'Markups have been successfully saved.',
+        type: 'success',
+      });
     });
 
     RXCore.onGuiResize(() => {
@@ -798,102 +813,102 @@ export class AppComponent implements AfterViewInit {
       this.rxCoreService.guiOnExportComplete.next(fileUrl);
     });
 
-    RXCore.onGuiCompareMeasure((distance, angle, offset, pagewidth, scaleinfo) => {
-      this.rxCoreService.guiOnCompareMeasure.next({distance, angle, offset, pagewidth, scaleinfo});
-    });
+    RXCore.onGuiCompareMeasure(
+      (distance, angle, offset, pagewidth, scaleinfo) => {
+        this.rxCoreService.guiOnCompareMeasure.next({
+          distance,
+          angle,
+          offset,
+          pagewidth,
+          scaleinfo,
+        });
+      }
+    );
 
     RXCore.onGuiMarkupChanged((annotation, operation) => {
       //console.log('RxCore onGuiMarkupChanged:', annotation, operation);
-      this.rxCoreService.guiOnMarkupChanged.next({annotation, operation});
+      this.rxCoreService.guiOnMarkupChanged.next({ annotation, operation });
 
       if (annotation !== -1) {
-      
         const path = RXCore.getOriginalPath();
-        const storageAnnotation = this.guiConfig?.localStoreAnnotation === false && path != '';
+        const storageAnnotation =
+          this.guiConfig?.localStoreAnnotation === false && path != '';
 
         const roomName = this.getRoomName();
         const collaboration = roomName && this.canCollaborate;
 
         if (storageAnnotation || collaboration) {
-
-          const updateAnnotation = (jsonData)=>{
+          const updateAnnotation = (jsonData) => {
             if (storageAnnotation) {
               if (annotation.dbUniqueID != null) {
                 //console.log('RxCore onGuiMarkupChanged:', annotation, operation);
-                this.annotationStorageService.updateAnnotation(annotation.dbUniqueID, annotation.getJSON());
+                this.annotationStorageService.updateAnnotation(
+                  annotation.dbUniqueID,
+                  annotation.getJSON()
+                );
               }
             }
-            
+
             if (collaboration) {
-              this.collabService.sendMarkupMessage(roomName, jsonData, { modified: true});
+              this.collabService.sendMarkupMessage(roomName, jsonData, {
+                modified: true,
+              });
             }
           };
-          
-          if(annotation.type == 8 && annotation.subtype == 2){
 
-            if(annotation.parent){
-              
-              annotation.parent.getJSONUniqueID({ modified: true}).then((jsonData) => {
-
-                updateAnnotation(jsonData);
-                
-              });
-    
+          if (annotation.type == 8 && annotation.subtype == 2) {
+            if (annotation.parent) {
+              annotation.parent
+                .getJSONUniqueID({ modified: true })
+                .then((jsonData) => {
+                  updateAnnotation(jsonData);
+                });
             }
-
           } else {
-            
-            annotation.getJSONUniqueID({ modified: true}).then((jsonData) =>{
-
+            annotation.getJSONUniqueID({ modified: true }).then((jsonData) => {
               updateAnnotation(jsonData);
-
             });
           }
-
         }
-
       }
-
-
-    });    
-
-    RXCore.onGuiPanUpdated((sx, sy, pagerect) => { 
-      this.rxCoreService.guiOnPanUpdated.next({sx, sy, pagerect});
     });
 
-    RXCore.onGuiZoomUpdate((zoomparams, type) => { 
-      this.rxCoreService.guiOnZoomUpdate.next({zoomparams, type});
+    RXCore.onGuiPanUpdated((sx, sy, pagerect) => {
+      this.rxCoreService.guiOnPanUpdated.next({ sx, sy, pagerect });
+    });
+
+    RXCore.onGuiZoomUpdate((zoomparams, type) => {
+      this.rxCoreService.guiOnZoomUpdate.next({ zoomparams, type });
     });
 
     RXCore.onGui3DCameraSave((camera, fileActive) => {
-
-      if(fileActive){
+      if (fileActive) {
         RXCore.restoreCameraByName(camera.name);
-
       }
-
     });
 
     /*RXCore.onGuiUpload((upload :any) =>{
-      
+
       this.isUploadFile = true;
 
       if(upload < 100){
-        
+
         if(this.progressBar){
           this.progressBar.nativeElement.value = upload;
-        }  
-        
+        }
+
       }else{
         this.isUploadFile = false;
       }
 
     });*/
-  
-
   }
 
   ngOnDestroy() {
+    // Clean up subscription
+    if (this.sidebarStateSubscription) {
+      this.sidebarStateSubscription.unsubscribe();
+    }
     this.tooltipService.closeTooltip();
     this.infoPanelVisible = false;
   }
@@ -904,7 +919,7 @@ export class AppComponent implements AfterViewInit {
     const attributes = RXCore.getBlockAttributes(block.index);
     for (let i = 0; i < attributes.length; i++) {
       const attribute = attributes[i];
-      arr.push({name: attribute.name, value: attribute.value});
+      arr.push({ name: attribute.name, value: attribute.value });
     }
     // @ts-ignore
     /* const insert = block.insert;
@@ -920,7 +935,7 @@ export class AppComponent implements AfterViewInit {
 
   showBlockInfo(block: IVectorBlock | undefined) {
     if (!block) {
-       this.infoPanelVisible = false;
+      this.infoPanelVisible = false;
     } else {
       this.infoPanelVisible = true;
       this.infoData = this.getBlockAttributes(block);
@@ -936,18 +951,13 @@ export class AppComponent implements AfterViewInit {
     return roomName;
   }
 
-
-  openInitFile(initialDoc){
-
-    if (this.bguireadycalled && this.bfoxitreadycalled){
-
-      if(initialDoc.open && !this.binitfileopened){
-
-
-        if(initialDoc.openfileobj != null){
-            this.binitfileopened = true;
+  openInitFile(initialDoc) {
+    if (this.bguireadycalled && this.bfoxitreadycalled) {
+      if (initialDoc.open && !this.binitfileopened) {
+        if (initialDoc.openfileobj != null) {
+          this.binitfileopened = true;
           RXCore.openFile(initialDoc.openfileobj);
-          }
+        }
       }
     }
   }
@@ -956,8 +966,8 @@ export class AppComponent implements AfterViewInit {
     this.fileGaleryService.openModal();
   }
 
-  handleLoginClick(){
-    console.log("log in pressed");
+  handleLoginClick() {
+    console.log('log in pressed');
   }
 
   onMouseDown(event): void {
@@ -976,31 +986,41 @@ export class AppComponent implements AfterViewInit {
     // if (event.button === 2 || event.type === 'touchend') clearTimeout(this.timeoutId);
   }
 
-  onKeydown(event):void{
-
-    if (event.key == "z" ) {
+  onKeydown(event): void {
+    if (event.key == 'z') {
       event.preventDefault();
       RXCore.pageLock(true);
-      console.log( event.key, "kay pressed");
+      console.log(event.key, 'kay pressed');
     }
-   
   }
 
-  onKeyup(event):void{
-
-    if (event.key == "z" ) {
+  onKeyup(event): void {
+    if (event.key == 'z') {
       event.preventDefault();
       RXCore.pageLock(false);
-      console.log( event.key, "kay released");
+      console.log(event.key, 'kay released');
     }
-   
   }
 
-
   pasteMarkUp(): void {
-/*     RXCore.pasteMarkUp();
+    /*     RXCore.pasteMarkUp();
     this.pasteStyle = { display: 'none' };
- */  
-}
+ */
+  }
 
+  resetUserMarkupDisplaySettings() {
+    try {
+      const users = RXCore.getUsers();
+      console.log('Resetting markup display for all users:', users.length);
+
+      // Reset display settings for all users to true (visible)
+      for (let i = 0; i < users.length; i++) {
+        RXCore.SetUserMarkupdisplay(i, true);
+      }
+
+      console.log('User markup display settings reset successfully');
+    } catch (error) {
+      console.error('Error resetting user markup display settings:', error);
+    }
+  }
 }

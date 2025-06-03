@@ -1,6 +1,6 @@
 <rx-panel
   *ngIf="visible"
-  [title]="panelTitle"
+  [title]="getPanelTitle()"
   (onClose)="onClose()"
   [draggable]="false"
 >
@@ -17,14 +17,13 @@
         />
       </div> -->
       <div class="switch-container" *ngIf="!showAnnotationsOnLoad" >
-        <!-- <h5>Show/Hide</h5> -->
         <div class="switch-group">
           <div>
-            <rx-switch [checked]="showAnnotations" (change)="onShowAnnotations($event)"></rx-switch>
+            <rx-switch [checked]="showAnnotations" (change)="onToggleAnnotations($event)"></rx-switch>
             <span>Annotations ({{ calcAnnotationCount() }})</span>
           </div>
           <div>
-            <rx-switch [checked]="showMeasurements" (change)="onShowMeasurements($event)"></rx-switch>
+            <rx-switch [checked]="showMeasurements" (change)="onToggleMeasurements($event)"></rx-switch>
             <span>Measurements ({{ calcMeasurementsCount() }})</span>
           </div>
         </div>

@@ -972,7 +972,7 @@ May 30, 3025
 
 
 
-June 01, 3025
+June 02, 3025
 
 # Improve UI of Filters
 
@@ -981,3 +981,10 @@ June 01, 3025
   `modified:   src/app/components/annotation-tools/note-panel/note-panel.component.ts  `
   `modified:   src/app/components/common/dropdown-menu/dropdown-menu.component.scss`
   `modified:   src/app/components/common/dropdown/dropdown.component.scss`
+
+June 03, 3025
+
+# Implemented Switching Between Annotations & Measurements
+
+  `modified:   src/app/components/annotation-tools/note-panel/note-panel.component.html`
+  `modified:   src/app/components/annotation-tools/note-panel/note-panel.component.ts`

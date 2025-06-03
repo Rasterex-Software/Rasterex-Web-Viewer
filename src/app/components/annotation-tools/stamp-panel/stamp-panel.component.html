@@ -43,7 +43,7 @@
     <!-- Custom Section -->
     <section *ngIf="activeIndexStamp === 2">
       <div class="add-custom-stamp">
-        <button class="btn btn-primary" *ngIf="(canAddAnnotation | async) && (isLoggedIn | async)" (click)="opened = true">Create Custom
+        <button class="btn btn-primary" (click)="opened = true">Create Custom
           Stamp</button>
       </div>
       <div class="templates-list" style="height: 390px;">
@@ -57,12 +57,12 @@
             (dragstart)="onStampDragStart($event, template, 'custom')"
             (dragend)="onStampDragEnd($event)"
             class="draggable-stamp">
-          <button title="edit" *ngIf="(canUpdateAnnotation | async) && (isLoggedIn | async)" (click)="editCustomStamp(template.id)"
+          <button title="edit" (click)="editCustomStamp(template.id)"
             style="border: none; background: none; cursor: pointer; padding: 0; margin-left: 8px;">
             <img src="/assets/images/edit-ico.svg" />
           </button>
 
-          <button title="trash" *ngIf="(canDeleteAnnotation | async) && (isLoggedIn | async)" (click)="deleteCustomStamp(template.id)"
+          <button title="trash" (click)="deleteCustomStamp(template.id)"
             style="border: none; background: none; cursor: pointer; padding: 0; margin-left: 8px;">
             <img src="/assets/images/trash-ico.svg" />
           </button>
@@ -75,7 +75,7 @@
       <div class="add-custom-stamp">
         <input type="file" #fileUpload (change)="handleImageUpload($event)" accept=".jpg,.jpeg,.png"
           style="display: none;" multiple>
-        <button type="button" id="upload_button" class="btn btn-primary" *ngIf="(canAddAnnotation | async) && (isLoggedIn | async)"
+        <button type="button" id="upload_button" class="btn btn-primary"
           (click)="fileUpload.click()">Upload Image Stamp</button>
       </div>
       <!-- <div class="input-group" style="width: auto;margin: 0 7px;">
@@ -101,7 +101,7 @@
                (dragstart)="onStampDragStart($event, template, 'upload')"
                (dragend)="onStampDragEnd($event)" />
 
-          <button title="trash" *ngIf="(canDeleteAnnotation | async) && (isLoggedIn | async)" (click)="deleteImageStamp(template.id)"
+          <button title="trash" (click)="deleteImageStamp(template.id)"
             style="border: none; background: none; cursor: pointer; padding: 0; margin-left: 8px;">
             <img src="/assets/images/trash-ico.svg" />
           </button>

@@ -459,10 +459,13 @@ getSvgData(): string {
     const stampName = 'custom-stamp_' + new Date().getTime();
     const stampType = 'image/svg+xml';
 
+    // Include width and height for proper SVG handling
     const newStamp = {
       name: stampName,
       type: stampType,
-      content: svgBase64
+      content: svgBase64,
+      width: this.svgWidth,
+      height: this.svgHeight
     };
     // let stamps = JSON.parse(localStorage.getItem('CustomStamps') || '[]');
     // stamps.push(newStamp);
@@ -669,17 +672,54 @@ async deleteImageStamp(id: number): Promise<void> {
     try {
       console.log('Converting stamp to standard:', stamp, sourceType);
       
-      // Get the image data from the stamp
-      const {imageData, width, height} = await this.convertUrlToBase64Data(stamp.src);
+      let newStamp: any;
       
-      // Create new standard stamp
-      const newStamp = {
-        name: stamp.name,
-        type: StampType.StandardStamp,
-        width: width,
-        height: height,
-        content: imageData
-      };
+      if (sourceType === 'custom') {
+        // For custom stamps (SVG), preserve the original SVG data
+        const originalStampData = await this.getOriginalStampData(stamp.id, 'custom');
+        if (originalStampData && originalStampData.type === 'image/svg+xml') {
+          // Preserve SVG format for better quality
+          newStamp = {
+            name: stamp.name,
+            type: originalStampData.type, // Keep as SVG
+            width: stamp.width,
+            height: stamp.height,
+            content: originalStampData.content // Use original SVG base64 data
+          };
+        } else {
+          // Fallback to rasterization if original data not available
+          const {imageData, width, height} = await this.convertUrlToBase64Data(stamp.src);
+          newStamp = {
+            name: stamp.name,
+            type: StampType.StandardStamp,
+            width: width,
+            height: height,
+            content: imageData
+          };
+        }
+      } else if (sourceType === 'upload') {
+        // For uploaded images, get the original data to preserve quality
+        const originalStampData = await this.getOriginalStampData(stamp.id, 'upload');
+        if (originalStampData) {
+          newStamp = {
+            name: stamp.name,
+            type: originalStampData.type,
+            width: originalStampData.width || stamp.width,
+            height: originalStampData.height || stamp.height,
+            content: originalStampData.content
+          };
+        } else {
+          // Fallback to current conversion method
+          const {imageData, width, height} = await this.convertUrlToBase64Data(stamp.src);
+          newStamp = {
+            name: stamp.name,
+            type: StampType.StandardStamp,
+            width: width,
+            height: height,
+            content: imageData
+          };
+        }
+      }
 
       console.log('Adding new standard stamp:', newStamp);
       
@@ -703,6 +743,28 @@ async deleteImageStamp(id: number): Promise<void> {
       console.log(`Successfully converted ${sourceType} stamp to standard stamp`);
     } catch (error) {
       console.error('Error converting stamp to standard:', error);
+    }
+  }
+
+  private async getOriginalStampData(stampId: number, sourceType: 'custom' | 'upload'): Promise<any> {
+    try {
+      if (sourceType === 'custom') {
+        const stamps = await this.storageService.getAllCustomStamps();
+        const stampRecord = stamps.find(s => s.id === stampId);
+        if (stampRecord) {
+          return JSON.parse(stampRecord.data);
+        }
+      } else if (sourceType === 'upload') {
+        const stamps = await this.storageService.getAllUploadImageStamps();
+        const stampRecord = stamps.find(s => s.id === stampId);
+        if (stampRecord) {
+          return JSON.parse(stampRecord.data);
+        }
+      }
+      return null;
+    } catch (error) {
+      console.error('Error getting original stamp data:', error);
+      return null;
     }
   }
 

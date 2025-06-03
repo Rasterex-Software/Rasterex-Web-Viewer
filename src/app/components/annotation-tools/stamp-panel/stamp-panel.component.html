@@ -2,21 +2,40 @@
   <div class="stamp-panel-container">
     <!-- Tab Buttons -->
     <div class="btn-group" id="tabs" role="group">
-      <button [class.selected]="activeIndexStamp === 1" (click)="activeIndexStamp = 1">Standard</button>
+      <button [class.selected]="activeIndexStamp === 1"
+              (click)="activeIndexStamp = 1"
+              (dragover)="onStandardTabDragOver($event)"
+              (dragleave)="onStandardTabDragLeave($event)"
+              (drop)="onStandardTabDrop($event)"
+              [class.drag-over-tab]="isStandardDragOver">
+        Standard
+        <span *ngIf="isStandardDragOver" class="drop-indicator">Drop here!</span>
+      </button>
       <button [class.selected]="activeIndexStamp === 2" (click)="activeIndexStamp = 2">Custom</button>
       <button [class.selected]="activeIndexStamp === 3" (click)="activeIndexStamp = 3">UploadImage</button>
     </div>
 
     <!-- Standard Section -->
     <section *ngIf="activeIndexStamp === 1">
-      <div class="templates-list">
-        <div *ngFor="let template of templates;let i = index" style="display: flex; align-items: center;">
-          <img [stampTemplate]="template" [src]="template.src"
-            [ngStyle]="{ 'width.px': template.width, 'height.px': template.height }" style="margin: 2px;">
-          <button title="trash" *ngIf="(canDeleteAnnotation | async) && (isLoggedIn | async)" (click)="deleteStandardStamp(template.id)"
-            style="border: none; background: none; cursor: pointer; padding: 0; margin-left: 8px;">
-            <img src="/assets/images/trash-ico.svg" />
-          </button>
+      <!-- Drop zone for Standard tab -->
+      <div class="standard-drop-zone"
+           (dragover)="onStandardDragOver($event)"
+           (dragleave)="onStandardDragLeave($event)"
+           (drop)="onStandardDrop($event)"
+           [class.drag-over]="isStandardDragOver">
+        <div class="drop-zone-message" *ngIf="isStandardDragOver">
+          <p>Drop here to make it a Standard Stamp</p>
+        </div>
+        <div class="templates-list">
+          <div *ngFor="let template of templates;let i = index" class="standard-stamp-container">
+            <img [stampTemplate]="template" [src]="template.src"
+              class="standard-stamp-image">
+            <button title="trash" *ngIf="(canDeleteAnnotation | async) && (isLoggedIn | async)"
+                    (click)="deleteStandardStamp(template.id)"
+                    class="delete-button">
+              <img src="/assets/images/trash-ico.svg" />
+            </button>
+          </div>
         </div>
       </div>
     </section>
@@ -28,9 +47,16 @@
           Stamp</button>
       </div>
       <div class="templates-list" style="height: 390px;">
-        <div *ngFor="let template of customStamps;let i = index" style="display: flex; align-items: center;">
+        <div *ngFor="let template of customStamps;let i = index"
+             class="draggable-stamp-container"
+             style="display: flex; align-items: center;">
           <img [stampTemplate]="template" [src]="template.src"
-            [ngStyle]="{ 'width.px': template.width, 'height.px': template.height }" style="margin: 2px;">
+            [ngStyle]="{ 'width.px': template.width, 'height.px': template.height }"
+            style="margin: 2px;"
+            draggable="true"
+            (dragstart)="onStampDragStart($event, template, 'custom')"
+            (dragend)="onStampDragEnd($event)"
+            class="draggable-stamp">
           <button title="edit" *ngIf="(canUpdateAnnotation | async) && (isLoggedIn | async)" (click)="editCustomStamp(template.id)"
             style="border: none; background: none; cursor: pointer; padding: 0; margin-left: 8px;">
             <img src="/assets/images/edit-ico.svg" />
@@ -51,28 +77,6 @@
           style="display: none;" multiple>
         <button type="button" id="upload_button" class="btn btn-primary" *ngIf="(canAddAnnotation | async) && (isLoggedIn | async)"
           (click)="fileUpload.click()">Upload Image Stamp</button>
-        <button type="button" class="btn btn-secondary" *ngIf="(canAddAnnotation | async) && (isLoggedIn | async)" (click)="syncToBackend()"
-          [disabled]="uploadImageStamps.length === 0 || isSyncing">
-          <span *ngIf="!isSyncing">Sync to Backend ({{ uploadImageStamps.length }})</span>
-          <span *ngIf="isSyncing">Syncing to Backend</span>
-        </button>
-      </div>
-
-      <!-- Sync Status -->
-      <div *ngIf="syncStatus" class="sync-status" [ngClass]="syncStatus.type">
-        {{ syncStatus.message }}
-      </div>
-
-      <!-- Drag and Drop Zone -->
-      <div class="drag-drop-zone" *ngIf="(canAddAnnotation | async) && (isLoggedIn | async)" (dragover)="onDragOver($event)"
-        (dragleave)="onDragLeave($event)" (drop)="onDrop($event)" (click)="onDropZoneClick()"
-        [class.drag-over]="isDragOver">
-        <div class="drag-drop-content">
-          <img src="/assets/images/upload-icon.svg" alt="Upload" class="upload-icon"
-            onerror="this.style.display='none'">
-          <p>Drag and drop images here</p>
-          <p class="drag-drop-subtitle">or click here to select files</p>
-        </div>
       </div>
       <!-- <div class="input-group" style="width: auto;margin: 0 7px;">
           <input
@@ -88,21 +92,20 @@
           </button>
         </div> -->
       <div class="templates-list" style="height: 390px;">
-
-
         <div *ngFor="let template of uploadImageStamps; let i = index"
           style="display: flex; align-items: center; width: 210px; justify-content: space-between;"
-          class="image-container">
-          <img [stampTemplate]="template" [src]="template.src" class="stamp-draggable-image" />
+          class="image-container draggable-stamp-container">
+          <img [stampTemplate]="template" [src]="template.src"
+               class="stamp-draggable-image draggable-stamp"
+               draggable="true"
+               (dragstart)="onStampDragStart($event, template, 'upload')"
+               (dragend)="onStampDragEnd($event)" />
 
           <button title="trash" *ngIf="(canDeleteAnnotation | async) && (isLoggedIn | async)" (click)="deleteImageStamp(template.id)"
             style="border: none; background: none; cursor: pointer; padding: 0; margin-left: 8px;">
             <img src="/assets/images/trash-ico.svg" />
           </button>
         </div>
-
-
-
       </div>
     </section>
 

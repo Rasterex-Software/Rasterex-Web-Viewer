@@ -61,9 +61,12 @@ export class StampPanelComponent implements OnInit {
   text: string = '';
   strokeThickness: number = 1;
   safeSvgContents: SafeHtml[] = [];
-  isDragOver: boolean = false;
-  isSyncing: boolean = false;
-  syncStatus: { message: string; type: 'success' | 'error' | 'info' } | null = null;
+  isStandardDragOver: boolean = false;
+  draggedStamp: StampData | null = null;
+  draggedStampType: 'custom' | 'upload' | null = null;
+  
+  // Make Math available in template
+  Math = Math;
 
   // Add permission observables
   canAddAnnotation = this.userService.canAddAnnotation$;
@@ -206,23 +209,19 @@ export class StampPanelComponent implements OnInit {
       };
   }
 
-  getStandardStamps() {
-    this.storageService.getAllStandardStamps().then((stamps: any[]) => {
+  async getStandardStamps(): Promise<void> {
+    try {
+      const stamps = await this.storageService.getAllStandardStamps();
       const stampPromises = stamps.map(async (item: any) => {
         return this.convertToStampData({id: item.id, ...JSON.parse(item.data)});
       });
 
       // Resolve all promises to get the stamp data
-      Promise.all(stampPromises).then(resolvedStamps => {
-        this.templates = resolvedStamps;
-        console.log('Standard stamps retrieved successfully:', this.templates);
-      }).catch(error => {
-        console.error('Failed to convert stamps:', error);
-      });;
-
-    }).catch(error => {
-      console.error('Error retrieving stamps:', error);
-    });
+      this.templates = await Promise.all(stampPromises);
+      console.log('Standard stamps retrieved successfully:', this.templates);
+    } catch (error) {
+      console.error('Error retrieving standard stamps:', error);
+    }
   }
  
   getCustomStamps() {
@@ -285,17 +284,18 @@ export class StampPanelComponent implements OnInit {
   }
 
   
-  deleteCustomStamp(id: number): void {
-    this.storageService.deleteCustomStamp(id).then(() => {
-       for (let i = 0; i < this.customStamps.length; i++) {
+  async deleteCustomStamp(id: number): Promise<void> {
+    try {
+      await this.storageService.deleteCustomStamp(id);
+      for (let i = 0; i < this.customStamps.length; i++) {
         if (this.customStamps[i].id === id) {
           this.customStamps.splice(i, 1);
           break;
         }
       }
-    }).catch(error => {
-      console.error('Error deleting stamp:', error);
-    });
+    } catch (error) {
+      console.error('Error deleting custom stamp:', error);
+    }
   }
 
   deleteStandardStamp(id: number): void {
@@ -518,17 +518,18 @@ handleImageUpload(event: any) {
   event.target.value = '';
 }
 
-deleteImageStamp(id: number): void {
-  this.storageService.deleteUploadImageStamp(id).then(() => {
-     for (let i = 0; i < this.uploadImageStamps.length; i++) {
+async deleteImageStamp(id: number): Promise<void> {
+  try {
+    await this.storageService.deleteUploadImageStamp(id);
+    for (let i = 0; i < this.uploadImageStamps.length; i++) {
       if (this.uploadImageStamps[i].id === id) {
         this.uploadImageStamps.splice(i, 1);
         break;
       }
     }
-  }).catch(error => {
+  } catch (error) {
     console.error('Error deleting image stamp:', error);
-  });
+  }
 }
 
 
@@ -577,53 +578,131 @@ deleteImageStamp(id: number): void {
     //Logic to edit
   }
 
-  // Drag and Drop Methods
-  onDragOver(event: DragEvent): void {
-    event.preventDefault();
-    event.stopPropagation();
-    this.isDragOver = true;
+  // Stamp Drag and Drop Methods - Only for Standard conversion tracking
+  onStampDragStart(event: DragEvent, stamp: StampData, type: 'custom' | 'upload'): void {
+    console.log('Drag start for Standard conversion tracking:', stamp, type);
+    // Only track for potential Standard conversion, don't interfere with original drag
+    this.draggedStamp = stamp;
+    this.draggedStampType = type;
+    
+    // Don't modify the drag event - let the original stampTemplate directive handle it
+    // The original functionality should work as before
   }
 
-  onDragLeave(event: DragEvent): void {
-    event.preventDefault();
-    event.stopPropagation();
-    this.isDragOver = false;
+  onStampDragEnd(event: DragEvent): void {
+    console.log('Drag end - clearing Standard conversion tracking');
+    // Clear our tracking state
+    setTimeout(() => {
+      this.draggedStamp = null;
+      this.draggedStampType = null;
+      this.isStandardDragOver = false;
+    }, 100);
   }
 
-  onDrop(event: DragEvent): void {
-    event.preventDefault();
-    event.stopPropagation();
-    this.isDragOver = false;
-
-    const files = event.dataTransfer?.files;
-    if (files && files.length > 0) {
-      this.processDroppedFiles(files);
-    }
-  }
-
-  onDropZoneClick(): void {
-    // Get reference to the hidden file input and trigger click
-    const fileInput = document.querySelector('input[type="file"][accept*="jpg"]') as HTMLInputElement;
-    if (fileInput) {
-      fileInput.click();
-    }
-  }
-
-  private processDroppedFiles(files: FileList): void {
-    const validFiles: File[] = [];
-    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
-
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-      if (allowedTypes.includes(file.type)) {
-        validFiles.push(file);
-      } else {
-        console.warn(`File ${file.name} is not a valid image type. Only JPG, JPEG, and PNG are allowed.`);
+  onStandardDragOver(event: DragEvent): void {
+    // Only show visual feedback if we have a tracked stamp AND user is logged in AND has permission
+    if (this.draggedStamp && this.draggedStampType && this.userService.getCurrentUser() && this.userService['_canAddAnnotation'].value) {
+      // Only prevent default for the specific standard drop zone, not globally
+      const target = event.target as HTMLElement;
+      if (target.closest('.standard-drop-zone')) {
+        event.preventDefault();
+        this.isStandardDragOver = true;
+        console.log('Standard drop zone drag over - showing feedback');
       }
     }
+  }
 
-    if (validFiles.length > 0) {
-      this.handleFileUpload(validFiles);
+  onStandardDragLeave(event: DragEvent): void {
+    this.isStandardDragOver = false;
+  }
+
+  onStandardDrop(event: DragEvent): void {
+    // Only handle if we're in the standard drop zone, have a tracked stamp, AND user is logged in AND has permission
+    if (this.draggedStamp && this.draggedStampType && this.userService.getCurrentUser() && this.userService['_canAddAnnotation'].value) {
+      const target = event.target as HTMLElement;
+      if (target.closest('.standard-drop-zone')) {
+        event.preventDefault();
+        event.stopPropagation();
+        this.isStandardDragOver = false;
+
+        console.log('Converting stamp to standard via drop zone');
+        this.convertStampToStandard(this.draggedStamp, this.draggedStampType);
+        
+        this.draggedStamp = null;
+        this.draggedStampType = null;
+      }
+    }
+  }
+
+  // Tab-specific drag and drop methods
+  onStandardTabDragOver(event: DragEvent): void {
+    if (this.draggedStamp && this.draggedStampType && this.userService.getCurrentUser() && this.userService['_canAddAnnotation'].value) {
+      event.preventDefault();
+      this.isStandardDragOver = true;
+      console.log('Standard TAB drag over - showing feedback');
+    }
+  }
+
+  onStandardTabDragLeave(event: DragEvent): void {
+    this.isStandardDragOver = false;
+  }
+
+  onStandardTabDrop(event: DragEvent): void {
+    if (this.draggedStamp && this.draggedStampType && this.userService.getCurrentUser() && this.userService['_canAddAnnotation'].value) {
+      event.preventDefault();
+      event.stopPropagation();
+      this.isStandardDragOver = false;
+
+      console.log('Converting stamp to standard via TAB');
+      // Switch to Standard tab first
+      this.activeIndexStamp = 1;
+      
+      // Convert the stamp to standard
+      this.convertStampToStandard(this.draggedStamp, this.draggedStampType);
+      
+      this.draggedStamp = null;
+      this.draggedStampType = null;
+    }
+  }
+
+  private async convertStampToStandard(stamp: StampData, sourceType: 'custom' | 'upload'): Promise<void> {
+    try {
+      console.log('Converting stamp to standard:', stamp, sourceType);
+      
+      // Get the image data from the stamp
+      const {imageData, width, height} = await this.convertUrlToBase64Data(stamp.src);
+      
+      // Create new standard stamp
+      const newStamp = {
+        name: stamp.name,
+        type: StampType.StandardStamp,
+        width: width,
+        height: height,
+        content: imageData
+      };
+
+      console.log('Adding new standard stamp:', newStamp);
+      
+      // Add to standard stamps
+      const addedStamp = await this.storageService.addStandardStamp(newStamp);
+      console.log('Standard stamp added successfully:', addedStamp);
+      
+      // Remove from source collection
+      if (sourceType === 'custom') {
+        await this.deleteCustomStamp(stamp.id);
+        console.log('Removed from custom stamps');
+      } else if (sourceType === 'upload') {
+        await this.deleteImageStamp(stamp.id);
+        console.log('Removed from upload stamps');
+      }
+      
+      // Refresh standard stamps list
+      await this.getStandardStamps();
+      console.log('Standard stamps list refreshed');
+      
+      console.log(`Successfully converted ${sourceType} stamp to standard stamp`);
+    } catch (error) {
+      console.error('Error converting stamp to standard:', error);
     }
   }
 
@@ -677,95 +756,6 @@ deleteImageStamp(id: number): void {
     }).catch(error => {
       console.error('Error uploading some files:', error);
     });
-  }
-
-  // Backend Sync Methods
-  async syncToBackend(): Promise<void> {
-    if (this.uploadImageStamps.length === 0) {
-      this.syncStatus = { message: 'No stamps to sync', type: 'info' };
-      setTimeout(() => this.syncStatus = null, 3000);
-      return;
-    }
-
-    this.isSyncing = true;
-    this.syncStatus = { message: 'Starting sync to backend...', type: 'info' };
-
-    try {
-      console.log('Starting sync to backend...');
-      
-      // Get all stamps from IndexDB
-      const stamps = await this.storageService.getAllUploadImageStamps();
-      
-      for (let i = 0; i < stamps.length; i++) {
-        const stamp = stamps[i];
-        const stampData = JSON.parse(stamp.data);
-        
-        this.syncStatus = {
-          message: `Syncing stamp ${i + 1} of ${stamps.length}...`,
-          type: 'info'
-        };
-        
-        // Prepare data for backend
-        const backendData = {
-          id: stamp.id,
-          name: stampData.name,
-          type: stampData.type,
-          content: stampData.content,
-          width: stampData.width,
-          height: stampData.height,
-          createdAt: new Date().toISOString()
-        };
-
-        // TODO: Replace with actual backend API call
-        await this.sendToBackend(backendData);
-      }
-
-      this.syncStatus = {
-        message: `Successfully synced ${stamps.length} stamps to backend!`,
-        type: 'success'
-      };
-      
-      console.log('Sync to backend completed successfully');
-      
-      // Optionally, you can clear IndexDB after successful sync
-      // await this.clearIndexDBAfterSync();
-      
-    } catch (error) {
-      console.error('Error syncing to backend:', error);
-      this.syncStatus = {
-        message: 'Error syncing to backend. Please try again.',
-        type: 'error'
-      };
-    } finally {
-      this.isSyncing = false;
-      // Clear status after 5 seconds
-      setTimeout(() => this.syncStatus = null, 5000);
-    }
-  }
-
-  private async sendToBackend(stampData: any): Promise<void> {
-    console.log('Sending stamp to backend:', stampData);
-    
-    // For now, just simulate the API call
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        console.log('Stamp sent to backend:', stampData.name);
-        resolve();
-      }, 100);
-    });
-  }
-
-  private async clearIndexDBAfterSync(): Promise<void> {
-    try {
-      // Clear all upload image stamps from IndexDB after successful sync
-      for (const stamp of this.uploadImageStamps) {
-        await this.storageService.deleteUploadImageStamp(stamp.id);
-      }
-      this.uploadImageStamps = [];
-      console.log('IndexDB cleared after successful sync');
-    } catch (error) {
-      console.error('Error clearing IndexDB:', error);
-    }
   }
 
 }

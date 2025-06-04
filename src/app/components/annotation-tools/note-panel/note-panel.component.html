@@ -47,6 +47,115 @@
 
     <div class="main-section" (scroll)="scrollHandler($event)">
       <div *ngIf="filterVisible">
+        <!-- Activity Type Grouped Mockup -->
+        <div class="activity-filter-container">
+          <!-- Filter Controls -->
+          <div class="filter-controls">
+            <div class="filter-row">
+              <div class="filter-group">
+                <label>Group by:</label>
+                <select class="filter-select">
+                  <option value="activity">Activity Type</option>
+                  <option value="page">Page</option>
+                  <option value="author">Author</option>
+                </select>
+              </div>
+              <div class="filter-group">
+                <label>Sort by:</label>
+                <select class="filter-select">
+                  <option value="author">Author</option>
+                  <option value="date">Date</option>
+                  <option value="position">Position</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Page Grouped Section -->
+          <div class="activity-content">
+            <!-- Page 1 Group -->
+            <div class="page-group">
+              <div class="page-header">
+                <span class="collapse-icon">▼</span>
+                <span class="page-title">Page 1</span>
+                <span class="page-count">(3 annotations)</span>
+              </div>
+              <div style="margin-top: 10px; margin-bottom: 10px;">Activity Type</div>
+              <div class="page-pills">
+                <button class="annotation-button">
+                  <div class="button-icon circle-icon">●</div>
+                  <span class="button-label">Circle</span>
+                </button>
+                <button class="annotation-button">
+                  <div class="button-icon fixed-icon">👍</div>
+                  <span class="button-label">Fixed it</span>
+                </button>
+                <button class="annotation-button selected">
+                  <div class="button-icon arrow-icon">↗</div>
+                  <span class="button-label">Arrow</span>
+                </button>
+              </div>
+            </div>
+            
+            <!-- Page 2 Group -->
+            <div class="page-group">
+              <div class="page-header">
+                <span class="collapse-icon">▼</span>
+                <span class="page-title">Page 2</span>
+                <span class="page-count">(2 annotations)</span>
+              </div>
+              <div style="margin-top: 10px; margin-bottom: 10px;">Activity Type</div>
+              <div class="page-pills">
+                <button class="annotation-button selected">
+                  <div class="button-icon arrow-icon">↗</div>
+                  <span class="button-label">Arrow</span>
+                </button>
+                <button class="annotation-button">
+                  <div class="button-icon circle-icon">●</div>
+                  <span class="button-label">Circle</span>
+                </button>
+              </div>
+            </div>
+            
+            <!-- Author Multi-Select Filter -->
+            <div class="author-multiselect">
+              <label class="multiselect-label">Filter by Author:</label>
+              <div class="multiselect-container">
+                <div class="multiselect-display">
+                  <div class="selected-tag">
+                    <span>John Doe</span>
+                    <span class="tag-remove">×</span>
+                  </div>
+                  <div class="selected-tag">
+                    <span>Jane Roe</span>
+                    <span class="tag-remove">×</span>
+                  </div>
+                  <span class="multiselect-placeholder">Add more authors...</span>
+                  <span class="dropdown-arrow">▼</span>
+                </div>
+                <div class="multiselect-dropdown">
+                  <div class="dropdown-option selected">
+                    <input type="checkbox" checked>
+                    <span>John Doe</span>
+                  </div>
+                  <div class="dropdown-option selected">
+                    <input type="checkbox" checked>
+                    <span>Jane Roe</span>
+                  </div>
+                  <div class="dropdown-option">
+                    <input type="checkbox">
+                    <span>Mike Smith</span>
+                  </div>
+                  <div class="dropdown-option">
+                    <input type="checkbox">
+                    <span>Sarah Wilson</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
         <div (onClose)="filterVisible = false">
           <div class="filters-container">
             <div class="filters-body">

@@ -976,3 +976,361 @@
   padding: 16px 12px;
   border-bottom: 1px solid #edf1f2;
 }
+
+// Activity Type Grouped Design Styles
+.activity-filter-container {
+  padding: 16px;
+  background: transparent;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  
+  // Filter Controls Section
+  .filter-controls {
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #e5e7eb;
+    
+    .filter-row {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 12px;
+      flex-wrap: nowrap;
+      
+      .filter-group {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex: 1;
+        min-width: 0;
+        
+        label {
+          font-size: 12px;
+          font-weight: 500;
+          color: #374151;
+          white-space: nowrap;
+          flex-shrink: 0;
+        }
+        
+        .filter-select {
+          padding: 4px 8px;
+          border: 1px solid #d1d5db;
+          border-radius: 4px;
+          background: white;
+          font-size: 12px;
+          color: #374151;
+          width: 100%;
+          cursor: pointer;
+          
+          &:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+          }
+        }
+      }
+    }
+    
+    .checkbox-row {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 12px;
+      flex-wrap: nowrap;
+      
+      .checkbox-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex: 1;
+        
+        .filter-checkbox {
+          width: 14px;
+          height: 14px;
+          accent-color: #3b82f6;
+        }
+        
+        label {
+          font-size: 12px;
+          color: #374151;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+      }
+    }
+    
+    .author-filter {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      
+      label {
+        font-size: 12px;
+        font-weight: 500;
+        color: #374151;
+        white-space: nowrap;
+      }
+      
+      .author-checkboxes {
+        display: flex;
+        gap: 16px;
+        
+        .author-item {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          
+          input {
+            width: 14px;
+            height: 14px;
+            accent-color: #3b82f6;
+          }
+          
+          label {
+            font-size: 12px;
+            color: #374151;
+            white-space: nowrap;
+          }
+        }
+      }
+    }
+  }
+  
+     // Page Content Section
+   .activity-content {
+     .page-group {
+       margin-bottom: 16px;
+       
+       .page-header {
+         display: flex;
+         align-items: center;
+         gap: 8px;
+         padding: 10px 14px;
+         background: #f8fafc;
+         border: 1px solid #e2e8f0;
+         border-radius: 8px;
+         cursor: pointer;
+         margin-bottom: 12px;
+         transition: all 0.2s ease;
+         
+         &:hover {
+           background: #f1f5f9;
+           border-color: #cbd5e0;
+         }
+         
+         .collapse-icon {
+           font-size: 12px;
+           color: #6b7280;
+           transition: transform 0.2s ease;
+         }
+         
+         .page-title {
+           font-size: 15px;
+           font-weight: 600;
+           color: #111827;
+         }
+         
+         .page-count {
+           font-size: 12px;
+           color: #6b7280;
+           margin-left: auto;
+         }
+       }
+       
+       .page-pills {
+         display: flex;
+         flex-wrap: wrap;
+         gap: 8px;
+         padding-left: 16px;
+         
+         .annotation-button {
+           display: flex;
+           align-items: center;
+           gap: 8px;
+           padding: 8px 16px;
+           background: #ffffff;
+           border: 1px solid #d1d5db;
+           border-radius: 20px;
+           cursor: pointer;
+           transition: all 0.2s ease;
+           font-family: inherit;
+           outline: none;
+           
+           &:hover {
+             background: #f9fafb;
+             border-color: #9ca3af;
+             transform: translateY(-1px);
+             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+           }
+           
+           &:active {
+             transform: translateY(0);
+             box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+           }
+           
+           &.selected {
+             background: #3b82f6;
+             border-color: #3b82f6;
+             color: white;
+             
+             &:hover {
+               background: #2563eb;
+               border-color: #2563eb;
+             }
+             
+             .button-icon {
+               color: white !important;
+             }
+             
+             .button-label {
+               color: white;
+             }
+           }
+           
+           .button-icon {
+             width: 16px;
+             height: 16px;
+             display: flex;
+             align-items: center;
+             justify-content: center;
+             font-size: 14px;
+             flex-shrink: 0;
+             
+             &.circle-icon {
+               color: #3b82f6;
+             }
+             
+             &.arrow-icon {
+               color: #6b7280;
+             }
+             
+             &.fixed-icon {
+               color: #10b981;
+             }
+           }
+           
+           .button-label {
+             font-size: 13px;
+             color: #374151;
+             font-weight: 500;
+             white-space: nowrap;
+           }
+         }
+       }
+     }
+    
+    // Author Multi-Select
+    .author-multiselect {
+      margin-top: 24px;
+      
+      .multiselect-label {
+        display: block;
+        font-size: 14px;
+        font-weight: 500;
+        color: #374151;
+        margin-bottom: 8px;
+      }
+      
+      .multiselect-container {
+        position: relative;
+        
+        .multiselect-display {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          padding: 8px 12px;
+          border: 1px solid #d1d5db;
+          border-radius: 6px;
+          background: white;
+          cursor: pointer;
+          min-height: 40px;
+          flex-wrap: wrap;
+          
+          &:hover {
+            border-color: #9ca3af;
+          }
+          
+          .selected-tag {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 8px;
+            background: #dbeafe;
+            border: 1px solid #3b82f6;
+            border-radius: 12px;
+            font-size: 12px;
+            color: #1e40af;
+            
+            .tag-remove {
+              cursor: pointer;
+              font-weight: bold;
+              color: #3b82f6;
+              
+              &:hover {
+                color: #1e40af;
+              }
+            }
+          }
+          
+          .multiselect-placeholder {
+            font-size: 12px;
+            color: #9ca3af;
+            font-style: italic;
+            flex: 1;
+          }
+          
+          .dropdown-arrow {
+            font-size: 12px;
+            color: #6b7280;
+            margin-left: auto;
+          }
+        }
+        
+        .multiselect-dropdown {
+          position: absolute;
+          top: 100%;
+          left: 0;
+          right: 0;
+          background: white;
+          border: 1px solid #d1d5db;
+          border-radius: 6px;
+          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+          z-index: 10;
+          max-height: 200px;
+          overflow-y: auto;
+          display: none; // Hidden by default in mockup
+          
+          .dropdown-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            cursor: pointer;
+            
+            &:hover {
+              background: #f3f4f6;
+            }
+            
+            &.selected {
+              background: #f0f9ff;
+            }
+            
+            input {
+              width: 14px;
+              height: 14px;
+              accent-color: #3b82f6;
+            }
+            
+            span {
+              font-size: 13px;
+              color: #374151;
+            }
+          }
+        }
+        
+        // Show dropdown on hover for mockup demonstration
+        &:hover .multiselect-dropdown {
+          display: block;
+        }
+      }
+    }
+  }
+}

@@ -429,122 +429,16 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
           targetY = (xscaled > wscaled) ? yscaled : hscaled;
           break;
           
-              case MARKUP_TYPES.PAINT.POLYLINE.type:
-        // For polyline, use the last point (end of the line) for better user experience
-        console.log(`🎯 POLYLINE Debug - markup ${markup.markupnumber}:`, {
-          points: markup.points?.length || 0,
-          allProperties: Object.keys(markup),
-          deviceRatio,
-          xscaled, yscaled, wscaled, hscaled,
-          boundingBox: { x: markup.x, y: markup.y, w: markup.w, h: markup.h },
-          scaledBox: { x: markup.xscaled, y: markup.yscaled, w: markup.wscaled, h: markup.hscaled },
-          // Check for alternative point properties
-          paths: markup.paths?.length || 0,
-          pointsArray: markup.pointsArray?.length || 0,
-          coordinates: markup.coordinates?.length || 0,
-          vertices: markup.vertices?.length || 0
-        });
-        
-        // Try different possible point properties
-        let polylinePointsData = markup.points || markup.paths || markup.pointsArray || markup.coordinates || markup.vertices;
-        
-        if (polylinePointsData && polylinePointsData.length > 0) {
-          // Handle different data structures
-          let actualPoints = polylinePointsData;
-          
-          // If it's a nested structure, flatten it
-          if (polylinePointsData[0] && Array.isArray(polylinePointsData[0])) {
-            actualPoints = polylinePointsData.flat();
-          }
-          
-          console.log(`🎯 POLYLINE found ${actualPoints.length} points:`, actualPoints.slice(0, 3), '...');
-          
-          const lastPoint = actualPoints[actualPoints.length - 1];
-          console.log(`🎯 POLYLINE using last point:`, lastPoint);
-          // Use the actual point coordinates without extra scaling
-          targetX = lastPoint.x;
-          targetY = lastPoint.y;
-        } else {
-          console.log(`🎯 POLYLINE no points found, using bounding box right edge`);
-          // Fallback to right edge center if no points available
-          targetX = xscaled + wscaled;
-          targetY = yscaled + (hscaled * 0.5);
-        }
+      case MARKUP_TYPES.PAINT.POLYLINE.type:
+        // For polyline, use the center of the bounding box for reliable positioning
+        targetX = xscaled + (wscaled - xscaled) * 0.5;
+        targetY = yscaled + (hscaled - yscaled) * 0.5;
         break;
         
       case MARKUP_TYPES.PAINT.FREEHAND.type:
-        // For freehand, use the rightmost point for better visual alignment
-        console.log(`🎯 FREEHAND Debug - markup ${markup.markupnumber}:`, {
-          points: markup.points?.length || 0,
-          allProperties: Object.keys(markup),
-          deviceRatio,
-          xscaled, yscaled, wscaled, hscaled,
-          boundingBox: { x: markup.x, y: markup.y, w: markup.w, h: markup.h },
-          scaledBox: { x: markup.xscaled, y: markup.yscaled, w: markup.wscaled, h: markup.hscaled },
-          // Check for alternative point properties
-          paths: markup.paths?.length || 0,
-          pointsArray: markup.pointsArray?.length || 0,
-          coordinates: markup.coordinates?.length || 0,
-          vertices: markup.vertices?.length || 0,
-          // Check for path/stroke methods
-          getPath: typeof markup.getPath,
-          getPoints: typeof markup.getPoints,
-          getStroke: typeof markup.getStroke,
-          getPathData: typeof markup.getPathData,
-          // Check for other potential properties
-          strokePath: markup.strokePath?.length || 0,
-          pathData: markup.pathData?.length || 0,
-          stroke: markup.stroke?.length || 0
-        });
-        
-        // Try different possible point properties and methods
-        let freehandPointsData = markup.points || markup.paths || markup.pointsArray || markup.coordinates || markup.vertices;
-        
-        // Try to get points from methods if available
-        if (!freehandPointsData || freehandPointsData.length === 0) {
-          try {
-            if (typeof markup.getPoints === 'function') {
-              freehandPointsData = markup.getPoints();
-              console.log(`🎯 FREEHAND got points from getPoints():`, freehandPointsData?.length || 0);
-            } else if (typeof markup.getPath === 'function') {
-              freehandPointsData = markup.getPath();
-              console.log(`🎯 FREEHAND got points from getPath():`, freehandPointsData?.length || 0);
-            } else if (typeof markup.getPathData === 'function') {
-              freehandPointsData = markup.getPathData();
-              console.log(`🎯 FREEHAND got points from getPathData():`, freehandPointsData?.length || 0);
-            }
-          } catch (error) {
-            console.warn(`🎯 FREEHAND error calling method:`, error);
-          }
-        }
-        
-        if (freehandPointsData && freehandPointsData.length > 0) {
-          // Handle different data structures
-          let actualPoints = freehandPointsData;
-          
-          // If it's a nested structure (common for freehand), flatten it
-          if (freehandPointsData[0] && Array.isArray(freehandPointsData[0])) {
-            actualPoints = freehandPointsData.flat();
-          }
-          
-          console.log(`🎯 FREEHAND found ${actualPoints.length} points:`, actualPoints.slice(0, 3), '...');
-          
-          let rightmostPoint = actualPoints[0];
-          for (let point of actualPoints) {
-            if (point && point.x > rightmostPoint.x) {
-              rightmostPoint = point;
-            }
-          }
-          console.log(`🎯 FREEHAND using rightmost point:`, rightmostPoint);
-          // Use the actual point coordinates without extra scaling
-          targetX = rightmostPoint.x;
-          targetY = rightmostPoint.y;
-        } else {
-          console.log(`🎯 FREEHAND no points found, using bounding box center`);
-          // Use the center of the bounding box for better positioning
-          targetX = xscaled + (wscaled - xscaled) * 0.5;
-          targetY = yscaled + (hscaled - yscaled) * 0.5;
-        }
+        // For freehand, use the center of the bounding box for reliable positioning
+        targetX = xscaled + (wscaled - xscaled) * 0.5;
+        targetY = yscaled + (hscaled - yscaled) * 0.5;
         break;
         case MARKUP_TYPES.MEASURE.MEASUREARC.type:
         case MARKUP_TYPES.ERASE.type:
@@ -576,7 +470,6 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
 
       // Apply rotation transformation if needed
       if (this.pageRotation !== 0 && markup.getrotatedPoint) {
-        console.log(`🔄 Applying rotation ${this.pageRotation}° to coordinates:`, { x: targetX, y: targetY });
         const rotatedPoint = markup.getrotatedPoint(
           targetX * deviceRatio, 
           targetY * deviceRatio
@@ -584,11 +477,9 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
         if (rotatedPoint) {
           targetX = rotatedPoint.x / deviceRatio;
           targetY = rotatedPoint.y / deviceRatio;
-          console.log(`🔄 Rotated coordinates:`, { x: targetX, y: targetY });
         }
       }
 
-      console.log(`✅ Final target coordinates for markup ${markup.markupnumber}:`, { x: targetX, y: targetY });
       return { x: targetX, y: targetY };
     } catch (error) {
       console.warn('Error calculating scaled markup coordinates:', error);

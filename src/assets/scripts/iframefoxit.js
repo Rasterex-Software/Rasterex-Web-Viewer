@@ -1305,63 +1305,26 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
 
     }; 
 
+    this.zoomToPoint = function (pagenum, factor, deltaf, mousepoint, offset, center, bIn) {
+        if (
+            isNaN(factor) ||
+            factor <= 0 ||
+            factor >= foxview.nMaxScale ||
+            !foxview.pdfViewer ||
+            pagenum !== foxview.curpage
+        ) return;
 
-    this.zoomToPoint = function (pagenum, factor, deltaf, mousepoint, offset, center, bIn ){
+        foxview.scale = factor;
+        foxview.pagestates[pagenum].rendered = false;
+        foxview.rendering = true;
 
-        //thispage.DocRef.foxitdoc.zoomToPoint(thispage.pagenumber, scalefactor, factor, point, bin);
+        const position = {
+            pageIndex: pagenum,
+            x: mousepoint.mx,
+            y: mousepoint.my
+        };
 
-        if(isNaN(factor)){
-            return;
-        }
-
-
-        if (factor >= foxview.nMaxScale){
-            return;
-        }
-
-
-        if (foxview.pdfViewer && pagenum == foxview.curpage && factor > 0) {
-            
-            //var curscale = foxview.scale;
-
-            if(factor >= foxview.nMaxScale){
-                return;
-            }
-
-            foxview.scale = factor;
-
-            if(bIn){
-
-                var mouseposdiffx = (((mousepoint.x - offset.x) * deltaf) -(mousepoint.x - offset.x));
-                var mouseposdiffy = (((mousepoint.y - offset.y) * deltaf) -(mousepoint.y - offset.y));
-
-            }else{
-                
-                mouseposdiffx = (((mousepoint.x - offset.x) / deltaf) -(mousepoint.x - offset.x));
-                mouseposdiffy = (((mousepoint.y - offset.y) / deltaf) -(mousepoint.y - offset.y));
-
-            }
-
-            
-            var newpos = {x : Math.round(offset.x + mouseposdiffx), y : Math.round(offset.y + mouseposdiffy)};
-
-
-            var position = {pageIndex : pagenum, x : newpos.x, y : newpos.y};
-
-            foxview.pagestates[pagenum].rendered = false;
-
-
-            foxview.rendering = true;
-
-            foxview.pdfViewer.zoomTo(foxview.scale, position);
-        
-
-
-
-
-        }
-
-
+        foxview.pdfViewer.zoomAtPosition(factor, position);
     };
 
     this.zoomdirect = function (pagenum, factor, scrolldata) {

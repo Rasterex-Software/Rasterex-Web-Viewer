@@ -995,3 +995,7 @@ June 03, 3025
 
   `modified:   src/app/components/annotation-tools/note-panel/note-panel.component.html`
   `modified:   src/app/components/annotation-tools/note-panel/note-panel.component.ts`
+
+# Fix: Issue with Green Pointer Lines on Comments and Annotations with multi-page files
+
+  `modified:   src/app/components/annotation-tools/note-panel/note-panel.component.ts`

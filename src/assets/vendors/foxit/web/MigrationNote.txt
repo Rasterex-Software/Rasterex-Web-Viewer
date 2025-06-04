@@ -1,0 +1,274 @@
+Foxit PDF SDK for Web 10.0.0 -- Migration Notices
+Release Date: June 28, 2024
+
+1. Integrated `Service Worker` to support xfa documents. For details, you may check https://webviewer-demo.foxitsoftware.com/docs/developer-guide/main/skills/integrate-service-workers.html
+
+2. Removed the class `PDFBookmark` and use `BookmarkDataService` instead. For details, you may check https://webviewer-demo.foxitsoftware.cn/docs/API_Reference/html/ 
+
+*******************************************************************************************
+
+Foxit PDF SDK for Web 9.2.0 -- Migration Notices
+Release Date: November 14, 2023
+
+1. Removed the API `PDFUI.callAddonAPI`, please use `PDFUI.getAddonInstance` instead.
+
+*******************************************************************************************
+
+Foxit PDF SDK for Web 9.1.0 -- Migration Notices
+Release Date: August 29, 2023
+
+1. The signatureHandler parameter of PDFUI.registerSignatureFlowHandler(signatureHandler) was changed.
+
+    ```9.0.0
+	PDFUI.registerSignatureFlowHandler(type, handler)
+    ```
+
+    ```9.1.0
+	PDFUI.registerSignatureFlowHandler(signatureHandler)
+    ```
+    
+2. Updated the PDFUI.constructor(options) with the following change.
+
+    ```9.0.0
+    customs.progress - { function }
+    ```
+
+    ```9.1.0
+    customs.progress - { ProgressComponent }
+    ```
+    
+3. Override the PDFViewer.copySnapshot(dataURL) with the Clipboard API. So only HTTPS and localhost can use this API.
+
+4. Removed these APIs:
+
+    PDFViewCtrl.PDFViewer.openFileByShareId
+    PDFViewCtrl.PDFViewer.registerCollabDataHandler
+    PDFViewCtrl.PDFViewer.collaborate
+    PDFViewCtrl.PDFViewer.registerSignatureHandler
+    
+    PDFViewCtrl.renderers.annotsRender.AnnotRender.active
+    PDFViewCtrl.renderers.annotsRender.AnnotRender.unActive
+    
+    PDFViewCtrl.CustomScrollWrap
+    
+    PDFViewCtrl.PDF.PDFDoc.getPermission
+    PDFViewCtrl.PDF.PDFDoc.getBookmarksJson
+    
+    PDFViewCtrl.PDF.form.constant.Field_Flag.Hidden
+    
+    PDFViewCtrl.constants.ViewerEvents.disableScroll
+    
+    PDFViewCtrl.PDF.constant.DataEvents.annotationReplyAdd
+    PDFViewCtrl.PDF.constant.DataEvents.annotationReviewStateAnnotAdd
+    PDFViewCtrl.PDF.constant.DataEvents.annotationMarkedStateAnnotAdd
+    PDFViewCtrl.PDF.constant.DataEvents.annotationMovedPosition
+    PDFViewCtrl.PDF.constant.DataEvents.actionAdd
+    PDFViewCtrl.PDF.constant.DataEvents.layerVisibleChange
+    PDFViewCtrl.PDF.constant.DataEvents.pageInfoChange
+    PDFViewCtrl.PDF.constant.DataEvents.pageRotationChange
+    PDFViewCtrl.PDF.constant.DataEvents.drmEncryptSuccess
+    PDFViewCtrl.PDF.constant.DataEvents.removePwdAndPerm
+    PDFViewCtrl.PDF.constant.DataEvents.insertPages
+    PDFViewCtrl.PDF.constant.DataEvents.applyRedaction
+    PDFViewCtrl.PDF.constant.DataEvents.removeReviewState
+    
+*******************************************************************************************
+
+Foxit PDF SDK for Web 9.0.0 -- Migration Notices
+Release Date: March 7, 2023
+
+1. The DigestSignHandler parameter of pdfDoc.sign(data) was changed.
+
+    ```8.5.2
+	DigestSignHandler(signInfo, buffer) - The buffer type is ArrayBuffer.
+    ```
+
+    ```9.0.0
+	DigestSignHandler(signInfo, plainContent) - The plainContent type is Blob.
+    ```
+    
+*******************************************************************************************
+
+Foxit PDF SDK for Web 8.5.2  -- Migration Notices
+Release Date: November 15, 2022
+
+1. The built-in Collaboration API is deprecated and replaced by the Foxit Web Collaboration Add-on: https://webviewer-demo.foxit.com/docs/collab-developer-guide/
+2. Removed `/examples/UIExtension/collaboration`, `server/collaboration-sockjs-server` and `server/collaboration-websocket-server`
+
+*******************************************************************************************
+
+Foxit PDF SDK for Web 8.5.0  -- Migration Notices
+Release Date: September 5, 2022
+
+1. Updated the PDFViewer.constructor(options) with the following change.
+
+    ```8.4.0
+customs.activeTooltip - { function }
+    ```
+
+    ```8.5.0
+customs.AnnotTooltip - { AnnotTooltip }
+    ```
+    
+*******************************************************************************************
+Foxit PDF SDK for Web 8.4.0  -- Migration Notices
+Release Date: May 31, 2022
+
+Updated the GraphicsObject.getBitmap(data) with the following changes
+
+   1). One new parameter was added: type.
+
+   2). The return value was changed:
+    
+    ```8.3.0
+	Returns
+	
+        {Promise.<byte buffer>} - The image data buffer.
+    
+    ```
+
+    ```8.4.0
+	Returns 
+
+        {Promise.<T>} - The image data by the specified type.
+
+    ```
+*******************************************************************************************
+Foxit PDF SDK for Web 8.3.0  -- Migration Notices
+Release Date: March 8, 2022
+
+1. The parameters of PDFViewer.takeSnapshot(pageIndex, left, top, width, height) and PDFPageRender.getSnapshot(left, top, width, height) was changed.
+
+    1). These parameters were in in device pixels: left, top, width, height
+
+2. The example code of PDFUI.callAddonAPI was changed.
+
+    For details, you may check https://webviewer-demo.foxitsoftware.cn/docs/API_Reference/html/
+
+3. The Event name was changed as follows:
+
+    Deprecated                      Instead
+
+    annotationReplyAdd	            annotationReplyAdded
+    annotationReviewStateAnnotAdd	annotationReviewStateAnnotAdded
+    annotationMarkedStateAnnotAdd	annotationMarkedStateAnnotAdded
+    annotationMovedPosition	        annotationPositionMoved
+    actionAdd	                    actionAdded
+    layerVisibleChange	            layerVisibleChanged
+    pageInfoChange	                pageInfoChanged
+    pageRotationChange	            pageRotationChanged
+    drmEncryptSuccess	            drmEncryptSucceeded
+    removePwdAndPerm	            pwdAndPermRemoved
+    insertPages	                    pagesInserted
+    applyRedaction	                redactionApplied
+    removeReviewState	            reviewStateRemoved
+
+4. The UI of thumbnail, search-sidebar-panel, print and stamp feature was changed.
+
+*******************************************************************************************
+Foxit PDF SDK for Web 8.2.1  -- Migration Notices
+
+1. Removed `lib/adaptive.js`.
+
+Foxit PDF SDK for Web 8.2.0  -- Migration Notices
+Release Date: November 29, 2021   
+
+1. The Returns of pdfDoc.movePagesTo() was changed to Array instead of boolean.
+
+	```8.1.0
+	Returns
+	
+        {Promise.<bool>} true means success, while false means failure.
+    
+    ```
+
+    ```8.2.0
+	Returns {Promise.<Array>} - page id list
+    ```
+2. The parameters of pdfpage.addWatermark(data) was changed.
+
+   1). These parameters were deprecated:  watermarkConfig.watermarkSettings.scaleX, watermarkConfig.watermarkSettings.scaleY, watermarkConfig.watermarkTextProperties.lineSpace, watermarkConfig.watermarkTextProperties.alignment
+
+   2). Added two new parameters, watermarkConfig.watermarkSettings.scale and watermarkConfig.useRelativeScale 
+
+*******************************************************************************************
+Foxit PDF SDK for Web 8.1.0  -- Migration Notices
+Release Date: August 31, 2021   
+
+Foxit PDF SDK for Web 8.1.0 is completely backwards compatible with its previous version.
+
+*******************************************************************************************
+Foxit PDF SDK for Web 8.0.0  -- Migration Notices
+
+***** PDFViewCtrl *****
+
+The Returns of PDF.PDFForm.addControl() was changed to object instead of boolean.
+
+    ```7.6
+	Returns
+	
+        {Promise.<bool>} true means success, while false means failure.
+    
+    ```
+
+    ```8.0
+	Returns
+    {
+        success:boolean, - true means success, while false means failure.
+        newFieldName:string - if the specified field name can not be used for a new field in specified field type, It will use a new field name for the specified field type.
+    }
+    ```
+
+*******************************************************************************************
+Foxit PDF SDK for Web 7.6.0  -- Migration Notices
+
+***** PDFViewCtrl *****
+
+1. The constant STATE_HANDLER_SELECT_TEXT_ANNOTATION was deprecated. If you have the version 7.6.0 or later, you should change the handler to STATE_HANDLER_SELECT_TEXT_IMAGE or STATE_HANDLER_SELECT_ANNOTATION. 
+
+Related API: 
+	PDFViewCtrl.contants.STATE_HANDLER_NAMES  
+ 
+***** PDFUI *****
+
+2. Two new parameters url and showUrl were added to PDFViewCtrl::stateHandler::StampStateHandlerParams for creating a user stamp. If the url and showUrl are not declared, the stamp would appear as a blank rectangle on page. 
+
+Related API:
+	PDFViewCtrl.constants.STATE_HANDLER_NAMES.STATE_HANDLER_CREATE_STAMP 
+	PDFViewCtrl::stateHandler::StampStateHandlerParams
+
+*******************************************************************************************
+
+Foxit PDF SDK for Web 7.5.0  -- Migration Notices
+
+Foxit PDF SDK for Web 7.5.0 is completely backwards compatible with its previous version.
+
+********************************************************************************************
+Foxit PDF SDK for Web 7.4.0  -- Migration Notices
+
+***** PDFUI*****
+
+1. If your UI uses the UIExtension build-in template, and has a custom <tab>, you should read this change before upgrading. The method for adding custom <tab> was adjusted as follows:
+
+	[{
+		target: 'toolbar-tabs',
+		action: FRAGMENT_ACTION.APPEND,
+		template: '<gtab name="new-tab" group="toolbar-tab" body="new-tab-body">Tab inserted via fragment-configuration</gtab>'
+	}, {
+		target: 'toolbar-tab-bodies',
+		action: FRAGMENT_ACTION.APPEND,
+		template: '<div name="new-tab-body" style="line-height:1"><text>New tab body</text></div>'
+	}];
+	For details, you may check https://webviewer-demo.foxitsoftware.com/docs/developer-guide/ui-extension/components/tab.html#examples
+			
+2. The `<tab>` component was replaced with `<gtab>`. If your UI uses the UIExtension build-in template, the following css should be added: 
+
+   ```css
+   .fv__ui-toolbar .fv__ui-gtab-item {
+        color: #fff;
+    }
+    .fv__ui-toolbar .fv__ui-gtab-item.active {
+        color: #636363;y
+        background-color: #fff;
+    }
+   ```

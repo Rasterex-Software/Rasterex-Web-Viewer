@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Foxit PDF SDK for Web</title>
+    <link rel="shortcut icon" href="../../../assets/favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" href="../../../../lib/UIExtension.css">
+    <style>
+        #pdf-ui {
+            width: 100vw;
+            height: 100vh;
+        }
+        .widget-list .fv__ui-button {
+            height: 24px;
+            line-height: 24px;
+            display: inline-flex;
+            flex-flow: row nowrap;
+            align-items: center;
+            margin-top: 6px;
+        }
+        .widget-list .fv__ui-button span{
+            padding-left: 6px;
+        }
+        .pdf-ui-example {
+            display: flex;
+            flex-flow: column nowrap;
+            justify-content: flex-start;
+            align-items: stretch;
+        }
+        .widget-list {
+            padding: 20px 10px;
+            display: flex;
+            flex-flow: column nowrap;
+            align-items: center;
+        }
+
+    </style>
+</head>
+
+<body>
+    <div id="pdf-ui"></div>
+    <template id="pdf-ui-template">
+        <div class="pdf-ui-example">
+            <div name="widget-list" class="widget-list">
+                <group-list>
+                    <!-- retain-count means that how many button retains while group shrinked. -->
+                    <group retain-count="1">
+                        <xbutton icon-class="fv__icon-toolbar-hand">ext:buttons.hand</xbutton>
+                        <xbutton icon-class="fv__icon-toolbar-select">ext:buttons.select</xbutton>
+                        <xbutton icon-class="fv__icon-toolbar-zoom-in">ext:buttons.zoomin</xbutton>
+                        <xbutton icon-class="fv__icon-toolbar-zoom-out">ext:buttons.zoomout</xbutton>
+                    </group>
+                    <group retain-count="2">
+                        <xbutton icon-class="fv__icon-toolbar-pencil">ext:buttons.pencil</xbutton>
+                        <xbutton icon-class="fv__icon-toolbar-eraser">ext:buttons.eraser</xbutton>
+                        <xbutton icon-class="fv__icon-toolbar-distance">ext:buttons.distance</xbutton>
+                        <xbutton icon-class="fv__icon-toolbar-image">ext:buttons.image</xbutton>
+                        <xbutton icon-class="fv__icon-toolbar-stamp">ext:buttons.stamp</xbutton>
+                    </group>
+                    <group retain-count="3">
+                        <xbutton icon-class="fv__icon-toolbar-arrow">ext:buttons.arrow</xbutton>
+                        <xbutton icon-class="fv__icon-toolbar-circle">ext:buttons.circle</xbutton>
+                        <xbutton icon-class="fv__icon-toolbar-cloud">ext:buttons.cloud</xbutton>
+                        <xbutton icon-class="fv__icon-toolbar-line">ext:buttons.line</xbutton>
+                    </group>
+                </group-list>
+            </div>
+            <viewer></viewer>
+        </div>
+    </template>
+</body>
+<script src="../../../license-key.js"></script>
+<script src="../../../../lib/UIExtension.full.js"></script>
+<script>
+    class I18NAddon extends UIExtension.UIXAddon {
+        static getName(){
+            return 'ext';
+        }
+        getI18NResources() {
+            return {
+                'en-US': {
+                    'buttons': {
+                        'hand': 'Hand',
+                        'select': 'Select',
+                        'zoomin': 'Zoom in',
+                        'zoomout': 'Zoom out',
+                        'pencil': 'Pencil',
+                        'eraser': 'Eraser',
+                        'distance': 'Distance',
+                        'image': 'Image',
+                        'stamp': 'Stamp',
+                        'arrow': 'Arrow',
+                        'circle': 'Circle',
+                        'cloud': 'Cloud',
+                        'line': 'Line',
+                    }
+                },
+                'zh-CN': {
+                    'buttons': {
+                        'hand': '手型',
+                        'select': '选择',
+                        'zoomin': '放大',
+                        'zoomout': '缩小',
+                        'pencil': '铅笔',
+                        'eraser': '橡皮檫',
+                        'distance': '距离',
+                        'image': '图片',
+                        'stamp': '图章',
+                        'arrow': '箭头',
+                        'circle': '椭圆',
+                        'cloud': '云',
+                        'line': '直线'
+                    }
+                }
+            };
+        }
+    }
+    
+    let PDFUI = UIExtension.PDFUI;
+    let pdfui = new PDFUI({
+        viewerOptions: {
+            libPath: '../../../../lib',
+            jr: {
+                licenseSN: licenseSN,
+                licenseKey: licenseKey
+            }
+        },
+        renderTo: '#pdf-ui',
+        template: document.getElementById('pdf-ui-template').innerHTML.trim(),
+        addons: [ I18NAddon ],
+        fragments: []
+    });
+</script>
+
+</html>

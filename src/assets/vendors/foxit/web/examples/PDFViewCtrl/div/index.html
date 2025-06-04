@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no"/>
+    <title>Foxit PDF SDK For Web</title>
+    <link rel="shortcut icon" href="../../assets/favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" href="../../../lib/PDFViewCtrl.css">
+    <style>
+        #pdf-viewer {
+            margin-left: 100px;
+            margin-top: 100px;
+            border: 1px solid red;
+            width: 500px;
+            height: 500px;
+            overflow: auto;
+        }
+    </style>
+</head>
+<body>
+<input type="file" name="file" id="file">
+<hr>
+<div id="pdf-viewer"></div>
+</body>
+<script src="../../license-key.js"></script>
+<script src="../../../lib/PDFViewCtrl.full.js"></script>
+<script>
+
+    let PDFViewer = PDFViewCtrl.PDFViewer;
+    let ePdfViewer = document.getElementById('pdf-viewer');
+    let pdfViewer = new PDFViewer({
+        libPath: '../../../lib',
+        jr: {
+            licenseSN: licenseSN,
+            licenseKey: licenseKey
+        },
+        customs: {
+            ScrollWrap: PDFViewCtrl.CustomScrollWrap.create(ePdfViewer)
+        }
+    });
+    pdfViewer.init('#pdf-viewer');
+
+    document.getElementById('file').onchange = function (e) {
+        if (!this.value) {
+            return;
+        }
+        pdfViewer.openPDFByFile(e.target.files[0]);
+        this.value = '';
+    };
+</script>
+</html>

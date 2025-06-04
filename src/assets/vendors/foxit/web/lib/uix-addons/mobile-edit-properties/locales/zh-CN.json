@@ -1,0 +1,23 @@
+{
+  "touchUp": {
+    "done": "已完成",
+    "showKeyboard": "显示键盘",
+    "color": "颜色",
+    "textStyles": "文本样式",
+    "style": "样式",
+    "font": "字体",
+    "size": "大小",
+    "fontNames": "字体名称",
+    "customizeColors": "自定义颜色",
+    "fontSizes": "字体大小"
+  },
+  "textObject": {
+    "format": "格式"
+  },
+  "pathObject": {
+    "lineColor": "线条颜色",
+    "lineWidth": "线宽",
+    "dashType": "虚线样式",
+    "shapeStyle": "形状类型"
+  }
+}

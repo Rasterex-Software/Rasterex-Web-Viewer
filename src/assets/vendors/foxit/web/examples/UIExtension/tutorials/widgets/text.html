@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Foxit PDF SDK for Web</title>
+    <link rel="shortcut icon" href="../../../assets/favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" href="../../../../lib/UIExtension.css">
+    <style>
+        #pdf-ui {
+            width: 100vw;
+            height: 100vh;
+        }
+        .widget-list .fv__ui-button {
+            height: 24px;
+            line-height: 24px;
+            display: inline-flex;
+            flex-flow: row nowrap;
+            align-items: center;
+            margin-top: 6px;
+        }
+        .widget-list .fv__ui-button span{
+            padding-left: 6px;
+        }
+        .pdf-ui-example {
+            display: flex;
+            flex-flow: column nowrap;
+            justify-content: flex-start;
+            align-items: stretch;
+        }
+        .widget-list {
+            padding: 20px 10px;
+            display: flex;
+            flex-flow: column nowrap;
+            align-items: center;
+        }
+
+    </style>
+</head>
+
+<body>
+    <div id="pdf-ui"></div>
+    <template id="pdf-ui-template">
+        <div class="pdf-ui-example">
+            <div name="widget-list" class="widget-list">
+                <span>ext:text.notLocalized</span>
+                <text>ext:text.localized</text>
+                <span data-i18n="ext:text.removed">
+                    <span>This span will be removed</span>
+                    <span>This span will be removed</span>
+                </span>
+                <span>
+                    <text>ext:text.timeis</text> <text name="now-time"></text>
+                </span>
+            </div>
+            <viewer></viewer>
+        </div>
+    </template>
+</body>
+<script src="../../../license-key.js"></script>
+<script src="../../../../lib/UIExtension.full.js"></script>
+<script>
+    class I18NAddon extends UIExtension.UIXAddon {
+        static getName(){
+            return 'ext';
+        }
+        getI18NResources() {
+            return {
+                'en-US': {
+                    'text': {
+                        'localized': 'Localized text',
+                        'removed': 'children are replaced by text content',
+                        'timeis': 'The current time is: '
+                    }
+                },
+                'zh-CN': {
+                    'buttons': {
+                        'localized': '本地化后的文本',
+                        'removed': '子控件都被文本覆盖了',
+                        'timeis': '现在的时间是：'
+                    }
+                }
+            };
+        }
+    }
+    
+    let PDFUI = UIExtension.PDFUI;
+    let pdfui = new PDFUI({
+        viewerOptions: {
+            libPath: '../../../../lib',
+            jr: {
+                licenseSN: licenseSN,
+                licenseKey: licenseKey
+            }
+        },
+        renderTo: '#pdf-ui',
+        template: document.getElementById('pdf-ui-template').innerHTML.trim(),
+        addons: [ I18NAddon ],
+        fragments: [{
+            target: 'now-time',
+            config: {
+                callback: class extends UIExtension.Controller {
+                    prelink() {
+                        this.component.setText(new Date());
+                    }
+                    mounted(){
+                        setInterval(() => {
+                            this.component.setText(new Date());
+                        }, 1000);
+                    }
+                }
+            }
+        }]
+    });
+</script>
+
+</html>

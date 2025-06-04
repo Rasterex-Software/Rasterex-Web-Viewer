@@ -1,0 +1,120 @@
+{
+  "header": "Document ondertekenen",
+  "signAs": "Ondertekenen als:",
+  "info": "Info",
+  "previewer": "Voorbeeld van handtekening",
+  "apType": "Type vormgeving:",
+  "create": "Maken",
+  "text": "Tekst configureren",
+  "location": "Locatie:",
+  "lock": "Document vergrendelen na ondertekening",
+  "mulfile": "Toepassen op meerdere bestanden",
+  "sign": "Ondertekenen",
+  "cancel": "Annuleren",
+  "issuer": "Certificaat Uitgever",
+  "newId": "Nieuwe ID...",
+  "incorrectPwd": "Incorrect wachtwoord!",
+  "emptyPwd": "Voer het wachtwoord in.",
+  "ap": {
+    "standard": "Standaardstijl",
+    "clear": "Wissen",
+    "title": "Titel:"
+  },
+  "createNewID": "Geen digitale id gevonden. Klik op de knop OK om er een te maken.",
+  "reason": {
+    "title": "Reden:",
+    "0": "Ik ben de auteur van dit document",
+    "1": "Ik heb dit document bekeken",
+    "2": "Ik keur dit document goed",
+    "3": "Ik keur dit document goed met mijn wettelijk bindende handtekening",
+    "4": "Ik bevestig de juistheid en integriteit van dit document",
+    "5": "Ik ga akkoord met de voorwaarden die worden gedefinieerd door de plaatsing van mijn handtekening in dit document",
+    "6": "Ik ga akkoord met gespecificeerde delen van dit document"
+  },
+  "text-direction": {
+    "title": "Tekstrichting",
+    "auto": "Automatisch",
+    "ltr": "Van links naar rechts",
+    "rtl": "Rechts naar links"
+  },
+  "moreSigns": "Er is meer dan één niet-ondertekend veld gevonden, maar alleen het eerste handtekeningsveld wordt ondertekend, wilt u doorgaan?",
+  "fontsize": "lettertypegrootte",
+  "logo": {
+    "title": "Logo configureren",
+    "prop": "Logo-eigenschap"
+  },
+  "placeSig": {
+    "tip": "Plaats een handtekeningveld en onderteken het document digitaal.",
+    "text": "Handtekening plaatsen..."
+  },
+  "signDoc": {
+    "tip": "Onderteken het document met een digitale handtekening.",
+    "text": "Document ondertekenen..."
+  },
+  "signLater": "U heeft een lege handtekening in het document geplaatst, als u wilt dat deze van kracht wordt, moet u het document ondertekenen",
+  "commonName": "uw algemene naam hier",
+  "distinguishName": "uw onderscheidende naam",
+  "staticReason": "uw reden voor ondertekening hier",
+  "staticLocation": "uw locatie van ondertekening hier",
+  "specialError": "Speciale tekens zijn ongeldig.",
+  "certify": {
+    "perm": "Toegestane acties na certificering",
+    "noSpecified": "Standaard bewaren",
+    "perm0": "Geen wijzigingen toegestaan",
+    "perm1": "Formulier invullen en digitale handtekeningen",
+    "perm2": "Opmerkingen toevoegen, formulier invullen en bestaande handtekeningvelden ondertekenen",
+    "visible": "Certificeren met zichtbare handtekening",
+    "visibleDesc": "Het document digitaal certificeren met een zichtbare handtekening",
+    "invisible": "Certificeren zonder zichtbare handtekening",
+    "invisibleDesc": "Het document digitaal certificeren met een onzichtbare handtekening",
+    "trustCerts": "Vertrouwde certificaten",
+    "trustCertsDesc": "Beheer vertrouwde certificaten voor digitale handtekeningen",
+    "header": "Vertrouwde certificaten",
+    "edit": "Bewerken",
+    "add": "Toevoegen",
+    "view": "Weergeven",
+    "export": "Exporteren",
+    "delete": "Verwijderen",
+    "name": "Naam",
+    "issuedBy": "Uitgegeven door",
+    "trust": "Vertrouwen",
+    "expiredData": "Verlopen gegevens",
+    "close": "Sluiten",
+    "certName": "Naam:",
+    "issuer": "Uitgever:",
+    "validFrom": "Geldig vanaf:",
+    "validTo": "Geldig tot:",
+    "intent": "Beoogd sleutelgebruik:",
+    "deleteConfirm": "Weet u zeker dat u dit certificaat wilt verwijderen? U kunt de identiteit van de eigenaar dan niet meer verifiëren.",
+    "notCert": "Geen certificaat."
+  },
+  "trustedRoot": "Vertrouwde root",
+  "nonTrustedRoot": "Niet-vertrouwde root",
+  "viewCert": {
+    "header": "Vertrouwde certificaten bewerken",
+    "detailTitle": "Certificaatdetails",
+    "subject": "Onderwerp:",
+    "usage": "Gebruik:",
+    "expiration": "Vervaldatum:",
+    "trust": "Vertrouwen",
+    "trustInfo": "Een certificaat voor het ondertekenen van documenten, moet zijn toegewezen als vertrouwensanker of ketting aan een vertrouwensanker voor goedkeuring van de handtekening. Het intrekken van de controle wordt niet uitgevoerd op of boven een vertrouwensanker.",
+    "trustRoot": "Dit certificaat als vertrouwde root gebruiken",
+    "afterSign": "Als het ondertekenen is gelukt, kunt u dit certificaat vertrouwen geven aan:",
+    "valid": "Handtekeningen valideren",
+    "validCert": "Valideren van gecertificeerde documenten",
+    "ok": "OK",
+    "cancel": "Annuleren"
+  },
+  "exportCert": {
+    "header": "Certificaten exporteren",
+    "subtitle": "De volgende gegevens worden geëxporteerd:",
+    "certTitle": "Mijn certificaten",
+    "certInfo": "Certificaten kunnen door ontvangers worden gebruikt om handtekeningen goed te keuren die door u zijn gemaakt en die worden gebruikt om documenten voor u te versleutelen. Uw privésleutel wordt niet samen met het certificaat geëxporteerd.",
+    "option": {
+      "title": "Exportopties:",
+      "formatHint": "Selecteer hoe u de gegevens wilt exporteren:",
+      "email": "De gegevens delen via e-mail",
+      "file": "De gegevens in een bestand opslaan"
+    }
+  }
+}

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no">
+    <!-- default(white), black, black-translucent -->
+    <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+    <meta name="apple-mobile-web-app-capable" content="yes"/>
+    <meta name="apple-touch-fullscreen" content="yes"/>
+    <meta name="apple-mobile-web-app-title" content="Foxit PDF SDK for Web">
+    <meta name="App-Config" content="fullscreen=yes,useHistoryState=no,transition=no">
+    <meta name="format-detaction" content="telephone=no,email=no">
+    <meta http-equiv="Cache-Control" content="no-siteapp" />
+    <meta name="HandheldFriendly" content="true">
+    <meta name="MobileOptimized" content="750">
+    <meta name="screen-orientation" content="portrait">
+    <meta name="x5-orientation" content="portrait">
+    <meta name="full-screen" content="yes">
+    <meta name="x5-fullscreen" content="true">
+    <meta name="browsermode" content="application">
+    <meta name="x5-page-mode" content="app">
+    <meta name="msapplication-tap-highlight" content="no">
+    <meta name="renderer" content="webkit">
+
+    <title>Foxit PDF SDK for Web</title>
+    <link rel="shortcut icon" href="../../assets/favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" href="../../../lib/UIExtension.css">
+    <style>
+        body {
+            height: 100vh;
+            height: 100dvh;
+            height: calc(var(--vh, 1dvh) * 100);
+        }
+        #pdf-ui {
+            top: 40px;
+            bottom: 0;
+            position: absolute;
+            width: 100vw;
+        }
+
+        .fv__ui-mobile #pdf-ui {
+            top: 0;
+        }
+        .fv__ui-mobile .fv__ui-nav
+        {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="fv__ui-nav">
+        <a class="fv__ui-nav-logo" href="javascript:location.reload()">
+            <i class="fv__icon-logo"></i>
+        </a>
+    </div>
+    <div id="pdf-ui"></div>
+</body>
+<script src="../../license-key.js"></script>
+<script src="../../../lib/UIExtension.full.js"></script>
+<script src="./migrate.js"></script>
+<script>
+    var PDFUI = UIExtension.PDFUI;
+    var pdfui = new PDFUI({
+        viewerOptions: {
+            libPath: '../../../lib',
+            jr: {
+                licenseSN: licenseSN,
+                licenseKey: licenseKey
+            }
+        },
+        renderTo: '#pdf-ui',
+        appearance: UIExtension.appearances.adaptive,
+        fragments: [],
+        addons: UIExtension.PDFViewCtrl.DeviceInfo.isMobile ?
+            '../../../lib/uix-addons/allInOne.mobile.js':
+            '../../../lib/uix-addons/allInOne.js'
+    });
+    pdfui.addUIEventListener('fullscreenchange', function(isFullscreen) {
+        if(isFullscreen) {
+            document.body.classList.add('fv__pdfui-fullscreen-mode');
+        } else {
+            document.body.classList.remove('fv__pdfui-fullscreen-mode');
+        }
+    });
+
+
+    pdfui.openPDFByHttpRangeRequest({
+        range:{
+            url:'../../../docs/FoxitPDFSDKforWeb_DemoGuide.pdf',
+        }
+    },{fileName:'FoxitPDFSDKforWeb_DemoGuide.pdf'}).then(function (pdfDoc) {
+        var annotV6 = JSON.parse('[{"number":0,"annots":[{"bs":0,"bw":1,"c":"Square","ca":0.5,"cd":"1328773469","cl":"#ff0000","f":4,"md":"1328773677","n":"10f5c62d-8850-40a3-a0e1-c387dcad7dc8","pop":{"f":28,"md":"1328744669","op":0,"rc":[319,117,499,-3]},"r":0,"rc":[0,100,100,0],"rd":[0,0,0,0],"subj":"Rectangle","subty":"Square","tit":"ShiYiPing","ty":"Markup"},{"bs":4,"bw":1,"c":"Arrow","ca":0.5,"cap":0,"cd":"1328773469","cl":"#ff0000","f":4,"fcl":"#ff0000","it":"LineArrow","l":[100,0,200,100],"le":["None","OpenArrow"],"md":"1328773677","n":"874a1e34-f410-4421-8c6d-d6ee700227a4","pop":{"f":28,"md":"1328744669","op":0,"rc":[319,117,499,-3]},"r":0,"rc":[97,103,203,-3],"subj":"Arrow","subty":"Line","tit":"ShiYiPing","ty":"Markup"},{"bs":0,"c":"Pencil","ca":0.5,"cd":"1328773469","cl":"#ff0000","f":4,"ikc":"#ff0000","ikl":[[0,0,100,100]],"ikw":1,"md":"1328773677","n":"13f641c5-1ef1-430b-8d65-774691e578b2","pop":{"f":28,"md":"1328744669","op":0,"rc":[0,0,0,0]},"r":0,"rc":[-3,103,103,-3],"subj":"Pencil","subty":"Ink","tit":"ShiYiPing","ty":"Markup"},{"bs":0,"bw":1,"c":"Line","ca":0.5,"cap":0,"cd":"1328773469","cl":"#ff0000","f":4,"fcl":"#ff0000","it":"Line","l":[300,0,400,100],"le":["None","None"],"md":"1328773677","n":"9ce7a4b2-281d-4c76-95be-095f895e3751","pop":{"f":28,"md":"1328744669","op":0,"rc":[319,117,499,-3]},"r":0,"rc":[297,103,403,-3],"subj":"Line","subty":"Line","tit":"ShiYiPing","ty":"Markup"},{"bs":0,"bw":1,"c":"Rectangle","ca":0.5,"cd":"1328773469","cl":"#ff0000","f":4,"md":"1328773677","n":"741b42fc-a596-4a11-ae1f-ff448846cdc1","pop":{"f":28,"md":"1328744669","op":0,"rc":[319,117,499,-3]},"r":0,"rc":[400,60,500,0],"rd":[0,0,0,0],"subj":"Rectangle","subty":"Square","tit":"ShiYiPing","ty":"Markup"},{"bs":0,"bw":1,"c":"Ellipse","ca":0.5,"cd":"1328773469","cl":"#ff0000","f":4,"md":"1328773677","n":"a9401904-1d4e-4994-94e1-ba3d9a6ac260","pop":{"f":28,"md":"1328744669","op":0,"rc":[319,200,499,80]},"r":0,"rc":[0,200,100,100],"rd":[0,0,0,0],"subj":"Ellipse","subty":"Circle","tit":"ShiYiPing","ty":"Markup"},{"Quad":[100,200,200,200,100,100,200,100],"bs":0,"c":"StrikeOut","ca":0.5,"cd":"1328773469","cl":"#ff0000","f":4,"md":"1328773677","n":"8eb46415-1a80-4192-bd82-5727f1d82849","pop":{"f":28,"md":"1328744669","op":0,"rc":[319,200,499,80]},"r":0,"rc":[100,200,200,100],"subj":"StrikeOut","subty":"StrikeOut","tit":"ShiYiPing","ty":"Markup"},{"bs":0,"bw":1,"c":"Polygon","ca":0.5,"cd":"1328773469","cl":"#ff0000","f":4,"it":"","md":"1328773677","n":"dd2153fb-5224-4e54-bf3d-98f5a93c1589","pop":{"f":28,"md":"1328744669","op":0,"rc":[319,201,499,81]},"r":0,"rc":[199.25,180.75,300.75,99.25],"subj":"Polygon","subty":"Polygon","tit":"ShiYiPing","ty":"Markup","vts":[200,100,230,180,300,160]},{"bs":0,"bw":1,"c":"PolyLine","ca":0.5,"cd":"1328773469","cl":"#ff0000","f":4,"it":"","md":"1328773677","n":"4656fe17-499a-44cc-ae8d-5fce8a73140e","pop":{"f":28,"md":"1328744669","op":0,"rc":[319,203,499,83]},"r":0,"rc":[297,203,403,97],"subj":"Polygon","subty":"PolyLine","tit":"ShiYiPing","ty":"Markup","vts":[300,100,333.332977,200,333.332977,100,366.666992,200,366.666992,100,400,200]},{"bs":0,"bw":1,"c":"Cloudy","ca":0.5,"cd":"1328773469","cl":"#ff0000","f":4,"it":"PolygonCloud","md":"1328773677","n":"0821200c-26b6-47c8-9ff8-843fb46ad44b","pop":{"f":28,"md":"1328744669","op":0,"rc":[319,217,499,97]},"r":0,"rc":[373.967987,217.490997,516.483032,73.968201],"subj":"Cloudy","subty":"Polygon","tit":"ShiYiPing","ty":"Markup","vts":[400,100,500,100,450,200,400,100]},{"bs":0,"bw":1,"c":"Ellipse","ca":0.5,"cd":"1328773469","cl":"#ff0000","f":4,"md":"1328773677","n":"2ea4b728-14cb-4b9e-96d4-ad2028f3876f","pop":{"f":28,"md":"1328744669","op":0,"rc":[319,260,499,140]},"r":0,"rc":[0,260,100,200],"rd":[0,0,0,0],"subj":"Ellipse","subty":"Circle","tit":"ShiYiPing","ty":"Markup"},{"Quad":[100,300,200,300,100,200,200,200],"bs":0,"c":"Highlight","ca":0.5,"cd":"1328773469","cl":"#ffff80","f":4,"md":"1328773677","n":"c0783b05-b5e5-4cf9-bcfd-f9f5af0176a8","pop":{"f":28,"md":"1328744669","op":0,"rc":[319,300,499,180]},"r":0,"rc":[100,300,200,200],"subj":"Highlight","subty":"Highlight","tit":"ShiYiPing","ty":"Markup","areahi":"AreaHi"},{"Quad":[200,300,300,300,200,200,300,200],"bs":0,"c":"Squiggly","ca":0.5,"cd":"1328773469","cl":"#00c0f0","f":4,"md":"1328773677","n":"fa7c4392-9e22-4057-9289-8f0dca1596cc","pop":{"f":28,"md":"1328744669","op":0,"rc":[319,300,499,180]},"r":0,"rc":[200,300,300,200],"subj":"Squiggly","subty":"Squiggly","tit":"ShiYiPing","ty":"Markup"},{"Quad":[300,300,400,300,300,200,400,200],"bs":0,"c":"Underline","ca":0.5,"cd":"1328773469","cl":"#00ff00","f":4,"md":"1328773677","n":"09c9a542-1c78-4b12-9958-72be72b37040","pop":{"f":28,"md":"1328744669","op":0,"rc":[319,300,499,180]},"r":0,"rc":[300,300,400,200],"subj":"Underline","subty":"Underline","tit":"ShiYiPing","ty":"Markup"},{"Quad":[400,300,500,300,400,200,500,200],"bs":0,"c":"Replace","ca":0.5,"cd":"1328773469","cl":"#ff0000","f":4,"irt":"77a98df8-22ef-41ae-b428-9797291f120e","md":"1328773677","n":"ab297d9e-38cb-4162-8ca9-a6de0dac3fb8","pop":{"f":28,"md":"1328744669","op":0,"rc":[319,300,499,180]},"r":0,"rc":[400,300,500,200],"subj":"Replace","subty":"StrikeOut","tit":"ShiYiPing","ty":"Markup"},{"bs":0,"c":"Replace","ca":0.5,"cd":"1328773469","cl":"#ff0000","f":4,"grp":[{"Quad":[400,300,500,300,400,200,500,200],"bs":0,"c":"Replace","ca":0.5,"cd":"1328773469","cl":"#ff0000","f":4,"irt":"77a98df8-22ef-41ae-b428-9797291f120e","md":"1328773677","n":"ab297d9e-38cb-4162-8ca9-a6de0dac3fb8","pop":{"f":28,"md":"1328744669","op":0,"rc":[319,300,499,180]},"r":0,"rc":[400,300,500,200],"subj":"Replace","subty":"StrikeOut","tit":"ShiYiPing","ty":"Markup"}],"md":"1328773469","n":"77a98df8-22ef-41ae-b428-9797291f120e","pop":{"f":28,"md":"1328744669","op":0,"rc":[319,237,499,117]},"r":0,"rc":[372.5,237.5,427.5,155],"rd":[11,11,11,11],"rpy":[],"stat":[],"subj":"Replace","subty":"Caret","tit":"ShiYiPing","ty":"Markup"},{"bs":0,"c":"1.xlsx","ca":0.5,"cd":"1328773469","cl":"#ff0000","f":4,"md":"1328773677","n":"d01c1e02-9b8d-4852-8f21-4e4d3ba5ca01","pop":{"f":28,"md":"1328744669","op":0,"rc":[0,0,0,0]},"r":0,"rc":[14.173201,400,34.173195,380],"subj":"FileAttachment","subty":"FileAttachment","tit":"ShiYiPing","ty":"Markup"},{"bs":0,"c":"Typewriter","ca":0.5,"cd":"1328773469","cl":"","f":4,"fc":"#ff8246","fh":8.688001,"fs":8,"ftag":"ZiTi","ftn":"Noto Sans Mono CJK SC Regular","it":"FreeTextTypewriter","lnh":8.688001,"md":"1328773677","n":"fa93c616-325f-4f4f-be20-2b4e4ba3490e","q":1,"r":0,"rc":[137,400,163,391.312012],"subj":"Typewriter","subty":"FreeText","tit":"ShiYiPing","ty":"Typewriter"},{"bs":0,"c":"Note","ca":0.5,"cd":"1328773473","cl":"#ffff00","f":28,"md":"1328773677","n":"cb6a22eb-a53d-4610-bcc0-f4c5ed08c6d2","pop":{"f":28,"md":"1328744673","op":0,"rc":[319,399,499,279]},"r":0,"rc":[200,400,220,380],"subj":"Note","subty":"Text","tit":"ShiYiPing","txtn":"Comment","ty":"Markup"},{"bs":0,"bw":1,"c":"Textbox","ca":0.5,"cd":"1328773473","cl":"#ff8246","f":4,"fc":"#ff8246","fcl":"#ffffff","fh":13.032001,"fs":12,"ftag":"ZiTi","ftn":"Noto Sans Mono CJK SC Regular","it":"FreeTextTextbox","lnh":13.032001,"md":"1328773677","n":"b3d586a9-9428-4e9c-930e-d7008b030464","q":0,"r":0,"rc":[400,400,500,300],"subj":"Textbox","subty":"FreeText","tit":"ShiYiPing","ty":"Textbox"},{"bs":0,"bw":1,"c":"Callout","ca":0.5,"cd":"1328773473","cl":"#448a00","f":4,"fc":"#448a00","fcl":"#ff8246","fh":14.208001,"fs":12,"ftag":"ZiTi4","ftcl":[100,400,143.833008,524.145996,157.694,524.145996],"ftn":"Foxit Sans MM","it":"FreeTextCallout","le":["OpenArrow","OpenArrow"],"lnh":14.208001,"md":"1328773677","n":"e1005af7-f4a5-4186-90e1-121178a41962","q":1,"r":0,"rc":[91.876396,539.25,238.25,393.25],"rd":[65.81799699999999,6,6,121.791992],"subj":"Callout","subty":"FreeText","tit":"ShiYiPing","ty":"Callout"},{"bs":0,"c":"Caret","ca":0.5,"cd":"1328773473","cl":"#00ff00","f":4,"md":"1328773677","n":"847e7aca-d740-43aa-a5a8-8e133cd229dc","pop":{"f":28,"md":"1328744673","op":0,"rc":[319,500,499,380]},"r":0,"rc":[300,500,400,400],"rd":[20,20,20,20],"subj":"Caret","subty":"Caret","tit":"ShiYiPing","ty":"Markup"},{"act":{"ty":"URI","uri":"http://www.baidu.com"},"bs":0,"c":"Quadrilateral Link","cd":"1567581978","f":4,"hl":0,"md":"1328773473","rc":[419.25,480.75,480.75,419.25],"ty":"Link","n":"c4db3f1a-94ce-4675-bbea-5f2f193e19e1"},{"act":{"ty":"URI","uri":"http://www.baidu.com"},"bs":0,"c":"Rectangle Link","cd":"1567581978","f":4,"hl":0,"md":"1328773473","rc":[400,500,500,400],"ty":"Link","n":"f98ea2d5-b3a8-4a85-86e1-1e3b3249fad1"}]}]');
+        var annotV7 = migration.migrateAnnot(annotV6)
+        pdfDoc.importAnnotsFromJSON(annotV7).then(() => {
+            pdfui.redraw();
+        });
+    });
+
+</script>
+</html>

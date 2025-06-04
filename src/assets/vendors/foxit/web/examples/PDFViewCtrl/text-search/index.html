@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no"/>
+    <title>Foxit PDF SDK For Web</title>
+    <link rel="shortcut icon" href="../../assets/favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" href="../../../lib/PDFViewCtrl.css">
+    <style>
+        #searchList{
+            display: inline-block;
+            margin:0px;
+            width: 300px;
+            height: 500px;
+            overflow: auto;
+            border: 1px solid red;
+            color: #333;
+        }
+        #searchList li+li{
+            margin-top: 10px;
+        }
+        #searchList li span{
+            font-size: 14px;
+            color: #666;
+        }
+        #searchList li div{
+            margin-top: 5px;
+        }
+        #pdf-viewer {
+            display: inline-block;
+            border: 1px solid red;
+            width: 500px;
+            height: 500px;
+            overflow: auto;
+        }
+    </style>
+</head>
+<body>
+<input type="file" name="file" id="file">
+<div class="searchPart">
+    <input type="text" id="searchInput" placeholder="Searching">
+    <label>
+        Case-Sensitive:<input type="checkbox" name="caseSensitive" data-value="1">
+    </label>
+    <label>
+        Whole Words Only:<input type="checkbox" name="wholeWord" data-value="2">
+    </label>
+    <label>
+        Consecutively:<input type="checkbox" name="consecutively" data-value="4">
+    </label>
+    
+    <button type="button" id="search" disabled>search</button>
+</div>
+<hr>
+<div id="pdf-viewer"></div>
+<ul id="searchList"></ul>
+</body>
+<script src="../../license-key.js"></script>
+<script src="../../../lib/PDFViewCtrl.full.js"></script>
+<script>
+
+    var PDFViewer = PDFViewCtrl.PDFViewer;
+    var ePdfViewer = document.getElementById('pdf-viewer');
+    var pdfViewer = new PDFViewer({
+        libPath: '../../../lib',
+        jr: {
+            licenseSN: licenseSN,
+            licenseKey: licenseKey
+        },
+        customs: {
+            ScrollWrap: PDFViewCtrl.CustomScrollWrap.create(ePdfViewer)
+        }
+    });
+    pdfViewer.init('#pdf-viewer');
+
+    document.getElementById('file').onchange = function (e) {
+        if (!this.value) {
+            return;
+        }
+        pdfViewer.openPDFByFile(e.target.files[0]);
+        this.value = '';
+    };
+
+    document.getElementById("searchInput").oninput = function(e) {
+        if(!this.value.trim()){
+            document.getElementById("search").setAttribute('disabled','true')
+        }else{
+            document.getElementById("search").removeAttribute('disabled')
+        }
+    }
+    document.getElementById("search").onclick = function(){
+        var pdfDoc = pdfViewer.getCurrentPDFDoc();
+        if(!pdfDoc){
+            alert("Please select a document first")
+            return
+        }
+
+        var searchInput = document.getElementById("searchInput");
+        var searchValue = searchInput.value;
+        var checkboxDoms = document.querySelectorAll("[type=checkbox]");
+        var flag = 0;
+        for (var index = 0; index < checkboxDoms.length; index++) {
+            var element = checkboxDoms[index];
+            if(element.checked){
+                flag = flag | Number(element.getAttribute("data-value"))
+            }
+        }
+        
+        var textSearch = pdfDoc.getTextSearch(searchValue,flag);
+        var searchListHtml = '';
+        function recursion(){
+            textSearch.findNext().then(function(match){
+                if(!match){
+                    var searchListDom = document.getElementById("searchList");
+                    searchListDom.innerHTML = searchListHtml;
+                    searchListHtml = '';
+                }else{
+                    searchListHtml += '<li>' +
+                        '<span> Page'+ (match.getPageIndex() + 1) +' </span>' +
+                        '<div> '+ match.getSentence() +' </div>' +
+                        ' </li>'
+                    recursion();
+                }
+            });
+        }
+        recursion();
+
+    }
+
+</script>
+</html>

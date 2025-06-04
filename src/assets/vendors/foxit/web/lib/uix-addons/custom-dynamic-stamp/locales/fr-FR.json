@@ -1,0 +1,41 @@
+{
+  "toolbar": {
+    "createDynamicStampTextBtnText": "Créer un tampon dynamique personnalisé"
+  },
+  "dialog": {
+    "header": "Créer un tampon dynamique personnalisé",
+    "backgroundColor": "Couleur d'arrière-plan :",
+    "template": "Modèle :",
+    "templatePlaceholder": "tapez ici pour nommer un nouveau modèle",
+    "browse": "Parcourir",
+    "category": "Catégorie :",
+    "categoryPlaceholder": "tapez ici pour nommer une nouvelle catégorie",
+    "name": "Nom :",
+    "font": "Police :",
+    "stampText": "Texte du tampon :",
+    "stampTextPlaceholder": "tapez ici pour insérer du texte",
+    "fontSize": "Taille de police :",
+    "color": "Couleur :",
+    "stampTextType": {
+      "customText": "tapez ici pour insérer du texte",
+      "name": "nom de l'auteur",
+      "nameDateTime": "nom de l'auteur, date et heure",
+      "dateTime": "date et heure",
+      "date": "date"
+    }
+  },
+  "alert": {
+    "typeText": "'<tapez ici pour insérer du texte>'",
+    "categoryText": "'<tapez ici pour nommer une nouvelle catégorie>'",
+    "templateText": "'< tapez ici pour nommer un nouveau modèle>'",
+    "textError": "${1} est un texte prédéfini, vous devez en choisir un dans le menu déroulant ou en créer un.",
+    "categoryError": "${1} est une catégorie prédéfinie et elle ne peut pas être utilisée pour les tampons personnalisés. Choisissez une autre catégorie.",
+    "templateError": "${1} est un modèle prédéfini et il ne peut pas être utilisé pour les tampons personnalisés. Choisissez un autre modèle.",
+    "fileError": "Le fichier est vide.",
+    "nameError": "Le nom est requis.",
+    "templateNameError": "Il existe un tampon de ce nom. Renommez le tampon qui sera importé.",
+    "spaceError": "Il ne peut pas y avoir d'espace dans la catégorie.",
+    "sameName": "Le nom de tampon « ${1} » existe déjà.",
+    "specialError": "Les caractères spéciaux ne sont pas valides."
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "touchUp": {
+    "done": "완료",
+    "showKeyboard": "키보드 표시",
+    "color": "색",
+    "textStyles": "텍스트 스타일",
+    "style": "스타일",
+    "font": "글꼴",
+    "size": "크기",
+    "fontNames": "글꼴 이름",
+    "customizeColors": "사용자 정의 색상",
+    "fontSizes": "글꼴 크기"
+  },
+  "textObject": {
+    "format": "형식"
+  },
+  "pathObject": {
+    "lineColor": "선 색상",
+    "lineWidth": "선 너비",
+    "dashType": "대시 유형",
+    "shapeStyle": "도형 스타일"
+  }
+}

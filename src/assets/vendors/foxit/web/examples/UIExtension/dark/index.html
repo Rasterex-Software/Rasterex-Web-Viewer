@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Foxit PDF SDK for Web</title>
+    <link rel="shortcut icon" href="../../assets/favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" href="../../../lib/UIExtension.css">
+    <link id="dark-variable-css" rel="stylesheet" href="../../../lib/UIExtension.dark-variable.css">
+    <style>
+        body {
+            height: 100vh;
+            height: 100dvh;
+            height: calc(var(--vh, 1dvh) * 100);
+        }
+        #pdf-ui {
+            top: 40px;
+            bottom: 0;
+            position: absolute;
+            width: 100vw;
+        }
+
+        .fv__ui-mobile #pdf-ui {
+            top: 0;
+        }
+        .fv__ui-mobile .fv__ui-nav
+        {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+<div class="fv__ui-nav">
+    <a class="fv__ui-nav-logo" href="javascript:location.reload()">
+        <i class="fv__icon-logo"></i>
+    </a>
+</div>
+<div id="pdf-ui"></div>
+</body>
+<script src="../../license-key.js"></script>
+<script src="../../../lib/UIExtension.full.js"></script>
+<script>
+    var PDFUI = UIExtension.PDFUI;
+    var pdfui = new PDFUI({
+        viewerOptions: {
+            libPath: '../../../lib',
+            jr: {
+                licenseSN: licenseSN,
+                licenseKey: licenseKey
+            },
+        },
+        renderTo: '#pdf-ui',
+        appearance: UIExtension.appearances.adaptive,
+        fragments: [],
+        addons: 
+        UIExtension.PDFViewCtrl.DeviceInfo.isMobile ?
+            '../../../lib/uix-addons/allInOne.mobile.js':
+            '../../../lib/uix-addons/allInOne.js'
+    });
+
+    pdfui.openPDFByHttpRangeRequest({
+        range:{
+            url:'../../../docs/FoxitPDFSDKforWeb_DemoGuide.pdf',
+        }
+    },{fileName:'FoxitPDFSDKforWeb_DemoGuide.pdf'})
+
+    window.addEventListener('resize', function(e) {
+        pdfui.redraw().catch(function(err) {console.log(err)});
+    });
+
+    //signature handlers
+    var requestData = function(type, url, responseType, body){
+            return new Promise(function(res, rej){
+                var xmlHttp = new XMLHttpRequest();
+                xmlHttp.open(type, url);
+
+                xmlHttp.responseType = responseType || 'arraybuffer';
+                var formData = new FormData();
+                if (body) {
+                    for (var key in body) {
+                        if (body[key] instanceof Blob) {
+                            formData.append(key, body[key], key);
+                        } else {
+                            formData.append(key, body[key]);
+                        }
+                    }
+                }
+                xmlHttp.onloadend = function(e) {
+                    var status = xmlHttp.status;
+                    if ((status >= 200 && status < 300) || status === 304) {
+                        res(xmlHttp.response);
+                    }else{
+                        rej(new Error('Sign server is not available.'));
+                    }
+                };
+                
+                xmlHttp.send(body ? formData : null);
+            });
+        };
+
+        pdfui.setVerifyHandler(function (signatureField, plainBuffer, signedData){
+            return requestData('post', location.origin+'/signature/verify', 'text', {
+                filter: signatureField.getFilter(),
+                subfilter: signatureField.getSubfilter(),
+                signer: signatureField.getSigner(),
+                plainContent: new Blob([plainBuffer]),
+                signedData: new Blob([signedData])
+            });
+        });
+        pdfui.registerSignHandler({
+            filter: 'Adobe.PPKLite',
+            subfilter: 'adbe.pkcs7.sha1',
+            flag: 0x100,
+            distinguishName: 'e=support@foxitsoftware.cn',
+            location: 'FZ',
+            reason: 'Test',
+            signer: 'web sdk',
+            showTime: true,
+            sign: function(setting, plainContent) {
+                return requestData('post', location.origin+'/signature/digest_and_sign', 'arraybuffer', {
+                    plain: plainContent
+                })
+            }
+        });
+
+    function toogleDarkTheme () {
+        let eCssLink = document.getElementById('dark-variable-css');
+        let rel = eCssLink.getAttribute('rel');
+        let STYLESHEET = 'stylesheet';
+        eCssLink.setAttribute('rel', rel === STYLESHEET ? STYLESHEET + '-template' : STYLESHEET)
+    }
+</script>
+
+</html>

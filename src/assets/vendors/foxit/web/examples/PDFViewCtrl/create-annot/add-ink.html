@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no"/>
+    <title>Foxit PDF SDK For Web</title>
+    <link rel="shortcut icon" href="../../assets/favicon.ico" type="image/x-icon"/>
+    <link rel="stylesheet" href="../../../lib/PDFViewCtrl.css">
+</head>
+<body>
+<div id="pdf-viewer"></div>
+<script src="../../license-key.js"></script>
+<script src="../../../lib/PDFViewCtrl.full.js"></script>
+<script>
+    window.$ = PDFViewCtrl.jQuery;
+    let IStateHandler = PDFViewCtrl.IStateHandler;
+    var PDFViewer = PDFViewCtrl.PDFViewer;
+    var pdfViewer = new PDFViewer({
+        libPath: '../../../lib',
+        jr: {
+            licenseSN: licenseSN,
+            licenseKey: licenseKey,
+        }
+    });
+    pdfViewer.init('#pdf-viewer');
+
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', './butterfiles.pdf', true);
+    xhr.responseType = 'blob';
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState !== 4) {
+            return;
+        }
+        var status = xhr.status;
+        if ((status >= 200 && status < 300) || status === 304) {
+            pdfViewer.openPDFByFile(xhr.response).catch(function (e) {
+                if (e.error === 11 && e.encryptDict.Filter === 'FOPN_foweb') {
+                    var fileOpenKey = getFileOpenKey(e.encryptDict);
+                    pdfViewer.reopenPDFDoc(e.pdfDoc, {
+                        fileOpen: {
+                            encryptKey: fileOpenKey
+                        }
+                    })
+                }
+            })
+        }
+    };
+    xhr.send();
+
+    //The following example will guide you how to add and register a StateHandler class of ink type, so to implement the logic for creating a ink.
+
+    //Create a StateHandler of type Ink
+    var InkStateHandler = function () {
+    };
+    _inherits(InkStateHandler, IStateHandler);
+    InkStateHandler.getStateName = function () {
+        return "createInk";
+    };
+    InkStateHandler.prototype.pageHandler = function (pageRender) {
+        var Hammer = PDFViewCtrl.Hammer;
+        var $handler = pageRender.$handler;
+
+        const handlerWidth = $handler.width(),
+            handlerHeight = $handler.height();
+
+        const dpr = getDPR();
+        var $canvas = $('<canvas style="width:'+ handlerWidth +'px;height:'+ handlerHeight +'px" width="' + handlerWidth*dpr + '" height="' + handlerHeight*dpr + '"></canvas>');
+        $handler.append($canvas);
+        let ctx = $canvas[0].getContext('2d');
+
+        let eHandler = $handler[0];
+        let hammer = this.hammer = new Hammer.Manager(eHandler, {
+            recognizers: [
+                [Hammer.Pan, {direction: Hammer.DIRECTION_ALL}]
+            ]
+        });
+        let pencilLists = [];
+        let pencilList;
+
+        hammer.on('panstart', function (e) {
+            pencilList = [];
+            if(pencilLists.length == 0){
+                resetCanvas();
+            }
+            pencilLists.push(pencilList);
+
+            let point = getDevicePagePoint(eHandler, e);
+            ctx.beginPath();
+            ctx.moveTo(point.x * dpr , point.y * dpr);
+            pencilList.push({x:point.x,y:point.y,type:1});
+        });
+        hammer.on("panmove", function (e) {
+            let point = getPoint(eHandler, e);
+            pencilList.push({x:point.x,y:point.y,type:2});
+            
+            ctx.lineTo(point.x * dpr, point.y * dpr);
+            ctx.stroke();
+        });
+        hammer.on('panend', function (e) {
+            let point = getPoint(eHandler, e);
+            ctx.lineTo(point.x * dpr, point.y * dpr);
+            ctx.stroke();
+            initTimeout(0);
+        });
+
+        function resetCanvas(){
+            const defaultAnnotConfig = deepCloneAssign({},{
+                borderInfo: {
+                    width: 2
+                },
+                color: 0xFF0000
+            }, this.pdfViewer.getDefaultAnnotConfig()('ink'));
+            const handlerWidth = $handler.width(),
+                handlerHeight = $handler.height();
+            $canvas[0].width=handlerWidth*dpr;
+            $canvas[0].height=handlerHeight*dpr;
+            $canvas.css("width",handlerWidth+"px");
+            $canvas.css("height",handlerHeight+"px");
+
+            ctx.lineWidth =  defaultAnnotConfig.borderInfo.width * pageRender.getScale() * dpr;
+            ctx.strokeStyle = convertFromNumberToHex(defaultAnnotConfig.color);
+            ctx.lineJoin = "round";
+            ctx.lineCap = 'round';
+        }
+
+        function initTimeout(time, continueAdd=true) {
+            let timeout = this.timeout;
+            clearTimeout(timeout);
+            if(continueAdd)
+                this.timeout = setTimeout(() => {
+                    addAnnot();
+                }, time);
+        };
+
+        function addAnnot(){
+            if(!pencilLists||pencilLists.length<1)return Promise.resolve();
+            return pageRender.getPDFPage().then((page) => {
+                let rect= {
+                    left: 10000,
+                    right: 0,
+                    top: 0,
+                    bottom: 10000
+                };
+
+                let pdfPointList = pencilLists.reduce((list,pointList)=>{
+                    return deviceToPdf(page,pageRender.scale, pageRender.rotate, list,pointList,rect);
+                },[])
+
+                return page.addAnnot({
+                    type: 'ink',
+                    flags:4,
+                    rect,
+                    inkList: pdfPointList
+                }).then((annots) => {
+                    // const component = pageRender.annotsRender.getAnnotRender(annots[0].getId()).component;
+                    // component.active();
+                    // pageRender.pdfViewer.eventEmitter.emit(Events.addAnnotSuccess,annots[0]);
+                    $canvas[0].width=0;
+                    pencilLists=[]
+                });
+            });
+        };
+    };
+
+    InkStateHandler.prototype.destroyPageHandler = function () {
+        initTimeout(0,false);
+        this.pageRender.docRender.formRender.addTask(_=>this.addAnnot().then(_=>{
+            $canvas.remove();
+            this.hammer && this.hammer.destroy();
+            this.pageRender.$handler.removeClass(this.cursorStyle);
+            pencilLists=null;
+        }),true);
+        // this.hammer && this.hammer.destroy();
+    };
+    InkStateHandler.prototype.out = function () {
+        this.destroyPageHandler();
+    };
+    //Registers the state handler of ink type to the StateHandlerManager and switch
+    let stateHandlerManager = pdfViewer.getStateHandlerManager();
+    stateHandlerManager.register(InkStateHandler);
+    stateHandlerManager.switchTo("createInk");
+
+    //Gets the device coordinate point relative to the page
+    function getDevicePagePoint(elem, event) {
+        let pageRect = elem.getBoundingClientRect();
+        let srcEvent = event.srcEvent;
+        const clientX = getClientX(srcEvent);
+        const clientY = getClientY(srcEvent);
+        return {
+            x: clientX - pageRect.left - event.deltaX,
+            y: clientY - pageRect.top - event.deltaY,
+        };
+    };
+
+    function getPoint(elem, e) {
+        let pageRect = elem.getBoundingClientRect();
+        let srcEvent = e.srcEvent;
+        const clientX = getClientX(srcEvent);
+        const clientY = getClientY(srcEvent);
+        let point = {x: clientX - pageRect.left, y: clientY - pageRect.top};
+        return point;
+    };
+
+    //Gets the X-axis coordinates of the client
+    function getClientX(e) {
+        if ('clientX' in e) {
+            return e.clientX;
+        } else {
+            switch (e.type) {
+                case 'touchstart':
+                case 'touchmove':
+                    return e.touches[0].clientX;
+                case 'touchend':
+                case 'touchcancel':
+                    return e.changedTouches[0].clientX;
+            }
+        }
+    }
+
+    //Gets the Y-axis coordinates of the client
+    function getClientY(e) {
+        if ('clientY' in e) {
+            return e.clientY;
+        } else {
+            switch (e.type) {
+                case 'touchstart':
+                case 'touchmove':
+                    return e.touches[0].clientY;
+                case 'touchend':
+                case 'touchcancel':
+                    return e.changedTouches[0].clientY;
+            }
+        }
+    }
+
+    //Gets device rectangle
+    function getRect(startPoints, endPoints) {
+        let left = startPoints[0];
+        let top = startPoints[1];
+        let right = endPoints[0];
+        let bottom = endPoints[1];
+        let temp;
+        if (right < left) {
+            temp = left;
+            left = right;
+            right = temp;
+        }
+        if (bottom < top) {
+            temp = top;
+            top = bottom;
+            bottom = temp;
+        }
+        return {left: left, top: top, right: right, bottom: bottom};
+    }
+
+    function deviceToPdf(page,scale, rotate,result,list,rect) {
+    list.forEach((point) => {
+        let [x, y] = page.reverseDevicePoint([point.x, point.y], scale, rotate);
+        if(x>rect.right)rect.right=x;
+        else if(x<rect.left)rect.left = x;
+
+        if(y>rect.top)rect.top=y;
+        else if(y<rect.bottom)rect.bottom = y;
+        result.push({x: x, y: y,type:point.type});
+    });
+    return result;
+}
+
+    function _inherits(subClass, superClass) {
+        if (typeof superClass !== "function" && superClass !== null) {
+            throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
+        }
+        subClass.prototype = Object.create(superClass && superClass.prototype, {
+            constructor: {
+                value: subClass,
+                enumerable: false,
+                writable: true,
+                configurable: true
+            }
+        });
+        if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
+    }
+
+    function getDPR () {
+        var isIPhone = navigator.appVersion.match(/iphone/gi);
+        let dpr = typeof devicePixelRatio !== 'undefined' ? devicePixelRatio : 1;
+        return dpr;
+    }
+
+    function deepCloneAssign(origin = {}, ...args){
+        for (let i in args) {
+            for (let key in args[i]) {
+                if(args[i].hasOwnProperty(key)){
+                    let value = args[i][key];
+                    if(value && typeof value === 'object'){
+                        if(!(args[i][key] instanceof HTMLElement)){
+                            value = deepCloneAssign(Array.isArray(value) ? [] : {}, origin[key], value)
+                        }
+                    }
+                    origin[key] = value;
+                }
+            }
+        }
+        return origin;
+    }
+
+    // Convert the color number in 0xFFFFFF format to # the hexadecimal color with prefix
+    function convertFromNumberToHex(color) {
+        if(typeof color !== 'number') {
+            throw new TypeError('Unexpected color value:' + color);
+        }
+        if(color < 0) {
+            return -1;
+        }
+        let hex = color.toString(16);
+        let len = 6; 
+        if(color > 0xFFFFFF) {
+            len = 8;
+        }
+        while(hex.length < len) {
+            hex = '0' + hex;
+        }
+        return `#` + hex;
+    }
+</script>
+</body>
+</html>

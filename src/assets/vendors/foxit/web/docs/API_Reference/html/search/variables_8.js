@@ -1,0 +1,27 @@
+var searchData=
+[
+  ['i18n',['i18n',['../class_p_d_f_viewer.html#a8690364cdab0a00d5ad69fbcfe4571ca',1,'PDFViewer']]],
+  ['icon',['icon',['../class_tree_node_data.html#a0334e7bdec1080f52f3260f879c6edb3',1,'TreeNodeData']]],
+  ['iconcls',['iconCls',['../class_button_component_options.html#a4fdd7301563dd6233e0b1fb809ab3fe7',1,'ButtonComponentOptions::iconCls()'],['../class_sidebar_panel_component_options.html#a4fdd7301563dd6233e0b1fb809ab3fe7',1,'SidebarPanelComponentOptions::iconCls()'],['../class_layer_header_component_options.html#a4fdd7301563dd6233e0b1fb809ab3fe7',1,'LayerHeaderComponentOptions::iconCls()'],['../class_dropdown_component_options.html#a4fdd7301563dd6233e0b1fb809ab3fe7',1,'DropdownComponentOptions::iconCls()']]],
+  ['iconname',['iconName',['../class_stamp_info.html#a28c9eb41bf5480b21b1c67bd4691437f',1,'StampInfo']]],
+  ['id',['id',['../class_tree_node_data.html#a2940eb92e6e2aa0452316b3e8300e506',1,'TreeNodeData::id()'],['../class_bookmark_data.html#a5f6bc13a2481fac84bc6194b2f53e492',1,'BookmarkData::id()'],['../class_storage_context.html#a80c185934e64ce9dff21e980dd0f6b99',1,'StorageContext::id()'],['../class_i_layer_node.html#a6382e43bb2299f4a050d093a9e2eb276',1,'ILayerNode::id()']]],
+  ['image',['image',['../class_signature_infomation.html#addd5f23ce7baecaa82f233a80fbc8919',1,'SignatureInfomation']]],
+  ['indensity',['indensity',['../class_i_annotation_summary.html#a7eca77e102f670a1cab60e970f1d6bb6',1,'IAnnotationSummary']]],
+  ['inklist',['inkList',['../class_i_ink_annotation_summary.html#a55f5683db5f0a8faa9f82d490420e4e4',1,'IInkAnnotationSummary']]],
+  ['inreplyto',['inreplyto',['../class_i_markup_annotation_summary.html#af261ec627a64aa8b9c7839f6e2e7f38f',1,'IMarkupAnnotationSummary']]],
+  ['insert',['insert',['../class_marking_color_values.html#aca30c2742ca35e523c71c977e895a21c',1,'MarkingColorValues::insert()'],['../class_opacity_values.html#a71f3db79a61e705d88de8d3931ff0f9e',1,'OpacityValues::insert()'],['../class_line_thickness_values.html#a873de22b4ca5cceeaea46b20e6c71504',1,'LineThicknessValues::insert()']]],
+  ['intent',['intent',['../class_i_markup_annotation_summary.html#a60bb7996585a7441e089e3c7b4986874',1,'IMarkupAnnotationSummary']]],
+  ['interiorcolor',['interiorColor',['../class_i_circle_annotation_summary.html#ae640c0c66cb5b0383af59ffdca3dcc75',1,'ICircleAnnotationSummary::interiorColor()'],['../class_i_square_annotation_summary.html#a2f2310177a100182e940269606540f91',1,'ISquareAnnotationSummary::interiorColor()'],['../class_i_free_text_annotation_summary.html#a6a1de816c248ed897aebdf7247120ce7',1,'IFreeTextAnnotationSummary::interiorColor()'],['../class_i_polygon_annotation_summary.html#a8a1877691ef07b7eb6fb6333bdd1a152',1,'IPolygonAnnotationSummary::interiorColor()'],['../class_i_polyline_annotation_summary.html#a93b5655c6b882ae9da01ed09efad2b86',1,'IPolylineAnnotationSummary::interiorColor()'],['../class_i_redact_annotation_summary.html#a6c9bdef6f4419155a72d572dc52cce50',1,'IRedactAnnotationSummary::interiorColor()']]],
+  ['isactive',['isActive',['../class_component.html#a0dd365a52af4670f34d69e4e07526734',1,'Component::isActive()'],['../class_activatable.html#abbb4328f022478c1811eb82390965ae2',1,'Activatable::isActive()']]],
+  ['isbold',['isBold',['../class_tree_node_data.html#a658305e7926bbac68bd1a96289caaf8a',1,'TreeNodeData::isBold()'],['../class_bookmark_data.html#ad70b5055248bc9e0048f72633c0fce7b',1,'BookmarkData::isBold()']]],
+  ['isbrotli',['isBrotli',['../class_glyphs.html#a4c34fb9bfa5a7cf923e959e0a5ba8d17',1,'Glyphs']]],
+  ['isclosed',['isClosed',['../class_storage_driver.html#ad6cb1df69f227b64eff72f4b8363af99',1,'StorageDriver']]],
+  ['isdesktop',['isDesktop',['../group___device_info.html#ga3acdbc499923bf65dcc6039f9ebd9463',1,'device.doxygen.js']]],
+  ['isitalic',['isItalic',['../class_tree_node_data.html#a60e92daaf77411d60c8067e6b024cc8d',1,'TreeNodeData::isItalic()'],['../class_bookmark_data.html#a6b6a3cba9d2bd758772b8e0da4d9dc53',1,'BookmarkData::isItalic()']]],
+  ['isleaf',['isLeaf',['../class_tree_node_data.html#a569f23d65658cd5c11d1ecd33c80698f',1,'TreeNodeData']]],
+  ['islocked',['isLocked',['../class_i_layer_node.html#acc9e868e51f1946b8dc0c38c16083ced',1,'ILayerNode']]],
+  ['ismobile',['isMobile',['../group___device_info.html#gaacaf5648ebb4ad67af4c54ae9adde0b2',1,'device.doxygen.js']]],
+  ['istablet',['isTablet',['../group___device_info.html#gad2aa91d55a109588648a3d8929fe5676',1,'device.doxygen.js']]],
+  ['isvisible',['isVisible',['../class_component.html#aa5af7bd4fd571cf27ac3cb8877a79367',1,'Component']]],
+  ['italic',['italic',['../class_bookmark_font_style.html#ad4f3ea1cb9b211ea774193466d833e51',1,'BookmarkFontStyle']]]
+];

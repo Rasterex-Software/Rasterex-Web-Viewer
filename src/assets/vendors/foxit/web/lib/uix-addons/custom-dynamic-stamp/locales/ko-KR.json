@@ -1,0 +1,41 @@
+{
+  "toolbar": {
+    "createDynamicStampTextBtnText": "사용자 지정 동적 스탬프 만들기"
+  },
+  "dialog": {
+    "header": "사용자 지정 동적 스탬프 만들기",
+    "backgroundColor": "배경색:",
+    "template": "템플릿:",
+    "templatePlaceholder": "새 템플릿의 이름을 지정하려면 여기에 입력하세요.",
+    "browse": "찾아보기",
+    "category": "카테고리:",
+    "categoryPlaceholder": "새 카테고리의 이름을 지정하려면 여기에 입력하십시오.",
+    "name": "이름",
+    "font": "글꼴:",
+    "stampText": "스탬프 텍스트:",
+    "stampTextPlaceholder": "텍스트를 삽입하려면 여기에 입력하세요",
+    "fontSize": "글꼴 크기: ",
+    "color": "색상:",
+    "stampTextType": {
+      "customText": "텍스트를 삽입하려면 여기에 입력하세요",
+      "name": "작성자 이름",
+      "nameDateTime": "작성자 이름, 일자 및 시간",
+      "dateTime": "일자 및 시간",
+      "date": "일자"
+    }
+  },
+  "alert": {
+    "typeText": "'<텍스트를 삽입하려면 여기에 입력하십시오.>'",
+    "categoryText": "'<새 카테고리 이름을 지정하려면 여기에 입력하십시오>'",
+    "templateText": "'<새 템플릿의 이름을 지정하려면 여기에 입력하십시오.>'",
+    "textError": "${1}은(는) 미리 정의된 텍스트이므로 드롭다운 메뉴에서 선택하거나 새로 만들어야 합니다.",
+    "categoryError": "${1}은(는) 사전 정의된 카테고리이며 맞춤 스탬프에 사용할 수 없습니다. 다른 카테고리를 선택하세요.",
+    "templateError": "${1}은(는) 사전 정의된 템플릿이며 맞춤 스탬프에 사용할 수 없습니다. 다른 템플릿을 선택하세요.",
+    "fileError": "파일이 비어 있습니다.",
+    "nameError": "이름이 필요합니다.",
+    "templateNameError": "이 이름의 스탬프가 있습니다. 가져올 스탬프의 이름을 변경하십시오.",
+    "spaceError": "띄어쓰기는 카테고리에 포함될 수 없습니다.",
+    "sameName": "이름 '${1}'인 스탬프가 이미 존재합니다.",
+    "specialError": "특수 문자는 유효하지 않습니다."
+  }
+}

@@ -1,0 +1,34 @@
+{
+    "name": "intergration-service-worker",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "start": "cross-env NODE_ENV=development webpack-dev-server --config ./webpack.config.js",
+        "build": "cross-env NODE_ENV=production webpack --config ./webpack.config.js"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "devDependencies": {
+        "@babel/core": "^7.8.4",
+        "@babel/preset-env": "^7.8.4",
+        "babel-loader": "^8.0.6",
+        "copy-webpack-plugin": "^5.1.1",
+        "cross-env": "^7.0.0",
+        "css-loader": "^3.4.2",
+        "glob": "^10.4.1",
+        "html-webpack-plugin": "^3.2.0",
+        "style-loader": "^1.1.3",
+        "webpack": "^4.41.6",
+        "webpack-cli": "^3.3.11",
+        "webpack-dev-server": "^3.10.3"
+    },
+    "dependencies": {
+        "@foxitsoftware/foxit-pdf-sdk-for-web-library": "link:./../../../"
+    },
+    "resolutions": {
+        "@foxitsoftware/web-common": "link:./../../../packages/foxit-web-common",
+        "@foxitsoftware/web-ui-lib": "link:./../../../packages/foxit-web-ui-lib"
+    }
+}

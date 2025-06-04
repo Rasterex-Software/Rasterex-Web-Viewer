@@ -1,0 +1,25 @@
+var class_bookmark_data_service =
+[
+    [ "addBookmark", "class_bookmark_data_service.html#ab0e0cac040e0494042066bcced59aa14", null ],
+    [ "cutBookmark", "class_bookmark_data_service.html#a2f2592943d1a5d191bc374aed44d2674", null ],
+    [ "deleteBookmark", "class_bookmark_data_service.html#a2d08d64c16c0702d7ca869c32062304b", null ],
+    [ "getBookmarkChildren", "class_bookmark_data_service.html#aec7b0c9f35522defe061edad0f47648e", null ],
+    [ "getBookmarkData", "class_bookmark_data_service.html#a5093a864f0215effd80ec91951bd42bf", null ],
+    [ "getDestination", "class_bookmark_data_service.html#aadad6f7ce0bae3ae845801b4e8928875", null ],
+    [ "getFirstLevelBookmarks", "class_bookmark_data_service.html#a7ce27d51b8a0b8bbe9776f0cd47d864c", null ],
+    [ "getParentBookmarkId", "class_bookmark_data_service.html#a59538cd91d1feb447826139084628312", null ],
+    [ "moveBookmark", "class_bookmark_data_service.html#aef0df73bdcbd19939694a8258bb4c341", null ],
+    [ "onBookmarkAdded", "class_bookmark_data_service.html#a4c3f17d62eaac4506c672f57b08f95ff", null ],
+    [ "onBookmarkChildrenReloaded", "class_bookmark_data_service.html#a1fa9fa999a934a149d05ba2468a76160", null ],
+    [ "onBookmarkDeleted", "class_bookmark_data_service.html#af2ef883ec2c6bcd270d7db4513ffc8ff", null ],
+    [ "onBookmarkMoved", "class_bookmark_data_service.html#acd7d23d828fc9d9309f9fc97eed503f8", null ],
+    [ "onBookmarkPropertiesUpdated", "class_bookmark_data_service.html#aff853b7f50ab1f4e24f29cbd28e3a013", null ],
+    [ "onPasteCutBookmark", "class_bookmark_data_service.html#a77d4adcccd1e3563de0c36dd9b5da07a", null ],
+    [ "pasteCutBookmark", "class_bookmark_data_service.html#a047e2a6ce1d37ce42ed1b55197aaf26c", null ],
+    [ "performAction", "class_bookmark_data_service.html#a1fecc86dd5dd320c278e5e448cbb20d3", null ],
+    [ "reloadBookmarkChildren", "class_bookmark_data_service.html#ad84002ca8a70f91bbcbfb1084749c04e", null ],
+    [ "renameBookmark", "class_bookmark_data_service.html#a2ae2ac21f7bf1f8ac75532df9f7e2617", null ],
+    [ "setColor", "class_bookmark_data_service.html#a824b5601969e8f183d4c06b1f38d888b", null ],
+    [ "setDestination", "class_bookmark_data_service.html#a7f1555842488d159b7f8bcca35c1fdce", null ],
+    [ "setFontStyle", "class_bookmark_data_service.html#a909eee762e5cb2d6ee34e6894d3f5974", null ]
+];

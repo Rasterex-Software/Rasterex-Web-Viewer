@@ -1,0 +1,41 @@
+{
+  "toolbar": {
+    "createDynamicStampTextBtnText": "Benutzerdefinierten dynamischen Stempel erstellen"
+  },
+  "dialog": {
+    "header": "Benutzerdefinierten dynamischen Stempel erstellen",
+    "backgroundColor": "Hintergrundfarbe:",
+    "template": "Vorlage:",
+    "templatePlaceholder": "Hier eingeben, um neue Vorlage zu benennen",
+    "browse": "Durchsuchen",
+    "category": "Kategorie:",
+    "categoryPlaceholder": "Hier eingeben, um neue Kategorie zu benennen",
+    "name": "Name:",
+    "font": "Schriftart:",
+    "stampText": "Stempeltext:",
+    "stampTextPlaceholder": "Text hier eingeben",
+    "fontSize": "Schriftgröße:",
+    "color": "Farbe:",
+    "stampTextType": {
+      "customText": "Text hier eingeben",
+      "name": "Name des Autors",
+      "nameDateTime": "Name des Autors, Datum und Uhrzeit",
+      "dateTime": "Datum und Uhrzeit",
+      "date": "Datum"
+    }
+  },
+  "alert": {
+    "typeText": "'<Text hier eingeben>'",
+    "categoryText": "'<Hier eingeben, um neue Kategorie zu benennen>'",
+    "templateText": "'<Hier eingeben, um neue Vorlage zu benennen>'",
+    "textError": "${1} ist ein vordefinierter Text. Sie müssen Text aus dem Dropdownmenü auswählen oder neuen Text erstellen.",
+    "categoryError": "${1} ist eine vordefinierte Kategorie und kann nicht für Benutzerstempel verwendet werden. Wählen Sie eine andere Kategorie aus.",
+    "templateError": "${1} ist eine vordefinierte Vorlage und kann nicht für Benutzerstempel verwendet werden. Wählen Sie eine andere Vorlage aus.",
+    "fileError": "Datei ist leer.",
+    "nameError": "Name ist ein Pflichtfeld.",
+    "templateNameError": "Es ist kein Stempel mit diesem Namen vorhanden. Benennen Sie den zu importierenden Stempel um.",
+    "spaceError": "Die Kategorie darf kein Leerzeichen enthalten.",
+    "sameName": "Der Stempel mit dem Namen '${1}' ist schon vorhanden.",
+    "specialError": "Sonderzeichen sind ungültig."
+  }
+}

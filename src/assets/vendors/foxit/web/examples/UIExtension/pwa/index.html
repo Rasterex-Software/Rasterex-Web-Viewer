@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Foxit PDF SDK for Web</title>
+    <link rel="shortcut icon" href="../../assets/favicon.ico" type="image/x-icon" />
+    <link rel="manifest" href="./manifest.json">
+    <link rel="stylesheet" href="../../../lib/UIExtension.css">
+    <style>
+        body {
+            height: 100vh;
+            height: 100dvh;
+            height: calc(var(--vh, 1dvh) * 100);
+        }
+        #pdf-ui {
+            top: 40px;
+            bottom: 0;
+            position: absolute;
+            width: 100vw;
+        }
+
+        .fv__ui-mobile #pdf-ui {
+            top: 0;
+        }
+        .fv__ui-mobile .fv__ui-nav
+        {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+<div class="fv__ui-nav">
+    <a class="fv__ui-nav-logo" href="javascript:location.reload()">
+        <i class="fv__icon-logo"></i>
+    </a>
+</div>
+<div id="pdf-ui"></div>
+</body>
+<script src="../../license-key.js"></script>
+<script src="../../../lib/UIExtension.full.js"></script>
+<script>
+    var PDFUI = UIExtension.PDFUI;
+    var pdfui = new PDFUI({
+        viewerOptions: {
+            libPath: '../../../lib',
+            jr: {
+                licenseSN: licenseSN,
+                licenseKey: licenseKey
+            }
+        },
+        renderTo: '#pdf-ui',
+        fragments: [],
+        addons: UIExtension.PDFViewCtrl.DeviceInfo.isMobile ?
+            '../../../lib/uix-addons/allInOne.mobile.js':
+            '../../../lib/uix-addons/allInOne.js'
+    });
+    
+    pdfui.openPDFByHttpRangeRequest({
+        range:{
+            url:'../../../docs/FoxitPDFSDKforWeb_DemoGuide.pdf',
+        }
+    },{fileName:'FoxitPDFSDKforWeb_DemoGuide.pdf'})
+
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./service-worker.js');
+    }
+</script>
+
+</html>

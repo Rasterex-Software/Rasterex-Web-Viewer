@@ -1,0 +1,120 @@
+{
+  "header": "Firma documento",
+  "signAs": "Firma come:",
+  "info": "Informazioni",
+  "previewer": "Anteprima firma",
+  "apType": "Tipo di aspetto:",
+  "create": "Crea",
+  "text": "Configura testo",
+  "location": "Posizione:",
+  "lock": "Blocca documento dopo la firma",
+  "mulfile": "Applica a più file",
+  "sign": "Firma",
+  "cancel": "Annulla",
+  "issuer": "Emittente del certificato",
+  "newId": "Nuovo ID...",
+  "incorrectPwd": "Password errata!",
+  "emptyPwd": "Immettere la password.",
+  "ap": {
+    "standard": "Stile standard",
+    "clear": "Cancella",
+    "title": "Titolo:"
+  },
+  "createNewID": "Nessun ID digitale trovato. Fare clic sul pulsante OK per crearne uno.",
+  "reason": {
+    "title": "Motivo:",
+    "0": "Sono l'autore di questo documento",
+    "1": "Ho esaminato questo documento",
+    "2": "Approvo questo documento",
+    "3": "Approvo questo documento con la mia firma legalmente vincolante",
+    "4": "Attesto l'accuratezza e l'integrità di questo documento",
+    "5": "Accetto i termini definiti dal posizionamento della mia firma in questo documento",
+    "6": "Accetto parti specificate di questo documento"
+  },
+  "text-direction": {
+    "title": "Direzione testo",
+    "auto": "Automatico",
+    "ltr": "Da sinistra a destra",
+    "rtl": "Da destra a sinistra"
+  },
+  "moreSigns": "Sono stati trovati alcuni campi non firmati e solo il primo campo firma verrà salvato. Continuare?",
+  "fontsize": "dimensione del font",
+  "logo": {
+    "title": "Configura logo",
+    "prop": "Proprietà del logo"
+  },
+  "placeSig": {
+    "tip": "Posizionare un campo firma e firmare digitalmente il documento.",
+    "text": "Inserisci firma..."
+  },
+  "signDoc": {
+    "tip": "Firma il documento con una firma digitale.",
+    "text": "Firma documento..."
+  },
+  "signLater": "Hai inserito una firma vuota nel documento, se vuoi che abbia effetto, devi firmare il documento",
+  "commonName": "il nome comune qui",
+  "distinguishName": "il tuo nome illustre",
+  "staticReason": "il motivo della firma qui",
+  "staticLocation": "la posizione della firma qui",
+  "specialError": "I caratteri speciali non sono validi.",
+  "certify": {
+    "perm": "Azioni consentite dopo la certificazione",
+    "noSpecified": "Mantieni l'impostazione predefinita",
+    "perm0": "Non sono consentite modifiche",
+    "perm1": "Compilazione form e firme digitali",
+    "perm2": "Commenti, compilazione modulo, firma dei campi di firma esistenti",
+    "visible": "Certifica con firma visibile",
+    "visibleDesc": "Certifica digitalmente il documento con una firma visibile",
+    "invisible": "Certifica senza firma visibile",
+    "invisibleDesc": "Certifica digitalmente il documento con una firma invisibile",
+    "trustCerts": "Certificati attendibili",
+    "trustCertsDesc": "Gestisci certificati attendibili per le firme digitali",
+    "header": "Certificati attendibili",
+    "edit": "Modifica",
+    "add": "Aggiungi",
+    "view": "Visualizza",
+    "export": "Esporta",
+    "delete": "Elimina",
+    "name": "Nome",
+    "issuedBy": "Rilasciato da",
+    "trust": "Attendibilità",
+    "expiredData": "Dati scaduti",
+    "close": "Chiudi",
+    "certName": "Nome:",
+    "issuer": "Emittente:",
+    "validFrom": "Valido dal:",
+    "validTo": "Valido per:",
+    "intent": "Utilizzo previsto della chiave:",
+    "deleteConfirm": "Sei sicuro di voler eliminare questo certificato? Se lo fai, non sarai più in grado di verificare l'identità del proprietario.",
+    "notCert": "Non un certificato."
+  },
+  "trustedRoot": "Radice attendibile",
+  "nonTrustedRoot": "Radice non attendibile",
+  "viewCert": {
+    "header": "Modifica attendibilità certificato",
+    "detailTitle": "Dettagli certificato",
+    "subject": "Oggetto:",
+    "usage": "Utilizzo:",
+    "expiration": "Scadenza:",
+    "trust": "Attendibilità",
+    "trustInfo": "Un certificato utilizzato per firmare un documento deve essere designato come trust anchor od essere concatenato a un trust anchor per una corretta convalida della firma. La verifica della revoca non viene eseguita per o sopra un trust anchor.",
+    "trustRoot": "Usa questo certificato come radice attendibile",
+    "afterSign": "Se la firma riesce, considera attendibile questo certificato per:",
+    "valid": "Convalida delle firme",
+    "validCert": "Convalida di documenti certificati",
+    "ok": "OK",
+    "cancel": "Annulla"
+  },
+  "exportCert": {
+    "header": "Esporta certificati",
+    "subtitle": "Verranno esportati i dati seguenti:",
+    "certTitle": "Certificati personali",
+    "certInfo": "I certificati possono essere utilizzati dai destinatari per convalidare le firme create dall'utente corrente, nonché per crittografare i documenti per l'utente corrente. La chiave privata dell'utente corrente non verrà esportata con il certificato.",
+    "option": {
+      "title": "Opzioni di esportazione:",
+      "formatHint": "Selezionare la modalità di esportazione dei dati:",
+      "email": "Condividi i dati tramite e-mail",
+      "file": "Salva i dati in un file"
+    }
+  }
+}

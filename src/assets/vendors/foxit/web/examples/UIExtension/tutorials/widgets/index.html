@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>UIExtension widgets examples</title>
+    <style>
+        body {
+            font-family: -apple-system,BlinkMacSystemFont,Open Sans,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            font-size: 16px;
+            color: #2c3e50;
+        }
+        .sidebar {
+            font-size: 16px;
+            background-color: #fff;
+        }
+        ol, p, ul {
+            line-height: 1.7;
+        }
+        .sidebar ul {
+            padding: 0;
+            margin: 0;
+            list-style-type: none;
+        }
+        .sidebar-heading.open, .sidebar-heading:hover {
+            color: inherit;
+        }
+        .sidebar-heading {
+            color: #2c3e50;
+            -webkit-transition: color .15s ease;
+            transition: color .15s ease;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: 700;
+            padding: .35rem 1.5rem .35rem 1.25rem;
+            width: 100%;
+            box-sizing: border-box;
+            margin: 0;
+            border-left: .25rem solid transparent;
+        }
+        .sidebar-group-items {
+            -webkit-transition: height .1s ease-out;
+            transition: height .1s ease-out;
+            font-size: .95em;
+            overflow: hidden;
+        }
+        a.sidebar-link {
+            font-size: 1em;
+            font-weight: 400;
+            display: inline-block;
+            color: #2c3e50;
+            border-left: .25rem solid transparent;
+            padding: .35rem 1rem .35rem 1.25rem;
+            line-height: 1.4;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .sidebar a {
+            display: inline-block;
+        }
+        .sidebar-group a.sidebar-link {
+            padding-left: 2rem;
+        }
+        a.sidebar-link:hover {
+            font-weight: 600;
+            color: #3eaf7c;
+            border-left-color: #3eaf7c;
+        }
+    </style>
+</head>
+<body>
+    <aside class="sidebar">
+        <section class="sidebar-links sidebar-group-items">
+            <p class="sidebar-heading open"><span>Examples</span> <span class="arrow down"></span></p>
+            <ul class="sidebar-links sidebar-group-items">
+                <li>
+                    <a class="sidebar-link" href="./button.html">button</a>
+                </li>
+                <li>
+                    <a class="sidebar-link" href="./dropdown.html">dropdown</a>
+                </li>
+                <li>
+                    <a class="sidebar-link" href="./group.html">group</a>
+                </li>
+                <li>
+                    <a class="sidebar-link" href="./layer.html">layer</a>
+                </li>
+                <li>
+                    <a class="sidebar-link" href="./number.html">number</a>
+                </li>
+                <li>
+                    <a class="sidebar-link" href="./sidebar.html">sidebar</a>
+                </li>
+                <li>
+                    <a class="sidebar-link" href="./tabs.html">tabs</a>
+                </li>
+                <li>
+                    <a class="sidebar-link" href="./text.html">text</a>
+                </li>
+            </ul>
+        </section>
+    </aside>
+</body>
+</html>

@@ -3113,22 +3113,13 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
 
 
     this.getSnapPoint = function(npagenum, x, y, callback){
-
-        var point = {x : x, y : y};
-
-        //console.log(point);
+        var pointrd = {x : x, y : y};
 
         var mode = [];
         var pgscale = null;
         var endPoint = PDFViewCtrl.constants.SNAP_MODE.EndPoint;
         var midPoint = PDFViewCtrl.constants.SNAP_MODE.MidPoint;
         var IntersectionPoint = PDFViewCtrl.constants.SNAP_MODE.IntersectionPoint;
-        
-        var nearestPoint = PDFViewCtrl.constants.SNAP_MODE.NearestPoint; 
-        
-        
-        var pdfrect = undefined;
-
 
         if (foxview.pdfViewer){
 
@@ -3136,9 +3127,7 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
                 pgscale = foxview.curpagerender.getScale();
             }
            
-            
             foxview.pdfViewer.getCurrentPDFDoc().getPageByIndex(npagenum).then(function (page) {
-
 
                 if(pgscale == null){
                     var scale = foxview.scale;
@@ -3146,28 +3135,10 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
                     scale = pgscale;
                 }
 
-                //var rotation = page.getRotationAngle();
-
-                //var orgpointarray = [point.x, point.y];
-
-                //foxview.pagestates[pgindex].rotation = pageRender.page.getRotationAngle();
-
-                //var rotpoint = page.reverseDevicePoint(orgpointarray, 1, rotation);
-
-                //console.log(rotpoint);
-                
-                var pointrd = {x : point.x, y : point.y};
-
-                //var pointrd = {x : rotpoint[0], y : rotpoint[1]};
-
                 mode.push(endPoint);
                 mode.push(midPoint);
                 mode.push(IntersectionPoint);
 
-                //mode.push(nearestPoint);
-
-                
-                //console.log(dvcpoint);
                 if(foxview.snapinprogress){
                     return; 
                 }
@@ -3182,35 +3153,20 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
                             var dvcpoint = page.getDevicePoint(pointarray, scale, 0);
                             var pointrt = {x : dvcpoint[0], y : dvcpoint[1]};
                             
-    
                             callback({found: true, x: pointrt.x, y: pointrt.y, type: 1, scale : scale});
                             foxview.snapinprogress = false;
-    
-    
                         }else{
                             callback({found: false, x: fxsnapPoint.x, y: fxsnapPoint.y, type: 1, scale : scale});
                             foxview.snapinprogress = false;
                         } 
-    
                     }
-
                 }).catch(function (reason){
-                    
                     foxview.snapinprogress = false;
                     console.log(reason, pointrd.x, pointrd.y);
-
-                    /*if(fxsnapPoint){
-                        callback({found: false, x: fxsnapPoint.x, y: fxsnapPoint.y, type: 1, scale : scale});  
-                    }*/
                     callback({found: false, x: pointrd.x, y: pointrd.y, type: 1, scale : scale});
-
                 })
-                
-                
             });
         }
-
-
     };
 
     this.getSnapPointRotate = function(npagenum, x, y, nrot, callback){

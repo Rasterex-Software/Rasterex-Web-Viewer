@@ -1911,6 +1911,10 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
 
                 var pagepos = foxview.getPagePos(foxview.curpage);
                 var scrpos = foxview.getScrollPos(window.document.body);
+                    var scrollInfo = foxview.pdfViewer.getScrollInfo();
+                    var scrollX = scrollInfo.x || 0;
+                    var scrollY = scrollInfo.y || 0;
+
 
                 if(pagepos != undefined){
                     var midpage = pagepos.height / 2;
@@ -3169,11 +3173,9 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
         }
     };
 
-    this.getSnapPointRotate = function(npagenum, x, y, nrot, callback){
-
+ this.getSnapPointRotate = function(npagenum, x, y, callback){
         var point = {x : x, y : y};
-
-        console.log(point);
+        console.log("Input device coordinates:", point);
 
         var mode = [];
         var pgscale = null;
@@ -3181,94 +3183,58 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
         var midPoint = PDFViewCtrl.constants.SNAP_MODE.MidPoint;
         var IntersectionPoint = PDFViewCtrl.constants.SNAP_MODE.IntersectionPoint;
         
-        var nearestPoint = PDFViewCtrl.constants.SNAP_MODE.NearestPoint; 
-        
-        
-        var pdfrect = undefined;
-
-
         if (foxview.pdfViewer){
-
             if(foxview.curpagerender != null){
                 pgscale = foxview.curpagerender.getScale();
             }
            
-            
             foxview.pdfViewer.getCurrentPDFDoc().getPageByIndex(npagenum).then(function (page) {
-
-
                 if(pgscale == null){
                     var scale = foxview.scale;
                 }else{
                     scale = pgscale;
                 }
 
-                //var rotation = page.getRotationAngle();
-
-                //var orgpointarray = [point.x, point.y];
-
-                //foxview.pagestates[pgindex].rotation = pageRender.page.getRotationAngle();
-
-                //var rotpoint = page.reverseDevicePoint(orgpointarray, 1, rotation);
-
-                //console.log(rotpoint);
-                
-                var pointrd = {x : point.x, y : point.y};
-
-                //var pointrd = {x : rotpoint[0], y : rotpoint[1]};
+                // Convert screen coordinates to PDF coordinates
+                var pdfPointArray = page.reverseDevicePoint([point.x, point.y], scale, 0);
+                var pointrd = {x: pdfPointArray[0], y: pdfPointArray[1]};
+                console.log("PDF coordinates after reverseDevicePoint:", pointrd);
 
                 mode.push(endPoint);
                 mode.push(midPoint);
                 mode.push(IntersectionPoint);
 
-                //mode.push(nearestPoint);
-
-                
-                //console.log(dvcpoint);
                 if(foxview.snapinprogress){
                     return; 
-                }
+                } 
 
-                page.getSnappedPoint( pointrd, mode ).then(function (fxsnapPoint){
-
+                page.getSnappedPoint(pointrd, mode).then(function (fxsnapPoint){
                     foxview.snapinprogress = true;
                     if(fxsnapPoint){
+                        console.log("Found snap point in PDF coordinates:", fxsnapPoint);
                         if(fxsnapPoint.x != pointrd.x && fxsnapPoint.y != pointrd.y){
-                        
+                            // Convert PDF coordinates back to screen coordinates
                             var pointarray = [fxsnapPoint.x, fxsnapPoint.y];
-                            var dvcpoint = page.getDevicePoint(pointarray, scale, nrot);
+                            var dvcpoint = page.getDevicePoint(pointarray, scale, 0);
                             var pointrt = {x : dvcpoint[0], y : dvcpoint[1]};
+                            console.log("Final device coordinates:", pointrt);
                             
-    
                             callback({found: true, x: pointrt.x, y: pointrt.y, type: 1, scale : scale});
                             foxview.snapinprogress = false;
-    
-    
                         }else{
                             callback({found: false, x: fxsnapPoint.x, y: fxsnapPoint.y, type: 1, scale : scale});
                             foxview.snapinprogress = false;
                         } 
-    
                     }
-
                 }).catch(function (reason){
-                    
                     foxview.snapinprogress = false;
-                    console.log(reason, pointrd.x, pointrd.y);
-
-                    /*if(fxsnapPoint){
-                        callback({found: false, x: fxsnapPoint.x, y: fxsnapPoint.y, type: 1, scale : scale});  
-                    }*/
+                    console.log("Error:", reason);
+                    console.log("Last known PDF coordinates:", pointrd);
                     callback({found: false, x: pointrd.x, y: pointrd.y, type: 1, scale : scale});
-
-                })
-                
-                
+                });
             });
         }
-
-
-    };        
+    };      
 
 
     this.onpageLayoutRedraw = function (pdfViewer, ViewerEvents) {

@@ -59,6 +59,12 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     }
     this._activeMarkupNumber = value;
   }
+
+  // NEW: Support for multiple active markups and leader lines
+  private activeMarkupNumbers: Set<number> = new Set<number>();
+  private leaderLines: Map<number, any> = new Map<number, any>();
+  private activeEndPoints: Map<number, HTMLElement> = new Map<number, HTMLElement>();
+
   markupNoteList: number[] = [];
   noteIndex: number;
   pageNumber: number = -1;
@@ -205,41 +211,46 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     }
 
   private _showLeaderLine(markup: IMarkup): void {
+    this._showLeaderLineForMarkup(markup.markupnumber, markup);
+  }
+
+  private _showLeaderLineForMarkup(markupNumber: number, markup: IMarkup): void {
     // Prevent race conditions and infinite loops
     if (this.isUpdatingLeaderLine) {
-      console.log(`🚫 _showLeaderLine: Already updating leader line, skipping for markup ${markup.markupnumber}`);
+      console.log(`🚫 _showLeaderLineForMarkup: Already updating leader line, skipping for markup ${markupNumber}`);
       return;
     }
 
     this.isUpdatingLeaderLine = true;
     
     try {
-      this._hideLeaderLine();
+      // Remove existing leader line for this markup if it exists
+      this._hideLeaderLineForMarkup(markupNumber);
 
-      console.log(`🎯 _showLeaderLine: Attempting to show leader line for markup ${markup.markupnumber}`);
+      console.log(`🎯 _showLeaderLineForMarkup: Attempting to show leader line for markup ${markupNumber}`);
 
-      const start = document.getElementById(`note-panel-${markup.markupnumber}`);
+      const start = document.getElementById(`note-panel-${markupNumber}`);
       if (!start) {
-        console.warn(`❌ _showLeaderLine: Could not find DOM element note-panel-${markup.markupnumber}`);
+        console.warn(`❌ _showLeaderLineForMarkup: Could not find DOM element note-panel-${markupNumber}`);
         this._scheduleRetryOrFallback(markup);
         return;
       }
 
-      console.log(`✅ _showLeaderLine: Found DOM element note-panel-${markup.markupnumber}`);
+      console.log(`✅ _showLeaderLineForMarkup: Found DOM element note-panel-${markupNumber}`);
 
       // Ensure the markup is selected in RXCore to prevent reset
-      console.log(`🎯 _showLeaderLine: Selecting markup ${markup.markupnumber} in RXCore`);
-      RXCore.selectMarkUpByIndex(markup.markupnumber);
+      console.log(`🎯 _showLeaderLineForMarkup: Selecting markup ${markupNumber} in RXCore`);
+      RXCore.selectMarkUpByIndex(markupNumber);
 
       // Get accurate viewport-aware coordinates
       const coords = this._getViewportAwareCoordinates(markup);
       if (!coords) {
-        console.warn(`❌ _showLeaderLine: Could not get coordinates for markup ${markup.markupnumber}`);
+        console.warn(`❌ _showLeaderLineForMarkup: Could not get coordinates for markup ${markupNumber}`);
         this.isUpdatingLeaderLine = false;
         return;
       }
 
-      console.log(`✅ _showLeaderLine: Got coordinates (${coords.x}, ${coords.y}) for markup ${markup.markupnumber}`);
+      console.log(`✅ _showLeaderLineForMarkup: Got coordinates (${coords.x}, ${coords.y}) for markup ${markupNumber}`);
 
       const end = document.createElement('div');
       end.style.position = 'fixed';
@@ -250,14 +261,13 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       end.style.pointerEvents = 'none';
       end.style.zIndex = '9999';
       end.className = 'leader-line-end';
-      end.setAttribute('data-markup-number', markup.markupnumber.toString());
+      end.setAttribute('data-markup-number', markupNumber.toString());
       document.body.appendChild(end);
       
       // Store reference for updates
-      this.activeEndPoint = end;
-      this.lastProcessedMarkupNumber = markup.markupnumber;
+      this.activeEndPoints.set(markupNumber, end);
 
-      this.leaderLine = new LeaderLine({
+      const leaderLine = new LeaderLine({
         start,
         end,
         color: document.documentElement.style.getPropertyValue("--accent") || '#14ab0a',
@@ -267,35 +277,86 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
         endPlugSize: 1.5
       });
 
-      console.log(`✅ _showLeaderLine: Leader line created successfully for markup ${markup.markupnumber}`);
+      // Store the leader line
+      this.leaderLines.set(markupNumber, leaderLine);
+      this.activeMarkupNumbers.add(markupNumber);
+
+      console.log(`✅ _showLeaderLineForMarkup: Leader line created successfully for markup ${markupNumber}`);
     } catch (error) {
-      console.error('❌ Error in _showLeaderLine:', error);
+      console.error('❌ Error in _showLeaderLineForMarkup:', error);
     } finally {
       this.isUpdatingLeaderLine = false;
     }
   }
 
   private _hideLeaderLine(): void {
+    // Hide all leader lines
+    this._hideAllLeaderLines();
+  }
+
+  private _hideLeaderLineForMarkup(markupNumber: number): void {
     // Clear any pending timeouts to prevent memory leaks
     this._clearAllTimeouts();
     
-    if (this.leaderLine) {
+    const leaderLine = this.leaderLines.get(markupNumber);
+    if (leaderLine) {
       try {
-        this.leaderLine.remove();
+        leaderLine.remove();
       } catch (error) {
-        console.warn('Error removing leader line:', error);
+        console.warn(`Error removing leader line for markup ${markupNumber}:`, error);
       }
-      this.leaderLine = undefined;
+      this.leaderLines.delete(markupNumber);
     }
     
-    if (this.activeEndPoint) {
+    const activeEndPoint = this.activeEndPoints.get(markupNumber);
+    if (activeEndPoint) {
       try {
-        this.activeEndPoint.remove();
+        activeEndPoint.remove();
       } catch (error) {
-        console.warn('Error removing active end point:', error);
+        console.warn(`Error removing active end point for markup ${markupNumber}:`, error);
       }
-      this.activeEndPoint = null;
+      this.activeEndPoints.delete(markupNumber);
     }
+    
+    this.activeMarkupNumbers.delete(markupNumber);
+    
+    // Clean up any orphaned leader line elements for this markup
+    try {
+      document.querySelectorAll(`[data-markup-number="${markupNumber}"]`).forEach(el => el.remove());
+    } catch (error) {
+      console.warn(`Error cleaning up leader line elements for markup ${markupNumber}:`, error);
+    }
+  }
+
+  private _hideAllLeaderLines(): void {
+    // Clear any pending timeouts to prevent memory leaks
+    this._clearAllTimeouts();
+    
+    // Hide all leader lines
+    for (const markupNumber of this.activeMarkupNumbers) {
+      const leaderLine = this.leaderLines.get(markupNumber);
+      if (leaderLine) {
+        try {
+          leaderLine.remove();
+        } catch (error) {
+          console.warn(`Error removing leader line for markup ${markupNumber}:`, error);
+        }
+      }
+      
+      const activeEndPoint = this.activeEndPoints.get(markupNumber);
+      if (activeEndPoint) {
+        try {
+          activeEndPoint.remove();
+        } catch (error) {
+          console.warn(`Error removing active end point for markup ${markupNumber}:`, error);
+        }
+      }
+    }
+    
+    // Clear all collections
+    this.leaderLines.clear();
+    this.activeEndPoints.clear();
+    this.activeMarkupNumbers.clear();
     
     // Clean up any orphaned leader line elements
     try {
@@ -527,7 +588,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
    */
   private _updateLeaderLinePosition(): void {
     // Prevent multiple simultaneous updates
-    if (this.isUpdatingLeaderLine || this.activeMarkupNumber <= 0) {
+    if (this.isUpdatingLeaderLine || this.activeMarkupNumbers.size === 0) {
       return;
     }
 
@@ -545,21 +606,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
    * Perform the actual leader line update
    */
   private _performLeaderLineUpdate(): void {
-    if (this.activeMarkupNumber <= 0 || this.isUpdatingLeaderLine) {
-      return;
-    }
-
-    // Check if the start element still exists in DOM
-    const startElement = document.getElementById(`note-panel-${this.activeMarkupNumber}`);
-    if (!startElement) {
-      // Start element doesn't exist, recreate the leader line
-      this._recreateLeaderLineForActiveMarkup();
-      return;
-    }
-
-    if (!this.leaderLine || !this.activeEndPoint) {
-      // Leader line doesn't exist, recreate it
-      this._recreateLeaderLineForActiveMarkup();
+    if (this.activeMarkupNumbers.size === 0 || this.isUpdatingLeaderLine) {
       return;
     }
 
@@ -567,30 +614,50 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       ...(this.rxCoreService.getGuiMarkupList() || []), 
       ...(this.rxCoreService.getGuiAnnotList() || [])
     ];
-    
-    const activeMarkup = allMarkups.find(markup => markup.markupnumber === this.activeMarkupNumber);
-    if (!activeMarkup) {
-      this._hideLeaderLine();
-      return;
-    }
 
-    const coords = this._getViewportAwareCoordinates(activeMarkup);
-    if (coords) {
-      this.activeEndPoint.style.left = `${coords.x}px`;
-      this.activeEndPoint.style.top = `${coords.y}px`;
-      
-      // Force LeaderLine to recalculate
-      try {
-        if (this.leaderLine.position) {
-          this.leaderLine.position();
-        }
-      } catch (error) {
-        console.warn('Error updating leader line position, recreating:', error);
-        this._recreateLeaderLineForActiveMarkup();
+    // Update each active leader line
+    for (const markupNumber of this.activeMarkupNumbers) {
+      // Check if the start element still exists in DOM
+      const startElement = document.getElementById(`note-panel-${markupNumber}`);
+      if (!startElement) {
+        // Start element doesn't exist, recreate the leader line
+        this._recreateLeaderLineForMarkup(markupNumber);
+        continue;
       }
-    } else {
-      // Hide if not visible
-      this._hideLeaderLine();
+
+      const leaderLine = this.leaderLines.get(markupNumber);
+      const activeEndPoint = this.activeEndPoints.get(markupNumber);
+
+      if (!leaderLine || !activeEndPoint) {
+        // Leader line doesn't exist, recreate it
+        this._recreateLeaderLineForMarkup(markupNumber);
+        continue;
+      }
+
+      const activeMarkup = allMarkups.find(markup => markup.markupnumber === markupNumber);
+      if (!activeMarkup) {
+        this._hideLeaderLineForMarkup(markupNumber);
+        continue;
+      }
+
+      const coords = this._getViewportAwareCoordinates(activeMarkup);
+      if (coords) {
+        activeEndPoint.style.left = `${coords.x}px`;
+        activeEndPoint.style.top = `${coords.y}px`;
+        
+        // Force LeaderLine to recalculate
+        try {
+          if (leaderLine.position) {
+            leaderLine.position();
+          }
+        } catch (error) {
+          console.warn(`Error updating leader line position for markup ${markupNumber}, recreating:`, error);
+          this._recreateLeaderLineForMarkup(markupNumber);
+        }
+      } else {
+        // Hide if not visible
+        this._hideLeaderLineForMarkup(markupNumber);
+      }
     }
   }
 
@@ -612,70 +679,41 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
   }
 
   /**
+   * Recreate leader line for a specific markup
+   */
+  private _recreateLeaderLineForMarkup(markupNumber: number): void {
+    if (markupNumber <= 0) return;
+
+    const allMarkups = [
+      ...(this.rxCoreService.getGuiMarkupList() || []), 
+      ...(this.rxCoreService.getGuiAnnotList() || [])
+    ];
+    
+    const markup = allMarkups.find(markup => markup.markupnumber === markupNumber);
+    if (markup) {
+      this._showLeaderLineForMarkup(markupNumber, markup);
+    }
+  }
+
+  /**
    * Wait for DOM element to be available and then update leader line (improved with bounds checking)
    */
   private _waitForDOMAndUpdateLeaderLine(): void {
-    if (this.activeMarkupNumber <= 0) {
-      console.log('_waitForDOMAndUpdateLeaderLine: No active markup number');
+    if (this.activeMarkupNumbers.size === 0) {
+      console.log('_waitForDOMAndUpdateLeaderLine: No active markup numbers');
       return;
     }
 
     // Clear any existing timeout to prevent overlapping attempts
     this._clearAllTimeouts();
 
-    console.log(`_waitForDOMAndUpdateLeaderLine: Starting search for DOM element note-panel-${this.activeMarkupNumber}`);
+    console.log(`_waitForDOMAndUpdateLeaderLine: Starting search for DOM elements for markups: ${Array.from(this.activeMarkupNumbers).join(', ')}`);
 
     // Force change detection first
     this.cdr.detectChanges();
 
-    const targetMarkupNumber = this.activeMarkupNumber; // Capture current value
-    let attempts = 0;
-
-    const checkAndUpdate = () => {
-      // Prevent infinite loops if markup number has changed
-      if (this.activeMarkupNumber !== targetMarkupNumber) {
-        console.log(`🔄 Active markup changed from ${targetMarkupNumber} to ${this.activeMarkupNumber}, stopping search`);
-        return;
-      }
-
-      attempts++;
-      console.log(`_waitForDOMAndUpdateLeaderLine: Attempt ${attempts} looking for note-panel-${targetMarkupNumber}`);
-      
-      const startElement = document.getElementById(`note-panel-${targetMarkupNumber}`);
-      
-      if (startElement) {
-        console.log(`✅ Leader line DOM element found after ${attempts} attempts for markup ${targetMarkupNumber}`);
-        // Element is available, update the leader line
-        this._updateLeaderLinePosition();
-      } else {
-        console.log(`❌ DOM element note-panel-${targetMarkupNumber} not found on attempt ${attempts}`);
-        
-        if (attempts < this.maxRetryAttempts) {
-          // Element not yet available, try again after a delay
-          const delay = Math.min(this.retryDelayBase * attempts, 500); // Progressive delay with cap
-          this.domWaitTimeout = setTimeout(checkAndUpdate, delay);
-        } else {
-          console.warn(`⚠️ Could not find DOM element for markup ${targetMarkupNumber} after ${this.maxRetryAttempts} attempts - giving up`);
-          
-          // Final attempt to show leader line without DOM wait
-          const allMarkups = [
-            ...(this.rxCoreService.getGuiMarkupList() || []), 
-            ...(this.rxCoreService.getGuiAnnotList() || [])
-          ];
-          const activeMarkup = allMarkups.find(markup => markup.markupnumber === targetMarkupNumber);
-          
-          if (activeMarkup && this.activeMarkupNumber === targetMarkupNumber) {
-            console.log(`🔄 Making final attempt to show leader line for markup ${targetMarkupNumber}`);
-            // Reset the updating flag and try once more
-            this.isUpdatingLeaderLine = false;
-            this._showLeaderLine(activeMarkup);
-          }
-        }
-      }
-    };
-
-    // Start immediately
-    this.domWaitTimeout = setTimeout(checkAndUpdate, 50);
+    // Update all active leader lines
+    this._updateLeaderLinePosition();
   }
 
   /**
@@ -1011,11 +1049,11 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
   }
 
   /**
-   * Helper method to safely recalculate position for active comment (improved with safety checks)
+   * Helper method to safely recalculate position for active comments (improved with safety checks)
    */
   private recalculateActiveCommentPosition(): void {
-    if (this.activeMarkupNumber > 0 && !this.isUpdatingLeaderLine) {
-      console.log(`🔄 Recalculating position for active comment ${this.activeMarkupNumber}`);
+    if (this.activeMarkupNumbers.size > 0 && !this.isUpdatingLeaderLine) {
+      console.log(`🔄 Recalculating position for active comments: ${Array.from(this.activeMarkupNumbers).join(', ')}`);
       
       // Clear any pending operations first
       this._clearAllTimeouts();
@@ -1182,10 +1220,26 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       item.createdStr = dayjs(item.timestamp).format(this.guiConfig?.dateFormat?.dateTimeWithConditionalYear || 'MMM d, [yyyy] h:mm a');
       
 
-
       //item.IsExpanded = item?.IsExpanded;
       //item.IsExpanded = this.activeMarkupNumber > 0 ? item?.IsExpanded : false;
       item.IsExpanded = item?.IsExpanded;
+
+      // If the item is expanded, ensure it has a leader line
+      if (item.IsExpanded && !this.activeMarkupNumbers.has(item.markupnumber)) {
+        console.log(`🎯 _processList: Ensuring leader line for expanded markup ${item.markupnumber}`);
+        // Schedule showing the leader line after DOM is ready
+        setTimeout(() => {
+          if (item.IsExpanded) { // Double-check it's still expanded
+            this._showLeaderLineForMarkup(item.markupnumber, item);
+          }
+        }, 100);
+      }
+      // If the item is not expanded but has a leader line, remove it
+      else if (!item.IsExpanded && this.activeMarkupNumbers.has(item.markupnumber)) {
+        console.log(`🎯 _processList: Removing leader line for collapsed markup ${item.markupnumber}`);
+        this._hideLeaderLineForMarkup(item.markupnumber);
+      }
+
       return item;
     })
     .sort((a, b) => {
@@ -1499,7 +1553,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
 
     this.guiZoomUpdated$.subscribe(({params, zoomtype}) => {
       if(zoomtype == 0 || zoomtype == 1){
-        console.log(`🔍 Zoom updated: type ${zoomtype}, activeMarkupNumber: ${this.activeMarkupNumber}`);
+        console.log(`🔍 Zoom updated: type ${zoomtype}, activeMarkupNumbers: ${Array.from(this.activeMarkupNumbers).join(', ')}`);
         
         // Clear any pending operations
         this._clearAllTimeouts();
@@ -1507,8 +1561,8 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
         // Reset viewport reference on zoom change
         this.documentViewport = null;
         
-        // Update position for active comment after zoom change with debouncing
-        if (this.activeMarkupNumber > 0) {
+        // Update position for active comments after zoom change with debouncing
+        if (this.activeMarkupNumbers.size > 0) {
           this.leaderLineUpdateTimeout = setTimeout(() => {
             this._updateLeaderLinePosition();
           }, 200); // Increased delay for zoom to complete
@@ -1517,31 +1571,34 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     });
 
     this.guiRotatePage$.subscribe(({degree, pageIndex}) => {
-      console.log(`🔄 Page rotated: ${degree} degrees, page ${pageIndex}, activeMarkupNumber: ${this.activeMarkupNumber}`);
+      console.log(`🔄 Page rotated: ${degree} degrees, page ${pageIndex}, activeMarkupNumbers: ${Array.from(this.activeMarkupNumbers).join(', ')}`);
       
       // Clear any pending operations
       this._clearAllTimeouts();
       
       this.pageRotation = degree;
 
-      // Hide leader line during rotation to prevent visual artifacts
-      this._hideLeaderLine();
+      // Hide all leader lines during rotation to prevent visual artifacts
+      this._hideAllLeaderLines();
       
       // Reset viewport reference
       this.documentViewport = null;
 
-      // Recalculate position for active comment after rotation change with delay
-      if (this.activeMarkupNumber > 0) {
+      // Recalculate position for active comments after rotation change with delay
+      if (this.activeMarkupNumbers.size > 0) {
         this.leaderLineUpdateTimeout = setTimeout(() => {
           const allMarkups = [
             ...(this.rxCoreService.getGuiMarkupList() || []), 
             ...(this.rxCoreService.getGuiAnnotList() || [])
           ];
-          const activeMarkup = allMarkups.find(markup => markup.markupnumber === this.activeMarkupNumber);
           
-          if (activeMarkup) {
-            console.log(`🔄 Recreating leader line after rotation for markup ${this.activeMarkupNumber}`);
-            this._showLeaderLine(activeMarkup);
+          // Recreate leader lines for all expanded comments
+          for (const markupNumber of this.activeMarkupNumbers) {
+            const activeMarkup = allMarkups.find(markup => markup.markupnumber === markupNumber);
+            if (activeMarkup) {
+              console.log(`🔄 Recreating leader line after rotation for markup ${markupNumber}`);
+              this._showLeaderLineForMarkup(markupNumber, activeMarkup);
+            }
           }
         }, 300); // Allow time for rotation to complete
       }
@@ -1697,7 +1754,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
 
 
     this.rxCoreService.guiPage$.subscribe((state) => {
-      console.log(`📄 Page changed to ${state.currentpage}, activeMarkupNumber: ${this.activeMarkupNumber}`);
+      console.log(`📄 Page changed to ${state.currentpage}, activeMarkupNumbers: ${Array.from(this.activeMarkupNumbers).join(', ')}`);
       
       // Clear all pending operations first
       this._clearAllTimeouts();
@@ -1711,36 +1768,38 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       // Reset viewport reference on page change - critical for multi-page support
       this.documentViewport = null;
       
-      // Always hide leader line first when page changes to prevent visual artifacts
-      this._hideLeaderLine();
+      // Always hide all leader lines first when page changes to prevent visual artifacts
+      this._hideAllLeaderLines();
       
-      // If there's an active markup, check if it belongs to the current page
-      if (this.activeMarkupNumber > 0) {
+      // If there are active markups, check which ones belong to the current page
+      if (this.activeMarkupNumbers.size > 0) {
         const allMarkups = [
           ...(this.rxCoreService.getGuiMarkupList() || []), 
           ...(this.rxCoreService.getGuiAnnotList() || [])
         ];
-        const activeMarkup = allMarkups.find(markup => markup.markupnumber === this.activeMarkupNumber);
         
-        if (activeMarkup) {
-          console.log(`📄 Active markup ${this.activeMarkupNumber} is on page ${activeMarkup.pagenumber}, current page is ${state.currentpage}`);
-          
-          if (activeMarkup.pagenumber === state.currentpage) {
-            // The active markup is on the current page, show leader line after page loads
-            console.log(`✅ Active markup is on current page, will show leader line after page loads`);
-            // Wait for page to fully render before showing leader line
-            this.leaderLineUpdateTimeout = setTimeout(() => {
-              if (this.activeMarkupNumber === activeMarkup.markupnumber) {
-                this._showLeaderLine(activeMarkup);
+        // Wait for page to fully render before showing leader lines
+        this.leaderLineUpdateTimeout = setTimeout(() => {
+          // Check each active markup to see if it should be shown on current page
+          for (const markupNumber of this.activeMarkupNumbers) {
+            const activeMarkup = allMarkups.find(markup => markup.markupnumber === markupNumber);
+            
+            if (activeMarkup) {
+              console.log(`📄 Active markup ${markupNumber} is on page ${activeMarkup.pagenumber}, current page is ${state.currentpage}`);
+              
+              if (activeMarkup.pagenumber === state.currentpage) {
+                // The active markup is on the current page, show leader line
+                console.log(`✅ Active markup ${markupNumber} is on current page, showing leader line`);
+                this._showLeaderLineForMarkup(markupNumber, activeMarkup);
+              } else {
+                // The active markup is on a different page, keep it hidden for now
+                console.log(`🚫 Active markup ${markupNumber} is on different page (${activeMarkup.pagenumber}), keeping leader line hidden`);
               }
-            }, 250); // Increased delay for page rendering
-          } else {
-            // The active markup is on a different page, keep it hidden
-            console.log(`🚫 Active markup is on different page (${activeMarkup.pagenumber}), keeping leader line hidden`);
+            } else {
+              console.warn(`❌ Active markup ${markupNumber} not found in markup lists`);
+            }
           }
-        } else {
-          console.warn(`❌ Active markup ${this.activeMarkupNumber} not found in markup lists`);
-        }
+        }, 250); // Increased delay for page rendering
       }
     });
 
@@ -2170,9 +2229,6 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       // Clear any pending operations first
       this._clearAllTimeouts();
       
-      // Immediately set active state for visual feedback
-      this.activeMarkupNumber = markupNo;
-      
       // Force immediate change detection for responsive UI
       this.cdr.detectChanges();
       
@@ -2181,27 +2237,34 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       
       this.onSelectAnnotation(markup);
 
-      // Hide any existing leader lines first
-      this._hideLeaderLine();
-
       // Navigate to the correct page where the annotation exists
       console.log(`🚀 SetActiveCommentThread: Navigating to page ${markup.pagenumber} for markup ${markupNo}`);
       RXCore.gotoPage(markup.pagenumber);
 
-      // Reprocess the list to ensure the active markup is visible
-      this._processList(this.rxCoreService.getGuiMarkupList(), this.rxCoreService.getGuiAnnotList());
-
-      // Use improved leader line system
-      console.log(`🎯 SetActiveCommentThread: Showing leader line for markup ${markupNo}`);
-      this._showLeaderLine(markup);
-
+      // Toggle the expansion state and manage leader line based on new state
+      let isNowExpanded = false;
       Object.values(this.list || {}).forEach((comments) => {
         comments.forEach((comment: any) => {
           if (comment.markupnumber === markupNo) {
             comment.IsExpanded = !comment.IsExpanded;
+            isNowExpanded = comment.IsExpanded;
           }
         });
       });
+
+      // Manage leader line based on expansion state
+      if (isNowExpanded) {
+        // Comment is now expanded, show leader line
+        console.log(`🎯 SetActiveCommentThread: Showing leader line for expanded markup ${markupNo}`);
+        this._showLeaderLineForMarkup(markupNo, markup);
+      } else {
+        // Comment is now collapsed, hide leader line
+        console.log(`🎯 SetActiveCommentThread: Hiding leader line for collapsed markup ${markupNo}`);
+        this._hideLeaderLineForMarkup(markupNo);
+      }
+
+      // Reprocess the list to ensure the active markup is visible
+      this._processList(this.rxCoreService.getGuiMarkupList(), this.rxCoreService.getGuiAnnotList());
     } else {
       console.warn(`SetActiveCommentThread: Invalid markup number ${markupNo} or markup object`);
     }
@@ -2251,13 +2314,16 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       this.resizeObserver = null;
     }
     
-    // Clean up leader line
-    this._hideLeaderLine();
+    // Clean up all leader lines
+    this._hideAllLeaderLines();
     
     // Clear references
     this.scrollContainer = null;
     this.documentViewport = null;
     this.activeEndPoint = null;
+    this.activeMarkupNumbers.clear();
+    this.leaderLines.clear();
+    this.activeEndPoints.clear();
     
     console.log('🧹 NotePanelComponent destroyed and cleaned up');
   }
@@ -2757,11 +2823,14 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
         }
       });
     });
+    
+    // Hide the leader line for this specific markup
+    this._hideLeaderLineForMarkup(markupNo);
+    
     if (this.connectorLine) {
       RXCore.unSelectAllMarkup();
       this.annotationToolsService.hideQuickActionsMenu();
       this.connectorLine.hide();
-      this._hideLeaderLine();
     }
     event.stopPropagation();
   }

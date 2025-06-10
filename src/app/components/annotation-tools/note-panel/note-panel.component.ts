@@ -420,7 +420,8 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
         markup = markup.textBoxConnected;
       }
 
-      // Get the document viewport container
+      // Get the document viewport container - refresh viewport reference each time for scroll tracking
+      this.documentViewport = null; // Force refresh
       const viewport = this._getDocumentViewport();
       if (!viewport) {
         console.warn('❌ _getViewportAwareCoordinates: No viewport found');
@@ -436,23 +437,22 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
         return null;
       }
 
-      // Convert to viewport-relative coordinates
-      const relativeX = scaledCoords.x - viewport.scrollLeft;
-      const relativeY = scaledCoords.y - viewport.scrollTop;
+      // Get current scroll position from viewport
+      const scrollLeft = viewport.scrollLeft || 0;
+      const scrollTop = viewport.scrollTop || 0;
+
+      // Convert to viewport-relative coordinates considering current scroll position
+      const relativeX = scaledCoords.x - scrollLeft;
+      const relativeY = scaledCoords.y - scrollTop;
 
       // Convert to screen coordinates
       const screenX = viewportRect.left + relativeX;
       const screenY = viewportRect.top + relativeY;
 
-      // For multi-page documents, ensure the annotation's page is visible
-      // If the point is not visible, it might be on a different page
-      if (this._isPointInViewport(screenX, screenY)) {
-        return { x: screenX, y: screenY };
-      } else {
-        // In multi-page documents, this might be expected if the page hasn't loaded yet
-        // Return coordinates anyway, but log for debugging
-        return { x: screenX, y: screenY };
-      }
+      console.log(`📍 Coordinates for markup ${markup.markupnumber}: scaled(${scaledCoords.x}, ${scaledCoords.y}), scroll(${scrollLeft}, ${scrollTop}), screen(${screenX}, ${screenY})`);
+
+      // Return coordinates regardless of visibility to maintain leader lines during scroll
+      return { x: screenX, y: screenY };
 
     } catch (error) {
       console.warn('❌ _getViewportAwareCoordinates: Error calculating viewport-aware coordinates:', error);
@@ -552,26 +552,42 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
    * Get the document viewport element
    */
   private _getDocumentViewport(): HTMLElement | null {
-    if (this.documentViewport) return this.documentViewport;
+    // Always refresh viewport for scroll tracking - don't cache during scroll operations
     
     // Look for common viewport containers
     const selectors = [
       '#foxitframe',
-      '.foxit-pdf-reader',
+      '.foxit-pdf-reader', 
       '.pdf-viewer',
       '.document-container',
-      '.rx-pdf-viewer'
+      '.rx-pdf-viewer',
+      '.pdf-container',
+      '#pdf-container',
+      '.viewer-container'
     ];
     
     for (const selector of selectors) {
       const element = document.querySelector(selector) as HTMLElement;
       if (element) {
+        console.log(`📱 Found viewport element: ${selector}`);
         this.documentViewport = element;
         return element;
       }
     }
     
-    // Fallback to document body
+    // Additional fallback - look for any scrollable element that might contain the PDF
+    const scrollableElements = document.querySelectorAll('[style*="overflow"], [style*="scroll"]');
+    for (let i = 0; i < scrollableElements.length; i++) {
+      const element = scrollableElements[i] as HTMLElement;
+      if (element.scrollHeight > element.clientHeight) {
+        console.log(`📱 Found scrollable viewport element: ${element.tagName}.${element.className}`);
+        this.documentViewport = element;
+        return this.documentViewport;
+      }
+    }
+    
+    // Final fallback to document body
+    console.log('📱 Using document.body as viewport fallback');
     this.documentViewport = document.body;
     return this.documentViewport;
   }
@@ -642,21 +658,26 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
 
       const coords = this._getViewportAwareCoordinates(activeMarkup);
       if (coords) {
+        // Update the end point position
         activeEndPoint.style.left = `${coords.x}px`;
         activeEndPoint.style.top = `${coords.y}px`;
         
-        // Force LeaderLine to recalculate
+        // Force LeaderLine to recalculate its position
         try {
           if (leaderLine.position) {
             leaderLine.position();
+          }
+          // Additional force update for scroll scenarios
+          if (leaderLine.show) {
+            leaderLine.show();
           }
         } catch (error) {
           console.warn(`Error updating leader line position for markup ${markupNumber}, recreating:`, error);
           this._recreateLeaderLineForMarkup(markupNumber);
         }
       } else {
-        // Hide if not visible
-        this._hideLeaderLineForMarkup(markupNumber);
+        // Coordinates not available, but don't hide completely - markup might be on different page
+        console.log(`⚠️ Coordinates not available for markup ${markupNumber}, but keeping leader line for now`);
       }
     }
   }
@@ -774,8 +795,8 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
 
     this.intersectionObserver = new IntersectionObserver(
       (entries) => {
-        // Only update if there's an active markup and entries indicate meaningful change
-        if (this.activeMarkupNumber > 0 && entries.some(entry => entry.isIntersecting)) {
+        // Only update if there are active markups and entries indicate meaningful change
+        if (this.activeMarkupNumbers.size > 0 && entries.some(entry => entry.isIntersecting)) {
           this._updateLeaderLinePosition();
         }
       },
@@ -808,7 +829,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       
       // Debounce resize updates more aggressively
       resizeTimeout = setTimeout(() => {
-        if (this.activeMarkupNumber > 0 && !this.isUpdatingLeaderLine) {
+        if (this.activeMarkupNumbers.size > 0 && !this.isUpdatingLeaderLine) {
           this._updateLeaderLinePosition();
         }
       }, 200); // Increased debounce time
@@ -831,6 +852,26 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     // Set up viewport monitoring
     this._setupIntersectionObserver();
     this._setupResizeObserver();
+    
+    // Additional monitoring for the document viewport
+    const documentViewport = this._getDocumentViewport();
+    if (documentViewport && documentViewport !== this.scrollContainer) {
+      console.log('📱 Setting up additional scroll monitoring for document viewport');
+      
+      // Listen for scroll events on the document viewport as well
+      documentViewport.addEventListener('scroll', (event) => {
+        console.log('📜 Document viewport scroll detected');
+        if (this.activeMarkupNumbers.size > 0 && !this.isUpdatingLeaderLine) {
+          // Throttle viewport scroll updates
+          if (this.scrollUpdateTimeout) {
+            clearTimeout(this.scrollUpdateTimeout);
+          }
+          this.scrollUpdateTimeout = setTimeout(() => {
+            this._updateLeaderLinePosition();
+          }, 16);
+        }
+      }, { passive: true });
+    }
   }
 
   private _setmarkupTypeDisplayFilter(type, onoff) : void{
@@ -1847,8 +1888,10 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
         this.annotationToolsService.hideQuickActionsMenu();
         this.connectorLine.hide();
       }
-      // Update position immediately for pan operations
-      this._updateLeaderLinePosition();
+      // Update position immediately for pan operations - but only if we have active markups
+      if (this.activeMarkupNumbers.size > 0) {
+        this._updateLeaderLinePosition();
+      }
     });
 
     this.guiOnPanUpdatedSubscription = this.rxCoreService.resetLeaderLine$.subscribe((response: boolean) => {
@@ -2845,16 +2888,26 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
         this.connectorLine.hide();
       }
 
+      // Update last scroll position for reference
+      const target = event.target as HTMLElement;
+      if (target) {
+        this.lastScrollPosition = {
+          x: target.scrollLeft || 0,
+          y: target.scrollTop || 0
+        };
+      }
+
       // Throttle scroll updates for better performance with bounds checking
       if (this.scrollUpdateTimeout) {
         clearTimeout(this.scrollUpdateTimeout);
       }
       
-      // Only update if we have an active markup and we're not already updating
-      if (this.activeMarkupNumber > 0 && !this.isUpdatingLeaderLine) {
+      // Only update if we have active markups and we're not already updating
+      if (this.activeMarkupNumbers.size > 0 && !this.isUpdatingLeaderLine) {
         this.scrollUpdateTimeout = setTimeout(() => {
+          console.log(`📜 Scroll detected, updating ${this.activeMarkupNumbers.size} leader lines`);
           this._updateLeaderLinePosition();
-        }, 32); // Reduced frequency to ~30fps for better performance
+        }, 16); // Increased frequency for smoother scroll tracking (~60fps)
       }
       
       event.stopPropagation();

@@ -1911,9 +1911,6 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
 
                 var pagepos = foxview.getPagePos(foxview.curpage);
                 var scrpos = foxview.getScrollPos(window.document.body);
-                    var scrollInfo = foxview.pdfViewer.getScrollInfo();
-                    var scrollX = scrollInfo.x || 0;
-                    var scrollY = scrollInfo.y || 0;
 
 
                 if(pagepos != undefined){

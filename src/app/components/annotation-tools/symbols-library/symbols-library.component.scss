@@ -1,50 +1,347 @@
-
 @import "../../../../assets/scss/config.scss";
 
 .library-panel-container {
-    box-sizing: border-box;
-    scrollbar-width: thin;
-    max-height: 500px;
-  
-    section {
-      width: 285px;
-      h4 {
-        margin: 12px 0;
-        color: #a4abae;
-        font-size: 12px;
-        font-style: normal;
-        font-weight: 700;
-        line-height: 16px;
-      }
+  box-sizing: border-box;
+  scrollbar-width: thin;
+  max-height: 500px;
+
+  section {
+    width: 285px;
+
+    h4 {
+      margin: 12px 0;
+      color: #a4abae;
+      font-size: 12px;
+      font-style: normal;
+      font-weight: 700;
+      line-height: 16px;
     }
-  
-    .templates-list {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      overflow-y: scroll;
-      height: 465px;
-      flex-wrap: wrap;
-      align-content: flex-start;
-      justify-content: space-between;
-      div {
-        margin-top: 5px;
-        padding: 3px 0;
-        border: 1px solid #eee;
-        border-radius: 4px;
-      }
-    }
-  
-    .add-custom-stamp {
+  }
+
+  // Folder Management Styles
+  .folder-management {
+    margin-bottom: 15px;
+
+    .folder-actions {
       display: flex;
       align-items: center;
       justify-content: space-around;
       margin: 5px 0;
       font-size: 12px;
       color: $main;
-  
-      img {
+      gap: 8px;
+
+      .btn {
+        padding: 6px 12px;
+        font-size: 11px;
+        border-radius: 4px;
+        border: none;
         cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        border-radius: 25px;
+      }
+    }
+
+    .folders-list {
+      max-height: 120px;
+      overflow-y: auto;
+      border: 1px solid #eee;
+      border-radius: 4px;
+
+      .folder-item {
+        .folder-header {
+          display: flex;
+          align-items: center;
+          padding: 8px 10px;
+          cursor: pointer;
+          border-bottom: 1px solid #f0f0f0;
+          transition: background-color 0.2s;
+
+          &:hover {
+            background-color: #f8f9fa;
+          }
+
+          &.selected {
+            background-color: #fafafa;
+            border-left: 3px solid #007bff;
+          }
+
+          .folder-icon {
+            margin-right: 8px;
+            color: #ffa726;
+            font-size: 14px;
+          }
+
+          .folder-name {
+            flex: 1;
+            font-size: 12px;
+            font-weight: 500;
+            color: #333;
+          }
+
+          .symbol-count {
+            font-size: 10px;
+            color: #a4abae;
+            margin-left: 4px;
+          }
+
+          .btn-delete-folder {
+            background: none;
+            border: none;
+            color: #dc3545;
+            cursor: pointer;
+            padding: 2px 4px;
+            border-radius: 2px;
+            opacity: 0.7;
+            margin-left: 8px;
+
+            &:hover {
+              opacity: 1;
+              background-color: rgba(220, 53, 69, 0.1);
+            }
+
+            i {
+              font-size: 10px;
+            }
+          }
+        }
+      }
+    }
+
+    .no-folders {
+      text-align: center;
+      padding: 20px;
+      color: #a4abae;
+      font-size: 12px;
+      border: 2px dashed #eee;
+      border-radius: 4px;
+
+      p {
+        margin: 0;
+        font-style: italic;
       }
     }
   }
+
+  .selected-folder-info {
+    margin: 10px 0;
+    padding: 8px;
+    background-color: #fafafa;
+    border-radius: 4px;
+    border-left: 3px solid #007bff;
+
+    h4 {
+      margin: 0 0 4px 0;
+      font-size: 13px;
+      color: #333;
+      font-weight: 600;
+    }
+
+    small {
+      color: #a4abae;
+      font-size: 11px;
+    }
+  }
+
+  .no-folder-selected,
+  .no-symbols {
+    text-align: center;
+    padding: 40px 20px;
+    color: #a4abae;
+    font-size: 12px;
+    border: 2px dashed #eee;
+    border-radius: 4px;
+
+    i {
+      color: #ccc;
+      margin-bottom: 12px;
+      display: block;
+    }
+
+    p {
+      margin: 8px 0 4px 0;
+      font-weight: 500;
+      color: #666;
+    }
+
+    small {
+      color: #a4abae;
+      font-style: italic;
+    }
+  }
+
+  .templates-list {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow-y: scroll;
+    height: 300px;
+
+    .stamp-container {
+      display: flex;
+      align-items: center;
+      margin: 5px 0;
+      padding: 8px;
+      border: 1px solid #eee;
+      border-radius: 4px;
+      background-color: #fafafa;
+      transition: all 0.2s ease;
+      width: 100%;
+
+      &:hover {
+        background-color: #f0f0f0;
+        border-color: #ddd;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .symbol-image {
+        width: 60px;
+        height: 60px;
+        object-fit: contain;
+        border-radius: 2px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        border: 1px solid #eee;
+        background: white;
+      }
+
+      .symbol-info {
+        flex: 1;
+        margin-left: 12px;
+        min-width: 0;
+
+        .symbol-name {
+          font-size: 12px;
+          font-weight: 500;
+          color: #333;
+          margin-bottom: 3px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
+        .symbol-dimensions {
+          font-size: 10px;
+          color: #a4abae;
+          font-weight: 400;
+        }
+      }
+
+      .btn-delete-symbol {
+        background: none;
+        border: none;
+        color: #dc3545;
+        cursor: pointer;
+        padding: 4px;
+        border-radius: 2px;
+        transition: background-color 0.2s ease;
+        opacity: 0.7;
+
+        &:hover {
+          background-color: rgba(220, 53, 69, 0.1);
+          opacity: 1;
+        }
+
+        i {
+          font-size: 11px;
+        }
+      }
+    }
+  }
+}
+
+// Modal Content Styles (using rx-modal-dialog)
+.confirm-modal-container {
+  max-width: fit-content;
+
+  .body {
+    width: 364px;
+    box-sizing: border-box;
+
+    .form-group {
+      margin-bottom: 15px;
+
+      label {
+        display: block;
+        margin-bottom: 5px;
+        font-size: 12px;
+        font-weight: 500;
+        color: #333;
+      }
+
+      #folderName {
+        width: 100%;
+        margin: 5px;
+
+        input {
+          width: 90%;
+          padding: 8px 12px;
+          border: 1px solid #ddd;
+          border-radius: 4px;
+          font-size: 14px;
+          box-sizing: border-box;
+
+          &:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+          }
+        }
+      }
+
+      .character-count {
+        display: block;
+        margin-top: 5px;
+        font-size: 11px;
+        color: #666;
+        text-align: right;
+      }
+    }
+  }
+
+  .footer {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 20px;
+  }
+}
+
+#close {
+  right: 14px;
+  top: 10px;
+}
+
+.folder-dropdown-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+
+  label {
+    font-weight: 500;
+    margin-right: 4px;
+  }
+  select {
+    min-width: 160px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    border: 1.5px solid #ccc;
+    font-size: 1rem;
+    &:focus {
+      border-color: #2e8bfa;
+      outline: none;
+    }
+  }
+  .btn-delete-folder {
+    background: none;
+    border: none;
+    cursor: pointer;
+    margin-left: 8px;
+    img {
+      width: 18px;
+      height: 18px;
+    }
+  }
+}

@@ -1,5 +1,21 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 
+interface SymbolFolder {
+  id: string;
+  name: string;
+  symbols: any[];
+  isExpanded?: boolean;
+}
+
+interface Symbol {
+  id: string;
+  src: string;
+  name: string;
+  width: number;
+  height: number;
+  folderId: string;
+}
+
 @Component({
   selector: 'rx-symbols-library',
   templateUrl: './symbols-library.component.html',
@@ -7,13 +23,36 @@ import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 })
 export class SymbolsLibraryComponent implements OnInit {
   ngOnInit(): void {
-    this.getSymbols();
+    this.loadFoldersAndSymbols();
   }
   @Output() onClose: EventEmitter<void> = new EventEmitter<void>();
   opened: boolean = false;
   symbols: any[] = [];
+  folders: SymbolFolder[] = [];
+  selectedFolderId: string | null = null;
+  isCreatingFolder: boolean = false;
+  newFolderName: string = '';
+  showCreateFolderModal: boolean = false;
   onPanelClose(): void {
     this.onClose.emit();
+  }
+
+  // Helper methods for template
+  getFolderById(folderId: string): SymbolFolder | undefined {
+    return this.folders.find(f => f.id === folderId);
+  }
+
+  trackByFolderId(index: number, folder: SymbolFolder): string {
+    return folder.id;
+  }
+
+  trackBySymbolId(index: number, symbol: any): string {
+    return symbol.id;
+  }
+
+  getSymbolCountForFolder(folderId: string): number {
+    const allSymbols = JSON.parse(localStorage.getItem('SymbolsData') || '[]');
+    return allSymbols.filter((symbol: any) => symbol.folderId === folderId).length;
   }
   private convertUrlToBase64Data(url: string, newWidth?: number): Promise<any> {
     return new Promise((resolve, reject) => {
@@ -44,6 +83,11 @@ export class SymbolsLibraryComponent implements OnInit {
   }
 
   handleSymbolsUpload(event: any) {
+    if (!this.selectedFolderId) {
+      alert('Please select a folder first before uploading symbols.');
+      return;
+    }
+
     const files = event.target.files;
     const uploadPromises: Promise<any>[] = [];
   
@@ -58,7 +102,6 @@ export class SymbolsLibraryComponent implements OnInit {
           const {imageData, width, height} = await this.convertUrlToBase64Data(imageDataWithPrefix, 210);
   
           const imageName = file.name;
-          //const imageType = file.type;
           const imageType = "image/png";
   
           // Convert base64 string to byte array
@@ -70,17 +113,18 @@ export class SymbolsLibraryComponent implements OnInit {
           const byteArray = new Uint8Array(byteNumbers);
   
           // Create an object to store in local storage
-          const imageObject = {
-            imageData: Array.from(byteArray), // Convert to a regular array for JSON compatibility
+          const symbolObject = {
+            id: this.generateId(),
+            imageData: Array.from(byteArray),
             imageName: imageName,
             imageType: imageType,
-            width, 
-            height
+            width,
+            height,
+            folderId: this.selectedFolderId
           };
-          const storedImages = JSON.parse(localStorage.getItem('UploadedSymbols') || '[]');
-          storedImages.push(imageObject);
-          localStorage.setItem('UploadedSymbols', JSON.stringify(storedImages));
-          this.getSymbols();
+          
+          this.addSymbolToFolder(symbolObject);
+          resolve(symbolObject);
         };
   
         reader.onerror = (error) => {
@@ -93,69 +137,176 @@ export class SymbolsLibraryComponent implements OnInit {
       uploadPromises.push(uploadPromise);
     }
   
-    // Wait for all uploads to finish before refreshing the symbols list
+    // Wait for all uploads to finish before refreshing the symbols list for the selected folder only
     Promise.all(uploadPromises).then(() => {
-      this.getSymbols();
+      if (this.selectedFolderId) {
+        this.loadSymbolsForFolder(this.selectedFolderId);
+      }
     });
   }
   
-  deleteSymbol(index: number): void {
-    let symbols = JSON.parse(localStorage.getItem('UploadedSymbols') || '[]');
-    
-    if (index > -1 && index < symbols.length) {
-      symbols.splice(index, 1);
-      localStorage.setItem('UploadedSymbols', JSON.stringify(symbols));
-      this.getSymbols();
-    } else {
-      console.error('Invalid index for deleting Symbol');
+  // Folder Management Methods
+  createFolder(): void {
+    this.showCreateFolderModal = true;
+  }
+
+  confirmCreateFolder(): void {
+    if (this.newFolderName.trim()) {
+      const newFolder: SymbolFolder = {
+        id: this.generateId(),
+        name: this.newFolderName.trim(),
+        symbols: [],
+        isExpanded: true
+      };
+      
+      this.folders.push(newFolder);
+      this.saveFolders();
+      this.newFolderName = '';
+      this.showCreateFolderModal = false;
+      this.selectedFolderId = newFolder.id;
+      this.symbols = []; // Clear symbol list for new folder
     }
   }
-  getSymbols() {
-    const storedImages = JSON.parse(localStorage.getItem('UploadedSymbols') || '[]');
-    this.symbols = storedImages.map((imageObject, index) => {
-      const byteArray = new Uint8Array(imageObject.imageData);
 
-      // Create a Blob from the byte array
-      const blob = new Blob([byteArray], { type: imageObject.imageType });
+  cancelCreateFolder(): void {
+    this.newFolderName = '';
+    this.showCreateFolderModal = false;
+  }
 
-      // Create an object URL for the Blob
+  selectFolder(folderId: string): void {
+    this.selectedFolderId = folderId;
+    this.loadSymbolsForFolder(folderId);
+  }
+
+  toggleFolder(folderId: string): void {
+    const folder = this.folders.find(f => f.id === folderId);
+    if (folder) {
+      folder.isExpanded = !folder.isExpanded;
+      this.saveFolders();
+    }
+  }
+
+  deleteFolder(folderId: string): void {
+    if (confirm('Are you sure you want to delete this folder and all its symbols?')) {
+      this.folders = this.folders.filter(f => f.id !== folderId);
+      this.saveFolders();
+      
+      // Remove all symbols from this folder
+      const allSymbols = JSON.parse(localStorage.getItem('SymbolsData') || '[]');
+      const filteredSymbols = allSymbols.filter((symbol: any) => symbol.folderId !== folderId);
+      localStorage.setItem('SymbolsData', JSON.stringify(filteredSymbols));
+      
+      if (this.selectedFolderId === folderId) {
+        this.selectedFolderId = null;
+        this.symbols = [];
+      }
+    }
+  }
+
+  deleteSymbol(symbolId: string): void {
+    if (confirm('Are you sure you want to delete this symbol?')) {
+      const allSymbols = JSON.parse(localStorage.getItem('SymbolsData') || '[]');
+      const filteredSymbols = allSymbols.filter((symbol: any) => symbol.id !== symbolId);
+      localStorage.setItem('SymbolsData', JSON.stringify(filteredSymbols));
+      
+      // Update the current folder's symbols
+      if (this.selectedFolderId) {
+        this.loadSymbolsForFolder(this.selectedFolderId);
+      }
+    }
+  }
+
+  // Storage Methods
+  private generateId(): string {
+    return Date.now().toString(36) + Math.random().toString(36).substr(2);
+  }
+
+  private saveFolders(): void {
+    localStorage.setItem('SymbolFolders', JSON.stringify(this.folders));
+  }
+
+  private loadFolders(): void {
+    const storedFolders = localStorage.getItem('SymbolFolders');
+    if (storedFolders) {
+      this.folders = JSON.parse(storedFolders);
+    } else {
+      // Create default folder if none exist
+      const defaultFolder: SymbolFolder = {
+        id: this.generateId(),
+        name: 'Default',
+        symbols: [],
+        isExpanded: true
+      };
+      this.folders = [defaultFolder];
+      this.saveFolders();
+    }
+  }
+
+  private addSymbolToFolder(symbolObject: any): void {
+    const allSymbols = JSON.parse(localStorage.getItem('SymbolsData') || '[]');
+    allSymbols.push(symbolObject);
+    localStorage.setItem('SymbolsData', JSON.stringify(allSymbols));
+  }
+
+  private loadSymbolsForFolder(folderId: string): void {
+    const allSymbols = JSON.parse(localStorage.getItem('SymbolsData') || '[]');
+    const folderSymbols = allSymbols.filter((symbol: any) => symbol.folderId === folderId);
+    
+    this.symbols = folderSymbols.map((symbolObject: any) => {
+      const byteArray = new Uint8Array(symbolObject.imageData);
+      const blob = new Blob([byteArray], { type: symbolObject.imageType });
       const imageSrc = URL.createObjectURL(blob);
 
-      // Create an image object with required properties
       return {
-        id: index, // Or use a more sophisticated ID generation method if needed
+        id: symbolObject.id,
         src: imageSrc,
-        height: imageObject.height || 210,
-        width: imageObject.width || 210
+        name: symbolObject.imageName,
+        height: symbolObject.height || 210,
+        width: symbolObject.width || 210,
+        folderId: symbolObject.folderId
       };
     });
-    if (storedImages.length > 0) {
-      console.log('Images retrieved successfully:', this.symbols);
-    } else {
-      this.symbols = [];
-      console.log('No images found in local storage.');
+  }
+
+  private loadFoldersAndSymbols(): void {
+    this.loadFolders();
+    
+    // Migrate old symbols to default folder if they exist
+    this.migrateOldSymbols();
+    
+    // Select first folder by default
+    if (this.folders.length > 0 && !this.selectedFolderId) {
+      this.selectedFolderId = this.folders[0].id;
+      this.loadSymbolsForFolder(this.selectedFolderId);
     }
-  
-    // Uncomment and modify the server code if needed in the future
-    // this.imageUploadService.getAllImages().subscribe(
-    //   async response => {
-    //     const imagePromises = response.map(item =>
-    //       this.convertBase64ToBlob(item.imageData).then(blob => ({
-    //         id: item.id,
-    //         src: URL.createObjectURL(blob),
-    //         height: 150,
-    //         width: 200
-    //       }))
-    //     );
-  
-    //     const resolvedImages = await Promise.all(imagePromises);
-    //     this.images = resolvedImages;
-    //     console.log('Images retrieved successfully:', this.images);
-    //   },
-    //   error => {
-    //     console.error('Error retrieving images:', error);
-    //   }
-    // );
+  }
+
+  private migrateOldSymbols(): void {
+    const oldSymbols = localStorage.getItem('UploadedSymbols');
+    if (oldSymbols) {
+      const symbols = JSON.parse(oldSymbols);
+      const defaultFolder = this.folders.find(f => f.name === 'Default');
+      
+      if (defaultFolder && symbols.length > 0) {
+        const allSymbols = JSON.parse(localStorage.getItem('SymbolsData') || '[]');
+        
+        symbols.forEach((symbol: any, index: number) => {
+          const migratedSymbol = {
+            id: this.generateId(),
+            imageData: symbol.imageData,
+            imageName: symbol.imageName || `Symbol_${index}`,
+            imageType: symbol.imageType,
+            width: symbol.width,
+            height: symbol.height,
+            folderId: defaultFolder.id
+          };
+          allSymbols.push(migratedSymbol);
+        });
+        
+        localStorage.setItem('SymbolsData', JSON.stringify(allSymbols));
+        localStorage.removeItem('UploadedSymbols'); // Remove old storage
+      }
+    }
   }
   
 }

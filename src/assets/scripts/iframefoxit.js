@@ -3223,6 +3223,7 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
                             }
                         } else {
                             callback({found: false, x: x, y: y, type: 1, scale: scale,pageIndex: actualPageIndex});
+                        }
                         foxview.snapinprogress = false;
                     }).catch(function(reason) {
                         console.error("Snap point error:", reason);

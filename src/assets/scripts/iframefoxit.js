@@ -3170,68 +3170,78 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
         }
     };
 
- this.getSnapPointRotate = function(npagenum, x, y, callback){
-        var point = {x : x, y : y};
+    this.getSnapPointRotate = function(npagenum, x, y, callback) {
+        var point = {x: x, y: y};
         console.log("Input device coordinates:", point);
 
         var mode = [];
-        var pgscale = null;
         var endPoint = PDFViewCtrl.constants.SNAP_MODE.EndPoint;
         var midPoint = PDFViewCtrl.constants.SNAP_MODE.MidPoint;
         var IntersectionPoint = PDFViewCtrl.constants.SNAP_MODE.IntersectionPoint;
         
-        if (foxview.pdfViewer){
-            if(foxview.curpagerender != null){
-                pgscale = foxview.curpagerender.getScale();
-            }
-           
-            foxview.pdfViewer.getCurrentPDFDoc().getPageByIndex(npagenum).then(function (page) {
-                if(pgscale == null){
-                    var scale = foxview.scale;
-                }else{
-                    scale = pgscale;
+        if (foxview.pdfViewer) {
+            // convert client coordinates to PDF coordinates 
+            foxview.pdfViewer.convertClientCoordToPDFCoord({clientX: x, clientY: y}).then(function(coordInfo) {
+                if (!coordInfo) {
+                    console.error("Coordinate conversion failed");
+                    callback({found: false});
+                    return;
                 }
 
-                // Convert screen coordinates to PDF coordinates
-                var pdfPointArray = page.reverseDevicePoint([point.x, point.y], scale, 0);
-                var pointrd = {x: pdfPointArray[0], y: pdfPointArray[1]};
-                console.log("PDF coordinates after reverseDevicePoint:", pointrd);
+                console.log("Converted PDF coordinates:", coordInfo);
+                
+                var actualPageIndex = coordInfo.index;
+                var pdfX = coordInfo.left;
+                var pdfY = coordInfo.top;
+                var scale = coordInfo.scale;
+                var rotation = coordInfo.rotation;
 
-                mode.push(endPoint);
-                mode.push(midPoint);
-                mode.push(IntersectionPoint);
+                foxview.pdfViewer.getCurrentPDFDoc().getPageByIndex(actualPageIndex).then(function(page) {
+                    var pointrd = {x: pdfX, y: pdfY};
 
-                if(foxview.snapinprogress){
-                    return; 
-                } 
+                    mode.push(endPoint);
+                    mode.push(midPoint);
+                    mode.push(IntersectionPoint);
 
-                page.getSnappedPoint(pointrd, mode).then(function (fxsnapPoint){
-                    foxview.snapinprogress = true;
-                    if(fxsnapPoint){
-                        console.log("Found snap point in PDF coordinates:", fxsnapPoint);
-                        if(fxsnapPoint.x != pointrd.x && fxsnapPoint.y != pointrd.y){
-                            // Convert PDF coordinates back to screen coordinates
-                            var pointarray = [fxsnapPoint.x, fxsnapPoint.y];
-                            var dvcpoint = page.getDevicePoint(pointarray, scale, 0);
-                            var pointrt = {x : dvcpoint[0], y : dvcpoint[1]};
-                            console.log("Final device coordinates:", pointrt);
-                            
-                            callback({found: true, x: pointrt.x, y: pointrt.y, type: 1, scale : scale});
-                            foxview.snapinprogress = false;
-                        }else{
-                            callback({found: false, x: fxsnapPoint.x, y: fxsnapPoint.y, type: 1, scale : scale});
-                            foxview.snapinprogress = false;
-                        } 
+                    if (foxview.snapinprogress) {
+                        return; 
                     }
-                }).catch(function (reason){
-                    foxview.snapinprogress = false;
-                    console.log("Error:", reason);
-                    console.log("Last known PDF coordinates:", pointrd);
-                    callback({found: false, x: pointrd.x, y: pointrd.y, type: 1, scale : scale});
+
+                    foxview.snapinprogress = true;
+                    page.getSnappedPoint(pointrd, mode).then(function(fxsnapPoint) {
+                        if (fxsnapPoint) {
+                            console.log("Found snap point in PDF coordinates:", fxsnapPoint);
+                            if (fxsnapPoint.x != pointrd.x || fxsnapPoint.y != pointrd.y) {
+                                // Convert PDF coordinates to device coordinates
+                                var pointarray = [fxsnapPoint.x, fxsnapPoint.y];
+                                var dvcpoint = page.getDevicePoint(pointarray, scale, rotation);
+                                var clientPoint = {x : dvcpoint[0], y : dvcpoint[1]};
+                                console.log("Final client coordinates:", clientPoint);
+                                callback({ found: true, x: clientPoint.x, y: clientPoint.y, type: 1, scale: scale, pageIndex: actualPageIndex});
+                            } else {
+                                callback({found: false, x: x, y: y, type: 1,scale: scale,pageIndex: actualPageIndex});
+                            }
+                        } else {
+                            callback({found: false, x: x, y: y, type: 1, scale: scale,pageIndex: actualPageIndex});
+                        foxview.snapinprogress = false;
+                    }).catch(function(reason) {
+                        console.error("Snap point error:", reason);
+                        callback({found: false, x: x, y: y, type: 1, scale: scale,pageIndex: actualPageIndex
+                        });
+                        foxview.snapinprogress = false;
+                    });
+                }).catch(function(error) {
+                    console.error("Page loading error:", error);
+                    callback({found: false});
                 });
+            }).catch(function(error) {
+                console.error("Coordinate conversion error:", error);
+                callback({found: false});
             });
+        } else {
+            callback({found: false});
         }
-    };      
+    };     
 
 
     this.onpageLayoutRedraw = function (pdfViewer, ViewerEvents) {

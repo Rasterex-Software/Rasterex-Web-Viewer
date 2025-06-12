@@ -1,5 +1,17 @@
 @import "../../../../assets/scss/config.scss";
 
+// Animations
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
 ::ng-deep {
   .note-sidebar {
     border-left: 1px solid #edf1f2;
@@ -110,35 +122,117 @@
 
     .sort {
       display: flex;
-      width: 100%;
+      justify-content: space-between;
       align-items: center;
+      width: 100%;
       gap: 8px;
 
-      span {
-        font-size: 12px;
-        font-weight: 400;
-        color: $main;
-      }
+      .sort-section {
+        width: 200px;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 8px;
 
-      img[role="button"] {
-        cursor: pointer;
-        border-radius: 4px;
+        .sort-label {
+          font-size: 12px;
+          font-weight: 400;
+          color: $main;
+        }
 
-        &.active,
-        &:hover {
-          background-color: #edf1f2;
+        rx-dropdown {
+          flex-grow: 1;
+          ::ng-deep {
+            .dropdown-container {
+              width: 100%;
+              .options-container {
+                .options-wrapper {
+                  width: 100%;
+                }
+              }
+            }
+          }
         }
       }
 
-      rx-dropdown {
-        flex-grow: 1;
-        ::ng-deep {
-          .dropdown-container {
-            width: 100%;
-            .options-container {
-              .options-wrapper {
-                width: 100%;
-              }
+      .filter-section {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 8px;
+
+        .filter-controls {
+          font-size: 9px;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 4px;
+
+          .filter-header {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+            gap: 4px;
+
+            .filter-text {
+              color: $main;
+              font-weight: 500;
+            }
+
+            .filter-count {
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              width: 12px;
+              height: 12px;
+              padding: 2px;
+              background-color: #3b82f6;
+              color: white;
+              border-radius: 50%;
+              font-size: 8px;
+              font-weight: 600;
+              animation: fadeIn 0.3s ease-in-out;
+            }
+          }
+
+          .clear-filters-btn {
+            white-space: nowrap;
+            padding: 2px 4px;
+            font-size: 9px;
+            background-color: #ef4444;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            animation: fadeIn 0.3s ease-in-out;
+
+            &:hover {
+              background-color: #dc2626;
+              transform: scale(1.05);
+            }
+
+            &:active {
+              transform: scale(0.95);
+            }
+          }
+        }
+
+        .filter-icon-container {
+          .filter-icon {
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+            opacity: 0.7;
+
+            &:hover {
+              opacity: 1;
+              background-color: #edf1f2;
+            }
+
+            &.active {
+              opacity: 1;
+              background-color: #edf1f2;
             }
           }
         }
@@ -151,6 +245,52 @@
     max-height: calc(100% - 200px);
     overflow-y: scroll;
     scrollbar-width: thin;
+    position: relative;
+
+    .comment-card-container {
+      padding: 8px;
+      margin-bottom: 12px;
+      
+      // Ensure the comment card takes full width available
+      app-comment-card {
+        display: block;
+        width: 100%;
+      }
+    }
+
+    .comment-cards-container {
+      padding: 12px;
+      margin-bottom: 12px;
+      
+      .comment-cards-header {
+        margin-bottom: 16px;
+        
+        h3 {
+          margin: 0 0 4px 0;
+          font-size: 16px;
+          font-weight: 600;
+          color: #1f2937;
+        }
+        
+        p {
+          margin: 0;
+          font-size: 12px;
+          color: #6b7280;
+          font-style: italic;
+        }
+      }
+      
+      .comment-cards-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        
+        app-comment-card {
+          display: block;
+          width: 100%;
+        }
+      }
+    }
     .comments-title {
       font-weight: 700;
       margin: 12px 12px 0 12px;

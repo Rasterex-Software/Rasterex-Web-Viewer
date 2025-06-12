@@ -1,4 +1,4 @@
-import { Component, ElementRef, HostListener, OnInit, AfterViewInit, ChangeDetectorRef } from '@angular/core';
+import { Component, ElementRef, HostListener, OnInit, AfterViewInit, ChangeDetectorRef, ViewChild } from '@angular/core';
 import { AnnotationToolsService } from '../annotation-tools.service';
 import { RXCore } from 'src/rxcore';
 import { IMarkup } from 'src/rxcore/models/IMarkup';
@@ -12,6 +12,8 @@ import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import { distinctUntilChanged, Subscription } from 'rxjs';
 import { IGuiConfig } from 'src/rxcore/models/IGuiConfig';
+import { TaskItem, CommentItem } from '../comment-card/comment-card.component';
+import { CommentsListFiltersComponent } from '../comments-list-filters/comments-list-filters.component';
 
 declare var LeaderLine: any;
 
@@ -47,11 +49,11 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
   connectorLine: any;
   lineConnectorNativElement: any = document.getElementById('lineConnector');
   private _activeMarkupNumber: number = -1;
-  
+
   get activeMarkupNumber(): number {
     return this._activeMarkupNumber;
   }
-  
+
   set activeMarkupNumber(value: number) {
     if (this._activeMarkupNumber !== value) {
       console.log(`🎯 activeMarkupNumber changed from ${this._activeMarkupNumber} to ${value}`);
@@ -125,10 +127,73 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
 
   markupTypes : Array<any> = [];
 
+  // Comment card functionality - Three sample tasks with different annotation types
+  sampleTasks: TaskItem[] = [
+    {
+      id: '1',
+      title: 'Text annotation',
+      description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+      author: 'Demo User',
+      timestamp: new Date('2024-05-30T07:43:00'),
+      status: 'completed',
+      annotationType: 'text',
+      comments: [
+        {
+          id: '1',
+          author: 'Demo User',
+          content: 'Please review this text annotation for accuracy.',
+          timestamp: new Date('2024-05-30T07:52:00'),
+          isEditing: false
+        },
+        {
+          id: '2',
+          author: 'Demo User',
+          content: 'Text formatting looks good to me.',
+          timestamp: new Date('2024-05-30T07:53:00'),
+          isEditing: false
+        }
+      ]
+    },
+    {
+      id: '2',
+      title: 'Freehand annotation',
+      description: '',
+      author: 'Demo User',
+      timestamp: new Date('2024-05-30T08:15:00'),
+      status: 'pending',
+      annotationType: 'freehand',
+      comments: [
+        {
+          id: '3',
+          author: 'Demo',
+          content: 'The freehand drawing shows the proposed changes to the layout.',
+          timestamp: new Date('2024-05-30T08:16:00'),
+          isEditing: false
+        }
+      ]
+    },
+    {
+      id: '3',
+      title: 'Rectangle annotation',
+      description: '',
+      author: 'Demo User',
+      timestamp: new Date('2024-05-30T09:30:00'),
+      status: 'in-progress',
+      annotationType: 'rectangle',
+      comments: []
+    }
+  ];
+
+  // Current active sample task (for backward compatibility)
+  sampleTask: TaskItem = this.sampleTasks[0];
+
   //getMarkupTypes
 
 
   authorFilter: Set<string> = new Set<string>();
+
+  // Active filter count for dynamic display
+  activeFilterCount: number = 0;
 
   rxTypeFilter : Array<any> = [];
 
@@ -178,6 +243,8 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
   private maxRetryAttempts: number = 5;
   private retryDelayBase: number = 100;
 
+  @ViewChild(CommentsListFiltersComponent) commentsListFiltersComponent: CommentsListFiltersComponent;
+
   constructor(
     private readonly rxCoreService: RxCoreService,
     private el: ElementRef,
@@ -222,7 +289,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     }
 
     this.isUpdatingLeaderLine = true;
-    
+
     try {
       // Remove existing leader line for this markup if it exists
       this._hideLeaderLineForMarkup(markupNumber);
@@ -263,7 +330,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       end.className = 'leader-line-end';
       end.setAttribute('data-markup-number', markupNumber.toString());
       document.body.appendChild(end);
-      
+
       // Store reference for updates
       this.activeEndPoints.set(markupNumber, end);
 
@@ -297,7 +364,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
   private _hideLeaderLineForMarkup(markupNumber: number): void {
     // Clear any pending timeouts to prevent memory leaks
     this._clearAllTimeouts();
-    
+
     const leaderLine = this.leaderLines.get(markupNumber);
     if (leaderLine) {
       try {
@@ -307,7 +374,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       }
       this.leaderLines.delete(markupNumber);
     }
-    
+
     const activeEndPoint = this.activeEndPoints.get(markupNumber);
     if (activeEndPoint) {
       try {
@@ -317,9 +384,9 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       }
       this.activeEndPoints.delete(markupNumber);
     }
-    
+
     this.activeMarkupNumbers.delete(markupNumber);
-    
+
     // Clean up any orphaned leader line elements for this markup
     try {
       document.querySelectorAll(`[data-markup-number="${markupNumber}"]`).forEach(el => el.remove());
@@ -331,7 +398,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
   private _hideAllLeaderLines(): void {
     // Clear any pending timeouts to prevent memory leaks
     this._clearAllTimeouts();
-    
+
     // Hide all leader lines
     for (const markupNumber of this.activeMarkupNumbers) {
       const leaderLine = this.leaderLines.get(markupNumber);
@@ -342,7 +409,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
           console.warn(`Error removing leader line for markup ${markupNumber}:`, error);
         }
       }
-      
+
       const activeEndPoint = this.activeEndPoints.get(markupNumber);
       if (activeEndPoint) {
         try {
@@ -352,19 +419,19 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
         }
       }
     }
-    
+
     // Clear all collections
     this.leaderLines.clear();
     this.activeEndPoints.clear();
     this.activeMarkupNumbers.clear();
-    
+
     // Clean up any orphaned leader line elements
     try {
       document.querySelectorAll(".leader-line-end,.leader-line").forEach(el => el.remove());
     } catch (error) {
       console.warn('Error cleaning up leader line elements:', error);
     }
-    
+
     this.lastProcessedMarkupNumber = -1;
   }
 
@@ -376,12 +443,12 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       clearTimeout(this.leaderLineUpdateTimeout);
       this.leaderLineUpdateTimeout = null;
     }
-    
+
     if (this.domWaitTimeout) {
       clearTimeout(this.domWaitTimeout);
       this.domWaitTimeout = null;
     }
-    
+
     if (this.scrollUpdateTimeout) {
       clearTimeout(this.scrollUpdateTimeout);
       this.scrollUpdateTimeout = null;
@@ -395,7 +462,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     if (this.domWaitTimeout) {
       clearTimeout(this.domWaitTimeout);
     }
-    
+
     // Try once more after a short delay, then give up
     this.domWaitTimeout = setTimeout(() => {
       const start = document.getElementById(`note-panel-${markup.markupnumber}`);
@@ -429,7 +496,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       }
 
       const viewportRect = viewport.getBoundingClientRect();
-      
+
       // Get markup coordinates with proper scaling
       const scaledCoords = this._getScaledMarkupCoordinates(markup);
       if (!scaledCoords) {
@@ -466,7 +533,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
   private _getScaledMarkupCoordinates(markup: any): { x: number, y: number } | null {
     try {
       const deviceRatio = window.devicePixelRatio || 1;
-      
+
       // Get base coordinates
       const wscaled = (markup.wscaled || markup.w) / deviceRatio;
       const hscaled = (markup.hscaled || markup.h) / deviceRatio;
@@ -482,20 +549,20 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
           targetX = xscaled + wscaled;
           targetY = yscaled + (hscaled * 0.5);
           break;
-          
+
         case MARKUP_TYPES.ARROW.type:
         case MARKUP_TYPES.MEASURE.LENGTH.type:
           // Use the rightmost point for linear markups
           targetX = Math.max(xscaled, wscaled);
           targetY = (xscaled > wscaled) ? yscaled : hscaled;
           break;
-          
+
       case MARKUP_TYPES.PAINT.POLYLINE.type:
         // For polyline, use the center of the bounding box for reliable positioning
         targetX = xscaled + (wscaled - xscaled) * 0.5;
         targetY = yscaled + (hscaled - yscaled) * 0.5;
         break;
-        
+
       case MARKUP_TYPES.PAINT.FREEHAND.type:
         // For freehand, use the center of the bounding box for reliable positioning
         targetX = xscaled + (wscaled - xscaled) * 0.5;
@@ -521,7 +588,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
             targetY = yscaled;
           }
           break;
-          
+
         default:
           // Default to center-right edge
           targetX = xscaled + wscaled;
@@ -532,7 +599,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       // Apply rotation transformation if needed
       if (this.pageRotation !== 0 && markup.getrotatedPoint) {
         const rotatedPoint = markup.getrotatedPoint(
-          targetX * deviceRatio, 
+          targetX * deviceRatio,
           targetY * deviceRatio
         );
         if (rotatedPoint) {
@@ -553,11 +620,11 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
    */
   private _getDocumentViewport(): HTMLElement | null {
     // Always refresh viewport for scroll tracking - don't cache during scroll operations
-    
+
     // Look for common viewport containers
     const selectors = [
       '#foxitframe',
-      '.foxit-pdf-reader', 
+      '.foxit-pdf-reader',
       '.pdf-viewer',
       '.document-container',
       '.rx-pdf-viewer',
@@ -565,7 +632,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       '#pdf-container',
       '.viewer-container'
     ];
-    
+
     for (const selector of selectors) {
       const element = document.querySelector(selector) as HTMLElement;
       if (element) {
@@ -574,7 +641,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
         return element;
       }
     }
-    
+
     // Additional fallback - look for any scrollable element that might contain the PDF
     const scrollableElements = document.querySelectorAll('[style*="overflow"], [style*="scroll"]');
     for (let i = 0; i < scrollableElements.length; i++) {
@@ -585,7 +652,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
         return this.documentViewport;
       }
     }
-    
+
     // Final fallback to document body
     console.log('📱 Using document.body as viewport fallback');
     this.documentViewport = document.body;
@@ -627,7 +694,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     }
 
     const allMarkups = [
-      ...(this.rxCoreService.getGuiMarkupList() || []), 
+      ...(this.rxCoreService.getGuiMarkupList() || []),
       ...(this.rxCoreService.getGuiAnnotList() || [])
     ];
 
@@ -661,7 +728,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
         // Update the end point position
         activeEndPoint.style.left = `${coords.x}px`;
         activeEndPoint.style.top = `${coords.y}px`;
-        
+
         // Force LeaderLine to recalculate its position
         try {
           if (leaderLine.position) {
@@ -689,10 +756,10 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     if (this.activeMarkupNumber <= 0) return;
 
     const allMarkups = [
-      ...(this.rxCoreService.getGuiMarkupList() || []), 
+      ...(this.rxCoreService.getGuiMarkupList() || []),
       ...(this.rxCoreService.getGuiAnnotList() || [])
     ];
-    
+
     const activeMarkup = allMarkups.find(markup => markup.markupnumber === this.activeMarkupNumber);
     if (activeMarkup) {
       this._showLeaderLine(activeMarkup);
@@ -706,10 +773,10 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     if (markupNumber <= 0) return;
 
     const allMarkups = [
-      ...(this.rxCoreService.getGuiMarkupList() || []), 
+      ...(this.rxCoreService.getGuiMarkupList() || []),
       ...(this.rxCoreService.getGuiAnnotList() || [])
     ];
-    
+
     const markup = allMarkups.find(markup => markup.markupnumber === markupNumber);
     if (markup) {
       this._showLeaderLineForMarkup(markupNumber, markup);
@@ -748,10 +815,10 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
 
     const authorDisplayName = RXCore.getDisplayName(markup.signature);
     console.log(`🔍 _ensureActiveMarkupIsVisible: Processing markup ${markup.markupnumber} by ${authorDisplayName} (signature: ${markup.signature})`);
-    
+
     console.log('Current authorFilter:', Array.from(this.authorFilter));
     console.log('Current createdByFilter:', Array.from(this.createdByFilter));
-    
+
     // Add author to authorFilter if not already present
     if (!this.authorFilter.has(authorDisplayName)) {
       this.authorFilter.add(authorDisplayName);
@@ -773,9 +840,9 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
 
     // Update the created by filter options to reflect this change
     this._updateCreatedByFilterOptions(this.rxCoreService.getGuiMarkupList());
-    
+
     console.log('Filter options updated, calling RXCore to show user markups');
-    
+
     // Also ensure the user is visible in RXCore
     let users: Array<any> = RXCore.getUsers();
     let userIndex = users.findIndex(user => user.DisplayName === authorDisplayName);
@@ -800,7 +867,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
           this._updateLeaderLinePosition();
         }
       },
-      { 
+      {
         threshold: [0.1, 0.9], // Simplified thresholds
         rootMargin: '50px' // Add margin to reduce triggering
       }
@@ -820,13 +887,13 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     if (!window.ResizeObserver || this.resizeObserver) return;
 
     let resizeTimeout: any = null;
-    
+
     this.resizeObserver = new ResizeObserver(() => {
       // Clear previous timeout
       if (resizeTimeout) {
         clearTimeout(resizeTimeout);
       }
-      
+
       // Debounce resize updates more aggressively
       resizeTimeout = setTimeout(() => {
         if (this.activeMarkupNumbers.size > 0 && !this.isUpdatingLeaderLine) {
@@ -848,16 +915,16 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
   private _initializeScrollMonitoring(): void {
     // Find scroll container
     this.scrollContainer = this.el.nativeElement.querySelector('.main-section');
-    
+
     // Set up viewport monitoring
     this._setupIntersectionObserver();
     this._setupResizeObserver();
-    
+
     // Additional monitoring for the document viewport
     const documentViewport = this._getDocumentViewport();
     if (documentViewport && documentViewport !== this.scrollContainer) {
       console.log('📱 Setting up additional scroll monitoring for document viewport');
-      
+
       // Listen for scroll events on the document viewport as well
       documentViewport.addEventListener('scroll', (event) => {
         console.log('📜 Document viewport scroll detected');
@@ -1095,10 +1162,10 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
   private recalculateActiveCommentPosition(): void {
     if (this.activeMarkupNumbers.size > 0 && !this.isUpdatingLeaderLine) {
       console.log(`🔄 Recalculating position for active comments: ${Array.from(this.activeMarkupNumbers).join(', ')}`);
-      
+
       // Clear any pending operations first
       this._clearAllTimeouts();
-      
+
       // Use the debounced update method to prevent race conditions
       this._updateLeaderLinePosition();
     }
@@ -1243,7 +1310,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
         console.log(`✅ _processList: Keeping active markup ${item.markupnumber} by ${RXCore.getDisplayName(item.signature)}`);
         return true;
       }
-      
+
       if(this.createdByFilter.size > 0) {
         const isIncluded = this.createdByFilter.has(item.signature);
         console.log(`📝 _processList: Markup ${item.markupnumber} by ${RXCore.getDisplayName(item.signature)} (${item.signature}) - ${isIncluded ? 'INCLUDED' : 'FILTERED OUT'}`);
@@ -1259,7 +1326,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
 
       //item.createdStr = dayjs(item.timestamp).format(`MMM D,${dayjs().year() != dayjs(item.timestamp).year() ? 'YYYY ': ''} h:mm A`);
       item.createdStr = dayjs(item.timestamp).format(this.guiConfig?.dateFormat?.dateTimeWithConditionalYear || 'MMM d, [yyyy] h:mm a');
-      
+
 
       //item.IsExpanded = item?.IsExpanded;
       //item.IsExpanded = this.activeMarkupNumber > 0 ? item?.IsExpanded : false;
@@ -1595,13 +1662,13 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     this.guiZoomUpdated$.subscribe(({params, zoomtype}) => {
       if(zoomtype == 0 || zoomtype == 1){
         console.log(`🔍 Zoom updated: type ${zoomtype}, activeMarkupNumbers: ${Array.from(this.activeMarkupNumbers).join(', ')}`);
-        
+
         // Clear any pending operations
         this._clearAllTimeouts();
-        
+
         // Reset viewport reference on zoom change
         this.documentViewport = null;
-        
+
         // Update position for active comments after zoom change with debouncing
         if (this.activeMarkupNumbers.size > 0) {
           this.leaderLineUpdateTimeout = setTimeout(() => {
@@ -1613,15 +1680,15 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
 
     this.guiRotatePage$.subscribe(({degree, pageIndex}) => {
       console.log(`🔄 Page rotated: ${degree} degrees, page ${pageIndex}, activeMarkupNumbers: ${Array.from(this.activeMarkupNumbers).join(', ')}`);
-      
+
       // Clear any pending operations
       this._clearAllTimeouts();
-      
+
       this.pageRotation = degree;
 
       // Hide all leader lines during rotation to prevent visual artifacts
       this._hideAllLeaderLines();
-      
+
       // Reset viewport reference
       this.documentViewport = null;
 
@@ -1629,10 +1696,10 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       if (this.activeMarkupNumbers.size > 0) {
         this.leaderLineUpdateTimeout = setTimeout(() => {
           const allMarkups = [
-            ...(this.rxCoreService.getGuiMarkupList() || []), 
+            ...(this.rxCoreService.getGuiMarkupList() || []),
             ...(this.rxCoreService.getGuiAnnotList() || [])
           ];
-          
+
           // Recreate leader lines for all expanded comments
           for (const markupNumber of this.activeMarkupNumbers) {
             const activeMarkup = allMarkups.find(markup => markup.markupnumber === markupNumber);
@@ -1767,7 +1834,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
           // or if no markup is actually selected
           const selectedMarkup = list.find((itm) => itm.getselected());
           const activeMarkupExists = this.activeMarkupNumber > 0 && list.find((itm) => itm.markupnumber === this.activeMarkupNumber);
-          
+
           if (!selectedMarkup && !activeMarkupExists) {
             console.log(`🎯 Resetting activeMarkupNumber because no selected markup found and active markup ${this.activeMarkupNumber} not in list`);
             this.activeMarkupNumber = -1;
@@ -1796,10 +1863,10 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
 
     this.rxCoreService.guiPage$.subscribe((state) => {
       console.log(`📄 Page changed to ${state.currentpage}, activeMarkupNumbers: ${Array.from(this.activeMarkupNumbers).join(', ')}`);
-      
+
       // Clear all pending operations first
       this._clearAllTimeouts();
-      
+
       if (this.connectorLine) {
         //RXCore.unSelectAllMarkup();
         this.annotationToolsService.hideQuickActionsMenu();
@@ -1808,26 +1875,26 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
 
       // Reset viewport reference on page change - critical for multi-page support
       this.documentViewport = null;
-      
+
       // Always hide all leader lines first when page changes to prevent visual artifacts
       this._hideAllLeaderLines();
-      
+
       // If there are active markups, check which ones belong to the current page
       if (this.activeMarkupNumbers.size > 0) {
         const allMarkups = [
-          ...(this.rxCoreService.getGuiMarkupList() || []), 
+          ...(this.rxCoreService.getGuiMarkupList() || []),
           ...(this.rxCoreService.getGuiAnnotList() || [])
         ];
-        
+
         // Wait for page to fully render before showing leader lines
         this.leaderLineUpdateTimeout = setTimeout(() => {
           // Check each active markup to see if it should be shown on current page
           for (const markupNumber of this.activeMarkupNumbers) {
             const activeMarkup = allMarkups.find(markup => markup.markupnumber === markupNumber);
-            
+
             if (activeMarkup) {
               console.log(`📄 Active markup ${markupNumber} is on page ${activeMarkup.pagenumber}, current page is ${state.currentpage}`);
-              
+
               if (activeMarkup.pagenumber === state.currentpage) {
                 // The active markup is on the current page, show leader line
                 console.log(`✅ Active markup ${markupNumber} is on current page, showing leader line`);
@@ -1943,7 +2010,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
   onSortFieldChanged(event): void {
     this.sortByField = event.value;
     this._processList(this.rxCoreService.getGuiMarkupList());
-    
+
     // Wait for DOM to be ready and then update leader line position
     setTimeout(() => {
       this._waitForDOMAndUpdateLeaderLine();
@@ -1953,7 +2020,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
   onCreatedByFilterChange(values): void {
     this.createdByFilter = new Set(values);
     this._processList(this.rxCoreService.getGuiMarkupList());
-    
+
     // Wait for DOM to be ready and then update leader line position
     setTimeout(() => {
       this._waitForDOMAndUpdateLeaderLine();
@@ -2059,7 +2126,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
   onPageChange(event): void {
     this.pageNumber = event.value;
     this._processList(this.rxCoreService.getGuiMarkupList());
-    
+
     // Wait for DOM to be ready and then update leader line position
     setTimeout(() => {
       this._waitForDOMAndUpdateLeaderLine();
@@ -2071,10 +2138,10 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     console.log(`🔧 onFilterApply: Starting with activeMarkupNumber=${this.activeMarkupNumber}`);
     console.log('Current filters - authorFilter:', Array.from(this.authorFilter));
     console.log('Current filters - createdByFilter:', Array.from(this.createdByFilter));
-    
+
     this._processList(this.rxCoreService.getGuiMarkupList());
     this.filterVisible = false;
-    
+
     console.log('🔧 onFilterApply: Filter applied, waiting for DOM update...');
     // Wait for DOM to be ready and then update leader line position
     setTimeout(() => {
@@ -2085,7 +2152,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
   toggleFilterVisibility(): void {
     console.log(`🔧 toggleFilterVisibility: Toggling from ${this.filterVisible} to ${!this.filterVisible} with activeMarkupNumber=${this.activeMarkupNumber}`);
     this.filterVisible = !this.filterVisible;
-    
+
     // Wait for DOM to be ready and then update leader line position
     setTimeout(() => {
       this._waitForDOMAndUpdateLeaderLine();
@@ -2225,33 +2292,33 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
 
     if (markupNo && markupNo > 0) {
       // Prevent unnecessary operations if already active and leader line exists
-      if (this.activeMarkupNumber === markupNo && this.leaderLine && 
+      if (this.activeMarkupNumber === markupNo && this.leaderLine &&
           this.lastProcessedMarkupNumber === markupNo) {
         console.log(`🔄 SetActiveCommentSelect: Markup ${markupNo} already active with leader line, skipping`);
         return;
       }
-      
+
       console.log(`🎯 SetActiveCommentSelect: Setting active markup to ${markupNo}`);
-      
+
       // Clear any pending operations before starting new ones
       this._clearAllTimeouts();
-      
+
       // Immediately set active state for visual feedback
       this.activeMarkupNumber = markupNo;
-      
+
       // Force immediate change detection for responsive UI
       this.cdr.detectChanges();
-      
+
       // Ensure the markup's author is always visible
       this._ensureActiveMarkupIsVisible(markup);
-      
+
       // Navigate to the correct page where the annotation exists
       console.log(`🚀 SetActiveCommentSelect: Navigating to page ${markup.pagenumber} for markup ${markupNo}`);
       RXCore.gotoPage(markup.pagenumber);
-      
+
       // Reprocess the list to ensure the active markup is visible
       this._processList(this.rxCoreService.getGuiMarkupList(), this.rxCoreService.getGuiAnnotList());
-      
+
       // Use improved leader line system
       this._showLeaderLine(markup);
     } else {
@@ -2268,16 +2335,16 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
   SetActiveCommentThread(event, markupNo: number, markup: any): void {
     if (markupNo && markupNo > 0 && markup) {
       console.log(`🎯 SetActiveCommentThread: Processing markup ${markupNo}`);
-      
+
       // Clear any pending operations first
       this._clearAllTimeouts();
-      
+
       // Force immediate change detection for responsive UI
       this.cdr.detectChanges();
-      
+
       // Ensure the markup's author is always visible by adding to filters if needed
       this._ensureActiveMarkupIsVisible(markup);
-      
+
       this.onSelectAnnotation(markup);
 
       // Navigate to the correct page where the annotation exists
@@ -2329,15 +2396,19 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     return item.id;
   }
 
+  trackByTaskId(index: number, task: TaskItem): string {
+    return task.id;
+  }
+
 
   ngOnDestroy(): void {
     // Clear all timeouts first to prevent any race conditions
     this._clearAllTimeouts();
-    
+
     // Set flags to prevent any ongoing operations
     this.isUpdatingLeaderLine = false;
     this.activeMarkupNumber = -1;
-    
+
     // Unsubscribe from observables
     if (this.guiOnPanUpdatedSubscription) {
       this.guiOnPanUpdatedSubscription.unsubscribe();
@@ -2345,21 +2416,21 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     if (this.userSubscription) {
       this.userSubscription.unsubscribe();
     }
-    
+
     // Clean up observers
     if (this.intersectionObserver) {
       this.intersectionObserver.disconnect();
       this.intersectionObserver = null;
     }
-    
+
     if (this.resizeObserver) {
       this.resizeObserver.disconnect();
       this.resizeObserver = null;
     }
-    
+
     // Clean up all leader lines
     this._hideAllLeaderLines();
-    
+
     // Clear references
     this.scrollContainer = null;
     this.documentViewport = null;
@@ -2367,7 +2438,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     this.activeMarkupNumbers.clear();
     this.leaderLines.clear();
     this.activeEndPoints.clear();
-    
+
     console.log('🧹 NotePanelComponent destroyed and cleaned up');
   }
 
@@ -2449,7 +2520,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
             // Fallback to using the markup bounds
             p = { x: xscaledus + wscaledus, y: yscaledus + (hscaledus * 0.5) };
           }
-          
+
           xval = (p.x / window.devicePixelRatio);
           yval = (p.y / window.devicePixelRatio);
 
@@ -2484,7 +2555,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
             // Fallback to using the markup bounds
             p = { x: xscaledus + wscaledus, y: yscaledus + (hscaledus * 0.5) };
           }
-          
+
           xval = (p.x / window.devicePixelRatio);
           yval = (p.y / window.devicePixelRatio);
 
@@ -2866,10 +2937,10 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
         }
       });
     });
-    
+
     // Hide the leader line for this specific markup
     this._hideLeaderLineForMarkup(markupNo);
-    
+
     if (this.connectorLine) {
       RXCore.unSelectAllMarkup();
       this.annotationToolsService.hideQuickActionsMenu();
@@ -2901,7 +2972,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       if (this.scrollUpdateTimeout) {
         clearTimeout(this.scrollUpdateTimeout);
       }
-      
+
       // Only update if we have active markups and we're not already updating
       if (this.activeMarkupNumbers.size > 0 && !this.isUpdatingLeaderLine) {
         this.scrollUpdateTimeout = setTimeout(() => {
@@ -2909,7 +2980,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
           this._updateLeaderLinePosition();
         }, 16); // Increased frequency for smoother scroll tracking (~60fps)
       }
-      
+
       event.stopPropagation();
     }
   }
@@ -3135,7 +3206,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       typeCheck,
       event.target.checked
     );
-    
+
     // Wait for DOM to be ready and then update leader line position
     setTimeout(() => {
       this._waitForDOMAndUpdateLeaderLine();
@@ -3490,6 +3561,66 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     this._processList(this.rxCoreService.getGuiMarkupList());
   }
 
+  // Comment card event handlers - Updated for multiple tasks
+  onCommentAdded(data: {taskId: string, content: string}): void {
+    const task = this.sampleTasks.find(t => t.id === data.taskId);
+    if (task) {
+      const newComment: CommentItem = {
+        id: String(Date.now()),
+        author: 'Current User',
+        content: data.content,
+        timestamp: new Date(),
+        isEditing: false
+      };
+      task.comments.push(newComment);
+      console.log('Comment added to task', data.taskId, ':', newComment);
+    }
+  }
 
+  onCommentEdited(data: {taskId: string, commentId: string, newContent: string}): void {
+    const task = this.sampleTasks.find(t => t.id === data.taskId);
+    if (task) {
+      const comment = task.comments.find(c => c.id === data.commentId);
+      if (comment) {
+        comment.content = data.newContent;
+        console.log('Comment edited in task', data.taskId, ':', comment);
+      }
+    }
+  }
+
+  onCommentDeleted(data: {taskId: string, commentId: string}): void {
+    const task = this.sampleTasks.find(t => t.id === data.taskId);
+    if (task) {
+      const index = task.comments.findIndex(c => c.id === data.commentId);
+      if (index > -1) {
+        task.comments.splice(index, 1);
+        console.log('Comment deleted from task', data.taskId, ':', data.commentId);
+      }
+    }
+  }
+
+  onStatusChanged(data: {taskId: string, status: string}): void {
+    const task = this.sampleTasks.find(t => t.id === data.taskId);
+    if (task) {
+      task.status = data.status as any;
+      console.log('Status changed for task', data.taskId, 'to:', data.status);
+    }
+  }
+
+  // Handle filter count changes from the comments list filters component
+  onFilterCountChange(count: number): void {
+    this.activeFilterCount = count;
+    console.log('Filter count updated:', count);
+  }
+
+  // Clear all filters
+  clearAllFilters(): void {
+    this.activeFilterCount = 0;
+    // Call the actual clear filters method in the comments list filters component
+    if (this.commentsListFiltersComponent) {
+      this.commentsListFiltersComponent.clearAllFiltersInternal();
+    }
+    console.log('All filters cleared from note panel');
+  }
 
 }

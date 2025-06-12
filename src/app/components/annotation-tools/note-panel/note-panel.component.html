@@ -29,93 +29,68 @@
         </div>
       </div>
       <div class="sort">
-        <span>Sort:</span>
-        <rx-dropdown
-          [options]="sortOptions"
-          [value]="sortOptions[0]"
-          (valueChange)="onSortFieldChanged($event)"
-        >
-        </rx-dropdown>
-        <img
-          src="/assets/images/filter-ico.svg"
-          role="button"
-          [class.active]="isFilterActive"
-          (click)="toggleFilterVisibility()"
-        />
+        <div class="sort-section">
+          <span class="sort-label">Sort:</span>
+          <rx-dropdown
+            [options]="sortOptions"
+            [value]="sortOptions[0]"
+            (valueChange)="onSortFieldChanged($event)"
+          >
+          </rx-dropdown>
+        </div>
+        <div class="filter-section">
+          <div class="filter-controls">
+            <div class="filter-header">
+              <div class="filter-text">Filters</div>
+              <div class="filter-count" *ngIf="(isFilterActive || filterVisible) && activeFilterCount > 0">{{ activeFilterCount }}</div>
+            </div>
+            <div class="clear-filters-btn" *ngIf="isFilterActive || filterVisible" (click)="clearAllFilters()">Clear filters</div>
+          </div>
+          <div class="filter-icon-container">
+            <img
+              src="/assets/images/filter-ico.svg"
+              role="button"
+              class="filter-icon"
+              [class.active]="isFilterActive"
+              (click)="toggleFilterVisibility()"
+            />
+          </div>
+        </div>
       </div>
     </div>
 
     <div class="main-section" (scroll)="scrollHandler($event)">
       <div *ngIf="filterVisible">
-        
-        <div (onClose)="filterVisible = false">
-          <div class="filters-container">
-            <div class="filters-body">
-              <!-- <label>Created by</label>
-              <rx-multi-select
-                [options]="createdByFilterOptions"
-                [allSelected]="true"
-                (selectedChange)="onCreatedByFilterChange($event)"
-              >
-              </rx-multi-select> -->
-              <div class="filter-row">
-                <label>Date of notes creation</label>
-                <rx-date-picker
-                  [dateFormat]="(guiConfig$ | async).dateFormat"
-                  [startDate]="dateFilter.startDate"
-                  [endDate]="dateFilter.endDate"
-                  (onSelect)="onDateSelect($event)"
-                >
-                </rx-date-picker>
-              </div>
-              <div class="filter-row">
-                <label>Page Number</label>
-                <rx-dropdown
-                  [options]="pageNumbers"
-                  [value]="pageNumbers[0]"
-                  [align]="'right'"
-                  [transparent]="false"
-                  (valueChange)="onPageChange($event)"
-                >
-                </rx-dropdown>
-              </div>
-              <div class="filter-block" *ngIf="calcAllCount() > 0">
-                <label>Type</label>
-                <div class="filters-type">
-                  <!-- rxTypeFilter -->
-                  <button
-                    class="type-button"
-                    *ngFor="let markuptype of rxTypeFilterLoaded"
-                    [class.active]="showType(markuptype)"
-                    (click)="onShowType($event, markuptype)"
-                  >
-                    <rx-annotation-shape-icon
-                      [type]="markuptype.type"
-                      [subtype]="markuptype.subtype">
-                    </rx-annotation-shape-icon>
-                    <span>{{markuptype.label}}</span>
-                  </button>
-                </div>
-              </div>
+        <app-comments-list-filters
+          [isFilterActive]="isFilterActive"
+          [pageNumbers]="pageNumbers"
+          [rxTypeFilterLoaded]="rxTypeFilterLoaded"
+          [createdByFilterOptions]="createdByFilterOptions"
+          [dateFilter]="dateFilter"
+          [guiConfig]="(guiConfig$ | async)"
+          (toggleFilterVisibility)="toggleFilterVisibility()"
+          (clearAllFilters)="clearAllFilters()"
+          (onFilterApply)="onFilterApply()"
+          (onPageChange)="onPageChange($event)"
+          (onCreatedByFilterChange)="onCreatedByFilterChange($event)"
+          (onDateSelect)="onDateSelect($event)"
+          (onShowType)="onShowType($event.event, $event.type)"
+          (filterCountChange)="onFilterCountChange($event)"
+        >
+        </app-comments-list-filters>
+      </div>
 
-              <div class="filter-block" *ngIf="getUniqueAuthorList().length > 0">
-                <label>Author</label>
-                <div class="filter-author">
-                  <rx-multi-select
-                    [options]="createdByFilterOptions"
-                    [allSelected]="true"
-                    (selectedChange)="onCreatedByFilterChange($event)"
-                  >
-                  </rx-multi-select>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="filters-footer">
-            <button (click)="onFilterApply()" class="btn btn-primary">
-              Apply
-            </button>
-          </div>
+      <!-- Comment Cards - Shows three different annotation types when annotations are enabled -->
+      <div *ngIf="showAnnotations && sampleTasks" class="comment-cards-container">
+        <div class="comment-cards-list">
+          <app-comment-card
+            *ngFor="let task of sampleTasks; trackBy: trackByTaskId"
+            [task]="task"
+            (commentAdded)="onCommentAdded($event)"
+            (commentEdited)="onCommentEdited($event)"
+            (commentDeleted)="onCommentDeleted($event)"
+            (statusChanged)="onStatusChanged($event)">
+          </app-comment-card>
         </div>
       </div>
 

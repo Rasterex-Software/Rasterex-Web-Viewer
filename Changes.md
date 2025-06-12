@@ -999,3 +999,22 @@ June 03, 3025
 # Fix: Issue with Green Pointer Lines on Comments and Annotations with multi-page files
 
   `modified:   src/app/components/annotation-tools/note-panel/note-panel.component.ts`
+
+
+June 03, 3025
+
+# Updated Comments List Filters UI
+
+  `modified:   src/app/app.module.ts`
+  `new file:   src/app/components/annotation-tools/comment-card/comment-card.component.html`
+  `new file:   src/app/components/annotation-tools/comment-card/comment-card.component.scss`
+  `new file:   src/app/components/annotation-tools/comment-card/comment-card.component.spec.ts`
+  `new file:   src/app/components/annotation-tools/comment-card/comment-card.component.ts`
+  `new file:   src/app/components/annotation-tools/comments-list-filters/comments-list-filters.component.html`    
+  `new file:   src/app/components/annotation-tools/comments-list-filters/comments-list-filters.component.scss`    
+  `new file:   src/app/components/annotation-tools/comments-list-filters/comments-list-filters.component.spec.ts` 
+  `new file:   src/app/components/annotation-tools/comments-list-filters/comments-list-filters.component.ts`      
+  `modified:   src/app/components/annotation-tools/note-panel/note-panel.component.html`
+  `modified:   src/app/components/annotation-tools/note-panel/note-panel.component.scss`
+  `modified:   src/app/components/annotation-tools/note-panel/note-panel.component.ts`
+  

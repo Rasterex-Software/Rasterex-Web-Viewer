@@ -105,6 +105,8 @@ import { LoginModalComponent } from './components/user/login-modal/login-modal.c
 import { NumericRangeDirective } from "./directives/numeric-range.directive";
 import { ResizableDirective } from './directives/resizable.directive';
 import {IsPinnedPipe} from "./components/top-nav-menu/opened-files-tabs/is-pinned.pipe";
+import { CommentsListFiltersComponent } from './components/annotation-tools/comments-list-filters/comments-list-filters.component';
+import { CommentCardComponent } from './components/annotation-tools/comment-card/comment-card.component';
 
 const storeSchema = [
   { name: 'name', keypath: 'name', options: { unique: false } },
@@ -208,7 +210,9 @@ const dbConfig: DBConfig  = {
     LoginComponent,
     RoomPanelComponent,
     ResizableDirective,
-    LoginModalComponent
+    LoginModalComponent,
+    CommentsListFiltersComponent,
+    CommentCardComponent
   ],
   imports: [
     BrowserModule,

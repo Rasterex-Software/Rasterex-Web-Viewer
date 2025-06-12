@@ -1,6 +1,6 @@
 <rx-panel
   *ngIf="visible"
-  [title]="panelTitle"
+  [title]="getPanelTitle()"
   (onClose)="onClose()"
   [draggable]="false"
 >
@@ -17,202 +17,80 @@
         />
       </div> -->
       <div class="switch-container" *ngIf="!showAnnotationsOnLoad" >
-        <!-- <h5>Show/Hide</h5> -->
         <div class="switch-group">
           <div>
-            <rx-switch [checked]="showAnnotations" (change)="onShowAnnotations($event)"></rx-switch>
+            <rx-switch [checked]="showAnnotations" (change)="onToggleAnnotations($event)"></rx-switch>
             <span>Annotations ({{ calcAnnotationCount() }})</span>
           </div>
           <div>
-            <rx-switch [checked]="showMeasurements" (change)="onShowMeasurements($event)"></rx-switch>
+            <rx-switch [checked]="showMeasurements" (change)="onToggleMeasurements($event)"></rx-switch>
             <span>Measurements ({{ calcMeasurementsCount() }})</span>
           </div>
         </div>
       </div>
       <div class="sort">
-        <span>Sort:</span>
-        <rx-dropdown
-          [options]="sortOptions"
-          [value]="sortOptions[0]"
-          (valueChange)="onSortFieldChanged($event)"
-        >
-        </rx-dropdown>
-        <img
-          src="/assets/images/filter-ico.svg"
-          role="button"
-          [class.active]="isFilterActive"
-          (click)="filterVisible = !filterVisible"
-        />
+        <div class="sort-section">
+          <span class="sort-label">Sort:</span>
+          <rx-dropdown
+            [options]="sortOptions"
+            [value]="sortOptions[0]"
+            (valueChange)="onSortFieldChanged($event)"
+          >
+          </rx-dropdown>
+        </div>
+        <div class="filter-section">
+          <div class="filter-controls">
+            <div class="filter-header">
+              <div class="filter-text">Filters</div>
+              <div class="filter-count" *ngIf="(isFilterActive || filterVisible) && activeFilterCount > 0">{{ activeFilterCount }}</div>
+            </div>
+            <div class="clear-filters-btn" *ngIf="isFilterActive || filterVisible" (click)="clearAllFilters()">Clear filters</div>
+          </div>
+          <div class="filter-icon-container">
+            <img
+              src="/assets/images/filter-ico.svg"
+              role="button"
+              class="filter-icon"
+              [class.active]="isFilterActive"
+              (click)="toggleFilterVisibility()"
+            />
+          </div>
+        </div>
       </div>
     </div>
 
     <div class="main-section" (scroll)="scrollHandler($event)">
       <div *ngIf="filterVisible">
-        <div (onClose)="filterVisible = false">
-          <div class="filters-container">
-            <div class="filters-body">
-              <!-- <label>Created by</label>
-              <rx-multi-select
-                [options]="createdByFilterOptions"
-                [allSelected]="true"
-                (selectedChange)="onCreatedByFilterChange($event)"
-              >
-              </rx-multi-select> -->
-              <label>Date of notes creation</label>
-              <rx-date-picker
-                [dateFormat]="(guiConfig$ | async).dateFormat"
-                [startDate]="dateFilter.startDate"
-                [endDate]="dateFilter.endDate"
-                (onSelect)="onDateSelect($event)"
-              >
-              </rx-date-picker>
-              <label>Page Number</label>
-              <rx-dropdown
-                [options]="pageNumbers"
-                [value]="pageNumbers[0]"
-                [align]="'right'"
-                [transparent]="false"
-                (valueChange)="onPageChange($event)"
-              >
-              </rx-dropdown>
-              <label *ngIf="calcAllCount() > 0">Type</label>
-              <div class="filters-type">
-                
-                <!-- rxTypeFilter -->
+        <app-comments-list-filters
+          [isFilterActive]="isFilterActive"
+          [pageNumbers]="pageNumbers"
+          [rxTypeFilterLoaded]="rxTypeFilterLoaded"
+          [createdByFilterOptions]="createdByFilterOptions"
+          [dateFilter]="dateFilter"
+          [guiConfig]="(guiConfig$ | async)"
+          (toggleFilterVisibility)="toggleFilterVisibility()"
+          (clearAllFilters)="clearAllFilters()"
+          (onFilterApply)="onFilterApply()"
+          (onPageChange)="onPageChange($event)"
+          (onCreatedByFilterChange)="onCreatedByFilterChange($event)"
+          (onDateSelect)="onDateSelect($event)"
+          (onShowType)="onShowType($event.event, $event.type)"
+          (filterCountChange)="onFilterCountChange($event)"
+        >
+        </app-comments-list-filters>
+      </div>
 
-
-                
-
-                <div class="type-item" *ngFor="let markuptype of rxTypeFilterLoaded">
-                  
-                    <input type="checkbox" [checked]="showType(markuptype)" (change)="onShowType($event, markuptype)" />
-                    <span>{{markuptype.label}}</span>
-
-                </div>
-
-                <!-- *ngFor="let group of list | keyvalue : sortOrder; trackBy: trackByFn" -->
-                
-                <!-- <div class="type-item" *ngIf="calcTextCount() > 0">
-                  <input type="checkbox" [checked]="typeFilter.showText" (change)="onShowText($event)" />
-                  <span>Free Text</span>
-                </div>
-
-                <div class="type-item" *ngIf="calcCalloutCount() > 0">
-                  <input type="checkbox" [checked]="typeFilter.showCallout" (change)="onShowCallout($event)" />
-                  <span>Callout</span>
-                </div>
-
-                <div class="type-item" *ngIf="calcNoteCount() > 0">
-                  <input type="checkbox" [checked]="typeFilter.showNote" (change)="onShowNote($event)" />
-                  <span>Note</span>
-                </div>
-
-                <div class="type-item" *ngIf="calcRectangleCount() > 0">
-                  <input type="checkbox" [checked]="typeFilter.showRectangle" (change)="onShowRectangle($event)" />
-                  <span>Rectangle</span>
-                </div>
-
-                <div class="type-item" *ngIf="calcRoundedRectangleCount() > 0">
-                  <input type="checkbox" [checked]="typeFilter.showRoundedRectangle" (change)="onShowRoundedRectangle($event)" />
-                  <span>Rounded Rectangle</span>
-                </div>
-
-                <div class="type-item" *ngIf="calcEllipseCount() > 0">
-                  <input type="checkbox" [checked]="typeFilter.showEllipse" (change)="onShowEllipse($event)" />
-                  <span>Ellipse</span>
-                </div>
-
-                <div class="type-item" *ngIf="calcPolygonCount() > 0">
-                  <input type="checkbox" [checked]="typeFilter.showPolygon" (change)="onShowPolygon($event)" />
-                  <span>Polygon</span>
-                </div>
-
-                <div class="type-item" *ngIf="calcCloudCount() > 0">
-                  <input type="checkbox" [checked]="typeFilter.showCloud" (change)="onShowCloud($event)" />
-                  <span>Cloud</span>
-                </div>
-
-                <div class="type-item" *ngIf="calcSingleEndArrowCount() > 0">
-                  <input type="checkbox" [checked]="typeFilter.showSingleEndArrow" (change)="onShowSingleEndArrow($event)" />
-                  <span>Single End Arrow</span>
-                </div>
-
-                <div class="type-item" *ngIf="calcFilledSingleEndArrowCount() > 0">
-                  <input type="checkbox" [checked]="typeFilter.showFilledSingleEndArrow" (change)="onShowFilledSingleEndArrow($event)" />
-                  <span>Filled Single End Arrow</span>
-                </div>
-
-                <div class="type-item" *ngIf="calcBothEndsArrowCount() > 0">
-                  <input type="checkbox" [checked]="typeFilter.showBothEndsArrow" (change)="onShowBothEndsArrow($event)" />
-                  <span>Both Ends Arrow</span>
-                </div>
-
-                <div class="type-item" *ngIf="calcFilledBothEndsArrowCount() > 0">
-                  <input type="checkbox" [checked]="typeFilter.showFilledBothEndsArrow" (change)="onShowFilledBothEndsArrow($event)" />
-                  <span>Filled Both Ends Arrow</span>
-                </div>
-
-                <div class="type-item" *ngIf="calcHighlighterCount() > 0">
-                  <input type="checkbox" [checked]="typeFilter.showHighlighter" (change)="onShowHighlighter($event)" />
-                  <span>Highlighter</span>
-                </div>
-
-                <div class="type-item" *ngIf="calcFreehandCount() > 0">
-                  <input type="checkbox" [checked]="typeFilter.showFreehand" (change)="onShowFreehand($event)" />
-                  <span>Freehand</span>
-                </div>
-
-                <div class="type-item" *ngIf="calcPolylineCount() > 0">
-                  <input type="checkbox" [checked]="typeFilter.showPolyline" (change)="onShowPolyline($event)" />
-                  <span>Polyline</span>
-                </div>
-
-                <div class="type-item" *ngIf="calcStampCount() > 0">
-                  <input type="checkbox" [checked]="typeFilter.showStamp" (change)="onShowStamp($event)" />
-                  <span>Stamp</span>
-                </div>
-
-                <div class="type-item" *ngIf="calcMeasureLengthCount() > 0">
-                  <input type="checkbox" [checked]="typeFilter.showMeasureLength" (change)="onShowMeasureLength($event)" />
-                  <span>Measure Length</span>
-                </div>
-
-                <div class="type-item" *ngIf="calcMeasureAreaCount() > 0">
-                  <input type="checkbox" [checked]="typeFilter.showMeasureArea" (change)="onShowMeasureArea($event)" />
-                  <span>Measure Area</span>
-                </div>
-
-                <div class="type-item" *ngIf="calcMeasurePathCount() > 0">
-                  <input type="checkbox" [checked]="typeFilter.showMeasurePath" (change)="onShowMeasurePath($event)" />
-                  <span>Measure Path</span>
-                </div>
-
-                <div class="type-item" *ngIf="calcMeasureRectangleCount() > 0">
-                  <input type="checkbox" [checked]="typeFilter.showMeasureRectangle" (change)="onShowMeasureRectangle($event)" />
-                  <span>Measure Rectangle</span>
-                </div>
-
-                <div class="type-item" *ngIf="calcLinkCount() > 0">
-                  <input type="checkbox" [checked]="typeFilter.showLink" (change)="onShowLink($event)" />
-                  <span>Link</span>
-                </div> -->
-
-              </div>
-
-              <label *ngIf="getUniqueAuthorList().length > 0">Author</label>
-              <div class="filters-type">
-                <div class="type-item" *ngFor="let author of getUniqueAuthorList()">
-                  <input type="checkbox" [checked]="authorFilter.has(author)" (change)="onAuthorFilterChange(author)" />
-                  <span>{{ author }}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="filters-footer">
-            <button (click)="onFilterApply()" class="btn btn-primary">
-              Apply
-            </button>
-          </div>
+      <!-- Comment Cards - Shows three different annotation types when annotations are enabled -->
+      <div *ngIf="showAnnotations && sampleTasks" class="comment-cards-container">
+        <div class="comment-cards-list">
+          <app-comment-card
+            *ngFor="let task of sampleTasks; trackBy: trackByTaskId"
+            [task]="task"
+            (commentAdded)="onCommentAdded($event)"
+            (commentEdited)="onCommentEdited($event)"
+            (commentDeleted)="onCommentDeleted($event)"
+            (statusChanged)="onStatusChanged($event)">
+          </app-comment-card>
         </div>
       </div>
 
@@ -412,7 +290,7 @@
             note.
           </p>
         </div>
- -->      
+ -->
       </ng-template>
     </div>
   </div>

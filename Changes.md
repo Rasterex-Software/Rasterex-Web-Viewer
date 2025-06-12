@@ -1,3 +1,25 @@
+
+June 3, 2025
+
+### 1. Implement Upload Custom Stamp and Uploaded Images to Backend DB
+
+Updated and new files
+src/app/components/annotation-tools/stamp-panel/stamp-panel.component.html
+src\app\components\annotation-tools\stamp-panel\stamp-panel.component.scss
+src/app/components/annotation-tools/stamp-panel/stamp-panel.component.ts
+
+
+May 30, 2025
+
+### 1. Restructured annoation context menu component. Number of buttons and button states are now set in new method.
+
+Updated and new files
+
+src\app\components\annotation-tools\quick-actions-menu\quick-actions-menu.component.html
+src\app\components\annotation-tools\quick-actions-menu\quick-actions-menu.component.ts
+
+
+
 May 26, 2025
 
 ### 1. New measure tool Arc.

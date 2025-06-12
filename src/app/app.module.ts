@@ -104,7 +104,15 @@ import { LoginModalComponent } from './components/user/login-modal/login-modal.c
 import { NumericRangeDirective } from "./directives/numeric-range.directive";
 import { ResizableDirective } from './directives/resizable.directive';
 import {IsPinnedPipe} from "./components/top-nav-menu/opened-files-tabs/is-pinned.pipe";
-
+import { AppRoutingModule } from './app-routing.module';
+import { RouterModule } from '@angular/router';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatIconModule } from '@angular/material/icon';
+import { MatListModule } from '@angular/material/list';
+import { MatButtonModule } from '@angular/material/button';
 const storeSchema = [
   { name: 'name', keypath: 'name', options: { unique: false } },
   { name: 'data', keypath: 'data', options: { unique: false } },
@@ -222,7 +230,18 @@ const dbConfig: DBConfig  = {
     ColorChromeModule,
     AngularDraggableModule,
     TreeviewModule.forRoot(),
-    ToastrModule.forRoot(), // ToastrModule added
+    ToastrModule.forRoot(),
+    AppRoutingModule, // ToastrModule added
+    RouterModule,
+     MatSidenavModule,
+    MatToolbarModule,
+    MatIconModule,
+    MatListModule,
+    MatButtonModule,
+     MatMenuModule,
+     MatSnackBarModule,
+     MatIconModule
+    
   ],
   providers: [ColorHelper, Title],
   bootstrap: [AppComponent],

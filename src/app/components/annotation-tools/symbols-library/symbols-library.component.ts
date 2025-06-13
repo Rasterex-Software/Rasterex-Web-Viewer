@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output, Input } from '@angular/core';
 
 interface SymbolFolder {
   id: string;
@@ -22,17 +22,21 @@ interface Symbol {
   styleUrls: ['./symbols-library.component.scss']
 })
 export class SymbolsLibraryComponent implements OnInit {
-  ngOnInit(): void {
-    this.loadFoldersAndSymbols();
-  }
   @Output() onClose: EventEmitter<void> = new EventEmitter<void>();
+  @Output() onSymbolSelect: EventEmitter<any> = new EventEmitter<any>();
+  @Input() drawingBounds?: { width: number; height: number; x: number; y: number };
+  @Input() viewScale?: number = 1;
+
   opened: boolean = false;
   symbols: any[] = [];
   folders: SymbolFolder[] = [];
   selectedFolderId: string | null = null;
-  isCreatingFolder: boolean = false;
-  newFolderName: string = '';
-  showCreateFolderModal: boolean = false;
+  draggedSymbol: any = null;
+
+  ngOnInit(): void {
+    this.loadFoldersAndSymbols();
+  }
+
   onPanelClose(): void {
     this.onClose.emit();
   }
@@ -54,125 +58,8 @@ export class SymbolsLibraryComponent implements OnInit {
     const allSymbols = JSON.parse(localStorage.getItem('SymbolsData') || '[]');
     return allSymbols.filter((symbol: any) => symbol.folderId === folderId).length;
   }
-  private convertUrlToBase64Data(url: string, newWidth?: number): Promise<any> {
-    return new Promise((resolve, reject) => {
-      const img = new Image()
-      const canvas = document.createElement('canvas');
-      img.crossOrigin = '*';
-      img.onload = () => {
-          const originalWidth = img.width, originalHeight = img.height;
-          const aspectRatio = originalWidth / originalHeight;
-          const width = newWidth || originalWidth, height = newWidth ? newWidth / aspectRatio : originalHeight;
-          canvas.width = width;
-          canvas.height = height;
-  
-          const ctx = canvas.getContext('2d')!;
-          ctx.fillStyle = 'white';
-          ctx.fillRect(0, 0, canvas.width, canvas.height);
-          ctx.drawImage(img, 0, 0, width, height);
-          const base64 = canvas.toDataURL();
-          const base64Index = base64.indexOf('base64,') + 'base64,'.length;
-          const imageData = base64.substring(base64Index);
-          resolve({imageData, width, height});
-      };
-      img.onerror = function () {
-          reject(new Error('Error convert to base64'));
-      };
-      img.src = url;
-    })
-  }
 
-  handleSymbolsUpload(event: any) {
-    if (!this.selectedFolderId) {
-      alert('Please select a folder first before uploading symbols.');
-      return;
-    }
-
-    const files = event.target.files;
-    const uploadPromises: Promise<any>[] = [];
-  
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-      const reader = new FileReader();
-  
-      const uploadPromise = new Promise((resolve, reject) => {
-        reader.onload = async (e) => {
-          const imageDataWithPrefix = e.target?.result as string;
-  
-          const {imageData, width, height} = await this.convertUrlToBase64Data(imageDataWithPrefix, 210);
-  
-          const imageName = file.name;
-          const imageType = "image/png";
-  
-          // Convert base64 string to byte array
-          const byteCharacters = window.atob(imageData);
-          const byteNumbers = new Array(byteCharacters.length);
-          for (let i = 0; i < byteCharacters.length; i++) {
-            byteNumbers[i] = byteCharacters.charCodeAt(i);
-          }
-          const byteArray = new Uint8Array(byteNumbers);
-  
-          // Create an object to store in local storage
-          const symbolObject = {
-            id: this.generateId(),
-            imageData: Array.from(byteArray),
-            imageName: imageName,
-            imageType: imageType,
-            width,
-            height,
-            folderId: this.selectedFolderId
-          };
-          
-          this.addSymbolToFolder(symbolObject);
-          resolve(symbolObject);
-        };
-  
-        reader.onerror = (error) => {
-          reject(error);
-        };
-  
-        reader.readAsDataURL(file);
-      });
-  
-      uploadPromises.push(uploadPromise);
-    }
-  
-    // Wait for all uploads to finish before refreshing the symbols list for the selected folder only
-    Promise.all(uploadPromises).then(() => {
-      if (this.selectedFolderId) {
-        this.loadSymbolsForFolder(this.selectedFolderId);
-      }
-    });
-  }
-  
   // Folder Management Methods
-  createFolder(): void {
-    this.showCreateFolderModal = true;
-  }
-
-  confirmCreateFolder(): void {
-    if (this.newFolderName.trim()) {
-      const newFolder: SymbolFolder = {
-        id: this.generateId(),
-        name: this.newFolderName.trim(),
-        symbols: [],
-        isExpanded: true
-      };
-      
-      this.folders.push(newFolder);
-      this.saveFolders();
-      this.newFolderName = '';
-      this.showCreateFolderModal = false;
-      this.selectedFolderId = newFolder.id;
-      this.symbols = []; // Clear symbol list for new folder
-    }
-  }
-
-  cancelCreateFolder(): void {
-    this.newFolderName = '';
-    this.showCreateFolderModal = false;
-  }
-
   selectFolder(folderId: string): void {
     this.selectedFolderId = folderId;
     this.loadSymbolsForFolder(folderId);
@@ -186,34 +73,53 @@ export class SymbolsLibraryComponent implements OnInit {
     }
   }
 
-  deleteFolder(folderId: string): void {
-    if (confirm('Are you sure you want to delete this folder and all its symbols?')) {
-      this.folders = this.folders.filter(f => f.id !== folderId);
-      this.saveFolders();
-      
-      // Remove all symbols from this folder
-      const allSymbols = JSON.parse(localStorage.getItem('SymbolsData') || '[]');
-      const filteredSymbols = allSymbols.filter((symbol: any) => symbol.folderId !== folderId);
-      localStorage.setItem('SymbolsData', JSON.stringify(filteredSymbols));
-      
-      if (this.selectedFolderId === folderId) {
-        this.selectedFolderId = null;
-        this.symbols = [];
-      }
+  // Drag and Drop Methods
+  onSymbolDragStart(event: DragEvent, symbol: any): void {
+    this.draggedSymbol = symbol;
+    if (event.dataTransfer) {
+      event.dataTransfer.setData('text/plain', JSON.stringify(symbol));
+      event.dataTransfer.effectAllowed = 'copy';
     }
   }
 
-  deleteSymbol(symbolId: string): void {
-    if (confirm('Are you sure you want to delete this symbol?')) {
-      const allSymbols = JSON.parse(localStorage.getItem('SymbolsData') || '[]');
-      const filteredSymbols = allSymbols.filter((symbol: any) => symbol.id !== symbolId);
-      localStorage.setItem('SymbolsData', JSON.stringify(filteredSymbols));
-      
-      // Update the current folder's symbols
-      if (this.selectedFolderId) {
-        this.loadSymbolsForFolder(this.selectedFolderId);
-      }
+  onSymbolClick(symbol: any): void {
+    // Calculate scaled dimensions to fit the view
+    const scaledSymbol = this.scaleSymbolToFit(symbol);
+    this.onSymbolSelect.emit(scaledSymbol);
+  }
+
+  private scaleSymbolToFit(symbol: any): any {
+    if (!this.viewScale || !this.drawingBounds) {
+      return symbol;
     }
+
+    const maxWidth = this.drawingBounds.width * 0.2; // Max 20% of drawing width
+    const maxHeight = this.drawingBounds.height * 0.2; // Max 20% of drawing height
+    
+    const widthScale = maxWidth / symbol.width;
+    const heightScale = maxHeight / symbol.height;
+    const scale = Math.min(widthScale, heightScale, 1); // Don't scale up, only down
+
+    return {
+      ...symbol,
+      width: Math.round(symbol.width * scale),
+      height: Math.round(symbol.height * scale),
+      scale: scale
+    };
+  }
+
+  private ensureSymbolInBounds(x: number, y: number, symbolWidth: number, symbolHeight: number): { x: number; y: number } {
+    if (!this.drawingBounds) {
+      return { x, y };
+    }
+
+    const { width: boundsWidth, height: boundsHeight, x: boundsX, y: boundsY } = this.drawingBounds;
+    
+    // Ensure symbol doesn't go outside the drawing bounds
+    const adjustedX = Math.max(boundsX, Math.min(x, boundsX + boundsWidth - symbolWidth));
+    const adjustedY = Math.max(boundsY, Math.min(y, boundsY + boundsHeight - symbolHeight));
+    
+    return { x: adjustedX, y: adjustedY };
   }
 
   // Storage Methods
@@ -240,12 +146,6 @@ export class SymbolsLibraryComponent implements OnInit {
       this.folders = [defaultFolder];
       this.saveFolders();
     }
-  }
-
-  private addSymbolToFolder(symbolObject: any): void {
-    const allSymbols = JSON.parse(localStorage.getItem('SymbolsData') || '[]');
-    allSymbols.push(symbolObject);
-    localStorage.setItem('SymbolsData', JSON.stringify(allSymbols));
   }
 
   private loadSymbolsForFolder(folderId: string): void {
@@ -308,6 +208,5 @@ export class SymbolsLibraryComponent implements OnInit {
       }
     }
   }
-  
 }
  

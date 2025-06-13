@@ -1,3 +1,10 @@
+June 13, 2025
+# 1. Update symbols to remove upload, delete and just list via localstorage
+Updated and new files
+src/app/components/annotation-tools/symbols-library/symbols-library.component.html
+src/app/components/annotation-tools/symbols-library/symbols-library.component.scss
+src/app/components/annotation-tools/symbols-library/symbols-library.component.ts
+
 Jun 10, 2025
 ### 1. Implement Folder Creation in Symbols and manage symbols based on folders
 Updated and new files

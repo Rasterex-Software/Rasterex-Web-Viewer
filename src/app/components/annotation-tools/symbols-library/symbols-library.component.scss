@@ -22,105 +22,34 @@
   .folder-management {
     margin-bottom: 15px;
 
-    .folder-actions {
+    .folder-dropdown-container {
       display: flex;
       align-items: center;
-      justify-content: space-around;
-      margin: 5px 0;
-      font-size: 12px;
-      color: $main;
-      gap: 8px;
+      gap: 10px;
+      margin-bottom: 12px;
 
-      .btn {
-        padding: 6px 12px;
-        font-size: 11px;
+      label {
+        font-weight: 500;
+        font-size: 12px;
+        color: #333;
+        margin-right: 4px;
+      }
+      
+      select {
+        flex: 1;
+        min-width: 160px;
+        padding: 6px 10px;
         border-radius: 4px;
-        border: none;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        gap: 4px;
-        border-radius: 25px;
-      }
-    }
-
-    .folders-list {
-      max-height: 120px;
-      overflow-y: auto;
-      border: 1px solid #eee;
-      border-radius: 4px;
-
-      .folder-item {
-        .folder-header {
-          display: flex;
-          align-items: center;
-          padding: 8px 10px;
-          cursor: pointer;
-          border-bottom: 1px solid #f0f0f0;
-          transition: background-color 0.2s;
-
-          &:hover {
-            background-color: #f8f9fa;
-          }
-
-          &.selected {
-            background-color: #fafafa;
-            border-left: 3px solid #007bff;
-          }
-
-          .folder-icon {
-            margin-right: 8px;
-            color: #ffa726;
-            font-size: 14px;
-          }
-
-          .folder-name {
-            flex: 1;
-            font-size: 12px;
-            font-weight: 500;
-            color: #333;
-          }
-
-          .symbol-count {
-            font-size: 10px;
-            color: #a4abae;
-            margin-left: 4px;
-          }
-
-          .btn-delete-folder {
-            background: none;
-            border: none;
-            color: #dc3545;
-            cursor: pointer;
-            padding: 2px 4px;
-            border-radius: 2px;
-            opacity: 0.7;
-            margin-left: 8px;
-
-            &:hover {
-              opacity: 1;
-              background-color: rgba(220, 53, 69, 0.1);
-            }
-
-            i {
-              font-size: 10px;
-            }
-          }
+        border: 1.5px solid #ddd;
+        font-size: 12px;
+        background-color: white;
+        color: #333;
+        
+        &:focus {
+          border-color: #007bff;
+          outline: none;
+          box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
         }
-      }
-    }
-
-    .no-folders {
-      text-align: center;
-      padding: 20px;
-      color: #a4abae;
-      font-size: 12px;
-      border: 2px dashed #eee;
-      border-radius: 4px;
-
-      p {
-        margin: 0;
-        font-style: italic;
       }
     }
   }
@@ -153,6 +82,7 @@
     font-size: 12px;
     border: 2px dashed #eee;
     border-radius: 4px;
+    margin: 10px 0;
 
     i {
       color: #ccc;
@@ -176,33 +106,41 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    overflow-y: scroll;
-    height: 300px;
+    overflow-y: auto;
+    height: 350px;
+    padding: 5px;
 
     .stamp-container {
       display: flex;
       align-items: center;
       margin: 5px 0;
-      padding: 8px;
+      padding: 12px;
       border: 1px solid #eee;
-      border-radius: 4px;
+      border-radius: 6px;
       background-color: #fafafa;
       transition: all 0.2s ease;
       width: 100%;
+      cursor: grab;
+      position: relative;
 
       &:hover {
         background-color: #f0f0f0;
-        border-color: #ddd;
+        border-color: #007bff;
         transform: translateY(-1px);
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 3px 8px rgba(0, 123, 255, 0.15);
+      }
+
+      &:active {
+        cursor: grabbing;
+        transform: translateY(0);
       }
 
       .symbol-image {
         width: 60px;
         height: 60px;
         object-fit: contain;
-        border-radius: 2px;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        border-radius: 4px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         border: 1px solid #eee;
         background: white;
       }
@@ -214,9 +152,9 @@
 
         .symbol-name {
           font-size: 12px;
-          font-weight: 500;
+          font-weight: 600;
           color: #333;
-          margin-bottom: 3px;
+          margin-bottom: 4px;
           overflow: hidden;
           text-overflow: ellipsis;
           white-space: nowrap;
@@ -229,119 +167,58 @@
         }
       }
 
-      .btn-delete-symbol {
-        background: none;
-        border: none;
-        color: #dc3545;
-        cursor: pointer;
-        padding: 4px;
-        border-radius: 2px;
-        transition: background-color 0.2s ease;
-        opacity: 0.7;
-
-        &:hover {
-          background-color: rgba(220, 53, 69, 0.1);
-          opacity: 1;
-        }
+      .drag-indicator {
+        color: #a4abae;
+        font-size: 14px;
+        opacity: 0.6;
+        margin-left: 8px;
+        transition: opacity 0.2s ease;
 
         i {
-          font-size: 11px;
-        }
-      }
-    }
-  }
-}
-
-// Modal Content Styles (using rx-modal-dialog)
-.confirm-modal-container {
-  max-width: fit-content;
-
-  .body {
-    width: 364px;
-    box-sizing: border-box;
-
-    .form-group {
-      margin-bottom: 15px;
-
-      label {
-        display: block;
-        margin-bottom: 5px;
-        font-size: 12px;
-        font-weight: 500;
-        color: #333;
-      }
-
-      #folderName {
-        width: 100%;
-        margin: 5px;
-
-        input {
-          width: 90%;
-          padding: 8px 12px;
-          border: 1px solid #ddd;
-          border-radius: 4px;
-          font-size: 14px;
-          box-sizing: border-box;
-
-          &:focus {
-            outline: none;
-            border-color: #007bff;
-            box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
-          }
+          display: block;
         }
       }
 
-      .character-count {
-        display: block;
-        margin-top: 5px;
-        font-size: 11px;
-        color: #666;
-        text-align: right;
+      &:hover .drag-indicator {
+        opacity: 1;
+        color: #007bff;
+      }
+    }
+  }
+}
+
+// Professional styling improvements
+.library-panel-container {
+  .templates-list {
+    // Custom scrollbar for better UX
+    &::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 3px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: #c1c1c1;
+      border-radius: 3px;
+
+      &:hover {
+        background: #a8a8a8;
       }
     }
   }
 
-  .footer {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 20px;
-  }
-}
-
-#close {
-  right: 14px;
-  top: 10px;
-}
-
-.folder-dropdown-container {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 12px;
-
-  label {
-    font-weight: 500;
-    margin-right: 4px;
-  }
-  select {
-    min-width: 160px;
-    padding: 4px 8px;
-    border-radius: 4px;
-    border: 1.5px solid #ccc;
-    font-size: 1rem;
-    &:focus {
-      border-color: #2e8bfa;
-      outline: none;
+  // Responsive adjustments
+  @media (max-width: 768px) {
+    section {
+      width: 100%;
+      min-width: 250px;
     }
-  }
-  .btn-delete-folder {
-    background: none;
-    border: none;
-    cursor: pointer;
-    margin-left: 8px;
-    img {
-      width: 18px;
-      height: 18px;
+
+    .templates-list {
+      height: 300px;
     }
   }
 }

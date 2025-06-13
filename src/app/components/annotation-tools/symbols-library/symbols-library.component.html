@@ -1,34 +1,16 @@
 <rx-panel [title]="'Symbols Library'" (onClose)="onPanelClose()">
   <div class="library-panel-container">
     <section>
-      <!-- Folder Management Section -->
+      <!-- Folder Selection Section -->
       <div class="folder-management">
-        <div class="folder-actions">
-          <button type="button" class="btn btn-primary" (click)="createFolder()">
-            New Folder
-          </button>
-          <input type="file" #fileUpload (change)="handleSymbolsUpload($event)" style="display: none;" multiple accept="image/*">
-          <button type="button" class="btn btn-primary"
-                  [disabled]="!selectedFolderId"
-                  (click)="fileUpload.click()"
-                  [title]="!selectedFolderId ? 'Please select a folder first' : 'Upload symbols to selected folder'">
-            Upload Symbols <span *ngIf="selectedFolderId">({{ getSymbolCountForFolder(selectedFolderId) }} in folder)</span>
-          </button>
-        </div>
         <!-- Folder Dropdown -->
         <div class="folder-dropdown-container" *ngIf="folders.length > 0">
-          <label for="folderDropdown">Folder:</label>
+          <label for="folderDropdown">Select Category:</label>
           <select id="folderDropdown" [(ngModel)]="selectedFolderId" (change)="selectFolder(selectedFolderId)">
             <option *ngFor="let folder of folders; trackBy: trackByFolderId" [value]="folder.id">
               {{ folder.name }} ({{ getSymbolCountForFolder(folder.id) }} symbols)
             </option>
           </select>
-          <button class="btn-delete-folder"
-                  (click)="deleteFolder(selectedFolderId)"
-                  title="Delete Folder"
-                  *ngIf="folders.length > 1 && selectedFolderId">
-            <img src="/assets/images/trash-ico.svg" />
-          </button>
         </div>
       </div>
 
@@ -36,54 +18,35 @@
       <div class="templates-list">
         <div *ngIf="!selectedFolderId" class="no-folder-selected">
           <i class="fas fa-folder-open fa-2x"></i>
-          <p>Select a folder to view and manage symbols</p>
+          <p>Select a category to view symbols</p>
+          <small>Choose from the dropdown above to browse available symbols</small>
         </div>
 
         <div *ngIf="selectedFolderId && symbols.length === 0" class="no-symbols">
           <i class="fas fa-images fa-2x"></i>
-          <p>This folder is empty</p>
-          <small>Click "Upload" to add symbols to this folder</small>
+          <p>No symbols available in this category</p>
+          <small>This category is currently empty</small>
         </div>
 
-        <div *ngFor="let template of symbols; trackBy: trackBySymbolId" class="stamp-container">
-          <img [imageTemplate]="template" [src]="template.src" [alt]="template.name" class="symbol-image" />
+        <div *ngFor="let template of symbols; trackBy: trackBySymbolId" 
+             class="stamp-container"
+             draggable="true"
+             (dragstart)="onSymbolDragStart($event, template)"
+             (click)="onSymbolClick(template)"
+             title="Click to select or drag to place symbol">
+          <img [imageTemplate]="template" 
+               [src]="template.src" 
+               [alt]="template.name" 
+               class="symbol-image" />
           <div class="symbol-info">
             <div class="symbol-name" [title]="template.name">{{ template.name }}</div>
             <div class="symbol-dimensions">{{ template.width }} × {{ template.height }}px</div>
           </div>
-          <button (click)="deleteSymbol(template.id)" class="btn-delete-symbol" title="Delete Symbol">
-            <img src="/assets/images/trash-ico.svg" />
-          </button>
+          <div class="drag-indicator">
+            <i class="fas fa-arrows-alt"></i>
+          </div>
         </div>
       </div>
     </section>
   </div>
 </rx-panel>
-
-<!-- Create Folder Modal -->
-<rx-modal-dialog [opened]="showCreateFolderModal" (onClose)="cancelCreateFolder()">
-  <div class="confirm-modal-container improved-modal" id="confirmModal">
-    <div class="rx-modal-dialog-header">
-      <img (click)="cancelCreateFolder();" class="close" id="close" src="/assets/images/close-modal-ico.svg" />
-      <span class="title">Create New Folder</span>
-    </div>
-
-    <div id="body" class="body">
-      <div class="form-group">
-        <label for="folderName">Folder Name:</label>
-        <div id="folderName">
-          <input id="folderName" [(ngModel)]="newFolderName" placeholder="Enter folder name"
-            (keyup.enter)="confirmCreateFolder()" (keyup.escape)="cancelCreateFolder()" #folderNameInput maxlength="50"
-            autocomplete="off" />
-        </div>
-        <small class="character-count">{{ newFolderName.length }}/50 characters</small>
-      </div>
-    </div>
-
-    <div class="footer">
-      <button (click)="cancelCreateFolder();" class="btn btn-light">CANCEL</button>
-      <button (click)="confirmCreateFolder()" [disabled]="!newFolderName.trim() || newFolderName.trim().length < 2"
-        class="btn btn-primary">CREATE</button>
-    </div>
-  </div>
-</rx-modal-dialog>

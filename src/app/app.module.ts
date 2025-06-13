@@ -113,6 +113,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatButtonModule } from '@angular/material/button';
+import { APP_BASE_HREF } from '@angular/common';
 const storeSchema = [
   { name: 'name', keypath: 'name', options: { unique: false } },
   { name: 'data', keypath: 'data', options: { unique: false } },
@@ -243,7 +244,9 @@ const dbConfig: DBConfig  = {
      MatIconModule
     
   ],
-  providers: [ColorHelper, Title],
+  providers: [ColorHelper, Title,
+    { provide: APP_BASE_HREF, useValue: document.getElementsByTagName('base')[0].getAttribute('href') }
+  ],
   bootstrap: [AppComponent],
   
 })

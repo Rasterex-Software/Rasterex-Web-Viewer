@@ -1,13 +1,24 @@
+June 13, 2025
+# 1. Update symbols to remove upload, delete and just list via localstorage
+Updated and new files
+src/app/components/annotation-tools/symbols-library/symbols-library.component.html
+src/app/components/annotation-tools/symbols-library/symbols-library.component.scss
+src/app/components/annotation-tools/symbols-library/symbols-library.component.ts
+
+Jun 10, 2025
+### 1. Implement Folder Creation in Symbols and manage symbols based on folders
+Updated and new files
+src/app/components/annotation-tools/symbols-library/symbols-library.component.html
+src/app/components/annotation-tools/symbols-library/symbols-library.component.scss
+src/app/components/annotation-tools/symbols-library/symbols-library.component.ts
 
 June 3, 2025
-
 ### 1. Implement Upload Custom Stamp and Uploaded Images to Backend DB
 
 Updated and new files
 src/app/components/annotation-tools/stamp-panel/stamp-panel.component.html
-src\app\components\annotation-tools\stamp-panel\stamp-panel.component.scss
+src/app/components/annotation-tools/stamp-panel/stamp-panel.component.
 src/app/components/annotation-tools/stamp-panel/stamp-panel.component.ts
-
 
 May 30, 2025
 

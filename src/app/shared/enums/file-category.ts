@@ -1,7 +1,8 @@
 export enum FileCategory  {
-  TwoD = '2D',
-  ThreeD = '3D',
-  PDF = 'PDF',
-  Office = 'Office',
-  Unknown = 'Unknown'
+  TwoD = 'CAD Drawings',
+  ThreeD = '3D Models',
+  Office = 'Office Documents',
+  Other = 'Other',
+  ImageFile = 'Image Files',
+  Plotter=  'Plotter Files'
 }

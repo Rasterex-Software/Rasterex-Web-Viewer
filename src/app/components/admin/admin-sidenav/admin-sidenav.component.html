@@ -1,0 +1,26 @@
+<mat-sidenav-container class="sidenav-container">
+  <!-- Sidenav -->
+  <mat-sidenav #sidenav mode="side" [(opened)]="isSidenavOpen" class="mat-elevation-z2 custom-sidenav">
+    <mat-nav-list class="nav-links">
+
+      <!-- Dashboard Link -->
+      <a mat-list-item routerLink="/admin" routerLinkActive="active-link" [routerLinkActiveOptions]="{ exact: true }"
+        disableRipple>
+        <mat-icon matListItemIcon>dashboard</mat-icon>
+        <span matListItemTitle>Dashboard</span>
+      </a>
+
+    </mat-nav-list>
+  </mat-sidenav>
+
+  <!-- Main content -->
+  <mat-sidenav-content>
+    <mat-toolbar color="primary" class="custom-toolbar toolbar-narrow">
+      <button mat-icon-button (click)="toggleSidenav()" class="toggle-btn">
+        <mat-icon>{{ isSidenavOpen ? 'chevron_left' : 'menu' }}</mat-icon>
+      </button>
+    </mat-toolbar>
+    <!-- Your main content here -->
+    <ng-content></ng-content>
+  </mat-sidenav-content>
+</mat-sidenav-container>

@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { ProjectUserPermission } from '../components/user/user.service';
-
+import { Router, NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs/operators';
 @Injectable({
   providedIn: 'root'
 })
@@ -26,8 +27,23 @@ permissions$ = this.permissionSubject.asObservable();
 private enableLandingPageSubject = new BehaviorSubject<boolean>(false);
 enableLandingPage$ = this.enableLandingPageSubject.asObservable();
 
-  constructor() {}
+  private isAdminRouteSubject = new BehaviorSubject<boolean>(false);
+  isAdminRoute$ = this.isAdminRouteSubject.asObservable();
 
+  constructor(private router: Router) {
+  }
+
+  setAdminFlagBasedOnLocalStorage() {
+    const permission = JSON.parse(localStorage.getItem('adminPermission') || 'null');
+    const hasAdminAccess = permission?.permission?.key === 'AdminAccess';
+    this.isAdminRouteSubject.next(hasAdminAccess);
+  }
+
+  clearAdminPermission() {
+    localStorage.removeItem('adminPermission');
+    this.isAdminRouteSubject.next(false);
+  }
+  
 setLoginInfo(username: string, displayName: string, email: string) {
   this.usernameSubject.next(username);
   this.displayNameSubject.next(displayName);

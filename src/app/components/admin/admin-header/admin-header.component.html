@@ -1,0 +1,24 @@
+<header class="header-container">
+  <div class="header-left">
+   <img [src]="(guiConfig$ | async).logoUrl" />
+  </div>
+  <div class="header-right">
+    <div class="user-info">
+      <span class="user-avatar">{{ userName[0] }}</span>
+      <span class="user-name">{{ userName }}</span>
+    </div>
+    <div class="menu-wrapper">
+      <button class="menu-button" (click)="toggleMenu()" aria-label="Open menu">
+        <span class="material-icons">more_vert</span>
+      </button>
+      <div class="custom-menu" *ngIf="isMenuOpen" (mouseleave)="closeMenu()">
+        <div class="menu-item" (click)="onLogoutClick()">
+          <span class="material-icons">logout</span> Log Out
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+
+

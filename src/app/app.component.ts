@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef } from '@angular/core';
 import { FileGaleryService } from './components/file-galery/file-galery.service';
 import { RxCoreService } from './services/rxcore.service';
 import { RXCore } from 'src/rxcore';
@@ -14,6 +14,7 @@ import { CollabService } from './services/collab.service';
 import { AnnotationStorageService } from './services/annotation-storage.service';
 import { TooltipService } from './components/tooltip/tooltip.service';
 import { LoginService } from './services/login.service';
+import { Router, NavigationEnd } from '@angular/router';
 
 
 
@@ -58,6 +59,7 @@ export class AppComponent implements AfterViewInit {
   infoData: Array<any> = [];
   infoPanelVisible: boolean = false;
 
+  isAdminRoute = false;
 
   constructor(  public loginService: LoginService,
     private readonly recentfilesService: RecentFilesService,
@@ -69,10 +71,17 @@ export class AppComponent implements AfterViewInit {
     private readonly collabService: CollabService,  
     private readonly annotationStorageService: AnnotationStorageService,
     private titleService:Title,
-    private el: ElementRef) { }
+    private router: Router,
+    private el: ElementRef,
+  private cdRef: ChangeDetectorRef,) {
+     }
     
   ngOnInit() {
-
+// this.loginService.isAdminRoute$.subscribe(flag => this.isAdminRoute = flag);
+  this.loginService.isAdminRoute$.subscribe(flag => {
+    this.isAdminRoute = flag;
+    this.cdRef.detectChanges(); // Best solution
+  });
     this.loginService.enableLandingPage$.subscribe(enable => {
       this.enableLandingPage = enable;
     });
@@ -128,7 +137,7 @@ export class AppComponent implements AfterViewInit {
   
 
   ngAfterViewInit(): void {
-    
+     this.loginService.setAdminFlagBasedOnLocalStorage();
 
     /*this.guiConfig$.subscribe(config => {
 

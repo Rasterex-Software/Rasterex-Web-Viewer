@@ -3,6 +3,7 @@ import { Subscription } from 'rxjs';
 import { LoginService } from 'src/app/services/login.service';
 import { UserService, User } from '../user.service';
 import { RXCore } from 'src/rxcore';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-login-modal',
@@ -22,8 +23,9 @@ export class LoginModalComponent implements OnInit, OnDestroy {
 
   constructor(
     private loginService: LoginService,
-    private userService: UserService
-  ) {}
+    private userService: UserService,
+    private router: Router
+  ) { }
 
   ngOnInit() {
     this.loginModalSub = this.loginService.loginModalVisible$.subscribe((visible) => {
@@ -76,15 +78,28 @@ export class LoginModalComponent implements OnInit, OnDestroy {
     this.userService.login(this.loginUsername, this.loginPassword)
       .then((user: User) => {
 
-       try {
+        try {
           RXCore.setUser(user.username, user.displayName || user.username);
         } catch (err) {
           console.log(err);
-        }  
+        }
 
         this.userService.getPermissions(1, user.id).then(res => {
           this.userService.setUserPermissions(res);
+          console.log("user permision set", res)
           this.loginService.setPermissionsInProfilePanel(res);
+          // Check for AdminAccess permission
+          const adminPermission = res.find(p => p.permission?.key === 'AdminAccess');
+
+          if (adminPermission) {
+            localStorage.setItem('adminPermission', JSON.stringify(adminPermission));
+            this.loginService.setAdminFlagBasedOnLocalStorage();
+            this.router.navigate(['/admin']);
+          } else {
+            this.loginService.clearAdminPermission();
+            this.router.navigate(['/']);
+          }
+
         });
         this.loginService.hideLoginModal();
         this.loginService.setLoginInfo(user.username, user.displayName || user.username, user.email);

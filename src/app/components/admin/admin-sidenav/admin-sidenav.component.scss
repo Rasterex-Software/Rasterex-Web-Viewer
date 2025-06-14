@@ -1,0 +1,122 @@
+.sidenav-container {
+  height: 100vh;
+}
+
+.custom-sidenav {
+  width: 200px;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+}
+
+.sidenav-toolbar {
+  background: #4caf50;
+  color: #fff;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  padding-left: 24px;
+  font-size: 18px;
+  font-weight: 600;
+  box-shadow: none;
+}
+
+.nav-links {
+  flex: 1 1 auto;
+  padding-top: 16px;
+}
+
+.bottom-nav {
+  margin-top: auto;
+  padding-bottom: 16px;
+  a[mat-list-item] {
+    border-radius: 4px;
+    margin: 0 16px;
+    color: #4caf50;
+    font-weight: 500;
+    transition: background 0.2s;
+    &:hover, &.active-link {
+      background: rgba(76, 175, 80, 0.08);
+      color: #388e3c;
+    }
+    mat-icon {
+      color: #4caf50;
+      margin-right: 16px;
+    }
+  }
+}
+
+.nav-links {
+  a[mat-list-item] {
+    border-left: 4px solid transparent;
+    border-radius: 0 4px 4px 0;
+    margin: 4px 0;
+    padding-left: 20px;
+    color: #4caf50;
+    font-weight: 500;
+    transition: background 0.3s ease, border-color 0.3s ease;
+    outline: none;
+    &:hover {
+      //background-color: rgba(76, 175, 80, 0.08);
+      color: #388e3c;
+    }
+
+    &.active-link {
+     // background-color: rgba(76, 175, 80, 0.08);
+      border-left: 4px solid #4caf50;
+      color: #388e3c;
+    }
+
+    mat-icon {
+      color: inherit;
+      margin-right: 16px;
+    }
+  }
+  .nav-links a[mat-list-item]:focus,
+.nav-links a[mat-list-item]:active {
+  background-color: transparent !important; 
+  box-shadow: none !important;
+}
+}
+
+
+.custom-toolbar {
+  background: #fff;
+  color: #4caf50;
+  box-shadow: none;
+  display: flex;
+  align-items: center;
+  height: 48px;
+  padding-left: 8px;   
+  padding-right: 8px;
+  min-height: 48px;   
+
+  .toggle-btn {
+    margin-right: 16px;
+    color: #4caf50;
+  }
+  .main-toolbar-title {
+    font-size: 18px;
+    font-weight: 500;
+  }
+}
+
+@media (max-width: 768px) {
+  .custom-sidenav {
+    width: 180px;
+  }
+  .sidenav-toolbar, .custom-toolbar {
+    height: 56px;
+    font-size: 16px;
+  }
+}
+.toolbar-narrow {
+  max-width: 400px; 
+  margin: 0 auto;   
+  width: 100%;      
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+

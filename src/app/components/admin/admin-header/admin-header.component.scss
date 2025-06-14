@@ -1,0 +1,115 @@
+.header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 32px;
+  background: linear-gradient(90deg, #e8f5e9 60%, #c8e6c9 100%);
+  height: 64px;
+  border-bottom: 2px solid #66bb6a;
+  color: #2e7d32;
+  font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+  box-shadow: 0 2px 8px rgba(102, 187, 106, 0.08);
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+}
+
+.logo {
+  height: 36px;
+  margin-right: 16px;
+}
+
+.header-title {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.user-avatar {
+  background: #66bb6a;
+  color: #fff;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 18px;
+  box-shadow: 0 1px 4px rgba(102, 187, 106, 0.15);
+}
+
+.user-name {
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.menu-wrapper {
+  position: relative;
+}
+
+.menu-button {
+  background: none;
+  border: none;
+  font-size: 28px;
+  cursor: pointer;
+  color: #2e7d32;
+  padding: 6px;
+  border-radius: 50%;
+  transition: background 0.2s;
+}
+.menu-button:hover {
+  background: #c8e6c9;
+}
+
+.custom-menu {
+  position: absolute;
+  right: 0;
+  top: 44px;
+  background: #fff;
+  border: 1px solid #c8e6c9;
+  box-shadow: 0 4px 16px rgba(102, 187, 106, 0.15);
+  min-width: 160px;
+  border-radius: 8px;
+  z-index: 1000;
+  animation: fadeIn 0.2s;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px);}
+  to { opacity: 1; transform: translateY(0);}
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 18px;
+  cursor: pointer;
+  color: #2e7d32;
+  font-size: 15px;
+  transition: background 0.2s;
+}
+.menu-item:hover {
+  background: #e8f5e9;
+}
+
+.material-icons {
+  font-size: 20px;
+  vertical-align: middle;
+}
+

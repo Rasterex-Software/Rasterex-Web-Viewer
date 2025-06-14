@@ -20,21 +20,23 @@
                             <span>{{group.name}}</span>
                     </div>
                 </div>
-                <div class="file-galery-items">
+               <!-- In file-galery.component.html -->
+            <div class="file-galery-items">
+                <ng-container *ngIf="selected?.items">
                     <div
                         *ngFor="let item of selected.items;"
                         class="tile"
                         (click)="handleFileSelect(item)">
-                            <!-- <div class="thumbnail"><img src="{{item.thumbnail}}" /></div> -->
                             <div class="thumbnail">
-                                <img height="85%" width="85%" [src]="item.thumbnail" />
+                                <img height="75%" width="75%" [src]="item.thumbnail" />
                             </div>
                             <div class="title">{{item.name}}</div>
                     </div>
-                    <br>
-                    <br>
-                    <p class="copyright">PDF Reader powered by Foxit. Copyright (c) 2003-2024 by Foxit Software Incorporated</p>
+                </ng-container>
+                <div *ngIf="!selected?.items" class="loading-state">
+                    Loading files...
                 </div>
+            </div>
             </div>
             <div *ngSwitchCase="1">
                 <rx-dnd-zone (onDrop)="onDrop($event)">

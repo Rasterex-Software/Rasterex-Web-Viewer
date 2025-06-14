@@ -1,0 +1,35 @@
+<div class="file-galery-container">
+    <div class="main-content">
+        <div class="rx-modal-dialog-header">
+            <span class="title">FILE GALLERY</span>
+            <button mat-raised-button color="primary" (click)="navigateToFileUpload()">
+                <mat-icon>upload</mat-icon>
+                File Upload
+            </button>
+        </div>
+        <div class="tabbed-menu">
+            <div *ngFor="let group of groups;" class="tabbed-menu-item" [class.active]="selected.name == group.name"
+                (click)="selected = group">
+                <span>{{group.name}}</span>
+            </div>
+        </div>
+        <div class="file-galery-items">
+            <ng-container *ngIf="selected?.items">
+                <div *ngFor="let item of selected.items;" class="tile">
+                    <div class="thumbnail">
+                        <img height="85%" width="85%" [src]="item.thumbnail" />
+                    </div>
+                    <div class="title">{{item.name}}</div>
+                    <div class="delete-icon-container">
+                        <button mat-icon-button color="warn" (click)="deleteFile($event, item)">
+                            <mat-icon>delete</mat-icon>
+                        </button>
+                    </div>
+                </div>
+            </ng-container>
+            <div *ngIf="!selected?.items" class="loading-state">
+                Loading files...
+            </div>
+        </div>
+    </div>
+</div>

@@ -3,12 +3,19 @@
     <section>
       <!-- Folder Selection Section -->
       <div class="folder-management">
+        <!-- Loading and Error for Folders -->
+        <div *ngIf="loadingFolders" class="loading-status">
+          <i class="fas fa-spinner fa-spin"></i> Loading folders...
+        </div>
+        <div *ngIf="error && !loadingFolders" class="error-status">
+          <i class="fas fa-exclamation-triangle"></i> {{ error }}
+        </div>
         <!-- Folder Dropdown -->
-        <div class="folder-dropdown-container" *ngIf="folders.length > 0">
+        <div class="folder-dropdown-container" *ngIf="folders.length > 0 && !loadingFolders && !error">
           <label for="folderDropdown">Select Category:</label>
           <select id="folderDropdown" [(ngModel)]="selectedFolderId" (change)="selectFolder(selectedFolderId)">
             <option *ngFor="let folder of folders; trackBy: trackByFolderId" [value]="folder.id">
-              {{ folder.name }} ({{ getSymbolCountForFolder(folder.id) }} symbols)
+              {{ folder.name }}
             </option>
           </select>
         </div>
@@ -16,13 +23,19 @@
 
       <!-- Symbols List -->
       <div class="templates-list">
-        <div *ngIf="!selectedFolderId" class="no-folder-selected">
+        <div *ngIf="loadingSymbols" class="loading-status">
+          <i class="fas fa-spinner fa-spin"></i> Loading symbols...
+        </div>
+        <div *ngIf="error && !loadingSymbols && !loadingFolders" class="error-status">
+          <i class="fas fa-exclamation-triangle"></i> {{ error }}
+        </div>
+        <div *ngIf="!selectedFolderId && !loadingSymbols && !loadingFolders" class="no-folder-selected">
           <i class="fas fa-folder-open fa-2x"></i>
           <p>Select a category to view symbols</p>
           <small>Choose from the dropdown above to browse available symbols</small>
         </div>
 
-        <div *ngIf="selectedFolderId && symbols.length === 0" class="no-symbols">
+        <div *ngIf="selectedFolderId && symbols.length === 0 && !loadingSymbols && !loadingFolders" class="no-symbols">
           <i class="fas fa-images fa-2x"></i>
           <p>No symbols available in this category</p>
           <small>This category is currently empty</small>

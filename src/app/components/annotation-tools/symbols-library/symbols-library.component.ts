@@ -1,4 +1,6 @@
 import { Component, EventEmitter, OnInit, Output, Input } from '@angular/core';
+import { SymbolsLibraryService } from './symbols-library.service';
+import { HttpClient } from '@angular/common/http';
 
 interface SymbolFolder {
   id: string;
@@ -32,9 +34,14 @@ export class SymbolsLibraryComponent implements OnInit {
   folders: SymbolFolder[] = [];
   selectedFolderId: string | null = null;
   draggedSymbol: any = null;
+  loadingFolders = false;
+  loadingSymbols = false;
+  error: string | null = null;
+
+  constructor(private symbolsService: SymbolsLibraryService) {}
 
   ngOnInit(): void {
-    this.loadFoldersAndSymbols();
+    this.fetchFolders();
   }
 
   onPanelClose(): void {
@@ -54,22 +61,16 @@ export class SymbolsLibraryComponent implements OnInit {
     return symbol.id;
   }
 
-  getSymbolCountForFolder(folderId: string): number {
-    const allSymbols = JSON.parse(localStorage.getItem('SymbolsData') || '[]');
-    return allSymbols.filter((symbol: any) => symbol.folderId === folderId).length;
-  }
-
   // Folder Management Methods
   selectFolder(folderId: string): void {
     this.selectedFolderId = folderId;
-    this.loadSymbolsForFolder(folderId);
+    this.fetchSymbols(folderId);
   }
 
   toggleFolder(folderId: string): void {
     const folder = this.folders.find(f => f.id === folderId);
     if (folder) {
       folder.isExpanded = !folder.isExpanded;
-      this.saveFolders();
     }
   }
 
@@ -122,91 +123,52 @@ export class SymbolsLibraryComponent implements OnInit {
     return { x: adjustedX, y: adjustedY };
   }
 
-  // Storage Methods
-  private generateId(): string {
-    return Date.now().toString(36) + Math.random().toString(36).substr(2);
-  }
-
-  private saveFolders(): void {
-    localStorage.setItem('SymbolFolders', JSON.stringify(this.folders));
-  }
-
-  private loadFolders(): void {
-    const storedFolders = localStorage.getItem('SymbolFolders');
-    if (storedFolders) {
-      this.folders = JSON.parse(storedFolders);
-    } else {
-      // Create default folder if none exist
-      const defaultFolder: SymbolFolder = {
-        id: this.generateId(),
-        name: 'Default',
-        symbols: [],
-        isExpanded: true
-      };
-      this.folders = [defaultFolder];
-      this.saveFolders();
+  fetchFolders(): void {
+    this.loadingFolders = true;
+    this.symbolsService.getFolders().subscribe({
+      next: (folders) => {
+        this.folders = folders;
+        this.loadingFolders = false;
+        if (this.folders.length > 0) {
+          this.selectedFolderId = this.folders[0].id;
+          this.fetchSymbols(this.selectedFolderId);
+        }
+      },
+      error: (err) => {
+        this.error = 'Failed to load folders';
+        this.loadingFolders = false;
     }
-  }
-
-  private loadSymbolsForFolder(folderId: string): void {
-    const allSymbols = JSON.parse(localStorage.getItem('SymbolsData') || '[]');
-    const folderSymbols = allSymbols.filter((symbol: any) => symbol.folderId === folderId);
-    
-    this.symbols = folderSymbols.map((symbolObject: any) => {
-      const byteArray = new Uint8Array(symbolObject.imageData);
-      const blob = new Blob([byteArray], { type: symbolObject.imageType });
-      const imageSrc = URL.createObjectURL(blob);
-
-      return {
-        id: symbolObject.id,
-        src: imageSrc,
-        name: symbolObject.imageName,
-        height: symbolObject.height || 210,
-        width: symbolObject.width || 210,
-        folderId: symbolObject.folderId
-      };
     });
   }
 
-  private loadFoldersAndSymbols(): void {
-    this.loadFolders();
-    
-    // Migrate old symbols to default folder if they exist
-    this.migrateOldSymbols();
-    
-    // Select first folder by default
-    if (this.folders.length > 0 && !this.selectedFolderId) {
-      this.selectedFolderId = this.folders[0].id;
-      this.loadSymbolsForFolder(this.selectedFolderId);
-    }
-  }
-
-  private migrateOldSymbols(): void {
-    const oldSymbols = localStorage.getItem('UploadedSymbols');
-    if (oldSymbols) {
-      const symbols = JSON.parse(oldSymbols);
-      const defaultFolder = this.folders.find(f => f.name === 'Default');
-      
-      if (defaultFolder && symbols.length > 0) {
-        const allSymbols = JSON.parse(localStorage.getItem('SymbolsData') || '[]');
-        
-        symbols.forEach((symbol: any, index: number) => {
-          const migratedSymbol = {
-            id: this.generateId(),
-            imageData: symbol.imageData,
-            imageName: symbol.imageName || `Symbol_${index}`,
-            imageType: symbol.imageType,
-            width: symbol.width,
-            height: symbol.height,
-            folderId: defaultFolder.id
-          };
-          allSymbols.push(migratedSymbol);
-        });
-        
-        localStorage.setItem('SymbolsData', JSON.stringify(allSymbols));
-        localStorage.removeItem('UploadedSymbols'); // Remove old storage
+  fetchSymbols(folderId: string): void {
+    this.loadingSymbols = true;
+    this.symbolsService.getSymbols(folderId).subscribe({
+      next: (symbols) => {
+        this.symbols = symbols.map((symbol: any) => {
+          let parsedData: any = {};
+          try {
+            parsedData = JSON.parse(symbol.data);
+          } catch (e) {}
+          const src = parsedData.content
+            ? `data:${parsedData.type};base64,${parsedData.content}`
+            : '';
+      return {
+            id: symbol.id,
+            src,
+            name: parsedData.name || symbol.name,
+            width: parsedData.width || 210,
+            height: parsedData.height || 210,
+            folderId: symbol.folderId
+      };
+    });
+        this.loadingSymbols = false;
+      },
+      error: (err) => {
+        this.error = 'Failed to load symbols';
+        this.loadingSymbols = false;
       }
-    }
+    });
   }
 }
  

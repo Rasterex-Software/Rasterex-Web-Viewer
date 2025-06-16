@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Foxit PDF SDK for Web</title>
+    <link rel="shortcut icon" href="../../../assets/favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" href="../../../../lib/UIExtension.css">
+    <style>
+        #pdf-ui {
+            width: 100vw;
+            height: 100vh;
+        }
+        .pdf-ui-example {
+            display: flex;
+            flex-flow: column nowrap;
+            justify-content: flex-start;
+            align-items: stretch;
+        }
+    </style>
+    <script>
+        window.addEventListener('error', function(e) {
+            alert(e.message);
+        })
+    </script>
+</head>
+
+<body>
+    <div id="pdf-ui"></div>
+</body>
+<script src="../../../license-key.js"></script>
+<script src="../../../../lib/UIExtension.full.js"></script>
+<script>
+    class I18NAddon extends UIExtension.UIXAddon {
+        static getName(){
+            return 'ext';
+        }
+        getI18NResources() {
+            return {
+                'en-US': {
+                    'menus': {
+                        'sample': 'Context Menu Sample',
+                    }
+                },
+                'zh-CN': {
+                    'menus': {
+                        'sample': '右键菜单示例'
+                    }
+                }
+            };
+        }
+    }
+    
+    const PDFUI = UIExtension.PDFUI;
+    const ACTIONS = UIExtension.UIConsts.FRAGMENT_ACTION;
+    const pdfui = new PDFUI({
+        viewerOptions: {
+            libPath: '../../../../lib',
+            jr: {
+                licenseSN: licenseSN,
+                licenseKey: licenseKey
+            }
+        },
+        renderTo: '#pdf-ui',
+        addons: [ I18NAddon ],
+        fragments: [{
+            target: 'fv--page-contextmenu',
+            action: ACTIONS.APPEND,
+            template: `
+                <contextmenu-item>ext:menus.sample</contextmenu-item>
+            `
+        }]
+    });
+    pdfui.openPDFByHttpRangeRequest({
+        range:{
+            url:'../../../../docs/FoxitPDFSDKforWeb_DemoGuide.pdf',
+        }
+    },{fileName:'FoxitPDFSDKforWeb_DemoGuide.pdf'})
+    
+</script>
+
+</html>

@@ -1,0 +1,49 @@
+body {
+    height: 100vh;
+    height: 100dvh;
+    height: calc(var(--vh, 1dvh) * 100);
+}
+#pdf-ui {
+    top: 40px;
+    bottom: 0;
+    position: absolute;
+    width: 100vw;
+}
+
+.fv__ui-mobile #pdf-ui {
+    top: 0;
+}
+.fv__ui-mobile .fv__ui-nav
+{
+    display: none;
+}
+.fv__ui-layer.custom-dialog{
+    left: calc(50vw - 228px);
+    top: calc(50vh - 164px);
+}
+.custom-dialog .fv__ui-identity-info-dialog-fieldset-field label{
+    width:140px
+}
+.fv__ui-toolbar-change-identity-info-button{
+    position: absolute;
+    right: 180px;
+    border: 1px solid #DDDDDD;
+    border-radius: 2rem;
+    color: #999999;
+    background-color: #FFFFFF;
+    text-align: center;
+    cursor: pointer;
+    user-select: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.875rem;
+    margin: 0;
+    height: 1.75rem;
+    padding: 0px 18px;
+}
+.fv__ui-toolbar-change-identity-info-button:hover{
+    color: #923094;
+    background-color: #FFFFFF;
+    border-color: #923094;
+}

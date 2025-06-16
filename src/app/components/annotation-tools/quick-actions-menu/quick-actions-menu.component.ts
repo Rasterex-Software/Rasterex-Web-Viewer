@@ -799,7 +799,21 @@ export class QuickActionsMenuComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.guiMarkupSubscription = this.rxCoreService.guiMarkup$.subscribe(({markup, operation}) => {
+
+
+
       this.visible = false;
+      let selected = true;
+
+      if (markup !== -1) {
+        selected = markup.getselected();
+      }
+      
+
+      if(!selected){
+        return;
+      }
+
       this.annotation = markup;
       //*ngIf="((guiMode$ | async) == 'annotate' || (guiMode$ | async) == 'measure') && ((annotation.type === 1 && [1, 2, 3].includes(annotation.subtype)) || annotation.type === 13 || annotation.type === 8 || (annotation.type === 3 && annotation.subtype === 6)))"
 

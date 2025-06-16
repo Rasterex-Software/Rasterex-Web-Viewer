@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no">
+    <!-- default(white), black, black-translucent -->
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-touch-fullscreen" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Foxit PDF SDK for Web">
+    <meta name="App-Config" content="fullscreen=yes,useHistoryState=no,transition=no">
+    <meta name="format-detaction" content="telephone=no,email=no">
+    <meta http-equiv="Cache-Control" content="no-siteapp" />
+    <meta name="HandheldFriendly" content="true">
+    <meta name="MobileOptimized" content="750">
+    <meta name="screen-orientation" content="portrait">
+    <meta name="x5-orientation" content="portrait">
+    <meta name="full-screen" content="yes">
+    <meta name="x5-fullscreen" content="true">
+    <meta name="browsermode" content="application">
+    <meta name="x5-page-mode" content="app">
+    <meta name="msapplication-tap-highlight" content="no">
+    <meta name="renderer" content="webkit">
+
+    <title>Foxit PDF SDK for Web</title>
+    <link rel="shortcut icon" href="../../assets/favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" href="../../../lib/UIExtension.css">
+    <style>
+        body {
+            height: 100vh;
+            height: 100dvh;
+            height: calc(var(--vh, 1dvh) * 100);
+        }
+        #pdf-ui {
+            top: 40px;
+            bottom: 0;
+            position: absolute;
+            width: 100vw;
+        }
+
+        .fv__ui-mobile #pdf-ui {
+            top: 0;
+        }
+        .fv__ui-mobile .fv__ui-nav
+        {
+            display: none;
+        }
+        .fv__ui-layer.annotation-popup-layer {
+            display: flex;
+            flex-direction: column;
+            width: 400px;
+            height: 200px;
+            opacity: 0.6;
+            transition: ease 0.3s opacity;
+            user-select: none;
+        }
+        .fv__ui-layer.annotation-popup-layer:hover {
+            opacity: 1;
+        }
+        .annotation-popup-layer .fv__ui-layer-inner {
+            flex: 1;
+        }
+        .annotation-popup-layer textarea {
+            width: 100%;
+            height: 100%;
+            resize: none;
+        }
+        .tipUnactive{display:none;}
+        .tipActive{display:block;}
+    </style>
+</head>
+
+<body>
+    <div class="fv__ui-nav">
+        <a class="fv__ui-nav-logo" href="javascript:location.reload()">
+            <i class="fv__icon-logo"></i>
+        </a>
+    </div>
+    <div id="pdf-ui"></div>
+    <template id="custom-annotation-popup-layer-template">
+        <layer @draggable @resizable="{minWidth:400,minHeight:200}" name="custom-annotation-popup-layer"
+            class="annotation-popup-layer" style="top: calc(50vh - 100px); left: calc(50vw - 200px)">
+            <layer-header name="annotation-popup-layer-header"></layer-header>
+            <textarea @stop-drag name="annotation-popup-content"></textarea>
+        </layer>
+    </template>
+    <script src="../../license-key.js"></script>
+    <script src="../../../lib/preload-jr-worker.js"></script>
+    <script>
+        var readyWorker = preloadJrWorker({
+            workerPath: '../../../lib/',
+            enginePath: '../lib/jr-engine/gsdk',
+            fontPath: '../external/brotli',
+            licenseSN: licenseSN,
+            licenseKey: licenseKey
+        })
+    </script>
+    <script src="../../../lib/UIExtension.full.js"></script>
+    <script>
+        var PDFUI = UIExtension.PDFUI;
+        var Events = UIExtension.PDFViewCtrl.Events;
+        var UIConsts = UIExtension.UIConsts;
+        var PDFViewer = PDFViewCtrl.PDFViewer;
+        
+        var pdfui = new PDFUI({
+            viewerOptions: {
+                libPath: '../../../lib',
+                jr: {
+                    readyWorker: readyWorker
+                },
+                showAnnotTooltip: true,
+                showFormFieldTooltip: true,
+                customs: {
+                    AnnotTooltip: class AnnotTooltip {
+                        constructor(pdfViewer, annot) {
+                            this.pdfViewer = pdfViewer;
+                            this.annot = annot.isGrouped && annot.isGrouped() ? annot.getGroupHeader() : annot;
+                            this.positionThreshold = 10;
+                            this.tooltip = '';
+                            this.tipElement = document.createElement('div');
+                            if (document.getElementsByClassName('fv_viewer-tooltip-container').length > 0) {
+                                this.tooltip = document.getElementsByClassName('fv_viewer-tooltip-container')[0];
+                            }
+                            this.createToolTip();
+                        }
+                        createToolTip() {
+                            if (document.getElementsByClassName('fv_viewer-tooltip-container').length > 0) return
+                            this.tipElement.classList.add("fv_viewer-tooltip-container");
+                            this.tipElement.classList.add("tooltip-unactive");
+                            var contentHTML = '<div class="fv_viewer-tooltip-title"></div><div class="fv_viewer-tooltip-content"></div>';
+                            this.tipElement.innerHTML = contentHTML;
+                            document.getElementsByTagName("body")[0].appendChild(this.tipElement);
+                            this.tooltip = document.getElementsByClassName('fv_viewer-tooltip-container')[0];
+                        }
+                        getPosition(clientX, clientY) {
+                            var viewerHeight = document.documentElement.clientHeight;
+                            var toolWidth = this.tooltip.getBoundingClientRect().width;
+                            var toolHeight = this.tooltip.getBoundingClientRect().height;
+                            var x = clientX + this.positionThreshold;
+                            var y = clientY + this.positionThreshold;
+                            if (document.documentElement.clientWidth - clientX < toolWidth + this.positionThreshold) {
+                                x -= (toolWidth + this.positionThreshold);
+                            }
+                            if (viewerHeight - y < toolHeight) {
+                                y = clientY - toolHeight;
+                            }
+                            return {
+                                x: x,
+                                y: y
+                            }
+                        }
+                        setTooltipPosition(elem, x, y) {
+                            elem.style.left = x + 'px';
+                            elem.style.top = y + 'px';
+                        }
+                        show(x, y) {
+                            var contentNode = document.getElementsByClassName('fv_viewer-tooltip-content')[0];
+                            var titleNode = document.getElementsByClassName('fv_viewer-tooltip-title')[0];
+                            var titleText = "";
+                            var contentText = "";
+                            if (this.annot.getType() == 'widget') {
+                                contentText = this.annot.getField().getAlternateName();
+                            } else {
+                                titleText = this.annot.getTitle();
+                                contentText = this.annot.getContent();
+                            }
+
+                            if (!titleText) titleText = '';
+                            contentNode.innerHTML = contentText.trim();
+                            titleNode.innerHTML = titleText.trim();
+                            let ptInfo = this.getPosition(x, y);
+                            this.setTooltipPosition(this.tooltip, ptInfo.x, ptInfo.y);
+                            if (this.annot.getType() == 'widget' && this.annot.getField().getAlternateName().trim() == '') {
+                                return;
+                            }
+                            this.tooltip.classList.remove("tooltip-unactive");
+                            this.tooltip.classList.add("tooltip-active");
+                        }
+                        hide() {
+                            this.tooltip.classList.remove("tooltip-active");
+                            this.tooltip.classList.add("tooltip-unactive");
+                        }
+                    }
+                },
+            },
+            renderTo: '#pdf-ui',
+            appearance: UIExtension.appearances.adaptive,
+            fragments: [],
+            addons: 
+            UIExtension.PDFViewCtrl.DeviceInfo.isMobile ? [
+            "../../../lib/uix-addons/comparison",
+            "../../../lib/uix-addons/custom-dynamic-stamp",
+            "../../../lib/uix-addons/digital-stamp",
+            "../../../lib/uix-addons/doc-attachment",
+            "../../../lib/uix-addons/dynamic-xfa",
+            "../../../lib/uix-addons/edit-graphics",
+            "../../../lib/uix-addons/export-form",
+            "../../../lib/uix-addons/file-property",
+            "../../../lib/uix-addons/find-replace",
+            "../../../lib/uix-addons/form-to-sheet",
+            "../../../lib/uix-addons/full-screen",
+            "../../../lib/uix-addons/h-continuous",
+            "../../../lib/uix-addons/h-facing",
+            "../../../lib/uix-addons/h-single",
+            "../../../lib/uix-addons/import-form",
+            "../../../lib/uix-addons/javascript-form",
+            "../../../lib/uix-addons/manage-comments",
+            "../../../lib/uix-addons/mobile-edit-properties",
+            "../../../lib/uix-addons/multi-media",
+            "../../../lib/uix-addons/page-editor",
+            "../../../lib/uix-addons/page-template",
+            "../../../lib/uix-addons/password-protect",
+            "../../../lib/uix-addons/path-objects",
+            "../../../lib/uix-addons/preview",
+            "../../../lib/uix-addons/print",
+            "../../../lib/uix-addons/range-input",
+            "../../../lib/uix-addons/read-aloud",
+            "../../../lib/uix-addons/recognition-form",
+            "../../../lib/uix-addons/redaction",
+            "../../../lib/uix-addons/rotate-pages",
+            "../../../lib/uix-addons/search",
+            "../../../lib/uix-addons/sign-certify",
+            "../../../lib/uix-addons/thumbnail",
+            "../../../lib/uix-addons/undo-redo",
+            "../../../lib/uix-addons/xfa-form"
+            ]:[
+            "../../../lib/uix-addons/comparison",
+            "../../../lib/uix-addons/custom-dynamic-stamp",
+            "../../../lib/uix-addons/digital-stamp",
+            "../../../lib/uix-addons/doc-attachment",
+            "../../../lib/uix-addons/dynamic-xfa",
+            "../../../lib/uix-addons/edit-graphics",
+            "../../../lib/uix-addons/export-form",
+            "../../../lib/uix-addons/file-property",
+            "../../../lib/uix-addons/find-replace",
+            "../../../lib/uix-addons/form-designer",
+            "../../../lib/uix-addons/form-to-sheet",
+            "../../../lib/uix-addons/full-screen",
+            "../../../lib/uix-addons/h-continuous",
+            "../../../lib/uix-addons/h-facing",
+            "../../../lib/uix-addons/h-single",
+            "../../../lib/uix-addons/import-form",
+            "../../../lib/uix-addons/javascript-form",
+            "../../../lib/uix-addons/manage-comments",
+            "../../../lib/uix-addons/multi-media",
+            "../../../lib/uix-addons/page-editor",
+            "../../../lib/uix-addons/page-template",
+            "../../../lib/uix-addons/password-protect",
+            "../../../lib/uix-addons/path-objects",
+            "../../../lib/uix-addons/preview",
+            "../../../lib/uix-addons/print",
+            "../../../lib/uix-addons/range-input",
+            "../../../lib/uix-addons/read-aloud",
+            "../../../lib/uix-addons/recognition-form",
+            "../../../lib/uix-addons/redaction",
+            "../../../lib/uix-addons/rotate-pages",
+            "../../../lib/uix-addons/search",
+            "../../../lib/uix-addons/sign-certify",
+            "../../../lib/uix-addons/text-object",
+            "../../../lib/uix-addons/thumbnail",
+            "../../../lib/uix-addons/undo-redo",
+            "../../../lib/uix-addons/xfa-form",
+            "../../../lib/uix-addons/aria"
+            ]
+        });
+        function formatDatetime(time) {
+            return time ? [
+                time.getFullYear(), '/', formatNumber(time.getMonth() + 1), '/', formatNumber(time.getDate()), ' ',
+                formatNumber(time.getHours()), ':', formatNumber(time.getMinutes()), ':', formatNumber(time.getSeconds())
+            ].join('') : '';
+            function formatNumber(n) {
+                return n < 10 ? '0' + n : n;
+            }
+        }
+      
+        function openLoadingLayer() {
+            // return pdfui.getRootComponent()
+            // .then(function(root) {
+            //     return root.getComponentByName('pdf-viewer')
+            // }) .then(function(viewerComponent) {
+            //     return pdfui.loading(viewerComponent.element);
+            // });
+            return pdfui.loading();
+        }
+        var loadingComponentPromise = openLoadingLayer();
+
+        pdfui.addViewerEventListener(Events.beforeOpenFile, function () {
+            if (loadingComponentPromise) {
+                loadingComponentPromise = loadingComponentPromise
+                    .then(function (component) {
+                        component.close();
+                    })
+                    .then(openLoadingLayer);
+            } else {
+                loadingComponentPromise = openLoadingLayer();
+            }
+        });
+        pdfui.addViewerEventListener(Events.openFileSuccess, function () {
+            loadingComponentPromise.then(function (component) {
+                component.close();
+            });
+        });
+        pdfui.addViewerEventListener(Events.openFileFailed, function () {
+            loadingComponentPromise.then(function (component) {
+                component.close();
+            });
+        });
+
+
+        pdfui.openPDFByHttpRangeRequest({
+            range: {
+                url: '../../../docs/FoxitPDFSDKforWeb_DemoGuide.pdf',
+            }
+        }, { fileName: 'FoxitPDFSDKforWeb_DemoGuide.pdf' })
+
+        function _inherits(subClass, superClass) {
+            if (typeof superClass !== "function" && superClass !== null) {
+                throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
+            }
+            subClass.prototype = Object.create(superClass && superClass.prototype, {
+                constructor: {
+                    value: subClass,
+                    enumerable: false,
+                    writable: true,
+                    configurable: true
+                }
+            });
+            if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
+        }
+        function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+        function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+        function popupAvailable(annotComponent) {
+            var model = annotComponent.getModel();
+            if (!model || !model.getPopup) return false;
+            var popup = model.getPopup();
+            if (!popup) return false;
+            return true;
+        }
+    </script>
+</body>
+
+</html>

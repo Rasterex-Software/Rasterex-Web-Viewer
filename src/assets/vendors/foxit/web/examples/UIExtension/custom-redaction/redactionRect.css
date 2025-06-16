@@ -1,0 +1,25 @@
+.fv__option-areaSquare {
+    background-color: #00a3f5;
+    position: absolute;
+    cursor: pointer;
+}
+
+.fv__option-areaSquare:hover {
+    background-color: #99aaff;
+}
+
+.fv__option-areaSquare.apply.disabled {
+    cursor: not-allowed;
+}
+
+.fv__redaction-areaSquare {
+    border: 2px solid #00a3f5;
+    position: absolute;
+}
+
+.fv__apply-tool-icon {
+    width: 24px;
+    height: 24px;
+    display: inline-block;
+    margin: 3px;
+}

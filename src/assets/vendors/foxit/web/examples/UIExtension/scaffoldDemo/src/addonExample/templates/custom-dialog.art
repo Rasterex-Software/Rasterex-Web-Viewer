@@ -1,0 +1,12 @@
+<layer class="center" backdrop @draggable>
+            <layer-toolbar class="dialog-header">
+                <h6>example:dialog.title</h6>
+                <button icon-class="fv__icon-layer-close" name="sample-close-button">X</button>
+            </layer-toolbar>
+            <layer-view>
+                <slider class="number-slider" min="0" max="100" step="1" label="example:dialog.slider"></slider>
+            </layer-view>
+            <layer-toolbar  class="dialog-footer">
+                <button name="sample-close-button">example:dialog.close</button>
+            </layer-toolbar>
+        </layer>

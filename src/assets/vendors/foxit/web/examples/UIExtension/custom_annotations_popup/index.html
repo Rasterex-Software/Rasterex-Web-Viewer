@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no">
+    <!-- default(white), black, black-translucent -->
+    <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+    <meta name="apple-mobile-web-app-capable" content="yes"/>
+    <meta name="apple-touch-fullscreen" content="yes"/>
+    <meta name="apple-mobile-web-app-title" content="Foxit PDF SDK for Web">
+    <meta name="App-Config" content="fullscreen=yes,useHistoryState=no,transition=no">
+    <meta name="format-detaction" content="telephone=no,email=no">
+    <meta http-equiv="Cache-Control" content="no-siteapp" />
+    <meta name="HandheldFriendly" content="true">
+    <meta name="MobileOptimized" content="750">
+    <meta name="screen-orientation" content="portrait">
+    <meta name="x5-orientation" content="portrait">
+    <meta name="full-screen" content="yes">
+    <meta name="x5-fullscreen" content="true">
+    <meta name="browsermode" content="application">
+    <meta name="x5-page-mode" content="app">
+    <meta name="msapplication-tap-highlight" content="no">
+    <meta name="renderer" content="webkit">
+
+    <title>Foxit PDF SDK for Web</title>
+    <link rel="shortcut icon" href="../../assets/favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" href="../../../lib/UIExtension.css">
+    <style>
+        body {
+            height: 100vh;
+            height: 100dvh;
+            height: calc(var(--vh, 1dvh) * 100);
+        }
+        #pdf-ui {
+            top: 40px;
+            bottom: 0;
+            position: absolute;
+            width: 100vw;
+        }
+
+        .fv__ui-mobile #pdf-ui {
+            top: 0;
+        }
+        .fv__ui-mobile .fv__ui-nav
+        {
+            display: none;
+        }
+        .fv__ui-layer.annotation-popup-layer {
+            display: flex;
+            flex-direction: column;
+            width: 400px;
+            height: 200px;
+            opacity: 0.6;
+            transition: ease 0.3s opacity;
+            user-select: none;
+        }
+        .fv__ui-layer.annotation-popup-layer:hover {
+            opacity: 1;
+        }
+        .annotation-popup-layer .fv__ui-layer-inner {
+            flex: 1;
+        }
+        .annotation-popup-layer textarea {
+            width: 100%;
+            height: 100%;
+            resize: none;
+        }
+        #prompt{
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            top: 150px;
+            right: 20%;
+            width: 400px;
+            height: 200px;
+            background: white;
+            box-shadow: rgb(151 151 151 / 85%) 0 0 14px 3px;
+            border-radius: 5px;
+            padding: 22px;
+        }
+        #prompt i{
+            cursor: pointer;
+            float: right;
+            margin-top: -10px;
+        }
+        #prompt h4{
+            margin: 0;
+        }
+        #prompt p{
+            margin-bottom: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="fv__ui-nav">
+        <a class="fv__ui-nav-logo" href="javascript:location.reload()">
+            <i class="fv__icon-logo"></i>
+        </a>
+    </div>
+    <div id="pdf-ui"></div>
+    <template id="custom-annotation-popup-layer-template">
+        <layer @draggable @resizable="{minWidth:400,minHeight:200}" name="custom-annotation-popup-layer" class="annotation-popup-layer" 
+               style="top: calc(50vh - 100px); left: calc(50vw - 200px)">
+            <layer-header name="annotation-popup-layer-header"></layer-header>
+            <textarea @stop-drag name="annotation-popup-content"></textarea>
+        </layer>
+    </template>
+    <div id="prompt">
+        <i class="fv__icon-layer-close" onclick="closePrompt()"></i>
+        <h4>How to display a custom annotation pop-up window</h4>
+        <p>1.Select the 'Note' button under the 'Comment' module of the toolbar</p>
+        <p>2.Create a note on the page, and the customized annotation pop-up window will be displayed</p>
+    </div>
+<script src="../../license-key.js"></script>
+<script src="../../../lib/preload-jr-worker.js"></script>
+<script>
+    var readyWorker = preloadJrWorker({
+        workerPath: '../../../lib/',
+        enginePath: '../lib/jr-engine/gsdk',
+        fontPath: '../external/brotli',
+        licenseSN: licenseSN,
+        licenseKey: licenseKey
+    })
+</script>
+<script src="../../../lib/UIExtension.full.js"></script>
+<script>
+    var PDFUI = UIExtension.PDFUI;
+    var Events = UIExtension.PDFViewCtrl.Events;
+    const UIConsts = UIExtension.UIConsts;
+    var pdfui = new PDFUI({
+        viewerOptions: {
+            libPath: '../../../lib',
+            jr: {
+                readyWorker: readyWorker
+            }
+        },
+        renderTo: '#pdf-ui',
+        appearance: UIExtension.appearances.adaptive,
+        fragments: [{
+            target: 'fv--annottext-tooltip',
+            config:{
+                callback: PDFViewCtrl.shared.createClass({
+                    postlink: function(){
+                        
+                    },
+                    mounted: function() {
+                        let datakeys = [{
+                            key: "title"
+                        },{
+                            key: "content"
+                        }];
+                        let tpl = '<div class="fv__ui-annottext-title"><text>[title]</text></div><div class="fv__ui-annottext-content"><text>[content]</text></div>';
+                        this.component.setShowType(datakeys, tpl)
+                    }
+                },UIExtension.controllers.Controller)
+            }
+        },{
+            target: 'template-container',
+            template: document.getElementById('custom-annotation-popup-layer-template').innerHTML,
+            // append the custom-annotation-popup-layer to the 'template-container' in built-in layer template.
+            action: UIExtension.UIConsts.FRAGMENT_ACTION.APPEND,
+            config:[{
+                target: 'annotation-popup-content',
+                callback: PDFViewCtrl.shared.createClass({
+                    setActiveAnnot: function(annotComponent) {
+                        if (!popupAvailable(annotComponent)) return;
+                        var model = annotComponent.getModel();
+                        var popup = model.getPopup();
+                        var pageRender = annotComponent.annotsRender.pageRender;
+                        var pdfPage = annotComponent.getPDFPage();
+                        var layerComponent = this.component.parent; 
+
+                        var headerComponent = layerComponent.getComponentByName('annotation-popup-layer-header');
+                        var modifyTimeStr = formatDatetime(model.getModifiedDateTime());
+
+                        headerComponent.setTitle(model.getType() + Array(5).fill('　').join('') + modifyTimeStr);
+
+                        layerComponent.currentAnnot = model;
+                    },
+                    mounted:function() {
+                        var self = this;
+                        var layerComponent = this.component.parent;
+                        
+                        var textarea = this.component.element;
+                        function blurEventHandler() {
+                            layerComponent.currentAnnot.setContent(textarea.value);
+                        }
+                        textarea.addEventListener('blur', blurEventHandler);
+
+                        this.addDestroyHook(function() {
+                            textarea.removeEventListener('blur', blurEventHandler);
+                        }, layerComponent.on(UIConsts.COMPONENT_EVENTS.SHOWN, function() {
+                            layerComponent.currentAnnot && (textarea.value = layerComponent.currentAnnot.getContent());
+                        }), this.pdfUI.addViewerEventListener(PDFViewCtrl.ViewerEvents.annotationUpdated, function(annots){
+                            if(layerComponent.currentAnnot === annots[0]) {
+                                layerComponent.currentAnnot && (textarea.value = layerComponent.currentAnnot.getContent());
+                            }
+                        }), this.pdfUI.addViewerEventListener(PDFViewCtrl.ViewerEvents.activeAnnotation, function(annotRender) {
+                            self.setActiveAnnot(annotRender.component);
+                            layerComponent.currentAnnot && (textarea.value = layerComponent.currentAnnot.getContent());
+                        }));
+                    }
+                },UIExtension.controllers.Controller)
+            }]
+        }],
+        addons: 
+        UIExtension.PDFViewCtrl.DeviceInfo.isMobile ? [
+            "../../../lib/uix-addons/comparison",
+            "../../../lib/uix-addons/custom-dynamic-stamp",
+            "../../../lib/uix-addons/digital-stamp",
+            "../../../lib/uix-addons/doc-attachment",
+            "../../../lib/uix-addons/dynamic-xfa",
+            "../../../lib/uix-addons/edit-graphics",
+            "../../../lib/uix-addons/export-form",
+            "../../../lib/uix-addons/file-property",
+            "../../../lib/uix-addons/find-replace",
+            "../../../lib/uix-addons/form-to-sheet",
+            "../../../lib/uix-addons/full-screen",
+            "../../../lib/uix-addons/h-continuous",
+            "../../../lib/uix-addons/h-facing",
+            "../../../lib/uix-addons/h-single",
+            "../../../lib/uix-addons/import-form",
+            "../../../lib/uix-addons/javascript-form",
+            "../../../lib/uix-addons/manage-comments",
+            "../../../lib/uix-addons/mobile-edit-properties",
+            "../../../lib/uix-addons/multi-media",
+            "../../../lib/uix-addons/page-editor",
+            "../../../lib/uix-addons/page-template",
+            "../../../lib/uix-addons/password-protect",
+            "../../../lib/uix-addons/path-objects",
+            "../../../lib/uix-addons/preview",
+            "../../../lib/uix-addons/print",
+            "../../../lib/uix-addons/range-input",
+            "../../../lib/uix-addons/read-aloud",
+            "../../../lib/uix-addons/recognition-form",
+            "../../../lib/uix-addons/redaction",
+            "../../../lib/uix-addons/rotate-pages",
+            "../../../lib/uix-addons/search",
+            "../../../lib/uix-addons/sign-certify",
+            "../../../lib/uix-addons/thumbnail",
+            "../../../lib/uix-addons/undo-redo",
+            "../../../lib/uix-addons/xfa-form"
+            ]:[
+            "../../../lib/uix-addons/comparison",
+            "../../../lib/uix-addons/custom-dynamic-stamp",
+            "../../../lib/uix-addons/digital-stamp",
+            "../../../lib/uix-addons/doc-attachment",
+            "../../../lib/uix-addons/dynamic-xfa",
+            "../../../lib/uix-addons/edit-graphics",
+            "../../../lib/uix-addons/export-form",
+            "../../../lib/uix-addons/file-property",
+            "../../../lib/uix-addons/find-replace",
+            "../../../lib/uix-addons/form-designer",
+            "../../../lib/uix-addons/form-to-sheet",
+            "../../../lib/uix-addons/full-screen",
+            "../../../lib/uix-addons/h-continuous",
+            "../../../lib/uix-addons/h-facing",
+            "../../../lib/uix-addons/h-single",
+            "../../../lib/uix-addons/import-form",
+            "../../../lib/uix-addons/javascript-form",
+            "../../../lib/uix-addons/manage-comments",
+            "../../../lib/uix-addons/multi-media",
+            "../../../lib/uix-addons/page-editor",
+            "../../../lib/uix-addons/page-template",
+            "../../../lib/uix-addons/password-protect",
+            "../../../lib/uix-addons/path-objects",
+            "../../../lib/uix-addons/preview",
+            "../../../lib/uix-addons/print",
+            "../../../lib/uix-addons/range-input",
+            "../../../lib/uix-addons/read-aloud",
+            "../../../lib/uix-addons/recognition-form",
+            "../../../lib/uix-addons/redaction",
+            "../../../lib/uix-addons/rotate-pages",
+            "../../../lib/uix-addons/search",
+            "../../../lib/uix-addons/sign-certify",
+            "../../../lib/uix-addons/text-object",
+            "../../../lib/uix-addons/thumbnail",
+            "../../../lib/uix-addons/undo-redo",
+            "../../../lib/uix-addons/xfa-form",
+            "../../../lib/uix-addons/aria"
+            ]
+    });
+    function formatDatetime(time) {
+        return time ? [
+            time.getFullYear(), '/',formatNumber(time.getMonth() + 1), '/', formatNumber(time.getDate()), ' ',
+            formatNumber(time.getHours()),':',formatNumber(time.getMinutes()),':',formatNumber(time.getSeconds())
+        ].join('') : '';
+        function formatNumber(n) {
+            return n < 10 ? '0' + n : n;
+        }
+    }
+    pdfui.addUIEventListener(UIExtension.UIEvents.initializationCompleted, () => {
+        // registerMatchRule inside of the initializationCompleted event's callback to override AnnotComponent's onDoubleTap method.
+        pdfui.registerMatchRule(function(annot, ParentClass) {
+            if(annot.getType()!==PDFViewCtrl.PDF.annots.constant.Annot_Type.text) {
+                return ParentClass;
+            }
+            return PDFViewCtrl.shared.createClass({
+                showReplyDialog(action) {
+                    if(action === 'reply') {
+                        // This is unnecessary if the popup dialog supports reply feature.
+                        return ParentClass.prototype.showReplyDialog.apply(this, arguments);
+                    }
+                    var annotComponent = this;
+                    if (!popupAvailable(annotComponent)) return;
+                    pdfui.getComponentByName('custom-annotation-popup-layer').then(function(layerComponent) {
+                        var textareaComponent = layerComponent.getComponentByName('annotation-popup-content');
+                        textareaComponent.controller.setActiveAnnot(annotComponent);
+                        // ensure that the UIConsts.COMPONENT_EVENTS.HIDDEN event should be triggered correctly
+                        if(layerComponent.isVisible) {
+                            layerComponent.hide();
+                        }
+                        layerComponent.show();
+                    });
+                }
+            }, ParentClass);
+        });
+    });
+    pdfui.addViewerEventListener(Events.willCloseDocument, function() {
+        pdfui.getComponentByName('custom-annotation-popup-layer')
+            .then(function(layerComponent) {
+                layerComponent.hide();
+            });
+    });
+    pdfui.addUIEventListener('fullscreenchange', function(isFullscreen) {
+        if(isFullscreen) {
+            document.body.classList.add('fv__pdfui-fullscreen-mode');
+        } else {
+            document.body.classList.remove('fv__pdfui-fullscreen-mode');
+        }
+    });
+
+    function openLoadingLayer() {
+        // return pdfui.getRootComponent()
+        // .then(function(root) {
+        //     return root.getComponentByName('pdf-viewer')
+        // }) .then(function(viewerComponent) {
+        //     return pdfui.loading(viewerComponent.element);
+        // });
+        return pdfui.loading();
+    }
+    var loadingComponentPromise = openLoadingLayer();
+
+    pdfui.addViewerEventListener(Events.beforeOpenFile, function() {
+        if(loadingComponentPromise) {
+            loadingComponentPromise = loadingComponentPromise
+                .then(function(component) {
+                    component.close();
+                })
+                .then(openLoadingLayer);
+        } else {
+            loadingComponentPromise = openLoadingLayer();
+        }
+    });
+    pdfui.addViewerEventListener(Events.openFileSuccess, function() {
+        loadingComponentPromise.then(function(component) {
+            component.close();
+        });
+        openPrompt();
+    });
+    pdfui.addViewerEventListener(Events.openFileFailed, function () {
+        loadingComponentPromise.then(function(component) {
+            component.close();
+        });
+    });
+
+
+    pdfui.openPDFByHttpRangeRequest({
+        range:{
+            url:'../../../docs/FoxitPDFSDKforWeb_DemoGuide.pdf',
+        }
+    },{fileName:'FoxitPDFSDKforWeb_DemoGuide.pdf'})
+
+
+    function _inherits(subClass, superClass) {
+        if (typeof superClass !== "function" && superClass !== null) {
+            throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
+        }
+        subClass.prototype = Object.create(superClass && superClass.prototype, {
+            constructor: {
+                value: subClass,
+                enumerable: false,
+                writable: true,
+                configurable: true
+            }
+        });
+        if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
+    }
+    function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+    function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+    
+    function popupAvailable(annotComponent) {
+        var model = annotComponent.getModel();
+        if (!model || !model.getPopup) return false;
+        var popup = model.getPopup();
+        if (!popup) return false;
+        return true;
+    }
+
+    const prompt = document.getElementById("prompt");
+    function openPrompt(){
+        prompt.style.display = 'block';
+    }
+    function closePrompt(){
+        prompt.style.display = 'none';
+    }
+</script>
+</body>
+</html>

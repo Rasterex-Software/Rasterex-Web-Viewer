@@ -1,0 +1,62 @@
+<!--  This example is to demo how to edit the identity information for a digital stamp, and it is only available when the current display Language is  detected  as‘zh-CN’.  -->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Foxit PDF SDK for Web</title>
+    <link rel="shortcut icon" href="../../assets/favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" href="../../../lib/UIExtension.css">
+    <link rel="stylesheet" href="./index.css">
+</head>
+
+<body>
+<div class="fv__ui-nav">
+    <a class="fv__ui-nav-logo" href="javascript:location.reload()">
+        <i class="fv__icon-logo"></i>
+    </a>
+</div>
+<div id="pdf-ui"></div>
+</body>
+<script src="../../license-key.js"></script>
+<script src="../../../lib/UIExtension.full.js"></script>
+<script type="text/html" id="custom-identity-information-template">
+    <layer class="fv__ui-identity-info-dialog custom-dialog" name="custom-identity-information-dialog" @controller="custom:CustomIdentityInfoDialogController" append-to="body" backdrop style="width: 556px">
+        <layer-header @draggable="{type: 'parent'}" title="身份信息"></layer-header>
+        <layer-view class="fv__ui-identity-info-dialog-body">
+            <fieldset class="fv__ui-identity-info-dialog-fieldset d_f fd_c jc_c ai_fs">
+                <div class="fv__ui-identity-info-dialog-fieldset-field d_f ai_c">
+                    <label class="fv__ui-identity-info-name d_ib">姓氏:</label>
+                    <input name="surname" class="f_1" type="text"/>
+                </div>
+                <div class="fv__ui-identity-info-dialog-fieldset-field d_f ai_c">
+                    <label class="fv__ui-identity-info-name d_ib">名字:</label>
+                    <input name="name" class="f_1" type="text"/>
+                </div>
+                <div class="fv__ui-identity-info-dialog-fieldset-field d_f ai_c">
+                    <label class="fv__ui-identity-info-name d_ib">标题:</label>
+                    <input name="title" class="f_1" type="text"/>
+                </div>
+                <div class="fv__ui-identity-info-dialog-fieldset-field d_f ai_c">
+                    <label class="fv__ui-identity-info-name d_ib" data-i18n="digital-stamp:IdentityDialog.">单位名称:</label>
+                    <input name="associationName" class="f_1" type="text"/>
+                </div>
+                <div class="fv__ui-identity-info-dialog-fieldset-field d_f ai_c">
+                    <label class="fv__ui-identity-info-name d_ib" data-i18n="digital-stamp:IdentityDialog.organizationName">单位部门:</label>
+                    <input name="organizationName" class="f_1" type="text"/>
+                </div>
+            </fieldset>
+        </layer-view>
+        <layer-toolbar class="fv__ui-identity-info-dialog-footer d_f ai_c jc_fe">
+            <div class="fv__ui-dialog-buttons">
+                <xbutton class="fv__ui-dialog-ok-button" name="ok">Ok</xbutton>
+                <xbutton class="fv__ui-dialog-cancel-button" name="cancel">Cancel</xbutton>
+            </div>
+        </layer-toolbar>
+    </layer>
+</script>
+<script src="./index.js"></script>
+
+</html>

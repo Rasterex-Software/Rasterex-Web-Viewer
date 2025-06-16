@@ -65,6 +65,11 @@ export class PagesComponent implements OnInit {
 
       this.isPDF = state.isPDF;
 
+      if(this.tabActiveIndex == 1){
+        RXCore.getPDFBookmarks();
+      }
+      
+
     });
 
     this.rxCoreService.guiPageThumbs$.subscribe(data => {
@@ -75,6 +80,8 @@ export class PagesComponent implements OnInit {
     });
 
     this.rxCoreService.guiPdfBookmarks$.subscribe(data => {
+
+      this.bookmarks = [];
       this.bookmarks = this._getBookmarks(data);
     });
 
@@ -412,6 +419,15 @@ export class PagesComponent implements OnInit {
 
     return retval;
 
+
+  }
+
+  onTabClick(activeindex:number){
+    this.tabActiveIndex = activeindex;
+
+    if(activeindex == 1){
+      RXCore.getPDFBookmarks();
+    }
 
   }
 

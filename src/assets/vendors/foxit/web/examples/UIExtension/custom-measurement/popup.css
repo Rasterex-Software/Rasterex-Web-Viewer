@@ -1,0 +1,16 @@
+.panel {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 400px;
+    padding: 30px;
+    border-radius: 10px;
+}
+
+ul,li{ padding:0;margin:0;list-style:none}
+
+.fv__icon-toolbar-areaSquare,.custom-icon-square-CustomDimension{
+    background-image: url('./square.svg');
+    background-repeat: no-repeat;
+    background-position: center;
+}

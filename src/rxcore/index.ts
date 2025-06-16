@@ -27,6 +27,10 @@ export class RXCore {
         RxCore.birdseyetool();
     }
 
+    public static getPDFBookmarks(): void {
+        RxCore.getPDFBookmarks();
+    }
+
     public static blockhoverevent(onoff : boolean): void {
         RxCore.blockhoverevent(onoff);
     }
@@ -957,6 +961,11 @@ export class RXCore {
     public static setrxprintdiv(divelement: HTMLElement | null): void {
         RxCore.setrxprintdiv(divelement);
     }
+
+    public static setSnapSize(size: number): void {
+        RxCore.setSnapSize(size);
+    }
+
 
     public static setJSONConfiguration(userobj: any): void {
         RxCore.setJSONConfiguration(userobj);

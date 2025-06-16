@@ -1,0 +1,120 @@
+{
+  "header": "签署文档",
+  "signAs": "签名身份：",
+  "info": "信息",
+  "previewer": "签名预览",
+  "apType": "外观类型：",
+  "create": "创建",
+  "text": "配置文本",
+  "location": "位置：",
+  "lock": "签名后锁定文档",
+  "mulfile": "应用于多个文件",
+  "sign": "签名",
+  "cancel": "取消",
+  "issuer": "证书颁发者",
+  "newId": "新ID...",
+  "incorrectPwd": "密码错误！",
+  "emptyPwd": "请输入密码！",
+  "ap": {
+    "standard": "标准样式",
+    "clear": "清除",
+    "title": "标题："
+  },
+  "createNewID": "未找到数字证书。点击确定按钮创建一个。",
+  "reason": {
+    "title": "原因：",
+    "0": "我是这份文件的作者",
+    "1": "我已经审阅了这份文件",
+    "2": "我正在批准这份文件",
+    "3": "我以具有法律约束力的签名批准这份文件",
+    "4": "我证明本文件的准确性和完整性",
+    "5": "我同意我在本文档中签名的位置所定义的条款",
+    "6": "我同意本文档的指定部分"
+  },
+  "text-direction": {
+    "title": "文本方向",
+    "auto": "自动",
+    "ltr": "从左至右",
+    "rtl": "从右至左"
+  },
+  "moreSigns": "找到不止一个未签名域，但是只有第一个签名可以被签名，您是否要继续？",
+  "fontsize": "字体/字号",
+  "logo": {
+    "title": "配置徽标",
+    "prop": "徽标属性"
+  },
+  "placeSig": {
+    "tip": "放置一个签名域，并数字签署文档。",
+    "text": "放置签名..."
+  },
+  "signDoc": {
+    "tip": "使用数字签名签署文档。",
+    "text": "签署文档..."
+  },
+  "signLater": "您已经在文档中添加一个空白的签名，如果您想使它生效，您需要对文档进行签名",
+  "commonName": "您的常用名称",
+  "distinguishName": "您的标识名",
+  "staticReason": "您的签名原因",
+  "staticLocation": "您的签名位置",
+  "specialError": "特殊字符无效。",
+  "certify": {
+    "perm": "认证后允许的操作",
+    "noSpecified": "保持默认",
+    "perm0": "不允许更改",
+    "perm1": "表单填写和数字签名",
+    "perm2": "注释、填写表单、签署已存在的数字签名域",
+    "visible": "使用可见签名认证",
+    "visibleDesc": "使用可见签名数字证明文档",
+    "invisible": "使用不可见签名认证",
+    "invisibleDesc": "使用不可见签名数字证明文档",
+    "trustCerts": "受信任的证书",
+    "trustCertsDesc": "管理用于数字签名的受信任的证书",
+    "header": "受信任的证书",
+    "edit": "编辑",
+    "add": "添加",
+    "view": "视图",
+    "export": "导出",
+    "delete": "删除",
+    "name": "名称",
+    "issuedBy": "颁发者",
+    "trust": "信任",
+    "expiredData": "过期数据",
+    "close": "关闭",
+    "certName": "名称：",
+    "issuer": "颁发者：",
+    "validFrom": "生效日期：",
+    "validTo": "失效日期：",
+    "intent": "预期的主要用途：",
+    "deleteConfirm": "您确定您想要删除该证书？如果您这样做的话，此后将不再能够验证所有者的身份。",
+    "notCert": "不是一个证书。"
+  },
+  "trustedRoot": "受信任的根",
+  "nonTrustedRoot": "不受信任的根",
+  "viewCert": {
+    "header": "编辑证书信任",
+    "detailTitle": "证书细节",
+    "subject": "主题：",
+    "usage": "用途：",
+    "expiration": "过期时间：",
+    "trust": "信任",
+    "trustInfo": "要使签名验证成功，用于签名的证书必须被指定为信任锚或者链接到信任锚。 吊销检查不会在信任锚或其之上的证书上进行。",
+    "trustRoot": "将本证书用作可信任根",
+    "afterSign": "如果签名验证成功，将该证书用于以下用途：",
+    "valid": "验证签名",
+    "validCert": "正在验证认证文档",
+    "ok": "确定",
+    "cancel": "取消"
+  },
+  "exportCert": {
+    "header": "导出证书",
+    "subtitle": "以下数据将被导出：",
+    "certTitle": "我的证书",
+    "certInfo": "证书可供接收者用于验证由您创建的签名并为您加密文件。您的私钥不会与证书一起导出。",
+    "option": {
+      "title": "导出选项：",
+      "formatHint": "选择您希望如何导出数据：",
+      "email": "通过电子邮件共享数据",
+      "file": "将数据保存到文件中"
+    }
+  }
+}

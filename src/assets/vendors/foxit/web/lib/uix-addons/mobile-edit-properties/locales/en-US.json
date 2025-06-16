@@ -1,0 +1,23 @@
+{
+    "touchUp": {
+        "done": "Done",
+        "showKeyboard": "Show Keyboard",
+        "color": "Color",
+        "textStyles": "Text Style",
+        "style": "Style",
+        "font": "Font",
+        "size": "Size",
+        "fontNames": "Font Name",
+        "customizeColors": "Customize Colors",
+        "fontSizes": "Font Size"
+    },
+    "textObject": {
+        "format": "Format"
+    },
+    "pathObject": {
+        "lineColor": "Line Color",
+        "lineWidth": "Line Width",
+        "dashType": "Dash Type",
+        "shapeStyle": "Shape Style"
+    }
+}

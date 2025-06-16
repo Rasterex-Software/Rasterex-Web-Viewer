@@ -23,7 +23,14 @@ export class CommentsListFiltersComponent implements OnInit, OnChanges {
   @Output() onPageChange = new EventEmitter<any>();
   @Output() onCreatedByFilterChange = new EventEmitter<any>();
   @Output() onDateSelect = new EventEmitter<any>();
-  @Output() onShowType = new EventEmitter<{ event: any, type: any }>();
+  @Output() onShowType = new EventEmitter<{ 
+    event: any, 
+    type: any,
+    isSelected?: boolean,
+    wasSelected?: boolean,
+    action?: 'select' | 'deselect',
+    isBulkOperation?: boolean
+  }>();
 
   // Collapsible state
   isCollapsed = false;
@@ -269,7 +276,7 @@ export class CommentsListFiltersComponent implements OnInit, OnChanges {
   }
 
   // Emit filter count change
-  private emitFilterCountChange(): void {
+  public emitFilterCountChange(): void {
     const count = this.getActiveFilterCount();
     console.log('Filter count calculation:', {
       selectedPages: this.selectedPages.length,
@@ -588,29 +595,114 @@ export class CommentsListFiltersComponent implements OnInit, OnChanges {
 
   onTypeSelect(typeValue: string, event: Event): void {
     event.stopPropagation();
+    event.preventDefault(); // Prevent any default behavior
+    
+    console.log('🎯 onTypeSelect START:', { 
+      typeValue, 
+      currentSelected: [...this.selectedTypes],
+      wasSelected: this.selectedTypes.includes(typeValue)
+    });
+    
+    const wasSelected = this.selectedTypes.includes(typeValue);
+    
     if (typeValue === 'all') {
-      if (this.selectedTypes.length === this.typeOptions.length) {
-        // Deselect all if all are currently selected
-        this.selectedTypes = [];
-      } else {
-        // Select all
+      // Handle "Select All" / "Deselect All"
+      const shouldSelectAll = this.selectedTypes.length !== this.typeOptions.length;
+      
+      // Capture the previous state of each option BEFORE making changes
+      const previousStates = new Map<string, boolean>();
+      this.typeOptions.forEach(option => {
+        previousStates.set(option.value, this.selectedTypes.includes(option.value));
+      });
+      
+      if (shouldSelectAll) {
+        // Select all types
         this.selectedTypes = this.typeOptions.map(t => t.value);
-      }
-    } else {
-      const index = this.selectedTypes.indexOf(typeValue);
-      if (index > -1) {
-        this.selectedTypes.splice(index, 1);
+        console.log('🎯 Select All executed');
       } else {
+        // Deselect all types
+        this.selectedTypes = [];
+        console.log('🎯 Deselect All executed');
+      }
+      
+      // Emit events for each type that changed
+      this.typeOptions.forEach(option => {
+        const wasOptionSelected = previousStates.get(option.value) || false;
+        const isNowSelected = this.selectedTypes.includes(option.value);
+        
+        // Only emit if the state actually changed for this option
+        if (isNowSelected !== wasOptionSelected) {
+          console.log('🎯 Emitting bulk change for:', option.label, 'from', wasOptionSelected, 'to', isNowSelected);
+          
+          // Use setTimeout to prevent immediate re-processing
+          setTimeout(() => {
+            this.onShowType.emit({ 
+              event: { 
+                ...event, 
+                target: { 
+                  checked: isNowSelected 
+                } 
+              }, 
+              type: option,
+              isSelected: isNowSelected,
+              wasSelected: wasOptionSelected,
+              action: isNowSelected ? 'select' : 'deselect',
+              isBulkOperation: true
+            });
+          }, 0);
+        }
+      });
+      
+    } else {
+      // Handle individual type selection/deselection
+      const index = this.selectedTypes.indexOf(typeValue);
+      
+      if (index > -1) {
+        // Deselect the type
+        this.selectedTypes.splice(index, 1);
+        console.log('🎯 Deselected type:', typeValue);
+      } else {
+        // Select the type
         this.selectedTypes.push(typeValue);
+        console.log('🎯 Selected type:', typeValue);
+      }
+      
+      const isNowSelected = this.selectedTypes.includes(typeValue);
+      const typeObj = this.typeOptions.find(t => t.value === typeValue);
+      
+      console.log('🎯 Individual type change:', {
+        type: typeObj?.label,
+        wasSelected,
+        isNowSelected,
+        action: isNowSelected ? 'select' : 'deselect'
+      });
+      
+      if (typeObj) {
+        // Use setTimeout to prevent immediate re-processing and ensure state is stable
+        setTimeout(() => {
+          this.onShowType.emit({ 
+            event: { 
+              ...event, 
+              target: { 
+                checked: isNowSelected 
+              } 
+            }, 
+            type: typeObj,
+            isSelected: isNowSelected,
+            wasSelected: wasSelected,
+            action: isNowSelected ? 'select' : 'deselect'
+          });
+        }, 0);
       }
     }
-    console.log('Selected types:', this.selectedTypes);
+    
+    console.log('🎯 onTypeSelect END:', { 
+      typeValue, 
+      finalSelected: [...this.selectedTypes]
+    });
+    
+    // Update filter count
     this.emitFilterCountChange();
-    // Emit type change to parent
-    const typeObj = this.typeOptions.find(t => t.value === typeValue);
-    if (typeObj) {
-      this.onShowType.emit({ event, type: typeObj });
-    }
   }
 
   isTypeSelected(typeValue: string): boolean {
@@ -729,5 +821,162 @@ export class CommentsListFiltersComponent implements OnInit, OnChanges {
     return this.selectedTypes.includes(typeValue);
   }
 
+  /**
+   * Public methods for programmatic type selection based on annotation/measurement switches
+   */
+  
+  // Method to select all annotation types (non-measurement types)
+  selectAnnotationTypes(): void {
+    // Clear all previous selections first
+    this.selectedTypes = [];
+    
+    const annotationTypes = this.typeOptions.filter(type => !this.isMeasurementType(type));
+    const annotationTypeValues = annotationTypes.map(type => type.value);
+    
+    // Set the annotation types as selected
+    this.selectedTypes = [...annotationTypeValues];
+    
+    this.forceUIRefresh();
+    console.log('Selected annotation types:', annotationTypeValues);
+  }
+  
+  // Method to deselect all annotation types
+  deselectAnnotationTypes(): void {
+    const annotationTypes = this.typeOptions.filter(type => !this.isMeasurementType(type));
+    const annotationTypeValues = annotationTypes.map(type => type.value);
+    
+    // Remove annotation types from selected types
+    this.selectedTypes = this.selectedTypes.filter(typeValue => 
+      !annotationTypeValues.includes(typeValue)
+    );
+    
+    this.emitFilterCountChange();
+    console.log('Deselected annotation types');
+  }
+  
+  // Method to select all measurement types
+  selectMeasurementTypes(): void {
+    // Clear all previous selections first
+    this.selectedTypes = [];
+    
+    const measurementTypes = this.typeOptions.filter(type => this.isMeasurementType(type));
+    const measurementTypeValues = measurementTypes.map(type => type.value);
+    
+    // Set the measurement types as selected
+    this.selectedTypes = [...measurementTypeValues];
+    
+    this.forceUIRefresh();
+    console.log('Selected measurement types:', measurementTypeValues);
+  }
+  
+  // Method to deselect all measurement types
+  deselectMeasurementTypes(): void {
+    const measurementTypes = this.typeOptions.filter(type => this.isMeasurementType(type));
+    const measurementTypeValues = measurementTypes.map(type => type.value);
+    
+    // Remove measurement types from selected types
+    this.selectedTypes = this.selectedTypes.filter(typeValue => 
+      !measurementTypeValues.includes(typeValue)
+    );
+    
+    this.emitFilterCountChange();
+    console.log('Deselected measurement types');
+  }
+  
+  // Helper method to determine if a type is a measurement type
+  private isMeasurementType(type: any): boolean {
+    // Use the same logic as the note panel component
+    // Check if the type corresponds to measurement types based on actual markup constants
+    const measurementTypes = [
+      { type: 7, subtype: undefined }, // MEASURE.LENGTH
+      { type: 8, subtype: 0 }, // MEASURE.AREA
+      { type: 1, subtype: 3 }, // MEASURE.PATH
+      { type: 3, subtype: 6 }, // MEASURE.RECTANGLE
+      { type: 1, subtype: 4 }, // MEASURE.ANGLECLOCKWISE
+      { type: 1, subtype: 5 }, // MEASURE.ANGLECCLOCKWISE
+      { type: 14, subtype: 0 }, // MEASURE.MEASUREARC
+      { type: 13, subtype: undefined } // COUNT
+    ];
+    
+    // Check if this type matches any measurement type
+    const typeNumber = parseInt(type.type) || type.type;
+    const subtypeNumber = type.subtype !== undefined ? parseInt(type.subtype) : type.subtype;
+    
+    return measurementTypes.some(measureType => {
+      if (measureType.subtype !== undefined) {
+        return typeNumber === measureType.type && subtypeNumber === measureType.subtype;
+      } else {
+        return typeNumber === measureType.type;
+      }
+    });
+  }
+  
+  // Method to select authors whose annotations/measurements are currently visible
+  selectRelevantAuthors(relevantAuthors: string[]): void {
+    // Only auto-select authors if there are any relevant authors
+    if (relevantAuthors.length === 0) {
+      return;
+    }
+    
+    // Clear current selection
+    this.selectedAuthors = [];
+    
+    // Select relevant authors
+    relevantAuthors.forEach(author => {
+      // Find author in options (excluding 'all')
+      const authorOption = this.authorOptions.find(opt => 
+        opt.value !== 'all' && opt.label === author
+      );
+      
+      if (authorOption && !this.selectedAuthors.includes(authorOption.value)) {
+        this.selectedAuthors.push(authorOption.value);
+      }
+    });
+    
+    this.forceUIRefresh();
+    console.log('Selected relevant authors:', this.selectedAuthors);
+  }
+  
+  // Method to select pages that contain annotations/measurements
+  selectRelevantPages(relevantPages: string[]): void {
+    // Only auto-select pages if there are any relevant pages
+    if (relevantPages.length === 0) {
+      return;
+    }
+    
+    // Clear current selection
+    this.selectedPages = [];
+    
+    // Select relevant pages
+    relevantPages.forEach(page => {
+      // Find page in options (excluding 'all')
+      const pageOption = this.pageOptions.find(opt => 
+        opt.value !== 'all' && opt.value === page
+      );
+      
+      if (pageOption && !this.selectedPages.includes(pageOption.value)) {
+        this.selectedPages.push(pageOption.value);
+      }
+    });
+    
+    this.forceUIRefresh();
+    console.log('Selected relevant pages:', this.selectedPages);
+  }
 
+  /**
+   * Force refresh of UI and change detection
+   * Call this after programmatic changes to ensure the UI updates properly
+   */
+  public forceUIRefresh(): void {
+    // Trigger change detection and UI refresh
+    this.emitFilterCountChange();
+    
+    // Log current state for debugging
+    console.log('🎯 UI refreshed - current state:', {
+      selectedTypes: this.selectedTypes,
+      selectedAuthors: this.selectedAuthors,
+      selectedPages: this.selectedPages,
+      typeOptions: this.typeOptions.length
+    });
+  }
 }

@@ -120,8 +120,8 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
   ];
   objectType: string | null = null;
 
-  showAnnotations: boolean | undefined = false;
-  showMeasurements: boolean | undefined = false;
+  showAnnotations: boolean | undefined = true;
+  showMeasurements: boolean | undefined = true;
   showAll: boolean | undefined = true;
   showAnnotationsOnLoad : boolean | undefined = false;
 
@@ -243,7 +243,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
   private maxRetryAttempts: number = 5;
   private retryDelayBase: number = 100;
 
-  @ViewChild(CommentsListFiltersComponent) commentsListFiltersComponent: CommentsListFiltersComponent;
+  @ViewChild('commentsListFilters') commentsListFiltersComponent: CommentsListFiltersComponent;
 
   constructor(
     private readonly rxCoreService: RxCoreService,
@@ -1176,103 +1176,19 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
 
     const mergeList = [...list, ...annotList];
     const query = mergeList.filter((i: any) => {
-      // Check if markup is a measurement type
-      /*if(i.type === MARKUP_TYPES.MEASURE.LENGTH.type ||
-        (i.type === MARKUP_TYPES.MEASURE.AREA.type &&
-          i.subtype === MARKUP_TYPES.MEASURE.AREA.subType) ||
-        (i.type === MARKUP_TYPES.MEASURE.PATH.type &&
-          i.subtype === MARKUP_TYPES.MEASURE.PATH.subType) ||
-        (i.type === MARKUP_TYPES.MEASURE.RECTANGLE.type &&
-          i.subtype === MARKUP_TYPES.MEASURE.RECTANGLE.subType))
-          return this.showMeasurements;*/
-
-
-          return this._getmarkupTypeDisplay(i);
-
-          //RXCore.getMarkupType()
-
-          /*if(i.type === MARKUP_TYPES.TEXT.type) {
-            return this.typeFilter.showText;
-          }
-
-          if(i.type === MARKUP_TYPES.NOTE.type) {
-            return this.typeFilter.showNote;
-          }
-
-          if(i.type === MARKUP_TYPES.CALLOUT.type && i.subtype === MARKUP_TYPES.CALLOUT.subType) {
-            return this.typeFilter.showCallout;
-          }
-
-          if(i.type === MARKUP_TYPES.SHAPE.RECTANGLE.type && i.subtype === MARKUP_TYPES.SHAPE.RECTANGLE.subType) {
-            return this.typeFilter.showRectangle;
-          }
-
-          if(i.type === MARKUP_TYPES.PAINT.POLYLINE.type && i.subtype === MARKUP_TYPES.PAINT.POLYLINE.subType) {
-            return this.typeFilter.showPolyline;
-          }
-
-          if(i.type === MARKUP_TYPES.SHAPE.POLYGON.type && i.subtype === MARKUP_TYPES.SHAPE.POLYGON.subType) {
-            return this.typeFilter.showPolygon;
-          }
-
-          if(i.type === MARKUP_TYPES.SHAPE.CLOUD.type && i.subtype === MARKUP_TYPES.SHAPE.CLOUD.subtype) {
-            return this.typeFilter.showCloud;
-          }
-
-          if(i.type === MARKUP_TYPES.SHAPE.ROUNDED_RECTANGLE.type && i.subtype === MARKUP_TYPES.SHAPE.ROUNDED_RECTANGLE.subType) {
-            return this.typeFilter.showRoundedRectangle;
-          }
-
-          if(i.type === MARKUP_TYPES.ARROW.SINGLE_END.type && i.subtype === MARKUP_TYPES.ARROW.SINGLE_END.subtype) {
-            return this.typeFilter.showSingleEndArrow;
-          }
-
-          if(i.type === MARKUP_TYPES.ARROW.FILLED_SINGLE_END.type && i.subtype === MARKUP_TYPES.ARROW.FILLED_SINGLE_END.subtype) {
-            return this.typeFilter.showFilledSingleEndArrow;
-          }
-
-          if(i.type === MARKUP_TYPES.ARROW.BOTH_ENDS.type && i.subtype === MARKUP_TYPES.ARROW.BOTH_ENDS.subtype) {
-            return this.typeFilter.showBothEndsArrow;
-          }
-
-          if(i.type === MARKUP_TYPES.PAINT.HIGHLIGHTER.type && i.subtype === MARKUP_TYPES.PAINT.HIGHLIGHTER.subType) {
-            return this.typeFilter.showHighlighter;
-          }
-
-          if(i.type === MARKUP_TYPES.PAINT.FREEHAND.type && i.subtype === MARKUP_TYPES.PAINT.FREEHAND.subType) {
-            return this.typeFilter.showFreehand;
-          }
-
-          if(i.type === MARKUP_TYPES.MEASURE.LENGTH.type) {
-            return this.typeFilter.showMeasureLength;
-          }
-
-          if(i.type === MARKUP_TYPES.MEASURE.AREA.type && i.subtype === MARKUP_TYPES.MEASURE.AREA.subType) {
-            return this.typeFilter.showMeasureArea;
-          }
-
-          if(i.type === MARKUP_TYPES.MEASURE.PATH.type && i.subtype === MARKUP_TYPES.MEASURE.PATH.subType) {
-            return this.typeFilter.showMeasurePath;
-          }
-
-          if(i.type === MARKUP_TYPES.MEASURE.RECTANGLE.type && i.subtype === MARKUP_TYPES.MEASURE.RECTANGLE.subType) {
-            return this.typeFilter.showMeasureRectangle;
-          }
-
-          if(i.type === MARKUP_TYPES.SHAPE.ELLIPSE.type) {
-            return this.typeFilter.showEllipse;
-          }
-
-          if(i.type === MARKUP_TYPES.LINK.type) {
-            return this.typeFilter.showLink;
-          }
-
-          if(i.type === MARKUP_TYPES.STAMP.type && i.subtype === MARKUP_TYPES.STAMP.subType) {
-            return this.typeFilter.showStamp;
-          }
-
-
-        return this.showAnnotations;*/
+      // Apply annotation/measurement filtering based on switches
+      if (this.showAnnotations && !this.showMeasurements) {
+        // Show only annotations (non-measurements)
+        return !i.ismeasure;
+      } else if (this.showMeasurements && !this.showAnnotations) {
+        // Show only measurements
+        return i.ismeasure;
+      } else if (!this.showAnnotations && !this.showMeasurements) {
+        // Show nothing when both switches are off
+        return false;
+      }
+      // If both switches are on or neither is explicitly set, use the detailed type display logic
+      return this._getmarkupTypeDisplay(i);
     })
     .filter((i: any) => {
     /*modified for comment list panel */
@@ -1939,14 +1855,18 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
           this.SetActiveCommentSelect(markup);
         }
 
+        // Sync filters with canvas when markups are created or modified
+        // Only if switches are active
+        if ((this.showAnnotations || this.showMeasurements) && !this.showAll) {
+          setTimeout(() => {
+            this._syncFiltersWithVisibleMarkups();
+          }, 300);
+        }
       }
 
       if(operation.created){
-
         this.addTextNote(markup);
       }
-
-
     });
 
     this.guiOnPanUpdatedSubscription = this.rxCoreService.guiOnPanUpdated$.subscribe(({ sx, sy, pagerect }) => {
@@ -2139,7 +2059,8 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     console.log('Current filters - authorFilter:', Array.from(this.authorFilter));
     console.log('Current filters - createdByFilter:', Array.from(this.createdByFilter));
 
-    this._processList(this.rxCoreService.getGuiMarkupList());
+    // Use refresh method to apply all filters including switches
+    this._refreshAnnotationList();
     this.filterVisible = false;
 
     console.log('🔧 onFilterApply: Filter applied, waiting for DOM update...');
@@ -2149,14 +2070,24 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     }, 100);
   }
 
+  /**
+   * Enhanced toggle filter visibility with automatic synchronization
+   */
   toggleFilterVisibility(): void {
-    console.log(`🔧 toggleFilterVisibility: Toggling from ${this.filterVisible} to ${!this.filterVisible} with activeMarkupNumber=${this.activeMarkupNumber}`);
     this.filterVisible = !this.filterVisible;
-
+    console.log('🎯 Filter modal toggled:', this.filterVisible ? 'OPENED' : 'CLOSED');
+    
+    if (this.filterVisible) {
+      // When modal opens, sync the current canvas state with filter selections
+      setTimeout(() => {
+        this._ensureFilterSynchronization();
+      }, 150);
+    }
+    
     // Wait for DOM to be ready and then update leader line position
     setTimeout(() => {
       this._waitForDOMAndUpdateLeaderLine();
-    }, 100);
+    }, 200);
   }
 
   onClose(): void {
@@ -3184,17 +3115,33 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
    * When annotations are turned on, measurements are turned off
    */
   onToggleAnnotations(onoff: boolean) {
+    console.log('🎯 onToggleAnnotations called:', onoff);
+    
     if (onoff) {
       // Turn on annotations, turn off measurements
       this.showAnnotations = true;
       this.showMeasurements = false;
+      
+      // Force canvas update first
       this.onShowAnnotations(true);
       this.onShowMeasurements(false);
+      
+      // Wait a moment then update filters to match canvas state
+      setTimeout(() => {
+        this._selectAnnotationTypesInFilters();
+        this._syncFiltersWithVisibleMarkups();
+      }, 200);
     } else {
       // Turn off annotations
       this.showAnnotations = false;
       this.onShowAnnotations(false);
+      
+      // Automatically deselect annotation types in filters
+      this._deselectAnnotationTypesInFilters();
     }
+    
+    // Refresh the list to apply the new filter
+    this._refreshAnnotationList();
   }
 
   /**
@@ -3202,16 +3149,247 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
    * When measurements are turned on, annotations are turned off
    */
   onToggleMeasurements(onoff: boolean) {
+    console.log('🎯 onToggleMeasurements called:', onoff);
+    
     if (onoff) {
       // Turn on measurements, turn off annotations
       this.showMeasurements = true;
       this.showAnnotations = false;
+      
+      // Force canvas update first
       this.onShowMeasurements(true);
       this.onShowAnnotations(false);
+      
+      // Wait a moment then update filters to match canvas state
+      setTimeout(() => {
+        this._selectMeasurementTypesInFilters();
+        this._syncFiltersWithVisibleMarkups();
+      }, 200);
     } else {
       // Turn off measurements
       this.showMeasurements = false;
       this.onShowMeasurements(false);
+      
+      // Automatically deselect measurement types in filters
+      this._deselectMeasurementTypesInFilters();
+    }
+    
+    // Refresh the list to apply the new filter
+    this._refreshAnnotationList();
+  }
+
+  /**
+   * Refresh the annotation list to apply current filters
+   */
+  private _refreshAnnotationList(): void {
+    const markupList = this.rxCoreService.getGuiMarkupList();
+    if (markupList) {
+      this._processList(markupList);
+    }
+  }
+
+  /**
+   * Automatically select annotation types in the filters component
+   */
+  private _selectAnnotationTypesInFilters(): void {
+    if (this.commentsListFiltersComponent) {
+      this.commentsListFiltersComponent.selectAnnotationTypes();
+      this._selectRelevantAuthorsAndPages(true, false);
+    }
+  }
+
+  /**
+   * Automatically deselect annotation types in the filters component
+   */
+  private _deselectAnnotationTypesInFilters(): void {
+    if (this.commentsListFiltersComponent) {
+      this.commentsListFiltersComponent.deselectAnnotationTypes();
+    }
+  }
+
+  /**
+   * Automatically select measurement types in the filters component
+   */
+  private _selectMeasurementTypesInFilters(): void {
+    if (this.commentsListFiltersComponent) {
+      this.commentsListFiltersComponent.selectMeasurementTypes();
+      this._selectRelevantAuthorsAndPages(false, true);
+    }
+  }
+
+  /**
+   * Automatically deselect measurement types in the filters component
+   */
+  private _deselectMeasurementTypesInFilters(): void {
+    if (this.commentsListFiltersComponent) {
+      this.commentsListFiltersComponent.deselectMeasurementTypes();
+    }
+  }
+
+    /**
+   * Select relevant authors and pages based on current markup data
+   */
+  private _selectRelevantAuthorsAndPages(annotationsEnabled: boolean, measurementsEnabled: boolean): void {
+    if (!this.commentsListFiltersComponent) return;
+
+    const markupList = this.rxCoreService.getGuiMarkupList();
+    if (!markupList || markupList.length === 0) return;
+
+    // Get relevant markups based on the filter type
+    const relevantMarkups = markupList.filter((markup: any) => {
+      if (annotationsEnabled && !measurementsEnabled) {
+        return !markup.ismeasure; // Only annotations
+      } else if (measurementsEnabled && !annotationsEnabled) {
+        return markup.ismeasure; // Only measurements
+      }
+      return true; // Both enabled
+    });
+
+    // Extract unique authors from relevant markups
+    const relevantAuthors = [...new Set(relevantMarkups.map(markup => 
+      RXCore.getDisplayName(markup.signature)
+    ))];
+
+    // Extract unique pages from relevant markups
+    const relevantPages = [...new Set(relevantMarkups.map(markup => 
+      `page${markup.pagenumber + 1}` // Convert 0-based to 1-based page numbers
+    ))];
+
+    // Select relevant authors and pages in the filters
+    this.commentsListFiltersComponent.selectRelevantAuthors(relevantAuthors);
+    this.commentsListFiltersComponent.selectRelevantPages(relevantPages);
+
+    console.log('Selected relevant authors:', relevantAuthors);
+    console.log('Selected relevant pages:', relevantPages);
+  }
+
+  /**
+   * Synchronize filter selections with currently visible markups on canvas
+   */
+  private _syncFiltersWithVisibleMarkups(): void {
+    console.log('🎯 _syncFiltersWithVisibleMarkups called');
+    
+    if (!this.commentsListFiltersComponent) {
+      console.log('❌ commentsListFiltersComponent not available');
+      return;
+    }
+
+    // Ensure typeOptions are properly loaded from rxTypeFilterLoaded
+    this.commentsListFiltersComponent.updateOptionsFromParent();
+    
+    console.log('🎯 Filter component state:', {
+      typeOptionsLength: this.commentsListFiltersComponent.typeOptions.length,
+      rxTypeFilterLoadedLength: this.rxTypeFilterLoaded.length,
+      currentSelections: this.commentsListFiltersComponent.selectedTypes
+    });
+
+    const markupList = this.rxCoreService.getGuiMarkupList();
+    if (!markupList || markupList.length === 0) {
+      console.log('❌ No markup list available');
+      return;
+    }
+
+    // Filter markups that are currently displayed based on the switch state
+    let visibleMarkups: any[] = [];
+    
+    if (this.showAnnotations && !this.showMeasurements) {
+      // Only annotations should be visible
+      visibleMarkups = markupList.filter((markup: any) => !markup.ismeasure);
+    } else if (this.showMeasurements && !this.showAnnotations) {
+      // Only measurements should be visible
+      visibleMarkups = markupList.filter((markup: any) => markup.ismeasure);
+    } else {
+      // Show all or none - use the general display property
+      visibleMarkups = markupList.filter((markup: any) => {
+        // Use the _getmarkupTypeDisplay method to check visibility
+        return this._getmarkupTypeDisplay(markup);
+      });
+    }
+
+    console.log('🎯 Found visible markups based on switch state:', visibleMarkups.length);
+
+    if (visibleMarkups.length === 0) {
+      console.log('🎯 No visible markups found on canvas - clearing selections');
+      this.commentsListFiltersComponent.selectedTypes = [];
+      this.commentsListFiltersComponent.forceUIRefresh();
+      return;
+    }
+    
+    // Get detailed info about visible markups
+    const visibleMarkupInfo = visibleMarkups.map(markup => ({
+      type: markup.type,
+      subtype: markup.subtype,
+      markupType: RXCore.getMarkupType(markup.type, markup.subtype),
+      ismeasure: markup.ismeasure
+    }));
+    
+    console.log('🎯 Visible markup details:', visibleMarkupInfo);
+
+    // Match visible markups with available filter options
+    const matchingTypes = this.commentsListFiltersComponent.typeOptions.filter(typeOption => {
+      const matches = visibleMarkups.some(markup => {
+        // Parse the type option values
+        const optionType = parseInt(typeOption.type);
+        const optionSubtype = typeOption.subtype !== '' ? parseInt(typeOption.subtype) : undefined;
+        
+        // Check for exact match
+        const typeMatches = optionType === markup.type;
+        const subtypeMatches = optionSubtype === undefined || optionSubtype === markup.subtype;
+        
+        if (typeMatches && subtypeMatches) {
+          console.log('✅ Type match found:', {
+            option: { type: optionType, subtype: optionSubtype, label: typeOption.label },
+            markup: { type: markup.type, subtype: markup.subtype }
+          });
+          return true;
+        }
+        return false;
+      });
+      return matches;
+    });
+
+    console.log('🎯 Matching filter types found:', matchingTypes);
+
+    // Update the filter selections
+    this.commentsListFiltersComponent.selectedTypes = matchingTypes.map(type => type.value);
+
+    console.log('🎯 Updated filter selections:', this.commentsListFiltersComponent.selectedTypes);
+
+    // Force UI refresh to ensure changes are visible
+    this.commentsListFiltersComponent.forceUIRefresh();
+  }
+
+  /**
+   * Enhanced method to ensure proper synchronization with retry logic
+   */
+  private _ensureFilterSynchronization(): void {
+    console.log('🎯 _ensureFilterSynchronization called');
+    
+    // Try immediate sync first
+    this._syncFiltersWithVisibleMarkups();
+    
+    // If no types were matched, wait for component to be fully ready and try again
+    if (!this.commentsListFiltersComponent || 
+        this.commentsListFiltersComponent.typeOptions.length === 0 ||
+        this.commentsListFiltersComponent.selectedTypes.length === 0) {
+      
+      console.log('🔄 Initial sync failed, retrying with delays...');
+      
+      // Retry after small delay
+      setTimeout(() => {
+        console.log('🔄 Retry attempt 1');
+        this._syncFiltersWithVisibleMarkups();
+        
+        // If still no match, try one more time with longer delay
+        if (this.commentsListFiltersComponent && 
+            this.commentsListFiltersComponent.selectedTypes.length === 0) {
+          
+          setTimeout(() => {
+            console.log('🔄 Retry attempt 2');
+            this._syncFiltersWithVisibleMarkups();
+          }, 500);
+        }
+      }, 250);
     }
   }
 
@@ -3261,21 +3439,199 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
 
   }
 
-  onShowType($event: any, type : any) {
+  // Add flag to prevent circular event handling
+  private isProcessingFilterChange: boolean = false;
 
+  onShowType($event: any, type : any) {
+    console.log('🎯 onShowType called:', { 
+      event: $event, 
+      type: type,
+      isProcessingFilterChange: this.isProcessingFilterChange
+    });
+
+    // Prevent circular event handling
+    if (this.isProcessingFilterChange) {
+      console.log('🎯 Skipping onShowType - already processing filter change');
+      return;
+    }
+
+    // Check if this is coming from the filter component with enhanced data
+    if ($event.isSelected !== undefined && $event.action !== undefined) {
+      // This is a filter-driven change, use the enhanced handler
+      console.log('🎯 Filter-driven type change:', {
+        type: type.label || type.typename,
+        action: $event.action,
+        isSelected: $event.isSelected
+      });
+
+      // Set flag to prevent circular processing
+      this.isProcessingFilterChange = true;
+
+      try {
+        // Use the enhanced type matching function for better accuracy
+        this._handleShowMarkupTypeEnhanced(type, {
+          target: {
+            checked: $event.isSelected
+          }
+        });
+        
+        // Refresh the list to apply the changes
+        this._refreshAnnotationList();
+      } finally {
+        // Always clear the flag, even if an error occurs
+        setTimeout(() => {
+          this.isProcessingFilterChange = false;
+        }, 100);
+      }
+      return;
+    }
+
+    // This is a direct button click, use the original toggle logic
+    console.log('🎯 Direct button click - toggling type:', type);
+    
     // For button clicks, we need to toggle the current state
     const currentState = this.showType(type);
     const newState = !currentState;
 
-    // Create a mock event object that mimics checkbox behavior for compatibility
+    console.log('🎯 onShowType: Toggling from', currentState, 'to', newState);
+
+    // Set flag to prevent circular processing
+    this.isProcessingFilterChange = true;
+
+    try {
+      // Create a mock event object that mimics checkbox behavior for compatibility
+      const mockEvent = {
+        target: {
+          checked: newState
+        }
+      };
+
+      // Use the enhanced type matching function for better accuracy
+      this._handleShowMarkupTypeEnhanced(type, mockEvent);
+      
+      // Refresh the list to apply the combined filters (switches + type filters)
+      this._refreshAnnotationList();
+    } finally {
+      // Always clear the flag, even if an error occurs
+      setTimeout(() => {
+        this.isProcessingFilterChange = false;
+      }, 100);
+    }
+  }
+
+  /**
+   * Enhanced type handling with better matching and consistent behavior
+   */
+  private _handleShowMarkupTypeEnhanced(type: any, event: any): void {
+    console.log('🎯 _handleShowMarkupTypeEnhanced called:', {
+      type: type,
+      checked: event.target.checked,
+      typename: type.typename,
+      typeLabel: type.label
+    });
+
+    // Update the rxTypeFilter state
+    this._setmarkupTypeDisplayFilter(type, event.target.checked);
+    this.rxTypeFilterLoaded = this.rxTypeFilter.filter((rxtype) => rxtype.loaded);
+
+    // Define comprehensive type matching function
+    const typeMatchFunction = (markup: any) => {
+      // First try exact type/subtype matching
+      if (type.type !== undefined && type.subtype !== undefined) {
+        const typeMatch = parseInt(type.type) === markup.type;
+        const subtypeMatch = type.subtype === '' || parseInt(type.subtype) === markup.subtype;
+        if (typeMatch && subtypeMatch) {
+          console.log('✅ Exact type/subtype match:', { 
+            optionType: type.type, 
+            optionSubtype: type.subtype, 
+            markupType: markup.type, 
+            markupSubtype: markup.subtype 
+          });
+          return true;
+        }
+      }
+
+      // Fallback to typename matching for legacy compatibility
+      const markupType = RXCore.getMarkupType(markup.type, markup.subtype);
+      let markupTypename = markupType.type;
+      
+      if (Array.isArray(markupType.type)) {
+        markupTypename = markupType.type[1];
+      }
+
+      const typenameMatch = type.typename === markupTypename;
+      if (typenameMatch) {
+        console.log('✅ Typename match:', { 
+          optionTypename: type.typename, 
+          markupTypename: markupTypename 
+        });
+        return true;
+      }
+
+      // Additional safety check using label matching as last resort
+      const labelMatch = markup.getMarkupType().label === type.label;
+      if (labelMatch) {
+        console.log('✅ Label match:', { 
+          optionLabel: type.label, 
+          markupLabel: markup.getMarkupType().label 
+        });
+        return true;
+      }
+
+      return false;
+    };
+
+    // Apply the visibility change to canvas markups
+    this._updateMarkupDisplay(
+      this.rxCoreService.getGuiMarkupList(),
+      typeMatchFunction,
+      event.target.checked
+    );
+
+    console.log('🎯 Type filtering completed for:', type.label || type.typename);
+
+    // Sync the filter component selections to reflect the change
+    setTimeout(() => {
+      // Only sync if we're not already processing a filter change (prevent circular updates)
+      if (!this.isProcessingFilterChange) {
+        this._syncFilterSelectionsWithTypeState();
+      }
+    }, 50);
+
+    // Wait for DOM to be ready and then update leader line position
+    setTimeout(() => {
+      this._waitForDOMAndUpdateLeaderLine();
+    }, 100);
+  }
+
+  /**
+   * Enhanced method to handle individual filter type changes from the filter component
+   */
+  private _handleFilterTypeChange(typeValue: string, isSelected: boolean): void {
+    console.log('🎯 _handleFilterTypeChange:', { typeValue, isSelected });
+    
+    // Find the corresponding type object in rxTypeFilterLoaded
+    const typeObj = this.rxTypeFilterLoaded.find(t => {
+      const value = t.value || t.typename || (t.subtype ? `${t.type}_${t.subtype}` : t.type);
+      return value === typeValue;
+    });
+
+    if (!typeObj) {
+      console.warn('❌ Could not find type object for value:', typeValue);
+      return;
+    }
+
+    console.log('🎯 Found type object:', typeObj);
+
+    // Create mock event for compatibility
     const mockEvent = {
       target: {
-        checked: newState
+        checked: isSelected
       }
     };
 
-    this._handleShowMarkupType(type, mockEvent, markup => markup.getMarkupType().label === type.label);
-
+    // Use the enhanced handler
+    this._handleShowMarkupTypeEnhanced(typeObj, mockEvent);
   }
 
   onShowEllipse($event: any) {
@@ -3578,7 +3934,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
 
     }
 
-    this._processList(this.rxCoreService.getGuiMarkupList());
+    this._refreshAnnotationList();
   }
 
   // Comment card event handlers - Updated for multiple tasks
@@ -3706,6 +4062,48 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       case 20: return 'Link';
       default: return 'Unknown Annotation';
     }
+  }
+
+  /**
+   * Sync filter component selections when types are changed outside of the filter modal
+   * This ensures bidirectional synchronization between all type controls
+   */
+  private _syncFilterSelectionsWithTypeState(): void {
+    if (!this.commentsListFiltersComponent) return;
+
+    console.log('🎯 Syncing filter selections with current type state');
+
+    // Get currently visible types based on rxTypeFilter state
+    const visibleTypes = this.rxTypeFilter
+      .filter(typeFilter => typeFilter.loaded && typeFilter.show)
+      .map(typeFilter => {
+        // Find matching type option in filter component
+        return this.commentsListFiltersComponent.typeOptions.find(option => {
+          // Try to match by type/subtype combination
+          if (option.type && option.subtype !== undefined) {
+            const typeMatch = parseInt(option.type) === typeFilter.type;
+            const subtypeMatch = option.subtype === '' || parseInt(option.subtype) === typeFilter.subtype;
+            return typeMatch && subtypeMatch;
+          }
+          
+          // Try to match using the label
+          if (option.label === typeFilter.label) {
+            return true;
+          }
+          
+          return false;
+        });
+      })
+      .filter(option => option !== undefined) // Filter out undefined options
+      .map(option => option!.value); // Use non-null assertion since we filtered out undefined
+
+    console.log('🎯 Visible types found:', visibleTypes);
+
+    // Update filter component selections
+    this.commentsListFiltersComponent.selectedTypes = visibleTypes;
+    this.commentsListFiltersComponent.forceUIRefresh();
+
+    console.log('🎯 Filter selections synced:', this.commentsListFiltersComponent.selectedTypes);
   }
 
 }

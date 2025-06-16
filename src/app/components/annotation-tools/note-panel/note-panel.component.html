@@ -81,6 +81,7 @@
     <div class="main-section" (scroll)="scrollHandler($event)">
       <div *ngIf="filterVisible">
         <app-comments-list-filters
+          #commentsListFilters
           [isFilterActive]="isFilterActive"
           [pageNumbers]="pageNumbers"
           [rxTypeFilterLoaded]="rxTypeFilterLoaded"

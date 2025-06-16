@@ -1,6 +1,9 @@
 .status-icon {
-  width: 24px;
-  height: 24px;
-  margin-right: 8px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: end;
+  width: 16px;
+  height: 16px;
   color: #868e96;
 }

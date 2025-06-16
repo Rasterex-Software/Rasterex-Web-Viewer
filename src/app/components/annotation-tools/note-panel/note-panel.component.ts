@@ -2215,6 +2215,26 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       return;
   }
 
+  onCommentKeyDown(event: KeyboardEvent, markup: any): void {
+    // Submit comment on Enter (but not Shift+Enter)
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault();
+      if (this.note[markup.markupnumber]?.trim()) {
+        this.onAddNote(markup);
+      }
+    }
+    
+    // Auto-resize textarea
+    const textarea = event.target as HTMLTextAreaElement;
+    textarea.style.height = 'auto';
+    textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
+  }
+
+  onCheckboxChange(event: any): void {
+    // Handle checkbox change if needed
+    // This method is called when the corner checkbox is clicked
+    console.log('Checkbox changed:', event.target.checked);
+  }
 
   GetCommentLength(): number {
 
@@ -3621,6 +3641,71 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       this.commentsListFiltersComponent.clearAllFiltersInternal();
     }
     console.log('All filters cleared from note panel');
+  }
+
+  /**
+   * Get annotation title based on type and subtype
+   * @param type - The annotation type
+   * @param subtype - The annotation subtype (optional)
+   * @returns Human-readable title for the annotation
+   */
+  getAnnotationTitle(type: number, subtype?: number): string {
+    // Handle cases with both type and subtype
+    if (subtype !== undefined && subtype !== null) {
+      switch (type) {
+        case 0:
+          if (subtype === 0) return 'Freehand';
+          if (subtype === 1) return 'Erase';
+          break;
+        case 1:
+          if (subtype === 1) return 'Polyline';
+          if (subtype === 2) return 'Polygon';
+          if (subtype === 3) return 'Path Measure';
+          if (subtype === 4) return 'Angle Clockwise';
+          if (subtype === 5) return 'Angle Counter-Clockwise';
+          break;
+        case 3:
+          if (subtype === 0) return 'Rectangle';
+          if (subtype === 1) return 'Rounded Rectangle';
+          if (subtype === 3) return 'Highlighter';
+          if (subtype === 6) return 'Rectangle Measure';
+          break;
+        case 5:
+          if (subtype === 0) return 'Cloud';
+          break;
+        case 6:
+          if (subtype === 0) return 'Arrow';
+          if (subtype === 1) return 'Filled Arrow';
+          if (subtype === 2) return 'Double Arrow';
+          if (subtype === 3) return 'Filled Double Arrow';
+          if (subtype === 6) return 'Callout';
+          break;
+        case 8:
+          if (subtype === 0) return 'Area Measure';
+          break;
+        case 10:
+          if (subtype === 0) return 'Note';
+          break;
+        case 11:
+          if (subtype === 1) return 'Image';
+          if (subtype === 3) return 'Signature';
+          if (subtype === 12) return 'Stamp';
+          break;
+        case 14:
+          if (subtype === 0) return 'Arc Measure';
+          break;
+      }
+    }
+
+    // Handle cases with only type
+    switch (type) {
+      case 4: return 'Ellipse';
+      case 7: return 'Length Measure';
+      case 9: return 'Text';
+      case 13: return 'Count';
+      case 20: return 'Link';
+      default: return 'Unknown Annotation';
+    }
   }
 
 }

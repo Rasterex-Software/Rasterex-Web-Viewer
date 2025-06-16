@@ -1018,3 +1018,12 @@ June 03, 3025
   `modified:   src/app/components/annotation-tools/note-panel/note-panel.component.scss`
   `modified:   src/app/components/annotation-tools/note-panel/note-panel.component.ts`
   
+June 06, 3025
+
+# Updated Comments List Card UI
+
+  `modified:   src/app/components/annotation-tools/comment-status-icon/comment-status-icon.component.scss`
+  `modified:   src/app/components/annotation-tools/note-panel/note-panel.component.html`
+  `modified:   src/app/components/annotation-tools/note-panel/note-panel.component.scss`
+  `modified:   src/app/components/annotation-tools/note-panel/note-panel.component.ts`
+  

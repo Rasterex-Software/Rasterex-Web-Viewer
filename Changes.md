@@ -1,3 +1,10 @@
+June 16, 
+# 1. Integrate Symbols API
+Updated and new files
+src\app\components\annotation-tools\symbols-library\symbols-library.component.html
+src\app\components\annotation-tools\symbols-library\symbols-library.component.ts
+src\app\components\annotation-tools\symbols-library\symbols-library.service.ts
+
 June 13, 2025
 # 1. Update symbols to remove upload, delete and just list via localstorage
 Updated and new files

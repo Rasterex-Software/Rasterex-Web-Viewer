@@ -2127,6 +2127,61 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
 
   onDateSelect(dateRange: { startDate: dayjs.Dayjs, endDate: dayjs.Dayjs }): void {
     this.dateFilter = dateRange;
+    
+    // Auto-apply filter when both dates are selected
+    if (dateRange.startDate && dateRange.endDate) {
+      console.log('🗓️ Date range selected, auto-applying filter:', {
+        startDate: dateRange.startDate.format('YYYY-MM-DD'),
+        endDate: dateRange.endDate.format('YYYY-MM-DD')
+      });
+      
+      // Apply date filter to canvas annotations
+      this._applyDateFilterToCanvas(dateRange);
+      
+      // Apply the date filter to comment list
+      this._processList(this.rxCoreService.getGuiMarkupList());
+      
+      // Wait for DOM to be ready and then update leader line position
+      setTimeout(() => {
+        this._waitForDOMAndUpdateLeaderLine();
+      }, 100);
+    }
+  }
+
+  /**
+   * Apply date filter to canvas annotations
+   */
+  private _applyDateFilterToCanvas(dateRange: { startDate: dayjs.Dayjs, endDate: dayjs.Dayjs }): void {
+    const markupList = this.rxCoreService.getGuiMarkupList();
+    if (!markupList) return;
+
+    console.log('🗓️ Applying date filter to canvas annotations');
+
+    markupList.forEach((markup: any) => {
+      const markupDate = dayjs(markup.timestamp);
+      const isInDateRange = markupDate.isSameOrAfter(dateRange.startDate) && 
+                           markupDate.isSameOrBefore(dateRange.endDate.endOf('day'));
+      
+      // Show/hide annotation based on date range and switch states
+      let shouldShow = isInDateRange;
+      
+      if (shouldShow) {
+        // Also check if the annotation should be shown based on switches
+        if (markup.ismeasure) {
+          shouldShow = this.showMeasurements === true;
+        } else {
+          shouldShow = this.showAnnotations === true;
+        }
+      }
+      
+      console.log(`🗓️ Markup ${markup.markupnumber}: date=${markupDate.format('YYYY-MM-DD')}, inRange=${isInDateRange}, shouldShow=${shouldShow}`);
+      
+      markup.setdisplay(shouldShow);
+    });
+
+    // Redraw canvas to apply changes
+    RXCore.markUpRedraw();
+    console.log('🗓️ Canvas annotations filtered by date range');
   }
 
   onPageChange(event): void {
@@ -4141,6 +4196,20 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
 
     // Clear all filters
   clearAllFilters(): void {
+    console.log('🔄 clearAllFilters called - resetting all filters');
+    
+    // Reset date filter
+    this.dateFilter = {
+      startDate: undefined,
+      endDate: undefined
+    };
+    
+    // Reset page filter
+    this.pageNumber = -1;
+    
+    // Reset canvas annotations to show based on switch states only
+    this._resetCanvasAnnotationsDateFilter();
+    
     // If switches are active, apply them to ensure proper visibility
     if(this.showAnnotations){
       this.onToggleAnnotations(true);
@@ -4155,6 +4224,38 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     
     // Trigger author selection in comment-list-filter component
     this.triggerAuthorSelection();
+    
+    // Reprocess the list to show all comment cards after clearing filters
+    this._processList(this.rxCoreService.getGuiMarkupList());
+    
+    console.log('✅ All filters reset successfully - showing all comment cards');
+  }
+
+  /**
+   * Reset canvas annotations when date filter is cleared
+   */
+  private _resetCanvasAnnotationsDateFilter(): void {
+    const markupList = this.rxCoreService.getGuiMarkupList();
+    if (!markupList) return;
+
+    console.log('🗓️ Resetting canvas annotations date filter');
+
+    markupList.forEach((markup: any) => {
+      // Show annotation based on switch states only (no date filtering)
+      let shouldShow = true;
+      
+      if (markup.ismeasure) {
+        shouldShow = this.showMeasurements === true;
+      } else {
+        shouldShow = this.showAnnotations === true;
+      }
+      
+      markup.setdisplay(shouldShow);
+    });
+
+    // Redraw canvas to apply changes
+    RXCore.markUpRedraw();
+    console.log('🗓️ Canvas annotations date filter reset');
   }
 
   // Method to trigger onAuthorSelect in comment-list-filter component
@@ -4236,7 +4337,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
           if (subtype === 5) return 'Angle Counter-Clockwise';
           break;
         case 3:
-          // if (subtype === 0) return 'Rectangle';
+          if (subtype === 0) return 'Rectangle';
           if (subtype === 1) return 'Rounded Rectangle';
           if (subtype === 3) return 'Highlighter';
           if (subtype === 6) return 'Rectangle Measure';

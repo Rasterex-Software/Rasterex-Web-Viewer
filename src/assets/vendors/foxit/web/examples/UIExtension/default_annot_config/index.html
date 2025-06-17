@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Foxit PDF SDK for Web</title>
+    <link rel="shortcut icon" href="../../assets/favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" href="../../../lib/UIExtension.css">
+    <style>
+        body {
+            height: 100vh;
+            height: 100dvh;
+            height: calc(var(--vh, 1dvh) * 100);
+        }
+        #pdf-ui {
+            top: 40px;
+            bottom: 0;
+            position: absolute;
+            width: 100vw;
+        }
+
+        .fv__ui-mobile #pdf-ui {
+            top: 0;
+        }
+        .fv__ui-mobile .fv__ui-nav
+        {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+<div class="fv__ui-nav">
+    <a class="fv__ui-nav-logo" href="javascript:location.reload()">
+        <i class="fv__icon-logo"></i>
+    </a>
+</div>
+<div id="pdf-ui"></div>
+</body>
+<script src="../../license-key.js"></script>
+<script src="../../../lib/UIExtension.full.js"></script>
+<script>
+    var PDFUI = UIExtension.PDFUI;
+    var pdfui = new PDFUI({
+        viewerOptions: {
+            libPath: '../../../lib',
+            jr: {
+                licenseSN: licenseSN,
+                licenseKey: licenseKey
+            },
+            //The global annotation properties can be set by using the constructor option.
+            defaultAnnotConfig:function(type,intent){
+                let config={};
+                switch (type) {
+                    case "highlight":
+                        config.color=0x123456;
+                        break;
+                    case "ink":
+                        config.color=0x234567;
+                        break;
+                    case "freetext":
+                        if(intent=="FreeTextCallout"){
+                            config.calloutLineEndingStyle=2;
+                        }
+                        break;
+                    default:
+                        break;
+                }
+                return config;
+            }
+        },
+        renderTo: '#pdf-ui',
+        fragments: [],
+        addons: 
+        UIExtension.PDFViewCtrl.DeviceInfo.isMobile ? [
+            "../../../lib/uix-addons/comparison",
+            "../../../lib/uix-addons/custom-dynamic-stamp",
+            "../../../lib/uix-addons/digital-stamp",
+            "../../../lib/uix-addons/doc-attachment",
+            "../../../lib/uix-addons/dynamic-xfa",
+            "../../../lib/uix-addons/edit-graphics",
+            "../../../lib/uix-addons/export-form",
+            "../../../lib/uix-addons/file-property",
+            "../../../lib/uix-addons/find-replace",
+            "../../../lib/uix-addons/form-to-sheet",
+            "../../../lib/uix-addons/full-screen",
+            "../../../lib/uix-addons/h-continuous",
+            "../../../lib/uix-addons/h-facing",
+            "../../../lib/uix-addons/h-single",
+            "../../../lib/uix-addons/import-form",
+            "../../../lib/uix-addons/javascript-form",
+            "../../../lib/uix-addons/manage-comments",
+            "../../../lib/uix-addons/mobile-edit-properties",
+            "../../../lib/uix-addons/multi-media",
+            "../../../lib/uix-addons/page-editor",
+            "../../../lib/uix-addons/page-template",
+            "../../../lib/uix-addons/password-protect",
+            "../../../lib/uix-addons/path-objects",
+            "../../../lib/uix-addons/preview",
+            "../../../lib/uix-addons/print",
+            "../../../lib/uix-addons/range-input",
+            "../../../lib/uix-addons/read-aloud",
+            "../../../lib/uix-addons/recognition-form",
+            "../../../lib/uix-addons/redaction",
+            "../../../lib/uix-addons/rotate-pages",
+            "../../../lib/uix-addons/search",
+            "../../../lib/uix-addons/sign-certify",
+            "../../../lib/uix-addons/thumbnail",
+            "../../../lib/uix-addons/undo-redo",
+            "../../../lib/uix-addons/xfa-form"
+            ]:[
+            "../../../lib/uix-addons/comparison",
+            "../../../lib/uix-addons/custom-dynamic-stamp",
+            "../../../lib/uix-addons/digital-stamp",
+            "../../../lib/uix-addons/doc-attachment",
+            "../../../lib/uix-addons/dynamic-xfa",
+            "../../../lib/uix-addons/edit-graphics",
+            "../../../lib/uix-addons/export-form",
+            "../../../lib/uix-addons/file-property",
+            "../../../lib/uix-addons/find-replace",
+            "../../../lib/uix-addons/form-designer",
+            "../../../lib/uix-addons/form-to-sheet",
+            "../../../lib/uix-addons/full-screen",
+            "../../../lib/uix-addons/h-continuous",
+            "../../../lib/uix-addons/h-facing",
+            "../../../lib/uix-addons/h-single",
+            "../../../lib/uix-addons/import-form",
+            "../../../lib/uix-addons/javascript-form",
+            "../../../lib/uix-addons/manage-comments",
+            "../../../lib/uix-addons/multi-media",
+            "../../../lib/uix-addons/page-editor",
+            "../../../lib/uix-addons/page-template",
+            "../../../lib/uix-addons/password-protect",
+            "../../../lib/uix-addons/path-objects",
+            "../../../lib/uix-addons/preview",
+            "../../../lib/uix-addons/print",
+            "../../../lib/uix-addons/range-input",
+            "../../../lib/uix-addons/read-aloud",
+            "../../../lib/uix-addons/recognition-form",
+            "../../../lib/uix-addons/redaction",
+            "../../../lib/uix-addons/rotate-pages",
+            "../../../lib/uix-addons/search",
+            "../../../lib/uix-addons/sign-certify",
+            "../../../lib/uix-addons/text-object",
+            "../../../lib/uix-addons/thumbnail",
+            "../../../lib/uix-addons/undo-redo",
+            "../../../lib/uix-addons/xfa-form",
+            "../../../lib/uix-addons/aria"
+            ]
+    });
+
+    pdfui.openPDFByHttpRangeRequest({
+        range:{
+            url:'../../../docs/FoxitPDFSDKforWeb_DemoGuide.pdf',
+        }
+    },{fileName:'FoxitPDFSDKforWeb_DemoGuide.pdf'})
+
+    //The global annotation properties can also be set by using the function setDefaultAnnotConfig().
+    //The properties set here will overwrite the one set by constructor option. 
+    // pdfui.setDefaultAnnotConfig(function(type,intent){
+    //     let config={};
+    //     switch (type) {
+    //         case "strikeout":
+    //             config.color=0x345678;
+    //             break;
+    //         case "squiggly":
+    //             config.color=0x456789;
+    //             break;
+    //         case "freetext":
+    //             if(intent=="FreeTextCallout"){
+    //                 config.calloutLineEndingStyle=2;
+    //             }
+    //         default:
+    //             break;
+    //     }
+    //     return config;
+    // });
+</script>
+
+</html>

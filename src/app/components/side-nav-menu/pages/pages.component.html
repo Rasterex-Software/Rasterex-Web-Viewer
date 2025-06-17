@@ -1,6 +1,6 @@
 <div class="pages-container">
     <ul class="nav-tabs">
-        <li [class.active]="tabActiveIndex == 0" (click)="tabActiveIndex=0">
+        <li [class.active]="tabActiveIndex == 0" (click)="onTabClick(0)">
             <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <rect x="6.53124" y="6.53124" width="6.72905" height="6.72905" rx="1.35762" stroke="#333C4E" stroke-width="1.06248"/>
                 <rect x="15.7383" y="6.53124" width="6.72905" height="6.72905" rx="1.35762" stroke="#333C4E" stroke-width="1.06248"/>
@@ -8,7 +8,7 @@
                 <rect x="15.7383" y="15.7387" width="6.72905" height="6.72905" rx="1.35762" stroke="#333C4E" stroke-width="1.06248"/>
             </svg>
         </li>
-        <li [class.active]="tabActiveIndex == 1" (click)="tabActiveIndex=1">
+        <li [class.active]="tabActiveIndex == 1" (click)="onTabClick(1)">
             <svg width="17" height="17" viewBox="0 0 17 17" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M13.7578 0.497524H3.23242C2.2697 0.497524 1.48926 1.27796 1.48926 2.24069V15.9644C1.48926 16.0697 1.60009 16.1382 1.69428 16.0911L6.6886 13.5939C6.72848 13.574 6.77543 13.574 6.81531 13.5939L11.8096 16.0911C11.9038 16.1382 12.0146 16.0697 12.0146 15.9644V2.24069C12.0146 1.27796 12.7951 0.497524 13.7578 0.497524ZM13.7578 0.497524C14.7205 0.497524 15.501 1.27796 15.501 2.24069V7.79114C15.501 8.18234 15.1838 8.49948 14.7926 8.49948H12.0146" stroke="#333C4E" stroke-width="1.02376" stroke-miterlimit="10"/>
             </svg>

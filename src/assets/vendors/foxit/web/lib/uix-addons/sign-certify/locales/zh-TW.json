@@ -1,0 +1,120 @@
+{
+  "header": "簽署文件",
+  "signAs": "簽署身份:",
+  "info": "資訊",
+  "previewer": "簽名預覽",
+  "apType": "外觀類型:",
+  "create": "建立",
+  "text": "配置文字",
+  "location": "位置:",
+  "lock": "簽署後鎖定文件",
+  "mulfile": "套用到多個檔案",
+  "sign": "簽署",
+  "cancel": "取消",
+  "issuer": "憑證發行者",
+  "newId": "新 ID...",
+  "incorrectPwd": "密碼錯誤！",
+  "emptyPwd": "請輸入密碼!",
+  "ap": {
+    "standard": "標準樣式",
+    "clear": "清除",
+    "title": "標題:"
+  },
+  "createNewID": "找不到數位 ID。按下確定按鈕來建立一個。",
+  "reason": {
+    "title": "原因:",
+    "0": "我是這份文件的作者。",
+    "1": "我已經審閱了這份文件。",
+    "2": "我批准這份文件。",
+    "3": "我用我的具有法律约束力的签名批准此文件。",
+    "4": "我保證此文件的準確性和完整性。",
+    "5": "我同意在此文件中簽名所定義的條款。",
+    "6": "我同意此文件的指定部分。"
+  },
+  "text-direction": {
+    "title": "文字方向",
+    "auto": "自動",
+    "ltr": "從左到右",
+    "rtl": "從右到左"
+  },
+  "moreSigns": "找到不止一個未簽署欄位，但是只能簽署第一個簽名欄位，您是否要繼續？",
+  "fontsize": "字型/大小",
+  "logo": {
+    "title": "配置標誌",
+    "prop": "標誌屬性"
+  },
+  "placeSig": {
+    "tip": "放置一個簽名欄位，然後以數位方式簽署文件",
+    "text": "放置簽名..."
+  },
+  "signDoc": {
+    "tip": "使用數位簽章簽署文件。",
+    "text": "簽署文件..."
+  },
+  "signLater": "您已經在文件中放置空白簽名，如果您想使它生效，您必須簽署文件。",
+  "commonName": "此處為您的常用名稱",
+  "distinguishName": "您的卓越名稱",
+  "staticReason": "此處為您的簽署原因",
+  "staticLocation": "此處為您的簽署位置",
+  "specialError": "特殊字符無效。",
+  "certify": {
+    "perm": "認證後允許的操作",
+    "noSpecified": "設定為預設",
+    "perm0": "不允許更改",
+    "perm1": "表單填寫和數位簽名",
+    "perm2": "新增註解、填寫表單、簽署已存在的簽名欄位",
+    "visible": "使用可見簽名認證",
+    "visibleDesc": "以數位方式認證包含可見簽名的文件",
+    "invisible": "不使用可見簽名認證",
+    "invisibleDesc": "以數位方式認證簽名不可見的文件",
+    "trustCerts": "信任的憑證",
+    "trustCertsDesc": "管理用於數位簽名的已信任憑證",
+    "header": "信任的憑證",
+    "edit": "編輯",
+    "add": "新增",
+    "view": "檢視",
+    "export": "匯出",
+    "delete": "刪除",
+    "name": "名稱",
+    "issuedBy": "發行人",
+    "trust": "信任",
+    "expiredData": "過期數據",
+    "close": "關閉",
+    "certName": "名稱:",
+    "issuer": "簽發者:",
+    "validFrom": "有效期限:",
+    "validTo": "有效期至:",
+    "intent": "預期的金鑰使用:",
+    "deleteConfirm": "是否確定要刪除此憑證?\n 這樣做的話，您將無法再驗證擁有者的身分。",
+    "notCert": "不是證書。"
+  },
+  "trustedRoot": "信任的根",
+  "nonTrustedRoot": "非信任的根",
+  "viewCert": {
+    "header": "編輯憑證信任",
+    "detailTitle": "憑證詳細資料",
+    "subject": "主題:",
+    "usage": "用途:",
+    "expiration": "到期日:",
+    "trust": "信任",
+    "trustInfo": "用來簽署文件的憑證必須指定為信任錨點或是與信任錨點鏈接，簽名驗證才能成功。不會對信任錨點執行撤銷檢查。",
+    "trustRoot": "將此憑證用作可信任的根憑證。",
+    "afterSign": "如果簽名成功，則執行下列操作時信任此憑證:",
+    "valid": "驗證簽名",
+    "validCert": "驗證已認證文件",
+    "ok": "確定",
+    "cancel": "取消"
+  },
+  "exportCert": {
+    "header": "匯出憑證",
+    "subtitle": "以下是將要匯出的資料:",
+    "certTitle": "我的憑證",
+    "certInfo": "收件者可使用憑證來驗證您所建立的簽名，並且為您加密文件。您的私密金鑰不會隨著憑證匯出。",
+    "option": {
+      "title": "匯出選項:",
+      "formatHint": "選取您要匯出資料的方式:",
+      "email": "透過電子郵件共用資料",
+      "file": "將資料儲存為檔案"
+    }
+  }
+}

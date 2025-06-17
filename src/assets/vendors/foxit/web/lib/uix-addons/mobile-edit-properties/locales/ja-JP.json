@@ -1,0 +1,23 @@
+{
+  "touchUp": {
+    "done": "完了",
+    "showKeyboard": "キーボードを表示",
+    "color": "色",
+    "textStyles": "テキストのスタイル",
+    "style": "スタイル",
+    "font": "フォント",
+    "size": "サイズ",
+    "fontNames": "フォント名",
+    "customizeColors": "カスタマイズカラー",
+    "fontSizes": "フォントサイズ"
+  },
+  "textObject": {
+    "format": "フォーマット"
+  },
+  "pathObject": {
+    "lineColor": "線の色",
+    "lineWidth": "線の幅",
+    "dashType": "破線の形状",
+    "shapeStyle": "シェイプスタイル"
+  }
+}

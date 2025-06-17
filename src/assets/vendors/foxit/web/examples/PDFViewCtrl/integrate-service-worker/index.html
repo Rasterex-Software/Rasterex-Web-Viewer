@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Integrate as es-module example</title>
+    <style>
+        html, body{
+            padding: 0;
+            margin: 0;
+            height: 100%;
+        }
+        .app {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            width: 100%;
+        }
+        .toolbar {
+            height: 60px;
+            display: flex;
+            align-items: center;
+        }
+        .main {
+            flex: 1;
+            overflow: auto;
+        }
+        .tip {
+            background: yellow;
+            color: red;
+            font-size: 24px;
+            font-weight: bold;
+            line-height: 1.5;
+        }
+        .hide {
+            display: none;
+        }
+    </style>
+    <link rel="stylesheet" href="/lib/PDFViewCtrl.css">
+</head>
+<body>
+    <div class="tip <%= htmlWebpackPlugin.options.hideTip %>">Please refer to the introduction in <a href="./README.md">README.md</a> to run this sample!</div>
+    <div class="app">
+        <div class="toolbar">
+            <label>Select PDF file:
+                <input type="file" name="file" id="file" accept=".pdf" multiple="multiple">
+            </label>
+        </div>
+        <div class="main" id="pdf-viewport">
+            <div id="pdf-viewer"></div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,16 @@
+{
+  "name": "addon-external",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "merge-addon": "gulp merge-addon"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@foxitsoftware/gulp-merge-addon": "^0.7.7",
+    "gulp": "^4.0.2"
+  }
+}

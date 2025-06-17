@@ -365,7 +365,7 @@ export class AnnotationToolsComponent implements OnInit {
       case 'MEASURE_ANGLE_CCLOCKWISE':
         this.service.setMeasurePanelDetailState({ visible: this.isActionSelected[actionName], type:  MARKUP_TYPES.MEASURE.ANGLECCLOCKWISE.type, created: true });
         //this.service.setPropertiesPanelState({ visible: this.isActionSelected[actionName], markup:  MARKUP_TYPES.MEASURE.PATH, readonly: false });
-        RXCore.markupAngle(this.isActionSelected[actionName], true);
+        RXCore.markupAngle(this.isActionSelected[actionName], false);
         break;
               
       case 'MEASURE_RECTANGULAR_AREA':

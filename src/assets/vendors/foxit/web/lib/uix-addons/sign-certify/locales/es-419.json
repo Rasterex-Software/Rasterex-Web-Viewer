@@ -1,0 +1,120 @@
+{
+  "header": "Firmar documento",
+  "signAs": "Firmar como:",
+  "info": "Info",
+  "previewer": "Vista previa de la firma",
+  "apType": "Tipo de apariencia:",
+  "create": "Crear",
+  "text": "Configurar texto",
+  "location": "Ubicación:",
+  "lock": "Bloquear documento después de firmar",
+  "mulfile": "Aplicar a varios archivos",
+  "sign": "Firmar",
+  "cancel": "Cancelar",
+  "issuer": "Emisor del certificado",
+  "newId": "Nueva ID...",
+  "incorrectPwd": "¡Contraseña incorrecta!",
+  "emptyPwd": "Escriba la contraseña.",
+  "ap": {
+    "standard": "Estilo estándar",
+    "clear": "Borrar",
+    "title": "Título:"
+  },
+  "createNewID": "No se encontró ninguna identificación digital. Haga clic en el botón Aceptar para crear uno.",
+  "reason": {
+    "title": "Razón:",
+    "0": "Soy el autor de este documento.",
+    "1": "He revisado este documento",
+    "2": "Estoy aprobando este documento",
+    "3": "Estoy aprobando este documento con mi firma legalmente vinculante",
+    "4": "Doy fe de la exactitud e integridad de este documento",
+    "5": "Acepto los términos definidos por la colocación de mi firma en este documento",
+    "6": "Estoy de acuerdo con partes específicas de este documento"
+  },
+  "text-direction": {
+    "title": "Dirección del texto",
+    "auto": "Automáticamente",
+    "ltr": "Izquierda a derecha",
+    "rtl": "De derecha a izquierda"
+  },
+  "moreSigns": "Se encontró más de un campo sin firmar, pero solo el primer campo será firmado. ¿Desea continuar?",
+  "fontsize": "tamaño de fuente",
+  "logo": {
+    "title": "Configurar logotipo",
+    "prop": "Propiedad del logotipo"
+  },
+  "placeSig": {
+    "tip": "Coloque un campo de firma y firme digitalmente el documento.",
+    "text": "Colocar firma..."
+  },
+  "signDoc": {
+    "tip": "Firma el documento con una firma digital.",
+    "text": "Firmar documento..."
+  },
+  "signLater": "Ha colocado una firma vacía en el documento, si desea que surta efecto, debe firmar el documento",
+  "commonName": "su nombre común aquí",
+  "distinguishName": "tu nombre distinguido",
+  "staticReason": "el motivo de su firma aquí",
+  "staticLocation": "la ubicación de su firma aquí",
+  "specialError": "Los caracteres especiales no son válidos.",
+  "certify": {
+    "perm": "Acciones permitidas después de certificar",
+    "noSpecified": "Conservar predeterminado",
+    "perm0": "No se permiten cambios",
+    "perm1": "Llenado de formularios y firmas digitales",
+    "perm2": "Comentar, completar formularios, firmar en campos de firma existentes",
+    "visible": "Certificar con firma visible",
+    "visibleDesc": "Certificar digitalmente el documento con una firma visible",
+    "invisible": "Certificar sin firma visible",
+    "invisibleDesc": "Certificar digitalmente el documento con una firma invisible",
+    "trustCerts": "Certificados de confianza",
+    "trustCertsDesc": "Administrar certificados de confianza para firmas digitales",
+    "header": "Certificados de confianza",
+    "edit": "Editar",
+    "add": "Agregar",
+    "view": "Ver",
+    "export": "Exportar",
+    "delete": "Eliminar",
+    "name": "Nombre",
+    "issuedBy": "Expedido por",
+    "trust": "Confianza",
+    "expiredData": "Datos caducados",
+    "close": "Cerrar",
+    "certName": "Nombre:",
+    "issuer": "Emisor:",
+    "validFrom": "Válida desde:",
+    "validTo": "Válido hasta:",
+    "intent": "Uso previsto de la clave:",
+    "deleteConfirm": "¿Está seguro de que desea eliminar este certificado? Si lo hace, ya no podrá verificar la identidad del propietario.",
+    "notCert": "No es un certificado."
+  },
+  "trustedRoot": "Raíz de confianza",
+  "nonTrustedRoot": "Raíz no confiable",
+  "viewCert": {
+    "header": "Editar confianza de certificado",
+    "detailTitle": "Detalles del certificado",
+    "subject": "Asunto:",
+    "usage": "Uso:",
+    "expiration": "Vencimiento:",
+    "trust": "Confianza",
+    "trustInfo": "Un certificado destinado para la firma de un documento debe designarse como vínculo de confianza o relacionarse con un vínculo de confianza para la validación de la firma. La comprobación de revocación no se hace sobre tal vínculo de confianza.",
+    "trustRoot": "Usar este certificado como raíz de confianza",
+    "afterSign": "Si la firma se realiza con éxito, confiar en este certificado para:",
+    "valid": "Validación de firmas",
+    "validCert": "Validación de documentos certificados",
+    "ok": "Aceptar",
+    "cancel": "Cancelar"
+  },
+  "exportCert": {
+    "header": "Exportar certificados",
+    "subtitle": "Se exportarán los siguientes datos:",
+    "certTitle": "Mis certificados",
+    "certInfo": "Los destinatarios pueden usar los certificados para validar las firmas que usted ha creado y encriptar los documentos por usted. Su clave privada no se exportará con el certificado.",
+    "option": {
+      "title": "Opciones de exportación:",
+      "formatHint": "Seleccione cómo desea exportar los datos:",
+      "email": "Compartir los datos a través de correo electrónico",
+      "file": "Guardar los datos en un archivo"
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{
+    "buttons": {
+        "addText": "Add text field handler",
+        "show-dialog": "Show dialog"
+    },
+    "dialog": {
+        "title": "Dialog title",
+        "close": "Close",
+        "slider": "Slider"
+    },
+    "toolbar":{
+        "title":"Custom tool"
+    }
+}

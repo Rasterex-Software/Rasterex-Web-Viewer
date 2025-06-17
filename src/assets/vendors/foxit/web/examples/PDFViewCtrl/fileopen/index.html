@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no"/>
+    <title>Foxit PDF SDK For Web</title>
+    <link rel="shortcut icon" href="../../assets/favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" href="../../../lib/PDFViewCtrl.css">
+</head>
+<body>
+    <div id="pdf-viewer"></div>
+<script src="../../license-key.js"></script>
+<script src="../../../lib/PDFViewCtrl.full.js"></script>
+<script>
+
+    var PDFViewer = PDFViewCtrl.PDFViewer;
+    var pdfViewer = new PDFViewer({
+        libPath: '../../../lib',
+        jr: {
+            licenseSN: licenseSN,
+            licenseKey: licenseKey,
+        }
+    });
+    pdfViewer.init('#pdf-viewer');
+
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', './fileopen.pdf', true);
+    xhr.responseType = 'blob';
+    xhr.onreadystatechange = function () {
+      if (xhr.readyState !== 4) {
+        return;
+      }
+      var status = xhr.status;
+      if ((status >= 200 && status < 300) || status === 304) {
+          pdfViewer.openPDFByFile(xhr.response).catch(function (e) {
+              if (e.error === 11 && e.encryptDict.Filter === 'FOPN_foweb') {
+                  var fileOpenKey = getFileOpenKey(e.encryptDict);
+                  pdfViewer.reopenPDFDoc(e.pdfDoc, {
+                      fileOpen: {
+                          encryptKey: fileOpenKey
+                      }
+                  })
+              }
+          })
+      }
+    };
+    xhr.send();
+
+    function getFileOpenKey (encryptDict) {
+        if (encryptDict.INFO) {
+
+        }
+        return [109,110,111,112,113];// mnopq charCode, 'm'.charCodeAt(0) === 109
+    }
+</script>
+</body>
+</html>

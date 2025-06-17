@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no">
+    <!-- default(white), black, black-translucent -->
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-touch-fullscreen" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Foxit PDF SDK for Web">
+    <meta name="App-Config" content="fullscreen=yes,useHistoryState=no,transition=no">
+    <meta name="format-detaction" content="telephone=no,email=no">
+    <meta http-equiv="Cache-Control" content="no-siteapp" />
+    <meta name="HandheldFriendly" content="true">
+    <meta name="MobileOptimized" content="750">
+    <meta name="screen-orientation" content="portrait">
+    <meta name="x5-orientation" content="portrait">
+    <meta name="full-screen" content="yes">
+    <meta name="x5-fullscreen" content="true">
+    <meta name="browsermode" content="application">
+    <meta name="x5-page-mode" content="app">
+    <meta name="msapplication-tap-highlight" content="no">
+    <meta name="renderer" content="webkit">
+
+    <title>Foxit PDF SDK for Web</title>
+    <link rel="shortcut icon" href="../../assets/favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" href="../../../lib/UIExtension.css">
+    <style>
+        body {
+            height: 100vh;
+            height: 100dvh;
+            height: calc(var(--vh, 1dvh) * 100);
+        }
+        #pdf-ui {
+            top: 40px;
+            bottom: 0;
+            position: absolute;
+            width: 100vw;
+        }
+
+        .fv__ui-mobile #pdf-ui {
+            top: 0;
+        }
+        .fv__ui-mobile .fv__ui-nav
+        {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="fv__ui-nav">
+        <a class="fv__ui-nav-logo" href="javascript:location.reload()">
+            <i class="fv__icon-logo"></i>
+        </a>
+    </div>
+    <div id="pdf-ui"></div>
+    <script src="../../license-key.js"></script>
+    <script src="../../../lib/preload-jr-worker.js"></script>
+    <script>
+        var readyWorker = preloadJrWorker({
+            workerPath: '../../../lib/',
+            enginePath: '../lib/jr-engine/gsdk',
+            fontPath: '../external/brotli',
+            licenseSN: licenseSN,
+            licenseKey: licenseKey
+        })
+    </script>
+    <script src="../../../lib/UIExtension.full.js"></script>
+    <script>
+
+        var PDFUI = UIExtension.PDFUI;
+        var Events = UIExtension.PDFViewCtrl.Events;
+        var pdfui = new PDFUI({
+            viewerOptions: {
+                libPath: '../../../lib',
+                jr: {
+                    readyWorker: readyWorker
+                }
+            },
+            renderTo: '#pdf-ui',
+            appearance: UIExtension.appearances.adaptive,
+            //For the Full package, it uses Adv Edit by default, you need to change the Adv Edit to the Edit
+            fragments: [
+                {
+                    target: 'adv-edit-tab-group-mode',
+                    action: UIExtension.UIConsts.FRAGMENT_ACTION.REPLACE,
+                    template: `
+                        <group name="edit-tab-group-mode" retain-count="3">
+                            <edit-pageobjects:edit-all-objects-button @async></edit-pageobjects:edit-all-objects-button>
+                            <add-image-ribbon-button></add-image-ribbon-button>
+                            <edit-text-object:add-text-ribbon-button  @async></edit-text-object:add-text-ribbon-button>
+                            <edit-pageobjects:path-objects-ribbon-dropdown @async></edit-pageobjects:path-objects-ribbon-dropdown>
+                        </group>
+                    `
+                },
+                {
+                    target: 'edit-tab-group-editor',
+                    action: UIExtension.UIConsts.FRAGMENT_ACTION.REPLACE,
+                    template: `
+                        <group name="edit-tab-group-font" retain-count="5" @require-modules="edit-text-object">
+                            <edit-text-object:text-bold-style-ribbon-button></edit-text-object:text-bold-style-ribbon-button>
+                            <edit-text-object:text-italic-style-ribbon-button></edit-text-object:text-italic-style-ribbon-button>
+                            <edit-text-object:font-color-picker></edit-text-object:font-color-picker>
+                            <edit-text-object:font-style-dropdown></edit-text-object:font-style-dropdown>
+                        </group>
+                    `
+                }
+            ],
+            addons: UIExtension.PDFViewCtrl.DeviceInfo.isMobile ?
+                '../../../lib/uix-addons/allInOne.mobile.js' :
+                '../../../lib/uix-addons/allInOne.js'
+        });
+
+        pdfui.addUIEventListener('fullscreenchange', function (isFullscreen) {
+            if (isFullscreen) {
+                document.body.classList.add('fv__pdfui-fullscreen-mode');
+            } else {
+                document.body.classList.remove('fv__pdfui-fullscreen-mode');
+            }
+        });
+
+        function openLoadingLayer() {
+            return pdfui.loading();
+        }
+        var loadingComponentPromise = openLoadingLayer();
+        var openFileError = null
+        var passwordErrorCode = PDFViewCtrl.PDF.constant.Error_Code.password
+        function startLoading() {
+            if (openFileError && openFileError.error === passwordErrorCode) return
+            if (loadingComponentPromise) {
+                loadingComponentPromise = loadingComponentPromise
+                    .then(function (component) {
+                        component.close();
+                    })
+                    .then(openLoadingLayer);
+            } else {
+                loadingComponentPromise = openLoadingLayer();
+            }
+        }
+        pdfui.addViewerEventListener(Events.beforeOpenFile, startLoading);
+        pdfui.addViewerEventListener(Events.openFileSuccess, function () {
+            openFileError = null
+            loadingComponentPromise.then(function (component) {
+                component.close();
+            });
+        });
+        pdfui.addViewerEventListener(Events.openFileFailed, function (data) {
+            openFileError = data
+            if (openFileError && openFileError.error === passwordErrorCode) return
+            loadingComponentPromise.then(function (component) {
+                component.close();
+            });
+        });
+
+        //The following example will guide you how to set custom font for text object
+        var path = location.href.replace(/\/index.html$/, '');
+        var fontMaps = [
+            {
+                nameMatches: [/Rage/, /Rage Italic/, /RageItalic/],
+                glyphs: [
+                    {
+                        bold: -1,
+                        flags: -1,
+                        url: path + '/RAGE.TTF'
+                    }
+                ],
+                charsets: [0]
+            }]
+        var fontMapsInfo = [
+            {
+                "name": "Rage", //The font face name
+                "style": 0, //The font styles
+                "charset": 0 //The charset of the font
+            },
+        ]
+        pdfui.getPDFViewer().then(function (viewer) {
+            // Map custom font. This method is only valid before loading the document.
+            viewer.setJRFontMap(fontMaps).then(function (_) {
+                pdfui.openPDFByHttpRangeRequest({
+                    range: {
+                        url: path + '/rageItalic.pdf',
+                    }
+                }, { fileName: 'rageItalic.pdf' })
+                // Adds mapped Font to the drop-down font box in the Edit module
+                viewer.addFontMaps(fontMapsInfo)
+                // Now you can select the custom font for text editing
+            })
+        })
+
+    </script>
+</body>
+
+</html>

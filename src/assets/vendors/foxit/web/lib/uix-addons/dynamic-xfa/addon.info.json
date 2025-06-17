@@ -1,0 +1,30 @@
+{
+    "library": "XFAUIXAddon",
+    "i18n": {
+        "ns": "xfa",
+        "sources": {
+            "de-DE": "./locales/de-DE.json",
+            "en-US": "./locales/en-US.json",
+            "es-419": "./locales/es-419.json",
+            "fr-FR": "./locales/fr-FR.json",
+            "it-IT": "./locales/it-IT.json",
+            "ja-JP": "./locales/ja-JP.json",
+            "ko-KR": "./locales/ko-KR.json",
+            "nl-NL": "./locales/nl-NL.json",
+            "zh-CN": "./locales/zh-CN.json",
+            "zh-TW": "./locales/zh-TW.json"
+        }
+    },
+    "css": [
+        "./index.css"
+    ],
+    "scripts": [],
+    "restrictions": {
+        "products": ["websdk","online"],
+        "advanced": false,
+        "platforms": []
+    },
+    "depends": [],
+    "module":"util",
+    "out_dir": "dynamic-xfa"
+}

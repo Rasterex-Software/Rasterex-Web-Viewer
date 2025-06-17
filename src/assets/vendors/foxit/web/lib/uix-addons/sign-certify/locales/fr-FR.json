@@ -1,0 +1,120 @@
+{
+  "header": "Signature de document",
+  "signAs": "Signer sous :",
+  "info": "Info",
+  "previewer": "Aperçu de signature",
+  "apType": "Type d'apparence :",
+  "create": "Créer",
+  "text": "Configurer le texte",
+  "location": "Emplacement :",
+  "lock": "Verrouiller le document après la signature",
+  "mulfile": "Appliquer à plusieurs fichiers",
+  "sign": "Signer",
+  "cancel": "Annuler",
+  "issuer": "Émetteur de certificat",
+  "newId": "Nouvel ID...",
+  "incorrectPwd": "Mot de passe incorrect!",
+  "emptyPwd": "Saisissez le mot de passe.",
+  "ap": {
+    "standard": "Style standard",
+    "clear": "Effacer",
+    "title": "Titre :"
+  },
+  "createNewID": "Aucune identification numérique trouvée. Cliquez sur le bouton OK pour en créer un.",
+  "reason": {
+    "title": "Raison:",
+    "0": "Je suis l'auteur de ce document",
+    "1": "j'ai revu ce document",
+    "2": "J'approuve ce document",
+    "3": "J'approuve ce document avec ma signature juridiquement contraignante",
+    "4": "J'atteste de l'exactitude et de l'intégrité de ce document",
+    "5": "J'accepte les conditions définies par l'apposition de ma signature dans ce document",
+    "6": "J'accepte les parties spécifiées de ce document"
+  },
+  "text-direction": {
+    "title": "Direction du texte",
+    "auto": "Automatique",
+    "ltr": "De gauche à droite",
+    "rtl": "De droite à gauche"
+  },
+  "moreSigns": "Plusieurs champs non signés ont été trouvés, mais seul le premier champ de signature sera signé. Voulez-vous continuer ?",
+  "fontsize": "taille de police",
+  "logo": {
+    "title": "Configurer le logo",
+    "prop": "Propriété du logo"
+  },
+  "placeSig": {
+    "tip": "Placez un champ de signature et signez numériquement le document.",
+    "text": "Placer une signature..."
+  },
+  "signDoc": {
+    "tip": "Signez le document avec une signature numérique.",
+    "text": "Signer le document..."
+  },
+  "signLater": "Vous avez placé une signature vide dans le document, si vous voulez qu'elle prenne effet, vous devez signer le document",
+  "commonName": "votre nom commun ici",
+  "distinguishName": "ton nom distingué",
+  "staticReason": "la raison de votre signature ici",
+  "staticLocation": "l'emplacement de votre signature ici",
+  "specialError": "Les caractères spéciaux ne sont pas valides.",
+  "certify": {
+    "perm": "Actions autorisées après la certification",
+    "noSpecified": "Conserver la valeur par défaut",
+    "perm0": "Aucune modification autorisée",
+    "perm1": "Remplissage de formulaires et signatures numériques",
+    "perm2": "Commenter, remplir des champs de formulaire, signer des champs existants",
+    "visible": "Certifier par une signature visible",
+    "visibleDesc": "Certifier le document de façon numérique à l'aide d'une signature visible",
+    "invisible": "Certifier sans signature visible",
+    "invisibleDesc": "Certifier le document de façon numérique à l'aide d'une signature invisible",
+    "trustCerts": "Certificats de confiance",
+    "trustCertsDesc": "Gérer les certificats de confiance pour les signatures numériques",
+    "header": "Certificats de confiance",
+    "edit": "Editer",
+    "add": "Ajouter",
+    "view": "Afficher",
+    "export": "Exporter",
+    "delete": "Supprimer",
+    "name": "Nom",
+    "issuedBy": "Délivré par",
+    "trust": "Accréditer",
+    "expiredData": "Données expirées",
+    "close": "Annuler",
+    "certName": "Nom:",
+    "issuer": "Émetteur :",
+    "validFrom": "Valide à partir de:",
+    "validTo": "Valable pour:",
+    "intent": "Utilisation prévue de la clé :",
+    "deleteConfirm": "Voulez-vous vraiment supprimer ce certificat ? Vous ne pourrez plus vérifier l'identité du propriétaire si vous le faites.",
+    "notCert": "Pas un certificat."
+  },
+  "trustedRoot": "Racine accréditée",
+  "nonTrustedRoot": "Racine non approuvée",
+  "viewCert": {
+    "header": "Modifier l'accréditation du certificat",
+    "detailTitle": "Détails du certificat",
+    "subject": "Sujet :",
+    "usage": "Utilisation :",
+    "expiration": "Expiration :",
+    "trust": "Accréditer",
+    "trustInfo": "Un certificat utilisé pour signer un document doit être désigné comme ancrage accrédité ou être enchaîné à un ancrage accrédité pour que la signature puisse être validée. Il n'y a pas de contrôle de révocation au niveau d'un ancrage accrédité ni au-delà.",
+    "trustRoot": "Utiliser ce certificat comme racine accréditée",
+    "afterSign": "Si la signature réussit, accréditer ce certificat pour:",
+    "valid": "Validation des signatures",
+    "validCert": "Validation des documents certifiés",
+    "ok": "OK",
+    "cancel": "Annuler"
+  },
+  "exportCert": {
+    "header": "Exporter des certificats",
+    "subtitle": "Les données suivantes seront exportées :",
+    "certTitle": "Mes certificats",
+    "certInfo": "Les certificats peuvent être utilisés par les destinataires pour valider les signatures que vous créez et chiffrer des documents pour vous. Votre clé privée ne sera pas exportée avec le certificat.",
+    "option": {
+      "title": "Options d'exportation :",
+      "formatHint": "Sélectionnez le mode d'exportation des données :",
+      "email": "Partager les données par e-mail",
+      "file": "Enregistrer les données dans un fichier"
+    }
+  }
+}

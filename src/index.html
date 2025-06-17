@@ -20,10 +20,11 @@
   <script type="text/javascript" src="assets/scripts/rxsignlibrary.js"></script>
   <script type="text/javascript" src="assets/scripts/BufferGeometryUtils.js"></script>
   <script>
-  var path = window.location.pathname;
-  var baseHref = path.substring(0, path.indexOf('/', 1) + 1);
-  document.write('<base href="' + baseHref + '">');
-</script>
+    var path = window.location.pathname;
+    var baseHref = path.substring(0, path.indexOf('/', 1) + 1) || '/';
+    document.write('<base href="' + baseHref + '">');
+  </script>
+
   <link rel="preconnect" href="https://fonts.gstatic.com">
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">

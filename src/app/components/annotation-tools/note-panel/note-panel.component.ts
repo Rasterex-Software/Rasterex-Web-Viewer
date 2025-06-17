@@ -4141,12 +4141,6 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
 
     // Clear all filters
   clearAllFilters(): void {
-    // Reset author filters in note-panel
-    this.authorFilter = new Set(this.getUniqueAuthorList());
-    
-    // Trigger author selection in comment-list-filter component
-    this.triggerAuthorSelection();
-    
     // If switches are active, apply them to ensure proper visibility
     if(this.showAnnotations){
       this.onToggleAnnotations(true);
@@ -4155,6 +4149,12 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     if(this.showMeasurements){
       this.onToggleMeasurements(true);
     }
+
+    // Reset author filters in note-panel
+    this.authorFilter = new Set(this.getUniqueAuthorList());
+    
+    // Trigger author selection in comment-list-filter component
+    this.triggerAuthorSelection();
   }
 
   // Method to trigger onAuthorSelect in comment-list-filter component
@@ -4171,18 +4171,47 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     // Get all unique author signatures
     const allAuthorSignatures = [...new Set(markupList.map((item: any) => item.signature))];
     
+    // First, ensure all authors are selected in the filter component
+    this.commentsListFiltersComponent.selectedAuthors = [...allAuthorSignatures];
+    
     // Create a mock event
     const mockEvent = {
       stopPropagation: () => {},
       preventDefault: () => {}
     } as Event;
 
-    // Trigger onAuthorSelect for each author
+    // Only trigger onAuthorSelect for authors that were NOT previously selected
     allAuthorSignatures.forEach(signature => {
-      this.commentsListFiltersComponent.onAuthorSelect(signature, mockEvent);
+      // Check if this author was NOT in the previous selection
+      if (!this.commentsListFiltersComponent.selectedAuthors.includes(signature)) {
+        this.commentsListFiltersComponent.onAuthorSelect(signature, mockEvent);
+      }
     });
 
-    console.log('✅ Author selection events triggered for:', allAuthorSignatures);
+    // Force all authors to be selected and trigger events for proper state management
+    allAuthorSignatures.forEach(signature => {
+      const authorObj = this.commentsListFiltersComponent.authorOptions.find(opt => opt.value === signature);
+      if (authorObj) {
+        // Emit the selection event to parent component
+        this.commentsListFiltersComponent.onShowAuthor.emit({ 
+          event: { 
+            target: { checked: true },
+            stopPropagation: () => {},
+            preventDefault: () => {}
+          }, 
+          author: authorObj,
+          isSelected: true,
+          wasSelected: false,
+          action: 'select'
+        });
+      }
+    });
+
+    // Update filter options and refresh UI
+    this.commentsListFiltersComponent.emitFilterCountChange();
+    this.commentsListFiltersComponent.onCreatedByFilterChange.emit(allAuthorSignatures);
+
+    console.log('✅ All authors selected and events triggered for:', allAuthorSignatures);
   }
 
   /**

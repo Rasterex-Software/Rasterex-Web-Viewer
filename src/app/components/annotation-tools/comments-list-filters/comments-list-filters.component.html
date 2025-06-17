@@ -144,7 +144,7 @@
               >
                 <input
                   type="checkbox"
-                  [checked]="author.value === 'all' ? selectedAuthors.length === (authorOptions.length - 1) : isAuthorSelected(author.value)"
+                  [checked]="isAuthorSelected(author.value)"
                   readonly
                 />
                 <span>{{ author.label }}</span>
@@ -184,17 +184,6 @@
 
           <div *ngIf="typeDropdownOpen" class="multi-select-dropdown">
             <div class="dropdown-options">
-              <div
-                class="dropdown-option select-all-option"
-                (click)="onTypeSelect('all', $event)"
-              >
-                <input
-                  type="checkbox"
-                  [checked]="selectedTypes.length === (typeOptions.length)"
-                  readonly
-                />
-                <span>Select All</span>
-              </div>
               <div
                 *ngFor="let type of typeOptions"
                 class="dropdown-option"

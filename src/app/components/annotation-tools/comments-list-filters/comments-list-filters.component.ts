@@ -31,6 +31,13 @@ export class CommentsListFiltersComponent implements OnInit, OnChanges {
     action?: 'select' | 'deselect',
     isBulkOperation?: boolean
   }>();
+  @Output() onShowAuthor = new EventEmitter<{ 
+    event: any, 
+    author: any,
+    isSelected?: boolean,
+    wasSelected?: boolean,
+    action?: 'select' | 'deselect'
+  }>();
 
   // Collapsible state
   isCollapsed = false;
@@ -70,7 +77,6 @@ export class CommentsListFiltersComponent implements OnInit, OnChanges {
 
   // Author filter options
   authorOptions = [
-    { label: 'All Authors', value: 'all' },
     { label: 'John Doe', value: 'john' },
     { label: 'Jane Roe', value: 'jane' },
     { label: 'Mike Smith', value: 'mike' },
@@ -492,21 +498,66 @@ export class CommentsListFiltersComponent implements OnInit, OnChanges {
 
   onAuthorSelect(authorValue: string, event: Event): void {
     event.stopPropagation();
-    if (authorValue === 'all') {
-      this.selectedAuthors = this.authorOptions.slice(1).map(a => a.value);
+    event.preventDefault(); // Prevent any default behavior
+    
+    console.log('🎯 onAuthorSelect START:', { 
+      authorValue, 
+      currentSelected: [...this.selectedAuthors],
+      wasSelected: this.selectedAuthors.includes(authorValue)
+    });
+    
+    const wasSelected = this.selectedAuthors.includes(authorValue);
+    
+    // Handle individual author selection/deselection
+    const index = this.selectedAuthors.indexOf(authorValue);
+    
+    if (index > -1) {
+      // Deselect the author
+      this.selectedAuthors.splice(index, 1);
+      console.log('🎯 Deselected author:', authorValue);
     } else {
-      const index = this.selectedAuthors.indexOf(authorValue);
-      if (index > -1) {
-        this.selectedAuthors.splice(index, 1);
-      } else {
-        this.selectedAuthors.push(authorValue);
-      }
+      // Select the author
+      this.selectedAuthors.push(authorValue);
+      console.log('🎯 Selected author:', authorValue);
     }
-    console.log('Selected authors:', this.selectedAuthors);
+    
+    const isNowSelected = this.selectedAuthors.includes(authorValue);
+    const authorObj = this.authorOptions.find(a => a.value === authorValue);
+    
+    console.log('🎯 Individual author change:', {
+      author: authorObj?.label,
+      wasSelected,
+      isNowSelected,
+      action: isNowSelected ? 'select' : 'deselect'
+    });
+    
+    if (authorObj) {
+      // Use setTimeout to prevent immediate re-processing and ensure state is stable
+      setTimeout(() => {
+        this.onShowAuthor.emit({ 
+          event: { 
+            ...event, 
+            target: { 
+              checked: isNowSelected 
+            } 
+          }, 
+          author: authorObj,
+          isSelected: isNowSelected,
+          wasSelected: wasSelected,
+          action: isNowSelected ? 'select' : 'deselect'
+        });
+      }, 0);
+    }
+    
+    console.log('🎯 onAuthorSelect END:', { 
+      authorValue, 
+      finalSelected: [...this.selectedAuthors]
+    });
+    
     this.updateGroupByOptions();
     this.checkAndResetGrouping();
     this.emitFilterCountChange();
-    // Emit author change to parent
+    // Emit author change to parent (for backward compatibility)
     this.onCreatedByFilterChange.emit(this.selectedAuthors);
   }
 
@@ -605,95 +656,46 @@ export class CommentsListFiltersComponent implements OnInit, OnChanges {
     
     const wasSelected = this.selectedTypes.includes(typeValue);
     
-    if (typeValue === 'all') {
-      // Handle "Select All" / "Deselect All"
-      const shouldSelectAll = this.selectedTypes.length !== this.typeOptions.length;
-      
-      // Capture the previous state of each option BEFORE making changes
-      const previousStates = new Map<string, boolean>();
-      this.typeOptions.forEach(option => {
-        previousStates.set(option.value, this.selectedTypes.includes(option.value));
-      });
-      
-      if (shouldSelectAll) {
-        // Select all types
-        this.selectedTypes = this.typeOptions.map(t => t.value);
-        console.log('🎯 Select All executed');
-      } else {
-        // Deselect all types
-        this.selectedTypes = [];
-        console.log('🎯 Deselect All executed');
-      }
-      
-      // Emit events for each type that changed
-      this.typeOptions.forEach(option => {
-        const wasOptionSelected = previousStates.get(option.value) || false;
-        const isNowSelected = this.selectedTypes.includes(option.value);
-        
-        // Only emit if the state actually changed for this option
-        if (isNowSelected !== wasOptionSelected) {
-          console.log('🎯 Emitting bulk change for:', option.label, 'from', wasOptionSelected, 'to', isNowSelected);
-          
-          // Use setTimeout to prevent immediate re-processing
-          setTimeout(() => {
-            this.onShowType.emit({ 
-              event: { 
-                ...event, 
-                target: { 
-                  checked: isNowSelected 
-                } 
-              }, 
-              type: option,
-              isSelected: isNowSelected,
-              wasSelected: wasOptionSelected,
-              action: isNowSelected ? 'select' : 'deselect',
-              isBulkOperation: true
-            });
-          }, 0);
-        }
-      });
-      
+    // Handle individual type selection/deselection
+    const index = this.selectedTypes.indexOf(typeValue);
+    
+    if (index > -1) {
+      // Deselect the type
+      this.selectedTypes.splice(index, 1);
+      console.log('🎯 Deselected type:', typeValue);
     } else {
-      // Handle individual type selection/deselection
-      const index = this.selectedTypes.indexOf(typeValue);
-      
-      if (index > -1) {
-        // Deselect the type
-        this.selectedTypes.splice(index, 1);
-        console.log('🎯 Deselected type:', typeValue);
-      } else {
-        // Select the type
-        this.selectedTypes.push(typeValue);
-        console.log('🎯 Selected type:', typeValue);
-      }
-      
-      const isNowSelected = this.selectedTypes.includes(typeValue);
-      const typeObj = this.typeOptions.find(t => t.value === typeValue);
-      
-      console.log('🎯 Individual type change:', {
-        type: typeObj?.label,
-        wasSelected,
-        isNowSelected,
-        action: isNowSelected ? 'select' : 'deselect'
-      });
-      
-      if (typeObj) {
-        // Use setTimeout to prevent immediate re-processing and ensure state is stable
-        setTimeout(() => {
-          this.onShowType.emit({ 
-            event: { 
-              ...event, 
-              target: { 
-                checked: isNowSelected 
-              } 
-            }, 
-            type: typeObj,
-            isSelected: isNowSelected,
-            wasSelected: wasSelected,
-            action: isNowSelected ? 'select' : 'deselect'
-          });
-        }, 0);
-      }
+      // Select the type
+      this.selectedTypes.push(typeValue);
+      console.log('🎯 Selected type:', typeValue);
+    }
+    
+    const isNowSelected = this.selectedTypes.includes(typeValue);
+    const typeObj = this.typeOptions.find(t => t.value === typeValue);
+    
+    console.log('🎯 Individual type change:', {
+      type: typeObj?.label,
+      wasSelected,
+      isNowSelected,
+      action: isNowSelected ? 'select' : 'deselect'
+    });
+    
+    if (typeObj) {
+      // Use setTimeout to prevent immediate re-processing and ensure state is stable
+      setTimeout(() => {
+        this.onShowType.emit({ 
+          event: { 
+            ...event, 
+            target: { 
+              checked: isNowSelected 
+            } 
+          }, 
+          type: typeObj,
+          isSelected: isNowSelected,
+          wasSelected: wasSelected,
+          action: isNowSelected ? 'select' : 'deselect',
+          isBulkOperation: false
+        });
+      }, 0);
     }
     
     console.log('🎯 onTypeSelect END:', { 
@@ -800,7 +802,7 @@ export class CommentsListFiltersComponent implements OnInit, OnChanges {
       const validAuthors = this.createdByFilterOptions.filter(author => 
         author.label && author.label !== 'Select' && author.value && author.value !== 'select'
       );
-      this.authorOptions = [{ label: 'All Authors', value: 'all' }, ...validAuthors];
+      this.authorOptions = [...validAuthors];
     }
 
     // Update type options from parent if provided
@@ -923,9 +925,9 @@ export class CommentsListFiltersComponent implements OnInit, OnChanges {
     
     // Select relevant authors
     relevantAuthors.forEach(author => {
-      // Find author in options (excluding 'all')
+      // Find author in options
       const authorOption = this.authorOptions.find(opt => 
-        opt.value !== 'all' && opt.label === author
+        opt.label === author
       );
       
       if (authorOption && !this.selectedAuthors.includes(authorOption.value)) {

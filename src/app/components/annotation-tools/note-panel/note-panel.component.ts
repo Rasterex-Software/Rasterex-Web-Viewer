@@ -1419,16 +1419,42 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     // Also check the type filter state for additional filtering logic
     const typeFilterResult = this._getmarkupTypeDisplay(markup);
     
+    // Check author filter state if author filters are active
+    const authorFilterResult = this._shouldShowMarkupForAuthor(markup);
+    
     console.log('🎯 Comment list visibility check:', {
       markupType: markup.getMarkupType().label,
       markupNumber: markup.markupnumber,
+      markupAuthor: markup.signature,
       canvasDisplay: markup.display,
       typeFilterResult: typeFilterResult,
-      finalDecision: markup.display !== false && typeFilterResult !== false
+      authorFilterResult: authorFilterResult,
+      finalDecision: markup.display !== false && typeFilterResult !== false && authorFilterResult !== false
     });
     
-    // Show if both canvas display and type filter allow it
-    return markup.display !== false && typeFilterResult !== false;
+    // Show if canvas display, type filter, and author filter all allow it
+    return markup.display !== false && typeFilterResult !== false && authorFilterResult !== false;
+  }
+
+  /**
+   * Check if a markup should be shown based on author filtering
+   */
+  private _shouldShowMarkupForAuthor(markup: any): boolean {
+    // If no author filters are active in the filter component, show all
+    if (!this.commentsListFiltersComponent || this.commentsListFiltersComponent.selectedAuthors.length === 0) {
+      return true;
+    }
+    
+    // Check if the markup's author is in the selected authors list
+    const isAuthorSelected = this.commentsListFiltersComponent.selectedAuthors.includes(markup.signature);
+    
+    console.log('🎯 Author filter check:', {
+      markupAuthor: markup.signature,
+      selectedAuthors: this.commentsListFiltersComponent.selectedAuthors,
+      isSelected: isAuthorSelected
+    });
+    
+    return isAuthorSelected;
   }
 
   ngOnInit(): void {
@@ -3415,6 +3441,16 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
 
     console.log('🎯 Updated filter selections:', this.commentsListFiltersComponent.selectedTypes);
 
+    // Also select relevant authors from visible markups
+    const relevantAuthors = [...new Set(visibleMarkups.map(markup => 
+      RXCore.getDisplayName(markup.signature)
+    ))];
+
+    console.log('🎯 Found relevant authors:', relevantAuthors);
+
+    // Select relevant authors in the filters
+    this.commentsListFiltersComponent.selectRelevantAuthors(relevantAuthors);
+
     // Force UI refresh to ensure changes are visible
     this.commentsListFiltersComponent.forceUIRefresh();
   }
@@ -3508,7 +3544,9 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       type: type,
       isProcessingFilterChange: this.isProcessingFilterChange,
       eventType: typeof $event,
-      hasTarget: !!$event.target
+      hasTarget: !!$event.target,
+      action: $event.action,
+      isBulkOperation: $event.isBulkOperation
     });
 
     // Prevent circular event handling
@@ -4186,6 +4224,121 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     this.commentsListFiltersComponent.forceUIRefresh();
 
     console.log('🎯 Filter selections synced:', this.commentsListFiltersComponent.selectedTypes);
+  }
+
+  /**
+   * Handle author filtering - similar to type filtering but for authors
+   */
+  onShowAuthor($event: any, author: any) {
+    console.log('🎯 onShowAuthor called:', { 
+      event: $event, 
+      author: author,
+      isProcessingFilterChange: this.isProcessingFilterChange,
+      eventType: typeof $event,
+      hasTarget: !!$event.target,
+      action: $event.action
+    });
+
+    // Prevent circular event handling
+    if (this.isProcessingFilterChange) {
+      console.log('🎯 Skipping onShowAuthor - already processing filter change');
+      return;
+    }
+
+    // Check if this is coming from the filter component with enhanced data
+    if ($event.isSelected !== undefined && $event.action !== undefined) {
+      // This is a filter-driven change
+      console.log('🎯 Filter-driven author change:', {
+        author: author.label || author.value,
+        action: $event.action,
+        isSelected: $event.isSelected
+      });
+
+      // Set flag to prevent circular processing
+      this.isProcessingFilterChange = true;
+
+      try {
+        // Handle author filtering by updating canvas and comment list
+        this._handleShowMarkupAuthor(author, {
+          target: {
+            checked: $event.isSelected
+          }
+        });
+        
+        // Refresh the list to apply the changes
+        this._refreshAnnotationList();
+      } finally {
+        // Always clear the flag, even if an error occurs
+        setTimeout(() => {
+          this.isProcessingFilterChange = false;
+        }, 100);
+      }
+      return;
+    }
+
+    // Check if this is a direct checkbox event (has target.checked property)
+    if ($event.target && $event.target.checked !== undefined) {
+      // This is a direct checkbox interaction
+      console.log('🎯 Direct checkbox interaction for author:', {
+        author: author.label || author.value,
+        checked: $event.target.checked
+      });
+
+      // Set flag to prevent circular processing
+      this.isProcessingFilterChange = true;
+
+      try {
+        // Handle author filtering
+        this._handleShowMarkupAuthor(author, $event);
+      } finally {
+        // Always clear the flag, even if an error occurs
+        setTimeout(() => {
+          this.isProcessingFilterChange = false;
+        }, 100);
+      }
+      return;
+    }
+
+    console.log('🎯 Author filtering completed');
+  }
+
+  /**
+   * Handle showing/hiding markups by author
+   */
+  private _handleShowMarkupAuthor(author: any, event: any): void {
+    console.log('🎯 _handleShowMarkupAuthor called:', {
+      author: author,
+      checked: event.target.checked
+    });
+
+    const markupList = this.rxCoreService.getGuiMarkupList();
+    const isVisible = event.target.checked;
+
+    if (!markupList) return;
+
+    // Update markups on canvas based on author
+    for (const markup of markupList) {
+      // Check if this markup belongs to the author
+      if (markup.signature === author.value) {
+        console.log('🎯 Author match found:', {
+          markupNumber: markup.markupnumber,
+          markupAuthor: markup.signature,
+          filterAuthor: author.value,
+          setting: isVisible ? 'visible' : 'hidden'
+        });
+        
+        // Update canvas display
+        markup.setdisplay(isVisible);
+      }
+    }
+
+    // Redraw canvas
+    RXCore.markUpRedraw();
+    
+    // Update comment list
+    this._processList(markupList);
+
+    console.log('🎯 Author filtering completed for:', author.label || author.value);
   }
 
 }

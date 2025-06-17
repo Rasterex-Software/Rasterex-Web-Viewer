@@ -1173,22 +1173,50 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
 
   private _processList(list: Array<IMarkup> = [], annotList: Array<IMarkup> = []): void {
     /*modified for comment list panel */
+    console.log('🎯 _processList called with:', {
+      listLength: list.length,
+      annotListLength: annotList.length,
+      showAnnotations: this.showAnnotations,
+      showMeasurements: this.showMeasurements
+    });
 
     const mergeList = [...list, ...annotList];
     const query = mergeList.filter((i: any) => {
       // Apply annotation/measurement filtering based on switches
       if (this.showAnnotations && !this.showMeasurements) {
         // Show only annotations (non-measurements)
-        return !i.ismeasure;
+        const isAnnotation = !i.ismeasure;
+        if (!isAnnotation) {
+          console.log('🎯 Filtering out measurement:', i.getMarkupType().label);
+          return false;
+        }
       } else if (this.showMeasurements && !this.showAnnotations) {
         // Show only measurements
-        return i.ismeasure;
+        const isMeasurement = i.ismeasure;
+        if (!isMeasurement) {
+          console.log('🎯 Filtering out annotation:', i.getMarkupType().label);
+          return false;
+        }
       } else if (!this.showAnnotations && !this.showMeasurements) {
         // Show nothing when both switches are off
+        console.log('🎯 Both switches off - filtering out all items');
         return false;
       }
-      // If both switches are on or neither is explicitly set, use the detailed type display logic
-      return this._getmarkupTypeDisplay(i);
+      
+      // Check individual type display state - this is the key fix!
+      // Instead of just checking rxTypeFilter, we check the actual markup display state
+      const shouldShow = this._shouldShowMarkupInCommentList(i);
+      
+      if (!shouldShow) {
+        console.log('🎯 Filtering out due to type filter:', {
+          type: i.getMarkupType().label,
+          markupNumber: i.markupnumber,
+          display: i.display,
+          typeFilterState: this._getmarkupTypeDisplay(i)
+        });
+      }
+      
+      return shouldShow;
     })
     .filter((i: any) => {
     /*modified for comment list panel */
@@ -1290,6 +1318,11 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       }
     });
 
+    console.log('🎯 _processList final query results:', {
+      totalItems: query.length,
+      itemTypes: query.map(item => item.getMarkupType().label)
+    });
+
     switch (this.sortByField) {
       case 'created':
         this.list = query.reduce((list, item) => {
@@ -1369,6 +1402,33 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
         '': query,
       };
     }*/
+  }
+
+  /**
+   * Enhanced method to determine if a markup should be shown in the comment list
+   * This method checks both the canvas display state and the type filter state
+   */
+  private _shouldShowMarkupInCommentList(markup: any): boolean {
+    // First check if the markup is actually displayed on the canvas
+    // This is the most reliable indicator
+    if (markup.display === false) {
+      console.log('🎯 Markup hidden on canvas, hiding from comment list:', markup.getMarkupType().label);
+      return false;
+    }
+    
+    // Also check the type filter state for additional filtering logic
+    const typeFilterResult = this._getmarkupTypeDisplay(markup);
+    
+    console.log('🎯 Comment list visibility check:', {
+      markupType: markup.getMarkupType().label,
+      markupNumber: markup.markupnumber,
+      canvasDisplay: markup.display,
+      typeFilterResult: typeFilterResult,
+      finalDecision: markup.display !== false && typeFilterResult !== false
+    });
+    
+    // Show if both canvas display and type filter allow it
+    return markup.display !== false && typeFilterResult !== false;
   }
 
   ngOnInit(): void {
@@ -3446,7 +3506,9 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     console.log('🎯 onShowType called:', { 
       event: $event, 
       type: type,
-      isProcessingFilterChange: this.isProcessingFilterChange
+      isProcessingFilterChange: this.isProcessingFilterChange,
+      eventType: typeof $event,
+      hasTarget: !!$event.target
     });
 
     // Prevent circular event handling
@@ -3486,7 +3548,30 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       return;
     }
 
-    // This is a direct button click, use the original toggle logic
+    // Check if this is a direct checkbox event (has target.checked property)
+    if ($event.target && $event.target.checked !== undefined) {
+      // This is a direct checkbox interaction - use your original simple logic
+      console.log('🎯 Direct checkbox interaction:', {
+        type: type.label || type.typename,
+        checked: $event.target.checked
+      });
+
+      // Set flag to prevent circular processing
+      this.isProcessingFilterChange = true;
+
+      try {
+        // Use your original working logic for direct checkboxes
+        this._handleShowMarkupType(type, $event, markup => markup.getMarkupType().label === type.label);
+      } finally {
+        // Always clear the flag, even if an error occurs
+        setTimeout(() => {
+          this.isProcessingFilterChange = false;
+        }, 100);
+      }
+      return;
+    }
+
+    // This is a direct button click (no checkbox), use the toggle logic
     console.log('🎯 Direct button click - toggling type:', type);
     
     // For button clicks, we need to toggle the current state
@@ -3506,11 +3591,8 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
         }
       };
 
-      // Use the enhanced type matching function for better accuracy
-      this._handleShowMarkupTypeEnhanced(type, mockEvent);
-      
-      // Refresh the list to apply the combined filters (switches + type filters)
-      this._refreshAnnotationList();
+      // Use your original working logic
+      this._handleShowMarkupType(type, mockEvent, markup => markup.getMarkupType().label === type.label);
     } finally {
       // Always clear the flag, even if an error occurs
       setTimeout(() => {

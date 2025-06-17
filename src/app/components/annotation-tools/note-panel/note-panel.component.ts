@@ -2169,7 +2169,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
         this._ensureFilterSynchronization();
       }, 150);
     }
-    
+
     // Wait for DOM to be ready and then update leader line position
     setTimeout(() => {
       this._waitForDOMAndUpdateLeaderLine();
@@ -3222,8 +3222,9 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       this.showAnnotations = false;
       this.onShowAnnotations(false);
       
-      // Automatically deselect annotation types in filters
+      // Deselect annotation types and clear authors/pages
       this._deselectAnnotationTypesInFilters();
+      this._clearAuthorAndPageSelections();
     }
     
     // Refresh the list to apply the new filter
@@ -3256,8 +3257,9 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       this.showMeasurements = false;
       this.onShowMeasurements(false);
       
-      // Automatically deselect measurement types in filters
+      // Deselect measurement types and clear authors/pages
       this._deselectMeasurementTypesInFilters();
+      this._clearAuthorAndPageSelections();
     }
     
     // Refresh the list to apply the new filter
@@ -3309,6 +3311,28 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
   private _deselectMeasurementTypesInFilters(): void {
     if (this.commentsListFiltersComponent) {
       this.commentsListFiltersComponent.deselectMeasurementTypes();
+    }
+  }
+
+  /**
+   * Clear all filter selections - used when both switches are turned off
+   */
+  private _clearAllFilterSelections(): void {
+    if (this.commentsListFiltersComponent) {
+      this.commentsListFiltersComponent.clearAllFiltersInternal();
+      console.log('🎯 All filter selections cleared via clearAllFiltersInternal()');
+    }
+  }
+
+  /**
+   * Clear author and page selections when a switch is turned off
+   */
+  private _clearAuthorAndPageSelections(): void {
+    if (this.commentsListFiltersComponent) {
+      this.commentsListFiltersComponent.selectedAuthors = [];
+      this.commentsListFiltersComponent.selectedPages = [];
+      this.commentsListFiltersComponent.forceUIRefresh();
+      console.log('🎯 Author and page selections cleared');
     }
   }
 
@@ -3611,7 +3635,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
 
     // This is a direct button click (no checkbox), use the toggle logic
     console.log('🎯 Direct button click - toggling type:', type);
-    
+
     // For button clicks, we need to toggle the current state
     const currentState = this.showType(type);
     const newState = !currentState;
@@ -3622,15 +3646,15 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     this.isProcessingFilterChange = true;
 
     try {
-      // Create a mock event object that mimics checkbox behavior for compatibility
-      const mockEvent = {
-        target: {
-          checked: newState
-        }
-      };
+    // Create a mock event object that mimics checkbox behavior for compatibility
+    const mockEvent = {
+      target: {
+        checked: newState
+      }
+    };
 
       // Use your original working logic
-      this._handleShowMarkupType(type, mockEvent, markup => markup.getMarkupType().label === type.label);
+    this._handleShowMarkupType(type, mockEvent, markup => markup.getMarkupType().label === type.label);
     } finally {
       // Always clear the flag, even if an error occurs
       setTimeout(() => {
@@ -4042,6 +4066,9 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
         this.authorFilter.delete(author);
         //turn off display for this user
         RXCore.SetUserMarkupdisplay(userindx, false);
+        
+        // Also update individual markups to respect switch states
+        this._updateAuthorMarksWithSwitchRespect(author, false);
       } else {
         console.log(`Cannot hide author ${author} because their markup ${this.activeMarkupNumber} is currently active`);
       }
@@ -4051,6 +4078,9 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
 
       RXCore.SetUserMarkupdisplay(userindx, true);
       //turn on display for this user
+      
+      // Also update individual markups to respect switch states
+      this._updateAuthorMarksWithSwitchRespect(author, true);
 
     }
 
@@ -4109,14 +4139,50 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     console.log('Filter count updated:', count);
   }
 
-  // Clear all filters
+    // Clear all filters
   clearAllFilters(): void {
-    this.activeFilterCount = 0;
-    // Call the actual clear filters method in the comments list filters component
-    if (this.commentsListFiltersComponent) {
-      this.commentsListFiltersComponent.clearAllFiltersInternal();
+    // Reset author filters in note-panel
+    this.authorFilter = new Set(this.getUniqueAuthorList());
+    
+    // Trigger author selection in comment-list-filter component
+    this.triggerAuthorSelection();
+    
+    // If switches are active, apply them to ensure proper visibility
+    if(this.showAnnotations){
+      this.onToggleAnnotations(true);
     }
-    console.log('All filters cleared from note panel');
+    
+    if(this.showMeasurements){
+      this.onToggleMeasurements(true);
+    }
+  }
+
+  // Method to trigger onAuthorSelect in comment-list-filter component
+  triggerAuthorSelection(): void {
+    if (!this.commentsListFiltersComponent) {
+      return;
+    }
+
+    const markupList = this.rxCoreService.getGuiMarkupList();
+    if (!markupList) {
+      return;
+    }
+
+    // Get all unique author signatures
+    const allAuthorSignatures = [...new Set(markupList.map((item: any) => item.signature))];
+    
+    // Create a mock event
+    const mockEvent = {
+      stopPropagation: () => {},
+      preventDefault: () => {}
+    } as Event;
+
+    // Trigger onAuthorSelect for each author
+    allAuthorSignatures.forEach(signature => {
+      this.commentsListFiltersComponent.onAuthorSelect(signature, mockEvent);
+    });
+
+    console.log('✅ Author selection events triggered for:', allAuthorSignatures);
   }
 
   /**
@@ -4141,7 +4207,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
           if (subtype === 5) return 'Angle Counter-Clockwise';
           break;
         case 3:
-          if (subtype === 0) return 'Rectangle';
+          // if (subtype === 0) return 'Rectangle';
           if (subtype === 1) return 'Rounded Rectangle';
           if (subtype === 3) return 'Highlighter';
           if (subtype === 6) return 'Rectangle Measure';
@@ -4163,7 +4229,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
           if (subtype === 0) return 'Note';
           break;
         case 11:
-          if (subtype === 1) return 'Image';
+          if (subtype === 1) return 'Symbol';
           if (subtype === 3) return 'Signature';
           if (subtype === 12) return 'Stamp';
           break;
@@ -4303,12 +4369,74 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
   }
 
   /**
+   * Update individual author markups while respecting switch states
+   */
+  private _updateAuthorMarksWithSwitchRespect(authorName: string, isVisible: boolean): void {
+    console.log('🎯 _updateAuthorMarksWithSwitchRespect called:', {
+      authorName: authorName,
+      isVisible: isVisible,
+      showAnnotations: this.showAnnotations,
+      showMeasurements: this.showMeasurements
+    });
+
+    const markupList = this.rxCoreService.getGuiMarkupList();
+    if (!markupList) return;
+
+    // Update markups on canvas based on author
+    for (const markup of markupList) {
+      // Check if this markup belongs to the author
+      const markupAuthor = RXCore.getDisplayName(markup.signature);
+      if (markupAuthor === authorName) {
+        console.log('🎯 Author markup found:', {
+          markupNumber: markup.markupnumber,
+          markupAuthor: markupAuthor,
+          filterAuthor: authorName,
+          ismeasure: (markup as any).ismeasure,
+          setting: isVisible ? 'visible' : 'hidden'
+        });
+        
+        // Respect the annotation/measurement switch states
+        let shouldShow = isVisible;
+        
+        if (isVisible) {
+          // Only show if the switches allow it
+          if ((markup as any).ismeasure) {
+            // This is a measurement - only show if measurements switch is ON
+            shouldShow = this.showMeasurements === true;
+          } else {
+            // This is an annotation - only show if annotations switch is ON
+            shouldShow = this.showAnnotations === true;
+          }
+          
+          console.log('🎯 Switch state check:', {
+            markupNumber: markup.markupnumber,
+            isMeasurement: (markup as any).ismeasure,
+            showMeasurements: this.showMeasurements,
+            showAnnotations: this.showAnnotations,
+            finalDecision: shouldShow ? 'visible' : 'hidden (blocked by switch)'
+          });
+        }
+        
+        // Update canvas display
+        markup.setdisplay(shouldShow);
+      }
+    }
+
+    // Redraw canvas
+    RXCore.markUpRedraw();
+    
+    console.log('🎯 Author markup update completed for:', authorName);
+  }
+
+  /**
    * Handle showing/hiding markups by author
    */
   private _handleShowMarkupAuthor(author: any, event: any): void {
     console.log('🎯 _handleShowMarkupAuthor called:', {
       author: author,
-      checked: event.target.checked
+      checked: event.target.checked,
+      showAnnotations: this.showAnnotations,
+      showMeasurements: this.showMeasurements
     });
 
     const markupList = this.rxCoreService.getGuiMarkupList();
@@ -4324,11 +4452,34 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
           markupNumber: markup.markupnumber,
           markupAuthor: markup.signature,
           filterAuthor: author.value,
+          ismeasure: (markup as any).ismeasure,
           setting: isVisible ? 'visible' : 'hidden'
         });
         
+        // Respect the annotation/measurement switch states
+        let shouldShow = isVisible;
+        
+        if (isVisible) {
+          // Only show if the switches allow it
+          if ((markup as any).ismeasure) {
+            // This is a measurement - only show if measurements switch is ON
+            shouldShow = this.showMeasurements === true;
+          } else {
+            // This is an annotation - only show if annotations switch is ON
+            shouldShow = this.showAnnotations === true;
+          }
+          
+          console.log('🎯 Switch state check:', {
+            markupNumber: markup.markupnumber,
+            isMeasurement: (markup as any).ismeasure,
+            showMeasurements: this.showMeasurements,
+            showAnnotations: this.showAnnotations,
+            finalDecision: shouldShow ? 'visible' : 'hidden (blocked by switch)'
+          });
+        }
+        
         // Update canvas display
-        markup.setdisplay(isVisible);
+        markup.setdisplay(shouldShow);
       }
     }
 

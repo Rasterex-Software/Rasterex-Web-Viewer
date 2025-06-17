@@ -1026,4 +1026,15 @@ June 06, 3025
   `modified:   src/app/components/annotation-tools/note-panel/note-panel.component.html`
   `modified:   src/app/components/annotation-tools/note-panel/note-panel.component.scss`
   `modified:   src/app/components/annotation-tools/note-panel/note-panel.component.ts`
-  
+
+June 07, 3025
+
+# Filters are functional and working properly
+
+  `modified:   src/app/components/annotation-tools/comments-list-filters/comments-list-filters.component.html`
+  `modified:   src/app/components/annotation-tools/comments-list-filters/comments-list-filters.component.scss`
+  `modified:   src/app/components/annotation-tools/comments-list-filters/comments-list-filters.component.ts`      
+  `modified:   src/app/components/annotation-tools/note-panel/note-panel.component.html`
+  `modified:   src/app/components/annotation-tools/note-panel/note-panel.component.scss`
+  `modified:   src/app/components/annotation-tools/note-panel/note-panel.component.ts`
+  `modified:   src/app/components/common/date-picker/date-picker.component.scss`

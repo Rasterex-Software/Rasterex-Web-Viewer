@@ -182,6 +182,7 @@
           gap: 4px;
 
           .filter-header {
+            width: 100%;
             display: flex;
             flex-direction: row;
             justify-content: space-between;
@@ -210,19 +211,20 @@
           }
 
           .clear-filters-btn {
+            border: 1px solid #374151;
             white-space: nowrap;
             padding: 2px 4px;
             font-size: 9px;
-            background-color: #ef4444;
-            color: white;
+            background-color: transparent;
+            color: #374151;
             border-radius: 4px;
             cursor: pointer;
             transition: all 0.2s ease;
             animation: fadeIn 0.3s ease-in-out;
 
             &:hover {
-              background-color: #dc2626;
-              transform: scale(1.05);
+              background: #f3f4f6;
+              color: #111827;
             }
 
             &:active {

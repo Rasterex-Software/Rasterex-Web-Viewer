@@ -228,20 +228,92 @@ export class CommentsListFiltersComponent implements OnInit, OnChanges {
     }
   }
 
+  /**
+   * Alternative method to check if an element is part of our dropdown system
+   */
+  private isElementPartOfDropdownSystem(element: HTMLElement): boolean {
+    // Check for multi-select related classes
+    const dropdownClasses = [
+      'multi-select-container',
+      'multi-select-wrapper', 
+      'multi-select-dropdown',
+      'dropdown-options',
+      'dropdown-option',
+      'selected-items',
+      'selected-page-pill',
+      'selected-author-pill', 
+      'selected-type-pill',
+      'dropdown-arrow',
+      'type-option-content',
+      'type-icon',
+      'type-label',
+      'type-emoji',
+      'pill-type-icon',
+      'pill-type-label',
+      'pill-type-emoji'
+    ];
+
+    // Check if element or any parent has dropdown-related classes
+    let currentElement: HTMLElement | null = element;
+    while (currentElement) {
+      if (dropdownClasses.some(className => currentElement!.classList.contains(className))) {
+        return true;
+      }
+      
+      // Also check for our component's main element
+      if (currentElement === this.elementRef.nativeElement) {
+        return true;
+      }
+      
+      currentElement = currentElement.parentElement;
+    }
+
+    return false;
+  }
+
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: Event): void {
-    if (!this.elementRef.nativeElement.contains(event.target)) {
-      this.closeAllDropdowns();
+    const target = event.target as HTMLElement;
+    if (!target) return;
+
+    // Use our robust method to check if the click is part of the dropdown system
+    const isPartOfDropdownSystem = this.isElementPartOfDropdownSystem(target);
+
+    console.log('🎯 Document click detected:', {
+      targetElement: target.tagName,
+      targetClasses: target.className,
+      isPartOfDropdownSystem,
+      pageDropdownOpen: this.pageDropdownOpen,
+      authorDropdownOpen: this.authorDropdownOpen,
+      typeDropdownOpen: this.typeDropdownOpen
+    });
+
+    // If the click is part of our dropdown system, don't close the dropdowns
+    if (isPartOfDropdownSystem) {
+      console.log('🎯 Click within dropdown system - keeping dropdowns open');
+      return;
     }
+
+    // Close all dropdowns for clicks outside the dropdown system
+    console.log('🎯 Click outside dropdown system - closing all dropdowns');
+      this.closeAllDropdowns();
   }
 
   private closeAllDropdowns(): void {
+    console.log('🎯 Closing all dropdowns:', {
+      pageDropdownOpen: this.pageDropdownOpen,
+      authorDropdownOpen: this.authorDropdownOpen,
+      typeDropdownOpen: this.typeDropdownOpen
+    });
+    
     this.pageDropdownOpen = false;
     this.authorDropdownOpen = false;
     this.typeDropdownOpen = false;
     this.currentPageWrapper = null;
     this.currentAuthorWrapper = null;
     this.currentTypeWrapper = null;
+    
+    console.log('🎯 All dropdowns closed');
   }
 
   // Calculate the number of active filters
@@ -324,6 +396,12 @@ export class CommentsListFiltersComponent implements OnInit, OnChanges {
     }
   }
 
+  @HostListener('document:keydown.escape', ['$event'])
+  onEscapeKey(event: KeyboardEvent): void {
+    console.log('🎯 Escape key pressed - closing all dropdowns');
+    this.closeAllDropdowns();
+  }
+
   onGroupByChange(option: any): void {
     this.selectedGroupBy = option;
     console.log('Group by changed:', option);
@@ -361,6 +439,9 @@ export class CommentsListFiltersComponent implements OnInit, OnChanges {
   // Page filter methods
   togglePageDropdown(event: Event): void {
     event.stopPropagation();
+    
+    console.log('🎯 Toggling page dropdown. Current state:', this.pageDropdownOpen);
+    
     // Close all other dropdowns first
     this.authorDropdownOpen = false;
     this.typeDropdownOpen = false;
@@ -369,6 +450,8 @@ export class CommentsListFiltersComponent implements OnInit, OnChanges {
     
     // Toggle page dropdown
     this.pageDropdownOpen = !this.pageDropdownOpen;
+    
+    console.log('🎯 Page dropdown new state:', this.pageDropdownOpen);
     
     if (this.pageDropdownOpen) {
       setTimeout(() => this.positionPageDropdown(event.target as HTMLElement), 0);
@@ -451,6 +534,9 @@ export class CommentsListFiltersComponent implements OnInit, OnChanges {
   // Author filter methods
   toggleAuthorDropdown(event: Event): void {
     event.stopPropagation();
+    
+    console.log('🎯 Toggling author dropdown. Current state:', this.authorDropdownOpen);
+    
     // Close all other dropdowns first
     this.pageDropdownOpen = false;
     this.typeDropdownOpen = false;
@@ -459,6 +545,8 @@ export class CommentsListFiltersComponent implements OnInit, OnChanges {
     
     // Toggle author dropdown
     this.authorDropdownOpen = !this.authorDropdownOpen;
+    
+    console.log('🎯 Author dropdown new state:', this.authorDropdownOpen);
     
     if (this.authorDropdownOpen) {
       setTimeout(() => this.positionAuthorDropdown(event.target as HTMLElement), 0);
@@ -509,15 +597,15 @@ export class CommentsListFiltersComponent implements OnInit, OnChanges {
     const wasSelected = this.selectedAuthors.includes(authorValue);
     
     // Handle individual author selection/deselection
-    const index = this.selectedAuthors.indexOf(authorValue);
+      const index = this.selectedAuthors.indexOf(authorValue);
     
-    if (index > -1) {
+      if (index > -1) {
       // Deselect the author
-      this.selectedAuthors.splice(index, 1);
+        this.selectedAuthors.splice(index, 1);
       console.log('🎯 Deselected author:', authorValue);
-    } else {
+      } else {
       // Select the author
-      this.selectedAuthors.push(authorValue);
+        this.selectedAuthors.push(authorValue);
       console.log('🎯 Selected author:', authorValue);
     }
     
@@ -584,6 +672,9 @@ export class CommentsListFiltersComponent implements OnInit, OnChanges {
   // Type filter methods - converted to dropdown
   toggleTypeDropdown(event: Event): void {
     event.stopPropagation();
+    
+    console.log('🎯 Toggling type dropdown. Current state:', this.typeDropdownOpen);
+    
     // Close all other dropdowns first
     this.pageDropdownOpen = false;
     this.authorDropdownOpen = false;
@@ -592,6 +683,8 @@ export class CommentsListFiltersComponent implements OnInit, OnChanges {
     
     // Toggle type dropdown
     this.typeDropdownOpen = !this.typeDropdownOpen;
+    
+    console.log('🎯 Type dropdown new state:', this.typeDropdownOpen);
     
     if (this.typeDropdownOpen) {
       setTimeout(() => this.positionTypeDropdown(event.target as HTMLElement), 0);
@@ -657,15 +750,15 @@ export class CommentsListFiltersComponent implements OnInit, OnChanges {
     const wasSelected = this.selectedTypes.includes(typeValue);
     
     // Handle individual type selection/deselection
-    const index = this.selectedTypes.indexOf(typeValue);
+      const index = this.selectedTypes.indexOf(typeValue);
     
-    if (index > -1) {
+      if (index > -1) {
       // Deselect the type
-      this.selectedTypes.splice(index, 1);
+        this.selectedTypes.splice(index, 1);
       console.log('🎯 Deselected type:', typeValue);
-    } else {
+      } else {
       // Select the type
-      this.selectedTypes.push(typeValue);
+        this.selectedTypes.push(typeValue);
       console.log('🎯 Selected type:', typeValue);
     }
     
@@ -847,13 +940,19 @@ export class CommentsListFiltersComponent implements OnInit, OnChanges {
     const annotationTypes = this.typeOptions.filter(type => !this.isMeasurementType(type));
     const annotationTypeValues = annotationTypes.map(type => type.value);
     
+    console.log('🎯 Deselecting annotation types:', annotationTypeValues);
+    console.log('🎯 Current selectedTypes before deselection:', this.selectedTypes);
+    
     // Remove annotation types from selected types
     this.selectedTypes = this.selectedTypes.filter(typeValue => 
       !annotationTypeValues.includes(typeValue)
     );
     
-    this.emitFilterCountChange();
-    console.log('Deselected annotation types');
+    console.log('🎯 selectedTypes after deselection:', this.selectedTypes);
+    
+    // Force UI refresh to update the display
+    this.forceUIRefresh();
+    console.log('🎯 Deselected annotation types - UI refreshed');
   }
   
   // Method to select all measurement types
@@ -876,13 +975,19 @@ export class CommentsListFiltersComponent implements OnInit, OnChanges {
     const measurementTypes = this.typeOptions.filter(type => this.isMeasurementType(type));
     const measurementTypeValues = measurementTypes.map(type => type.value);
     
+    console.log('🎯 Deselecting measurement types:', measurementTypeValues);
+    console.log('🎯 Current selectedTypes before deselection:', this.selectedTypes);
+    
     // Remove measurement types from selected types
     this.selectedTypes = this.selectedTypes.filter(typeValue => 
       !measurementTypeValues.includes(typeValue)
     );
     
-    this.emitFilterCountChange();
-    console.log('Deselected measurement types');
+    console.log('🎯 selectedTypes after deselection:', this.selectedTypes);
+    
+    // Force UI refresh to update the display
+    this.forceUIRefresh();
+    console.log('🎯 Deselected measurement types - UI refreshed');
   }
   
   // Helper method to determine if a type is a measurement type
@@ -980,5 +1085,12 @@ export class CommentsListFiltersComponent implements OnInit, OnChanges {
       selectedPages: this.selectedPages,
       typeOptions: this.typeOptions.length
     });
+  }
+
+  /**
+   * Public method to close all dropdowns - can be called from parent components
+   */
+  public closeDropdowns(): void {
+    this.closeAllDropdowns();
   }
 }

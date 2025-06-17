@@ -211,22 +211,5 @@
         </div>
       </div>
     </div>
-
-    <!-- Filter Actions -->
-    <div class="filter-actions">
-      <button 
-        class="btn btn-secondary clear-filters"
-        (click)="clearAllFiltersInternal()"
-        *ngIf="getActiveFilterCount() > 0"
-      >
-        Clear All Filters
-      </button>
-      <button 
-        class="btn btn-primary apply-filters"
-        (click)="handleFilterApply()"
-      >
-        Apply
-      </button>
-    </div>
   </div>
 </div>

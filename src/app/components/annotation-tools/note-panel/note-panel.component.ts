@@ -3292,6 +3292,8 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
    */
   onToggleMeasurements(onoff: boolean) {
     console.log('🎯 onToggleMeasurements called:', onoff);
+    // Call method directly since component always exists in DOM
+    this.commentsListFiltersComponent.emitFilterCountChange();
     
     if (onoff) {
       // Turn on measurements, turn off annotations
@@ -3315,6 +3317,21 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       // Deselect measurement types and clear authors/pages
       this._deselectMeasurementTypesInFilters();
       this._clearAuthorAndPageSelections();
+      
+      // IMMEDIATE force clear - don't wait for timeout
+      this._forceImmediateClearAllMeasurementTypes();
+      
+      // Also do delayed clearing as backup
+      setTimeout(() => {
+        this._ensureMeasurementTypesCleared();
+        this._clearMeasurementTypesByLabel();
+        this._forceImmediateClearAllMeasurementTypes();
+      }, 100);
+      
+      // Final backup after UI has had time to update
+      setTimeout(() => {
+        this._forceImmediateClearAllMeasurementTypes();
+      }, 300);
     }
     
     // Refresh the list to apply the new filter
@@ -3391,9 +3408,196 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     }
   }
 
-    /**
-   * Select relevant authors and pages based on current markup data
+  /**
+   * Ensure all measurement types are properly cleared from the filter selection
    */
+  private _ensureMeasurementTypesCleared(): void {
+    if (!this.commentsListFiltersComponent) {
+      console.log('❌ commentsListFiltersComponent not available for clearing measurement types');
+      return;
+    }
+
+    console.log('🎯 Ensuring measurement types are cleared...');
+    
+    // Log all available type options for debugging
+    console.log('🔍 All available type options:', this.commentsListFiltersComponent.typeOptions);
+    
+    // Get all measurement type values that should be removed
+    const measurementTypes = this.commentsListFiltersComponent.typeOptions.filter(type => {
+      const isMeasurement = this._isMeasurementType(type);
+      console.log(`🔍 Type "${type.label}" (type: ${type.type}, subtype: ${type.subtype}, value: ${type.value}) is measurement: ${isMeasurement}`);
+      return isMeasurement;
+    });
+    const measurementTypeValues = measurementTypes.map(type => type.value);
+    
+    console.log('🎯 Identified measurement types:', measurementTypes);
+    console.log('🎯 Measurement type values to clear:', measurementTypeValues);
+    console.log('🎯 Current selected types before clearing:', this.commentsListFiltersComponent.selectedTypes);
+    
+    // Also check for Area type specifically
+    const areaTypes = this.commentsListFiltersComponent.typeOptions.filter(type => 
+      type.label && type.label.toLowerCase().includes('area')
+    );
+    console.log('🔍 Found Area types:', areaTypes);
+    
+    // Remove any remaining measurement types from selected types
+    const beforeCount = this.commentsListFiltersComponent.selectedTypes.length;
+    this.commentsListFiltersComponent.selectedTypes = this.commentsListFiltersComponent.selectedTypes.filter(typeValue => {
+      const shouldKeep = !measurementTypeValues.includes(typeValue);
+      if (!shouldKeep) {
+        console.log(`🗑️ Removing type value: ${typeValue}`);
+      }
+      return shouldKeep;
+    });
+    const afterCount = this.commentsListFiltersComponent.selectedTypes.length;
+    
+    console.log('🎯 Selected types after clearing:', this.commentsListFiltersComponent.selectedTypes);
+    console.log(`🎯 Cleared ${beforeCount - afterCount} measurement types`);
+    
+    // If there are still types that look like measurements, clear them manually
+    const remainingAreaTypes = this.commentsListFiltersComponent.selectedTypes.filter(typeValue => {
+      const typeOption = this.commentsListFiltersComponent.typeOptions.find(opt => opt.value === typeValue);
+      return typeOption && typeOption.label && typeOption.label.toLowerCase().includes('area');
+    });
+    
+    if (remainingAreaTypes.length > 0) {
+      console.log('🔍 Found remaining area types, removing manually:', remainingAreaTypes);
+      this.commentsListFiltersComponent.selectedTypes = this.commentsListFiltersComponent.selectedTypes.filter(typeValue => 
+        !remainingAreaTypes.includes(typeValue)
+      );
+      console.log('🎯 After manual area removal:', this.commentsListFiltersComponent.selectedTypes);
+    }
+    
+    // Force UI refresh to ensure changes are visible
+    this.commentsListFiltersComponent.forceUIRefresh();
+    this.commentsListFiltersComponent.emitFilterCountChange();
+    
+    console.log('✅ Measurement types cleared and UI refreshed');
+  }
+
+  /**
+   * Helper method to determine if a type is a measurement type
+   */
+  private _isMeasurementType(type: any): boolean {
+    // Check by label first (fallback method)
+    if (type.label) {
+      const label = type.label.toLowerCase();
+      if (label.includes('measure') || 
+          label.includes('area') || 
+          label.includes('length') || 
+          label.includes('distance') || 
+          label.includes('perimeter') ||
+          label.includes('count')) {
+        console.log(`🔍 Type "${type.label}" identified as measurement by label`);
+        return true;
+      }
+    }
+    
+    // Use the same logic as the comment-list-filters component
+    const measurementTypes = [
+      { type: 7, subtype: undefined }, // MEASURE.LENGTH
+      { type: 8, subtype: 0 }, // MEASURE.AREA  
+      { type: 8, subtype: undefined }, // MEASURE.AREA (alternative)
+      { type: 1, subtype: 3 }, // MEASURE.PATH
+      { type: 3, subtype: 6 }, // MEASURE.RECTANGLE
+      { type: 1, subtype: 4 }, // MEASURE.ANGLECLOCKWISE
+      { type: 1, subtype: 5 }, // MEASURE.ANGLECCLOCKWISE
+      { type: 14, subtype: 0 }, // MEASURE.MEASUREARC
+      { type: 13, subtype: undefined } // COUNT
+    ];
+    
+    // Check if this type matches any measurement type
+    const typeNumber = parseInt(type.type) || type.type;
+    const subtypeNumber = type.subtype !== undefined && type.subtype !== '' ? parseInt(type.subtype) : type.subtype;
+    
+    const isMatch = measurementTypes.some(measureType => {
+      if (measureType.subtype !== undefined) {
+        const match = typeNumber === measureType.type && subtypeNumber === measureType.subtype;
+        if (match) {
+          console.log(`🔍 Type "${type.label}" matched measurement pattern: type ${measureType.type}, subtype ${measureType.subtype}`);
+        }
+        return match;
+      } else {
+        const match = typeNumber === measureType.type;
+        if (match) {
+          console.log(`🔍 Type "${type.label}" matched measurement pattern: type ${measureType.type}`);
+        }
+        return match;
+      }
+    });
+    
+        return isMatch;
+  }
+
+  /**
+   * Clear measurement types by label as a fallback method
+   */
+  private _clearMeasurementTypesByLabel(): void {
+    if (!this.commentsListFiltersComponent) {
+      console.log('❌ commentsListFiltersComponent not available for label-based clearing');
+      return;
+    }
+
+    console.log('🎯 Clearing measurement types by label...');
+
+    const measurementKeywords = ['area', 'measure', 'length', 'distance', 'perimeter', 'count'];
+    const beforeCount = this.commentsListFiltersComponent.selectedTypes.length;
+    
+    this.commentsListFiltersComponent.selectedTypes = this.commentsListFiltersComponent.selectedTypes.filter(typeValue => {
+      const typeOption = this.commentsListFiltersComponent.typeOptions.find(opt => opt.value === typeValue);
+      if (typeOption && typeOption.label) {
+        const label = typeOption.label.toLowerCase();
+        const isMeasurementByLabel = measurementKeywords.some(keyword => label.includes(keyword));
+        if (isMeasurementByLabel) {
+          console.log(`🗑️ Removing type by label: "${typeOption.label}" (${typeValue})`);
+          return false;
+        }
+      }
+      return true;
+    });
+    
+    const afterCount = this.commentsListFiltersComponent.selectedTypes.length;
+    console.log(`🎯 Label-based clearing removed ${beforeCount - afterCount} types`);
+    
+    if (beforeCount !== afterCount) {
+      this.commentsListFiltersComponent.forceUIRefresh();
+      this.commentsListFiltersComponent.emitFilterCountChange();
+           console.log('✅ UI refreshed after label-based clearing');
+   }
+ }
+
+ /**
+  * Force immediate clearing of all measurement types using the most direct approach
+  */
+ private _forceImmediateClearAllMeasurementTypes(): void {
+   if (!this.commentsListFiltersComponent) {
+     console.log('❌ commentsListFiltersComponent not available for immediate clearing');
+     return;
+   }
+
+   console.log('🚨 FORCE IMMEDIATE CLEAR - Starting aggressive measurement type removal...');
+   console.log('🚨 Before immediate clear - selectedTypes:', [...this.commentsListFiltersComponent.selectedTypes]);
+
+   // Clear ALL types - nuclear option
+   const originalTypes = [...this.commentsListFiltersComponent.selectedTypes];
+   this.commentsListFiltersComponent.selectedTypes = [];
+   
+   console.log('🚨 CLEARED ALL TYPES - selectedTypes is now empty');
+   
+   // Immediately refresh UI
+   this.commentsListFiltersComponent.forceUIRefresh();
+   this.commentsListFiltersComponent.emitFilterCountChange();
+   
+   // Force change detection
+   this.cdr.detectChanges();
+   
+   console.log('🚨 FORCE IMMEDIATE CLEAR - Completed. UI refreshed and change detection triggered.');
+   console.log('🚨 Final selectedTypes:', this.commentsListFiltersComponent.selectedTypes);
+ }
+
+     /**
+  * Select relevant authors and pages based on current markup data
+  */
   private _selectRelevantAuthorsAndPages(annotationsEnabled: boolean, measurementsEnabled: boolean): void {
     if (!this.commentsListFiltersComponent) return;
 

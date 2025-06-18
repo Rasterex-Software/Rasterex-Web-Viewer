@@ -964,7 +964,7 @@ May 26, 2025
   `modified:   src/app/components/annotation-tools/note-panel/note-panel.component.ts`
   `modified:   src/app/components/user/user.service.ts`
 
-May 30, 3025
+May 30, 2025
 
 # Fix: the issue with comment history card indication when the file is rotated
 
@@ -972,7 +972,7 @@ May 30, 3025
 
 
 
-June 02, 3025
+June 02, 2025
 
 # Improve UI of Filters
 
@@ -982,14 +982,14 @@ June 02, 3025
   `modified:   src/app/components/common/dropdown-menu/dropdown-menu.component.scss`
   `modified:   src/app/components/common/dropdown/dropdown.component.scss`
 
-June 03, 3025
+June 03, 2025
 
 # Implemented Switching Between Annotations & Measurements
 
   `modified:   src/app/components/annotation-tools/note-panel/note-panel.component.html`
   `modified:   src/app/components/annotation-tools/note-panel/note-panel.component.ts`
 
-June 03, 3025
+June 03, 2025
 
 # Fix: Issue with Green Pointer Lines on Comments and Annotations
 
@@ -1001,7 +1001,7 @@ June 03, 3025
   `modified:   src/app/components/annotation-tools/note-panel/note-panel.component.ts`
 
 
-June 03, 3025
+June 13, 2025
 
 # Updated Comments List Filters UI
 
@@ -1018,7 +1018,7 @@ June 03, 3025
   `modified:   src/app/components/annotation-tools/note-panel/note-panel.component.scss`
   `modified:   src/app/components/annotation-tools/note-panel/note-panel.component.ts`
   
-June 06, 3025
+June 16, 2025
 
 # Updated Comments List Card UI
 
@@ -1027,7 +1027,7 @@ June 06, 3025
   `modified:   src/app/components/annotation-tools/note-panel/note-panel.component.scss`
   `modified:   src/app/components/annotation-tools/note-panel/note-panel.component.ts`
 
-June 07, 3025
+June 17, 2025
 
 # Filters are functional and working properly
 
@@ -1038,3 +1038,11 @@ June 07, 3025
   `modified:   src/app/components/annotation-tools/note-panel/note-panel.component.scss`
   `modified:   src/app/components/annotation-tools/note-panel/note-panel.component.ts`
   `modified:   src/app/components/common/date-picker/date-picker.component.scss`
+
+June 18, 2025
+
+# Fix filter count display, comment button size, and edit/delete alignment
+
+  `modified:   src/app/components/annotation-tools/note-panel/note-panel.component.html`
+  `modified:   src/app/components/annotation-tools/note-panel/note-panel.component.scss`
+  `modified:   src/app/components/annotation-tools/note-panel/note-panel.component.ts`

@@ -1,5 +1,10 @@
 @import "../../../../assets/scss/config.scss";
 
+// Hidden utility class
+.hidden {
+  display: none !important;
+}
+
 // Animations
 @keyframes fadeIn {
   from {

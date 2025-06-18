@@ -51,7 +51,7 @@
               <div
                 class="filter-count"
                 *ngIf="
-                  (isFilterActive || filterVisible) && activeFilterCount > 0
+                  activeFilterCount > 0
                 "
               >
                 {{ activeFilterCount }}
@@ -79,7 +79,7 @@
     </div>
 
     <div class="main-section" (scroll)="scrollHandler($event)">
-      <div *ngIf="filterVisible">
+      <div [class.hidden]="!filterVisible">
         <app-comments-list-filters
           #commentsListFilters
           [isFilterActive]="isFilterActive"

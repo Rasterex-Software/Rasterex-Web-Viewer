@@ -42,6 +42,7 @@ export class AnnotationToolsComponent implements OnInit {
     "SCALE_SETTING": false,
     "IMAGES_LIBRARY": false,
     "SYMBOLS_LIBRARY": false,
+    "QR_CODE": false,
     "LINKS_LIBRARY": false,
     "CALIBRATE": false,
     "MEASURE_CONTINUOUS" : false,
@@ -166,6 +167,9 @@ export class AnnotationToolsComponent implements OnInit {
     });
     this.service.symbolPanelState$.subscribe(state => {
       this.isActionSelected['SYMBOLS_LIBRARY'] = state.visible;
+    });
+    this.service.qrCodePanelState$.subscribe(state => {
+      this.isActionSelected['QR_CODE'] = state.visible;
     });
     this.service.linkPanelState$.subscribe(state => {
       this.isActionSelected['LINKS_LIBRARY'] = state.visible;
@@ -322,6 +326,9 @@ export class AnnotationToolsComponent implements OnInit {
       case 'SYMBOLS_LIBRARY':
           this.service.setSymbolPanelState({ visible: this.isActionSelected[actionName] });
           break;
+      case 'QR_CODE':
+          this.service.setQRCodePanelState({ visible: this.isActionSelected[actionName] });
+          break;
   
       /*case 'CALIBRATE':
           //RXCore.calibrate(true);
@@ -396,6 +403,19 @@ export class AnnotationToolsComponent implements OnInit {
     if (this.isActionSelected['PAINT_FREEHAND']) {
       this.onActionSelect('PAINT_FREEHAND');
     }
+  }
+
+  onQRCodeSelect(qrCode: any): void {
+    // Close the QR code library
+    this.onActionSelect('QR_CODE');
+    
+    // Create a stamp annotation with the QR code image
+    // This implementation depends on how stamps work in your system
+    // You might need to add the QR code to stamps or create a direct annotation
+    console.log('QR Code selected:', qrCode);
+    
+    // For now, we'll treat it similar to how symbols are handled
+    // You may need to adjust this based on your stamp implementation
   }
 
   onAction (undo: boolean) {

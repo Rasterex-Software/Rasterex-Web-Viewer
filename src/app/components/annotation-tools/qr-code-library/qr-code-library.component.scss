@@ -1,0 +1,458 @@
+@import "../../../../assets/scss/config.scss";
+
+.qr-library-panel-container {
+  box-sizing: border-box;
+  scrollbar-width: thin;
+  max-height: 500px;
+
+  section {
+    width: 285px;
+
+    h4 {
+      margin: 12px 0;
+      color: #a4abae;
+      font-size: 12px;
+      font-style: normal;
+      font-weight: 700;
+      line-height: 16px;
+    }
+  }
+}
+
+.qr-header {
+  margin-bottom: 15px;
+  padding: 0 16px;
+  
+  .create-qr-btn {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 10px;
+    font-size: 12px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+    width: 100%;
+    justify-content: center;
+
+    &:hover:not(:disabled) {
+      background: #0056b3;
+      transform: translateY(-1px);
+      box-shadow: 0 2px 4px rgba(0, 123, 255, 0.25);
+    }
+
+    &:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    i {
+      font-size: 11px;
+    }
+  }
+}
+
+.loading-status, .error-status {
+  padding: 10px 12px;
+  border-radius: 4px;
+  margin: 0 16px 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.loading-status {
+  background: #e3f2fd;
+  color: #1976d2;
+  border: 1px solid #bbdefb;
+}
+
+.error-status {
+  background: #ffebee;
+  color: #d32f2f;
+  border: 1px solid #ffcdd2;
+}
+
+.qr-codes-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow-y: auto;
+  height: 350px;
+  padding: 5px 16px;
+
+  // Custom scrollbar for better UX
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+  }
+}
+
+.no-qrcodes {
+  text-align: center;
+  padding: 40px 20px;
+  color: #a4abae;
+  font-size: 12px;
+  border: 2px dashed #eee;
+  border-radius: 4px;
+  margin: 10px 0;
+  width: 100%;
+  
+  p {
+    margin: 8px 0 4px 0;
+    font-weight: 500;
+    color: #666;
+    font-style: italic;
+  }
+}
+
+.qr-code-item {
+  display: flex;
+  align-items: center;
+  margin: 8px 0;
+  padding: 12px 8px;
+  border: 1px solid #eee;
+  border-radius: 6px;
+  background-color: #fafafa;
+  transition: all 0.2s ease;
+  width: calc(100% - 16px);
+  cursor: grab;
+  position: relative;
+  box-sizing: border-box;
+
+  &:hover {
+    background-color: #f0f0f0;
+    border-color: #007bff;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 8px rgba(0, 123, 255, 0.15);
+
+    .qr-code-actions {
+      opacity: 1;
+    }
+  }
+
+  &:active {
+    cursor: grabbing;
+    transform: translateY(0);
+  }
+
+  .qr-code-preview {
+    flex-shrink: 0;
+    margin-right: 12px;
+
+    .qr-image {
+      width: 60px;
+      height: 60px;
+      object-fit: contain;
+      border-radius: 4px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      border: 1px solid #eee;
+      background: white;
+    }
+  }
+
+  .qr-code-info {
+    flex: 1;
+    margin-left: 0;
+    min-width: 0;
+
+    .qr-name {
+      font-size: 12px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 4px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .qr-text {
+      font-size: 10px;
+      color: #a4abae;
+      margin-bottom: 4px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-weight: 400;
+    }
+
+    .qr-details {
+      font-size: 10px;
+      color: #a4abae;
+      font-weight: 400;
+    }
+  }
+
+  .qr-code-actions {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    z-index: 2;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+
+    .delete-btn {
+      background: rgba(255, 255, 255, 0.95);
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      color: #666;
+      cursor: pointer;
+      padding: 0;
+      border-radius: 50%;
+      transition: all 0.25s ease;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      backdrop-filter: blur(4px);
+
+      &:hover:not(:disabled) {
+        color: #fff;
+        background: #dc3545;
+        border-color: #dc3545;
+        transform: scale(1.15);
+        box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+      }
+
+      &:active:not(:disabled) {
+        transform: scale(0.95);
+      }
+
+      &:disabled {
+        cursor: not-allowed;
+        opacity: 0.4;
+        background: rgba(200, 200, 200, 0.8);
+        color: #999;
+      }
+
+      i {
+        font-size: 11px;
+        font-weight: 500;
+      }
+    }
+  }
+
+  // Deleting state styles
+  &.deleting {
+    opacity: 0.7;
+    pointer-events: none;
+    position: relative;
+    border-color: #ffc107;
+    background-color: #fff8e1;
+
+    .qr-code-info {
+      .qr-name, .qr-text, .qr-details {
+        color: #999;
+      }
+    }
+
+    .qr-code-actions {
+      opacity: 1 !important;
+    }
+  }
+
+  .deleting-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 248, 225, 0.95);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    z-index: 3;
+    backdrop-filter: blur(2px);
+
+    .deleting-message {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #856404;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+
+      i {
+        font-size: 12px;
+        color: #ffc107;
+      }
+    }
+  }
+}
+
+// Modal Dialog Styles (matching stamp panel)
+.confirm-modal-container {
+  .rx-modal-dialog-header {
+    .title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .close {
+      cursor: pointer;
+      width: 16px;
+      height: 16px;
+      margin-right: 10px;
+    }
+  }
+
+  .body {
+    padding: 20px 24px;
+
+    .form-group {
+      margin-bottom: 20px;
+
+      label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        font-size: 14px;
+        color: #333;
+      }
+
+      input, textarea, select {
+        width: 100%;
+        padding: 12px 14px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+        transition: border-color 0.2s, box-shadow 0.2s;
+        box-sizing: border-box;
+
+        &:focus {
+          outline: none;
+          border-color: #2196f3;
+          box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.1);
+        }
+
+        &::placeholder {
+          color: #999;
+        }
+      }
+
+      textarea {
+        resize: vertical;
+        min-height: 100px;
+        font-family: inherit;
+      }
+    }
+
+    .form-row {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 20px;
+
+      .form-group {
+        flex: 1;
+        margin-bottom: 0;
+      }
+    }
+
+    .error-status {
+      margin-bottom: 16px;
+      padding: 10px 12px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      background: #ffebee;
+      color: #d32f2f;
+      border: 1px solid #ffcdd2;
+    }
+  }
+
+  .footer {
+    padding: 16px 24px;
+    border-top: 1px solid #e0e0e0;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    background: #f8f9fa;
+
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+
+      &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+
+      &.btn-light {
+        background: #f5f5f5;
+        color: #666;
+
+        &:hover:not(:disabled) {
+          background: #e0e0e0;
+        }
+      }
+
+      &.btn-primary {
+        background: #2196f3;
+        color: white;
+
+        &:hover:not(:disabled) {
+          background: #1976d2;
+        }
+      }
+    }
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .qr-create-dialog {
+    width: 95%;
+    max-height: 95vh;
+  }
+
+  .qr-code-item {
+    .qr-code-info {
+      .qr-text {
+        max-width: 150px;
+      }
+    }
+  }
+
+  .form-row {
+    flex-direction: column;
+    gap: 0;
+  }
+} 

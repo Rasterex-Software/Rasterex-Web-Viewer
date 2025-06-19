@@ -4,6 +4,7 @@ import { RXCore } from 'src/rxcore';
 import { FileGaleryService } from './file-galery.service';
 import { random } from 'lodash-es';
 import { IGuiConfig } from 'src/rxcore/models/IGuiConfig';
+import { DemoFileGroup, FileManageService } from 'src/app/services/file-manage.service';
 
 @Component({
   selector: 'rx-file-galery',
@@ -21,7 +22,7 @@ export class FileGaleryComponent implements OnInit {
 
   
 
-  groups : any = RXCore.ViewUIConfig.demofiles;
+ // groups : any = RXCore.ViewUIConfig.demofiles;
 
   /*groups = [
     {
@@ -102,8 +103,10 @@ export class FileGaleryComponent implements OnInit {
   guiConfig: IGuiConfig | undefined;
   canCollaborate : boolean | undefined = false;
 
-  
-  selected = this.groups[0];
+  groups: DemoFileGroup[] = [];
+  selected: DemoFileGroup | undefined;
+  isLoading: boolean = true;
+  //selected = this.groups[0];
   leftTabActiveIndex: number = 0;
   selectedFileName: string;
   fileSize: number = 0;
@@ -114,13 +117,15 @@ export class FileGaleryComponent implements OnInit {
 
   constructor(
     private readonly fileGaleryService: FileGaleryService,
-    private readonly rxCoreService: RxCoreService
+    private readonly rxCoreService: RxCoreService,
+     private demoFileService: FileManageService 
   ) { }
 
 
   //constructor(private readonly fileGaleryService: FileGaleryService) { }
 
   ngOnInit() {
+     this.loadDemoFiles();
     this.fileGaleryService.getStatusActiveDocument().subscribe(status => {
       if (status === 'awaitingSetActiveDocument' && this.progressBar) this.progressBar.nativeElement.value = 100;
       else {
@@ -159,6 +164,19 @@ export class FileGaleryComponent implements OnInit {
     
 
   }
+  async loadDemoFiles() {
+  this.isLoading = true;
+  try {
+    this.groups = await this.demoFileService.fetchDemoFiles();
+    if (this.groups.length > 0) {
+      this.selected = this.groups[0];
+    }
+  } catch (error) {
+    console.error('Error loading demo files:', error);
+  } finally {
+    this.isLoading = false;
+  }
+}
 
   
 

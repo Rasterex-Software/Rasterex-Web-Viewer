@@ -1,3 +1,4 @@
+<ng-container *ngIf="!isAdminRoute; else regularApp">
 <app-message-broker />
 
 <!-- <top-nav-menu style="z-index: 3; position: fixed; top: 0; left: 0; width: 100%;" [class.hidden]="(guiConfig$ | async).disableTopNavMenu" [state]="state" [ngStyle]="{'filter': eventUploadFile ? 'blur(3px)' : 'none' }"></top-nav-menu> -->
@@ -95,3 +96,8 @@
 </rx-panel>
 
 <app-login-modal></app-login-modal>
+</ng-container>
+<!-- <router-outlet></router-outlet> -->
+ <ng-template #regularApp>
+  <router-outlet></router-outlet>
+</ng-template>

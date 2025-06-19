@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Foxit PDF SDK For Web -- Carousel</title>
+    <link rel="shortcut icon" href="../../assets/favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" href="../../../lib/PDFViewCtrl.css">
+    <style>
+        .carousel-container {
+            width: 100vw;
+            height: 100vh;
+            overflow: auto;
+            --facing-margin: 0;
+        }
+        :focus-visible {
+            outline: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="carousel-container" id="carousel-container">
+        <div id="pdf-viewer"></div>
+    </div>
+    <script src="../../license-key.js"></script>
+    <script src="../../../lib/PDFViewCtrl.full.js"></script>
+    <script>
+        // Used to avoid errors when loading the following two js files
+        var module = {};
+        Object.defineProperty(module, 'exports', {
+            set: function() {}
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/lodash.throttle@4.1.1/index.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lodash.debounce@4.0.8/index.js"></script>
+    <script>
+        function _inherits(subClass, superClass) {
+            if (typeof superClass !== "function" && superClass !== null) {
+                throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
+            }
+            subClass.prototype = Object.create(superClass && superClass.prototype, {
+                constructor: {
+                    value: subClass,
+                    enumerable: false,
+                    writable: true,
+                    configurable: true
+                }
+            });
+            if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
+        }
+        function addDOMEventListener(target, type, listener, options) {
+            target.addEventListener(type, listener, options);
+            return function() {
+                target.removeEventListener(type, listener, options);
+            }
+        }
+
+        function throttle (callback, limit) {
+            var waiting = false;
+            var cancelled = false;
+            function wrapper() {
+                if(cancelled) {
+                    return;
+                }
+                if (!waiting) {
+                    callback.apply(this, arguments);
+                    waiting = true;
+                    setTimeout(function () {
+                        waiting = false;
+                    }, limit);
+                }
+            }
+            wrapper.cancel = function(){
+                cancelled = true;
+            };
+            return wrapper;
+        }
+    </script>
+    <script>
+        var IViewMode = PDFViewCtrl.IViewMode;
+
+        var CAROUSEL_VIEW_MODE = 'carousel-view-mode';
+
+        function CarouselViewMode(docRender) {
+            IViewMode.apply(this, arguments);
+            this.scrollWrap = docRender.viewerRender.scrollWrap;
+            this.currentPageIndex = 0;
+        }
+        _inherits(CarouselViewMode, IViewMode);
+
+        CarouselViewMode.getName = function() {
+            return CAROUSEL_VIEW_MODE;
+        };
+
+        Object.assign(CarouselViewMode.prototype, {
+            // Methods inherit from IViewMode
+            into: function(pageContainerDOM, pageDOMs, currentPageIndex) {
+                // This method will be executed once when the view mode is switched to CarouselViewMode, where we can perform some initialization operations.
+                if (currentPageIndex === undefined) {
+                    currentPageIndex = this.currentPageIndex;
+                }
+                this.pageDOMs = pageDOMs;
+                this.pageContainerDOM = pageContainerDOM;
+                this._renderPage(currentPageIndex);
+                var viewModeInstance = this;
+
+                this.executor = new PDFViewCtrl.shared.ThrottleAsyncTaskExecutor(100);
+
+                // Register DOM events to implement some view mode functionality
+                this.removeMouseWheelEventListener = addDOMEventListener(document.body, 'mousewheel', function(e) {
+                    // Ctrl + mousewheel to zoom in/out the page.
+                    if(!e.ctrlKey) {
+                        return;
+                    }
+                    e.preventDefault();
+                    var pos = {
+                        pageIndex: viewModeInstance.currentPageIndex,
+                        x: e.clientX,
+                        y: e.clientY
+                    };
+                    return viewModeInstance._zoom(e.deltaY < 0 ? 0.1 : -0.1, pos);
+                }, {
+                    passive: false
+                });
+
+                this.removeKeydownEventListener = addDOMEventListener(document.body, 'keydown', function(e) {
+                    switch(e.key) {
+                        case 'ArrowLeft':
+                            viewModeInstance._gotoPageOffset(-1); // Go to previous page
+                            break;
+                        case 'ArrowRight':
+                            viewModeInstance._gotoPageOffset(1); // Go to next page
+                            break;
+                        case 'ArrowUp':
+                            viewModeInstance._zoom(0.1); // zoom in
+                            break;
+                        case 'ArrowDown':
+                            viewModeInstance._zoom(-0.1); // zoom out
+                            break;
+                        case 'Home':
+                            viewModeInstance._gotoFirstPage();
+                            break;
+                        case 'End':
+                            viewModeInstance._gotoLastPage();
+                            break;
+                        default:
+                            return;
+                    }
+                    e.preventDefault();
+                });
+            },
+            out: function() {
+                // This method will be executed once when the view mode is switched to another mode, except for CarouselViewMode, where we can perform some destruction operations..
+                IViewMode.prototype.out.apply(this, arguments);
+                this.removeMouseWheelEventListener();
+                this.removeKeydownEventListener();
+            },
+            renderViewMode: function(pageRender) {
+                if(this.currentPageIndex !== pageRender.index) {
+                    return;
+                }
+                this._renderPage(pageRender.index);
+            },
+            jumpToPage: function(index, position) {
+                this.currentPageIndex = index;
+                this._renderPage(index);
+                this.scrollWrap.scrollTo(position.x, position.y);
+            },
+            getFitWidth: function() {
+                var scrollWrap = this.scrollWrap;
+                return scrollWrap.getWidth();
+            },
+            getFitHeight: function() {
+                var scrollWrap = this.scrollWrap;
+                return scrollWrap.getHeight();
+            },
+            getCurrentPageIndex: function() {
+                return this.currentPageIndex;
+            },
+            getVisibleIndexes: function() {
+                return [this.currentPageIndex];
+            },
+            // Customized business methods
+            _renderPage: function(pageIndex) {
+                var pageDOM = this.pageDOMs[pageIndex];
+                var pageContainerDOM = this.pageContainerDOM;
+                var children = Array.from(pageContainerDOM.children).filter(function(it){ return it !== pageDOM;});
+
+                children.forEach(function(child){
+                    pageContainerDOM.removeChild(child);
+                });
+                if(pageDOM.parentElement !== pageContainerDOM) {
+                    pageContainerDOM.appendChild(pageDOM);
+                }
+            },
+            _zoom: throttle(function (scaleRatio, pos) {
+                var self = this;
+                var pdfViewer = this.docRender.pdfViewer;
+                var currentPageIndex = this.currentPageIndex;
+                var pdfPageRender = this.docRender.getPDFPageRender(currentPageIndex);
+                var nextScale = pdfPageRender.scale * (1 + scaleRatio);
+                if(nextScale < 0.1 || nextScale > 10) {
+                    return;
+                }
+                if(pos) {
+                    return pdfViewer.zoomAtPosition(nextScale, pos);
+                } else {
+                    return pdfViewer.zoomTo(nextScale);
+                }
+            }, 100),
+            _gotoPageOffset: function (offsetPageIndex) {
+                var pdfViewer = this.docRender.pdfViewer;
+                var currentPDFDoc = pdfViewer.getCurrentPDFDoc();
+                if(!currentPDFDoc) {
+                    // Maybe the file was closed or not opened
+                    return;
+                }
+                var pageCount = currentPDFDoc.getPageCount();
+                var currentPageIndex = this.currentPageIndex;
+                var nextPageIndex = ((currentPageIndex + offsetPageIndex) % pageCount + pageCount) % pageCount;
+                return pdfViewer.goToPage(nextPageIndex);
+            },
+            _gotoFirstPage: function() {
+                return this.docRender.pdfViewer.goToPage(0);
+            },
+            _gotoLastPage: function() {
+                var lastPageIndex = this.pageDOMs.length - 1;
+                return this.docRender.pdfViewer.goToPage(lastPageIndex);
+            },
+        });
+    </script>
+    <script>
+        var PDFViewer = PDFViewCtrl.PDFViewer;
+        var Events = PDFViewCtrl.Events;
+        var pdfViewer = new PDFViewer({
+            libPath: '../../../lib',
+            jr: {
+                licenseSN: licenseSN,
+                licenseKey: licenseKey,
+            },
+            defaultScale:"fitHeight",
+            Viewmodes: [
+                CarouselViewMode
+            ],
+            defaultViewMode: CarouselViewMode.getName(),
+            customs: {
+                ScrollWrap: PDFViewCtrl.DivScrollWrap.create(document.getElementById('carousel-container'))
+            }
+        });
+        pdfViewer.init('#pdf-viewer');
+        pdfViewer.openPDFByHttpRangeRequest({
+            range: {
+                url: '../create-annot/butterfiles.pdf'
+            }
+        });
+
+    </script>
+</body>
+</html>

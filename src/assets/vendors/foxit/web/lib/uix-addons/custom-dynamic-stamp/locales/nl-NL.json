@@ -1,0 +1,41 @@
+{
+  "toolbar": {
+    "createDynamicStampTextBtnText": "Aangepaste dynamische stempel maken"
+  },
+  "dialog": {
+    "header": "Aangepaste dynamische stempel maken",
+    "backgroundColor": "Achtergrondkleur:",
+    "template": "Sjabloon:",
+    "templatePlaceholder": "typ hier om een nieuwe sjabloon een naam te geven",
+    "browse": "Bladeren",
+    "category": "Categorie:",
+    "categoryPlaceholder": "typ hier om een nieuwe categorie een naam te geven",
+    "name": "Naam:",
+    "font": "Lettertype:",
+    "stampText": "Stempeltekst:",
+    "stampTextPlaceholder": "typ hier om tekst in te voegen",
+    "fontSize": "Grootte van lettertype:",
+    "color": "Kleur:",
+    "stampTextType": {
+      "customText": "typ hier om tekst in te voegen",
+      "name": "naam auteur",
+      "nameDateTime": "naam auteur, datum en tijd",
+      "dateTime": "datum en tijd",
+      "date": "datum"
+    }
+  },
+  "alert": {
+    "typeText": "'<typ hier om tekst in te voegen>'",
+    "categoryText": "'<typ hier om een nieuwe categorie een naam te geven>'",
+    "templateText": "'<typ hier om een nieuwe sjabloon een naam te geven>'",
+    "textError": "${1} is een vooraf gedefinieerde tekst. U moet er een in het vervolgkeuzemenu selecteren of een nieuwe maken.",
+    "categoryError": "${1} is een vooraf gedefinieerde categorie en kan niet worden gebruikt voor aangepaste stempels. Kies een andere categorie.",
+    "templateError": "${1} is een vooraf gedefinieerde sjabloon en kan niet worden gebruikt voor aangepaste stempels. Kies een andere sjabloon.",
+    "fileError": "Bestand is leeg.",
+    "nameError": "Naam is vereist.",
+    "templateNameError": "Er is een stempel met deze naam. Geef de te importeren stempel een nieuwe naam.",
+    "spaceError": "Er mogen geen spaties voorkomen in een categorie.",
+    "sameName": "De stempel met de naam '${1}' bestaat al.",
+    "specialError": "Speciale tekens zijn ongeldig."
+  }
+}

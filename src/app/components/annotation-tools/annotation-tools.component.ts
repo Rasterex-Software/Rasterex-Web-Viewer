@@ -455,7 +455,7 @@ export class AnnotationToolsComponent implements OnInit, OnDestroy {
           created: true,
         });
         //this.service.setPropertiesPanelState({ visible: this.isActionSelected[actionName], markup:  MARKUP_TYPES.MEASURE.PATH, readonly: false });
-        RXCore.markupAngle(this.isActionSelected[actionName], true);
+        RXCore.markupAngle(this.isActionSelected[actionName], false);
         break;
 
       case 'MEASURE_RECTANGULAR_AREA':

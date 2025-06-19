@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no"/>
+    <title>Foxit PDF SDK For Web</title>
+    <link rel="shortcut icon" href="../../assets/favicon.ico" type="image/x-icon"/>
+    <link rel="stylesheet" href="../../../lib/PDFViewCtrl.css">
+    <style>
+        .custom-single-page-view-mode .fv__pdf-view-mode-item {
+            position: relative;
+        }
+        html, body {
+            margin: 0;
+            padding: 0;
+            --facing-margin: 0
+        }
+    </style>
+</head>
+<body>
+<div id="pdf-viewer"></div>
+<script src="../../license-key.js"></script>
+<script src="../../../lib/PDFViewCtrl.full.js"></script>
+<script>
+function _inherits(subClass, superClass) {
+    if (typeof superClass !== "function" && superClass !== null) {
+        throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
+    }
+    subClass.prototype = Object.create(superClass && superClass.prototype, {
+        constructor: {
+            value: subClass,
+            enumerable: false,
+            writable: true,
+            configurable: true
+        }
+    });
+    if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
+}
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+</script>
+<script>
+    var IViewMode = PDFViewCtrl.IViewMode;
+    var PDFViewer = PDFViewCtrl.PDFViewer;
+    var Events = PDFViewCtrl.Events;
+    function SingleViewMode(docRender) {
+        _classCallCheck(this,SingleViewMode);
+        var _this = _possibleConstructorReturn(this, (SingleViewMode.__proto__ || Object.getPrototypeOf(SingleViewMode)).call(this, docRender));
+        _this._keyup=this._keyup.bind(_this)
+        _this.currentPageIndex = 0;
+        _this.pageDOMs = [];
+        _this.docRender = docRender;
+        return _this;
+    };
+    SingleViewMode.getName = function () {
+        return CUSTOM_SINGLE_VIEW_MODE_NAME;
+    };
+    _inherits(SingleViewMode, IViewMode);
+    //Switch to this layout.
+    SingleViewMode.prototype.into = function (pageContainer, pageDOMs) {
+        this.pageContainer = pageContainer;
+        this.pageDOMs = pageDOMs;
+        this.pageContainer.classList.add('custom-single-page-view-mode');
+        window.addEventListener("keyup",this._keyup);
+        // Here, listen for events that move the page can call pdfViewer.redraw() or pdfViewer.goToPage(number).
+        // Remember to remove the event listener when out
+    };
+    SingleViewMode.prototype._keyup = function(e){
+        var keyCode=e.keyCode;
+        if(keyCode===38){
+            if(this.currentPageIndex>0){
+                pdfViewer.goToPage(this.currentPageIndex-1);
+            }
+        }else if(keyCode==40){
+            var pageCount = this.docRender.getPDFDoc().getPageCount()
+            if(this.currentPageIndex < pageCount-1){
+                pdfViewer.goToPage(this.currentPageIndex+1);
+            }
+        }
+    };
+    //The method fires before drawing the outer frame of a page
+    SingleViewMode.prototype.renderViewMode = function (pageRender, scale, rotate, width, height) {
+        var index = pageRender.index;
+        if (index === this.currentPageIndex) {
+            var pageDOM = this.pageDOMs[index];
+            if (!pageDOM.parentElement) {
+                this.jumpToPage(index);
+            }
+            this._updatePagePosition(height);
+        }
+    };
+    //Get the fit height
+    SingleViewMode.prototype.getFitHeight = function (index) {
+        return this._getPDFViewer().getScrollWrap().getHeight();
+    };
+    //Get the fit width
+    SingleViewMode.prototype.getFitWidth = function (index) {
+        return this._getPDFViewer().getScrollWrap().getWidth();
+    };
+    //Control how to jump to the page in this view mode
+    SingleViewMode.prototype.jumpToPage = function (index, offset) {
+        if (!this.pageContainer || !this.pageDOMs) {
+            return;
+        }
+        var pageDOM = this.pageDOMs[index];
+        if (!pageDOM) {
+            return;
+        }
+        this._clear();
+        this.pageContainer.appendChild(pageDOM);
+        if (offset) {
+            this.pageContainer && this.pageContainer.scrollTo({
+                left: offset.x || 0,
+                top: offset.y || 0
+            })
+        }
+        this.currentPageIndex = index;
+        this._updatePagePosition();
+    };
+    //Gets the index of the visible page
+    SingleViewMode.prototype.getVisibleIndexes = function () {
+        return [this.currentPageIndex];
+    };
+    //Gets the index of the current page
+    SingleViewMode.prototype.getCurrentPageIndex = function () {
+        return this.currentPageIndex;
+    };
+    //Exit this layout.
+    SingleViewMode.prototype.out = function () {
+        this.pageContainer && this.pageContainer.classList.remove('custom-single-page-view-mode')
+        this._clear();
+    };
+    SingleViewMode.prototype._getPDFViewer = function () {
+        return this.docRender.pdfViewer;
+    };
+    SingleViewMode.prototype.getNextPageIndex = function () {
+        var pageCount = this.docRender.getPDFDoc().getPageCount();
+        return Math.min(pageCount - 1, this.currentPageIndex + 1);
+    };
+    SingleViewMode.prototype.getPrevPageIndex = function () {
+        return Math.max(0, this.currentPageIndex - 1);
+    };
+
+    SingleViewMode.prototype._clear = function () {
+        if (this.pageContainer) {
+            while (!!this.pageContainer.firstChild) {
+                this.pageContainer.removeChild(this.pageContainer.firstChild);
+            }
+        }
+    };
+    
+    SingleViewMode.prototype._updatePagePosition = function (showHeight) {
+        var pageDOM = this.pageDOMs[this.currentPageIndex];
+        var containerHeight = this._getPDFViewer().getScrollWrap().getHeight();
+        var pageHeight = showHeight || pageDOM.offsetHeight;
+        if (pageHeight < containerHeight) {
+            pageDOM.style.cssText += ['top:',Math.max(0, containerHeight - pageHeight) / 2,'px'].join('');
+        }
+        else {
+            pageDOM.style.cssText += 'top: 0';
+        }
+    };
+</script>
+<script>
+    var CUSTOM_SINGLE_VIEW_MODE_NAME="single-page-view-mode";
+
+    window.$ = PDFViewCtrl.jQuery;
+    var IViewMode = PDFViewCtrl.IViewMode;
+    var PDFViewer = PDFViewCtrl.PDFViewer;
+    var Events = PDFViewCtrl.Events;
+    var pdfViewer = new PDFViewer({
+        libPath: '../../../lib',
+        jr: {
+            licenseSN: licenseSN,
+            licenseKey: licenseKey,
+        },
+        defaultScale:"fitHeight",
+        Viewmodes: [SingleViewMode],
+        defaultViewMode: CUSTOM_SINGLE_VIEW_MODE_NAME
+    });
+    pdfViewer.init('#pdf-viewer');
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', '../create-annot/butterfiles.pdf', true);
+    xhr.responseType = 'blob';
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState !== 4) {
+            return;
+        }
+        var status = xhr.status;
+        if ((status >= 200 && status < 300) || status === 304) {
+            pdfViewer.openPDFByFile(xhr.response).catch(function (e) {
+                if (e.error === 11 && e.encryptDict.Filter === 'FOPN_foweb') {
+                    var fileOpenKey = getFileOpenKey(e.encryptDict);
+                    pdfViewer.reopenPDFDoc(e.pdfDoc, {
+                        fileOpen: {
+                            encryptKey: fileOpenKey
+                        }
+                    })
+                }
+            })
+        }
+    };
+    xhr.send();
+
+</script>
+</body>
+</html>

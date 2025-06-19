@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Foxit PDF SDK for Web</title>
+    <link rel="shortcut icon" href="../../../assets/favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" href="../../../../lib/UIExtension.css">
+    <style>
+        #pdf-ui {
+            width: 100vw;
+            height: 100vh;
+        }
+        .widget-list .fv__ui-button {
+            height: 24px;
+            line-height: 24px;
+            display: inline-flex;
+            flex-flow: row nowrap;
+            align-items: center;
+            margin-top: 6px;
+        }
+        .widget-list .fv__ui-button span{
+            padding-left: 6px;
+        }
+        .pdf-ui-example {
+            display: flex;
+            flex-flow: column nowrap;
+            justify-content: flex-start;
+            align-items: stretch;
+        }
+        .widget-list {
+            padding: 20px 10px;
+            display: flex;
+            flex-flow: column nowrap;
+            align-items: center;
+        }
+
+    </style>
+</head>
+
+<body>
+    <div id="pdf-ui"></div>
+    <template id="pdf-ui-template">
+        <div class="pdf-ui-example">
+            <div name="widget-list" class="widget-list">
+                <xbutton name="button-simple" icon-class="fv__icon-toolbar-hand">ext:buttons.simple</xbutton>
+                <xbutton name="button-use-fragment-option"></xbutton>
+            </div>
+            <viewer></viewer>
+        </div>
+    </template>
+</body>
+<script src="../../../license-key.js"></script>
+<script src="../../../../lib/UIExtension.full.js"></script>
+<script>
+    class I18NAddon extends UIExtension.UIXAddon {
+        static getName(){
+            return 'ext';
+        }
+        getI18NResources() {
+            return {
+                'en-US': {
+                    'buttons': {
+                        'simple': 'simple button',
+                        'use-fragment-option': 'use fragment option',
+                        'append-from-fragment': 'append from fragment',
+                        'with-handler': 'click me, some information will output in the console'
+                    }
+                },
+                'zh-CN': {
+                    'buttons': {
+                        'simple': '简单按钮示例',
+                        'use-fragment-option': '使用UI片段配置',
+                        'append-from-fragment': 'UI片段插入的按钮',
+                        'with-handler': '点我,控制台会有输出'
+                    }
+                }
+            };
+        }
+    }
+    
+    let PDFUI = UIExtension.PDFUI;
+    let pdfui = new PDFUI({
+        viewerOptions: {
+            libPath: '../../../../lib',
+            jr: {
+                licenseSN: licenseSN,
+                licenseKey: licenseKey
+            }
+        },
+        renderTo: '#pdf-ui',
+        template: document.getElementById('pdf-ui-template').innerHTML.trim(),
+        addons: [ I18NAddon ],
+        fragments: [{
+            target: 'button-use-fragment-option',
+            action: UIExtension.UIConsts.FRAGMENT_ACTION.EXT,
+            config: {
+                text: 'ext:buttons.use-fragment-option'
+            }
+        }, {
+            target: 'widget-list',
+            action: UIExtension.UIConsts.FRAGMENT_ACTION.APPEND,
+            template: '<xbutton name="button-append-from-fragment" icon-class="fv__icon-toolbar-eraser">ext:buttons.append-from-fragment</xbutton>',
+        }, {
+            target: 'widget-list',
+            action: UIExtension.UIConsts.FRAGMENT_ACTION.APPEND,
+            template: '<xbutton name="button-with-handler" icon-class="fv__icon-toolbar-link">ext:buttons.with-handler</xbutton>',
+            config: {
+                target: 'button-with-handler',
+                callback: class extends UIExtension.Controller {
+                    handle() {
+                        console.info('button click', this.getPDFUI(), this.component);
+                    }
+                }
+            }
+        }]
+    });
+</script>
+
+</html>

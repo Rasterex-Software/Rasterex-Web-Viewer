@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no"/>
+    <title>Foxit PDF SDK For Web</title>
+    <link rel="shortcut icon" href="../../assets/favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" href="../../../lib/PDFViewCtrl.css">
+</head>
+<body>
+<input type="file" name="file" id="file" accept=".pdf">
+<hr>
+<div id="pdf-viewer">loading</div>
+<script src="../../license-key.js"></script>
+<script src="../../../lib/PDFViewCtrl.full.js"></script>
+<script>
+
+    var PDFViewer = PDFViewCtrl.PDFViewer;
+    var pdfViewer = new PDFViewer({
+        libPath: '../../../lib',
+        jr: {
+            licenseSN: licenseSN,
+            licenseKey: licenseKey,
+        },
+        customs: {
+
+            PDFViewerRendering: (function () {
+                function PDFViewerRendering (eUi, pdfViewerRender) {
+                    // eUi is the carrier of loading
+                    this.$ui = PDFViewCtrl.Deps.jQuery(eUi);
+                }
+                PDFViewerRendering.prototype.rendering = function () {
+                    this.$ui.html('viewer loading');
+                }
+                PDFViewerRendering.prototype.rendered = function () {
+                    this.$ui.empty()
+                }
+                PDFViewerRendering.prototype.destroy = function () {
+                    this.$ui = null
+                }
+                return PDFViewerRendering;
+            })(),
+            PDFDocRendering: (function () {
+                function PDFDocRendering (eUi, pdfDocRender) {
+                    // eUi is the carrier of loading
+                    this.$ui = PDFViewCtrl.Deps.jQuery(eUi);
+                }
+                PDFDocRendering.prototype.rendering = function () {
+                    this.$ui.html('doc loading');
+                }
+                PDFDocRendering.prototype.rendered = function () {
+                    this.$ui.empty()
+                }
+                PDFDocRendering.prototype.destroy = function () {
+                    this.$ui=null
+                }
+                return PDFDocRendering;
+            })(),
+            PDFPageRendering: (function () {
+                function PDFPageRendering (eUi, pdfDocRender) {
+                    // eUi is the carrier of loading
+                    this.$ui = PDFViewCtrl.Deps.jQuery(eUi);
+                }
+                PDFPageRendering.prototype.rendering = function () {
+                    this.$ui.html('page loading');
+                }
+                PDFPageRendering.prototype.rendered = function () {
+                    this.$ui.empty()
+                }
+                PDFPageRendering.prototype.destroy = function () {
+                    this.$ui=null
+                }
+                return PDFPageRendering;
+            })()
+        }
+    });
+    pdfViewer.init('#pdf-viewer');
+
+    document.getElementById('file').onchange = function (e) {
+        if (!this.value) {
+            return;
+        }
+        var pdf,fdf;
+        for (var i = e.target.files.length; i--;) {
+            var file = e.target.files[i];
+            var filename = file.name;
+            if (/\.pdf$/i.test(filename)) {
+                pdf = file
+            } else if (/\.(x)?fdf$/i.test(filename)) {
+                fdf = file
+            }
+        }
+        pdfViewer.openPDFByFile(pdf, {password: '', fdf: {file: fdf}});
+        this.value = '';
+    };
+</script>
+</body>
+</html>

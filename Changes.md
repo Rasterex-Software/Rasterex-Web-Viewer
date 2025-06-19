@@ -1,3 +1,53 @@
+June 16, 2025
+
+### 1. Updated Foxit to new version 10.
+### 2. New method used for zoom to point for PDF.
+### 3. Fixed snap to point for rotated PDF files.
+### 3. Fixed snap to point for rotated PDF files.
+### 4. Removed automatic load of bookmarks for PDF this are now loaded on demand.
+### 5. Quick action menu for annoations are no longer loaded for non-owning users.
+
+
+Updated and new files
+
+RxCore version is now 35.926
+
+src\assets\scripts\rxcorefunctions.js
+src\assets\scripts\iframefoxit.js
+src\assets\html\foxpage.html
+
+tsconfig.app.json
+src\rxcore\index.ts
+
+src\assets\vendors\foxit\web\*.*
+
+src\app\components\side-nav-menu\pages\pages.component.ts
+src\app\components\side-nav-menu\pages\pages.component.html
+src\app\components\annotation-tools\annotation-tools.component.ts
+
+
+
+June 3, 2025
+
+### 1. Implement Upload Custom Stamp and Uploaded Images to Backend DB
+
+Updated and new files
+src/app/components/annotation-tools/stamp-panel/stamp-panel.component.html
+src\app\components\annotation-tools\stamp-panel\stamp-panel.component.scss
+src/app/components/annotation-tools/stamp-panel/stamp-panel.component.ts
+
+
+May 30, 2025
+
+### 1. Restructured annoation context menu component. Number of buttons and button states are now set in new method.
+
+Updated and new files
+
+src\app\components\annotation-tools\quick-actions-menu\quick-actions-menu.component.html
+src\app\components\annotation-tools\quick-actions-menu\quick-actions-menu.component.ts
+
+
+
 May 26, 2025
 
 ### 1. New measure tool Arc.

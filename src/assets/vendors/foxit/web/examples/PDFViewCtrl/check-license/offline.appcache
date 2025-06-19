@@ -1,0 +1,7 @@
+CACHE MANIFEST
+# 2020-03-26:v7.2.0
+# Explicitly cached 'check license'.
+CACHE:
+../../assets/favicon.ico
+../../../lib/jr-engine/gsdk/gsdk.js?v=7.2.0
+../../../lib/jr-engine/gsdk/gsdk.wasm?v=7.2.0

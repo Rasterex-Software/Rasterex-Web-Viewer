@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no"/>
+    <title>Foxit PDF SDK For Web</title>
+    <link rel="shortcut icon" href="../../assets/favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" href="../../../lib/PDFViewCtrl.css">
+</head>
+<body>
+    <input type="text" id="url" style="display: block; width: 100%;">
+    <button id="url-open">async-open PDF file through url</button>
+    <div>The url's HEAD request must return the file's size through Response headers' Content-Length,It also must surpport tiles loading,This is an example only,You must customize your asynchronous mode</div>
+    <template style="display: none;">
+        These are nginx's settings,An example for PDF file's resume from breakpoints
+
+        server {
+            server_name 127.0.0.1;
+            listen 9400;
+
+            location / {
+            root F:/pdf/;
+
+            set $ho false;
+
+            if ($request_method = OPTIONS ) {
+            set $ho true;
+            }
+
+            if ( $ho = true ) {
+
+            add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS, HEAD';
+            add_header 'Access-Control-Allow-Headers' *;
+            add_header "Access-Control-Allow-Origin" *;
+            add_header Access-Control-Expose-Headers "content-range, content-length, accept-ranges";
+            add_header 'Content-Length' 0;
+            add_header 'Content-Type' 'text/plain charset=UTF-8';
+            return 204;
+            }
+
+            add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS, HEAD';
+            add_header 'Access-Control-Allow-Headers' *;
+            add_header "Access-Control-Allow-Origin" *;
+            add_header Access-Control-Expose-Headers "content-range, content-length, accept-ranges";
+
+            charset utf8;
+
+            autoindex on;
+            autoindex_exact_size off;
+            autoindex_localtime on;
+            }
+        }
+    </template>
+    <button type="button" id="plus">Zoom In</button>
+    <button type="button" id="sub">Zoom Out</button>
+    <hr>
+    <div id="pdf-viewer"></div>
+</body>
+<script src="../../license-key.js"></script>
+<script src="../../../lib/PDFViewCtrl.full.js"></script>
+<script>
+
+let PDFViewer = PDFViewCtrl.PDFViewer;
+let $ = PDFViewCtrl.jQuery;
+let pdfViewer = new PDFViewer({
+    libPath: '../../../lib',
+    jr: {
+        licenseSN: licenseSN,
+        licenseKey: licenseKey
+    },
+});
+pdfViewer.init('#pdf-viewer');
+
+$('#url-open').on('click', function () {
+    let url = $('#url').val();
+    pdfViewer.openPDFByHttpRangeRequest({
+        range: {
+            url: url
+        }
+    })
+});
+let scale = 1;
+document.getElementById('plus').onclick = function () {
+    scale += 0.25;
+    pdfViewer.zoomTo(scale).catch(function(){});
+};
+document.getElementById('sub').onclick = function () {
+    scale -= 0.25;
+    pdfViewer.zoomTo(scale).catch(function(){});
+};
+</script>
+</html>

@@ -25,9 +25,13 @@ export class RXCore {
         RxCore.birdseyetool();
     }
 
-  public static blockhoverevent(onoff: boolean): void {
-    RxCore.blockhoverevent(onoff);
-  }
+    public static getPDFBookmarks(): void {
+        RxCore.getPDFBookmarks();
+    }
+
+    public static blockhoverevent(onoff : boolean): void {
+        RxCore.blockhoverevent(onoff);
+    }
 
   public static changeTextColor(color: string): void {
     RxCore.changeTextColor(color);
@@ -42,11 +46,11 @@ export class RXCore {
 
     public static movetoFront(): void {
         RxCore.movetoFront();
-    } 
+    }
 
     public static toggleCycleSelect(): void {
         RxCore.toggleCycleSelect();
-    } 
+    }
 
 
     public static moveLabelEnable(onoff: boolean): void {
@@ -983,6 +987,10 @@ export class RXCore {
     });
 
     return `${RXCore.Config.baseFileURL}${await response.text()}`;
+  }
+
+  public static setSnapSize(size: number): void {
+      RxCore.setSnapSize(size);
   }
 
   public static setrxprintdiv(divelement: HTMLElement | null): void {

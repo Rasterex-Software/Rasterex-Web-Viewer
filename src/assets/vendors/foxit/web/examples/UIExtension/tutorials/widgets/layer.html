@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Foxit PDF SDK for Web</title>
+    <link rel="shortcut icon" href="../../../assets/favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" href="../../../../lib/UIExtension.css">
+    <style>
+        #pdf-ui {
+            width: 100vw;
+            height: 100vh;
+        }
+        .button-list .fv__ui-dropdown {
+            height: 24px;
+            line-height: 24px;
+            display: inline-flex;
+            flex-flow: row nowrap;
+            align-items: center;
+            margin-top: 6px;
+        }
+        .pdf-ui-example {
+            display: flex;
+            flex-flow: column nowrap;
+            justify-content: flex-start;
+            align-items: stretch;
+        }
+        .widget-list {
+            padding: 20px 10px;
+            display: flex;
+            flex-flow: column nowrap;
+            align-items: center;
+        }
+        .form-inline {
+            display: inline-flex;
+            flex-flow: row nowrap;
+            align-items: stretch;
+            min-width: 0;
+        }
+        .form-inline label {
+            flex: 1;
+            line-height: 1;
+        }
+        .form-inline label input {
+            width: 100%;
+        }
+        .form-inline button {
+            margin-left: 6px;
+            border: 1px solid #f0f0f0;
+            background: #f7f7f7;
+            font-size: 12px;
+        }
+        .custom-icon-class {
+            background-image:radial-gradient(closest-side, #3f87a6, #ebf8e1, #f69d3c);
+        }
+        .fv__ui-layer.tooltip-layer {
+            position: absolute;
+            box-shadow: none;
+            border: 1px solid #aaa;
+        }
+        .tooltip-title {
+            font-weight: bold;
+        }
+        .tooltip-message {
+            padding: 1em 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="pdf-ui"></div>
+    <template id="pdf-ui-template">
+        <div class="pdf-ui-example">
+            <div name="widget-list" class="widget-list">
+                <xbutton name="button-signin">ext:buttons.signin</xbutton>
+                <xbutton name="button-tooltip">ext:buttons.tooltip</xbutton>
+            </div>
+            <viewer></viewer>
+            <!-- It's a good idea to store your layer component inner a template temporarity.  -->
+            <template name="template">
+                <!-- class: add a customize css class name so that you can custom the style of layer  -->
+                <!-- class: center is used to make this layer center to the container box, you can use left, right, top and bottom combination -->
+                <!-- append-to: value of this attribute must be a well-format css selector string to find a element as the layer container box, layer will append to root component on showing if this container cannot be found.   -->
+                <!-- modal: modal dialog -->
+                <!-- backdrop: add a backdrop -->
+                <layer name="signin-dialog" class="custom-dialog center" append-to="body" modal backdrop>
+                    <layer-header title="ext:dialog.title"></layer-header>
+                    <layer-view>
+                        <form onsubmit="return false" name="form-signin">
+                            <label>
+                                UserName: 
+                                <input name="username">
+                            </label>
+                            <label>
+                                Password: 
+                                <input name="password" type="password">
+                            </label>
+                        </form>
+                    </layer-view>
+                    <layer-toolbar>
+                        <button name="button-submit-signin" data-i18n="ext:dialog.confirm"></button>
+                        <button name="button-cancel-signin" data-i18n="ext:dialog.cancel"></button>
+                    </layer-toolbar>
+                </layer>
+                <!-- visible at initial -->
+                <layer name="draggable-layer" class="center" visible append-to="body">
+                    <!-- @draggable="{type: 'parent'}": drag header makes the parent layer moving -->
+                    <layer-header title="ext:dialog.draggable-title" @draggable="{type: 'parent'}"></layer-header>
+                    <layer-view>
+                        <form onsubmit="return false" name="form-signin">
+                            <label>
+                                UserName: 
+                                <input name="username">
+                            </label>
+                            <label>
+                                Password: 
+                                <input name="password" type="password">
+                            </label>
+                        </form>
+                    </layer-view>
+                </layer>
+            </template>
+        </div>
+    </template>
+</body>
+<script src="../../../license-key.js"></script>
+<script src="../../../../lib/UIExtension.full.js"></script>
+<script>
+    class I18NAddon extends UIExtension.UIXAddon {
+        static getName(){
+            return 'ext';
+        }
+        getI18NResources() {
+            return {
+                'en-US': {
+                    'buttons': {
+                        'signin': 'Sign in',
+                        'tooltip': 'Toggle tooltip',
+                        'draggable': 'Show draggable layer'
+                    },
+                    'dialog': {
+                        'title': 'Sign in',
+                        'draggable-title': 'Drag here',
+                        'confirm': "Submit",
+                        'cancel': "Cancel"
+                    },
+                    'tooltip': {
+                        'title': 'title of tooltip',
+                        'message': 'message of tooltip'
+                    }
+                },
+                'zh-CN': {
+                    'buttons': {
+                        'signin': '登录',
+                        'tooltip': '显示/隐藏工具提示',
+                        'draggable': '显示可拖拽浮动框'
+                    },
+                    'dialog': {
+                        'title': '登录',
+                        'draggable-title': '拖动这里',
+                        'confirm': '提交',
+                        'cancel': '取消'
+                    },
+                    'tooltip': {
+                        'title': '工具提示标题',
+                        'message': '工具提示信息'
+                    }
+                }
+            };
+        }
+    }
+    
+    let PDFUI = UIExtension.PDFUI;
+    let pdfui = new PDFUI({
+        viewerOptions: {
+            libPath: '../../../../lib',
+            jr: {
+                licenseSN: licenseSN,
+                licenseKey: licenseKey
+            }
+        },
+        renderTo: '#pdf-ui',
+        template: document.getElementById('pdf-ui-template').innerHTML.trim(),
+        addons: [ I18NAddon ],
+        fragments: [{
+            target: 'button-signin',
+            config: {
+                callback: function(){
+                    // find the layer component instance by name
+                    const layer = this.getComponentByName('signin-dialog');
+                    // show this layer
+                    layer.show();
+                }
+            }
+        }, {
+            target: 'button-submit-signin',
+            config: {
+                callback: function() {
+                    const pdfUI = this.getPDFUI();
+                    
+                    const userNameInput = this.getComponentByName('username');
+                    const passwordInput = this.getComponentByName('password');
+
+                    // find the layer component instance by name
+                    const layer = this.getComponentByName('signin-dialog');
+
+                    console.info('username: ', userNameInput.getValue());
+                    console.info('password', passwordInput.getValue());
+                    // show this layer
+                    layer.hide();
+                }
+            }
+        }, {
+            target: 'button-cancel-signin',
+            config: {
+                callback: function() {
+                    const layer = this.getComponentByName('signin-dialog');
+                    layer.hide();
+                }
+            }
+        }, {
+            target: 'template',
+            action: UIExtension.UIConsts.FRAGMENT_ACTION.APPEND,
+            // You can also create a layer using fragment. 
+            template: `
+                <layer name="tooltip-layer" class="tooltip-layer" append-to="body">
+                    <div class="tooltip-title" data-i18n="ext:tooltip.title"></div>
+                    <div class="tooltip-message" data-i18n="ext:tooltip.message"></div>
+                </layer>
+            `
+        }, {
+            target: 'button-tooltip',
+            config: {
+                callback: function() {
+                    const tip = this.getComponentByName('tooltip-layer');
+                    const rect = this.component.element.getBoundingClientRect();
+                    tip.element.style.cssText += `
+                        left: ${rect.left}px;
+                        top: ${rect.bottom + 4}px;
+                    `;
+                    if(tip.isVisible) {
+                        tip.hide();
+                    } else {
+                        tip.show();
+                    }
+                }
+            },
+        }]
+    });
+</script>
+
+</html>

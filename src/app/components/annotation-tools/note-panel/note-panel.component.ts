@@ -2428,9 +2428,6 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     if (markupNo && markupNo > 0 && markup) {
       console.log(`🎯 SetActiveCommentThread: Processing markup ${markupNo}`);
 
-      // Clear any pending operations first
-      this._clearAllTimeouts();
-
       // Force immediate change detection for responsive UI
       this.cdr.detectChanges();
 
@@ -2458,9 +2455,12 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       if (isNowExpanded) {
         // Comment is now expanded, show leader line
         console.log(`🎯 SetActiveCommentThread: Showing leader line for expanded markup ${markupNo}`);
-        this._showLeaderLineForMarkup(markupNo, markup);
+        // Add a small delay to prevent race conditions when multiple annotations are expanded simultaneously
+        setTimeout(() => {
+          this._showLeaderLineForMarkup(markupNo, markup);
+        }, 50);
       } else {
-        // Comment is now collapsed, hide leader line
+        // Comment is now collapsed, hide leader line immediately
         console.log(`🎯 SetActiveCommentThread: Hiding leader line for collapsed markup ${markupNo}`);
         this._hideLeaderLineForMarkup(markupNo);
       }

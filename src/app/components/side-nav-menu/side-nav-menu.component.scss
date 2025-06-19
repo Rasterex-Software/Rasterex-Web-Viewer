@@ -14,7 +14,7 @@
         position: absolute;
         z-index: 1;
         box-sizing: border-box;
-        overflow-x: hidden;
+        // overflow-x: hidden;
 
         ul {
             list-style: none;
@@ -136,7 +136,7 @@
             &:has(.splitter) {
                 padding-right: 15px;
               }
-    
+
         }
 
         .toggleable-panel-header {
@@ -148,8 +148,7 @@
                 flex-grow: 1;
                 font-size: 14px;
                 font-weight: 600;
-                padding-left: 12px;
-                //padding: 12px;
+                padding: 12px;
                 margin: 0;
                 color: $main;
             }
@@ -173,11 +172,11 @@
 
         .toggleable-panel-body {
             flex: 1;
-            overflow-y: auto;
+            // overflow-y: auto;
             // height: calc(100% - 42px);
             // overflow-y: scroll;
             scrollbar-width: thin;
-    
+
         }
 
         .resizer {
@@ -192,7 +191,7 @@
             background: var(--background-secondary);
             border-left: 1px solid var(--background);
             border-right: 1px solid var(--background);
-        }        
+        }
 
     }
 }

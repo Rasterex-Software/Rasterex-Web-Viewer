@@ -1,0 +1,215 @@
+<div class="filters-panel">
+  <div class="filters-content">
+    <!-- Date Picker and Group By Row -->
+    <div class="filters-row">
+      <!-- Date Picker Section -->
+      <div class="filter-group date-picker-group">
+        <label>Date of notes creation</label>
+        <div class="date-picker-container" *ngIf="!guiConfig; else parentDatePicker">
+          <input
+            type="date"
+            class="date-picker-input"
+            [value]="selectedDate"
+            (change)="onDateChange($event)"
+            placeholder="Select date"
+          />
+          <button
+            *ngIf="selectedDate"
+            class="clear-date-btn"
+            (click)="clearDate()"
+            title="Clear date filter"
+          >
+            ×
+          </button>
+        </div>
+        <ng-template #parentDatePicker>
+          <rx-date-picker
+            [dateFormat]="guiConfig?.dateFormat"
+            [startDate]="dateFilter?.startDate"
+            [endDate]="dateFilter?.endDate"
+            (onSelect)="onDateSelect.emit($event)"
+          >
+          </rx-date-picker>
+        </ng-template>
+      </div>
+
+      <div class="filter-group group-by-group">
+        <label>Group by</label>
+        <div class="sort-controls">
+          <rx-dropdown
+            [options]="groupByOptions"
+            [value]="selectedGroupBy"
+            [transparent]="false"
+            [align]="'left'"
+            (valueChange)="onGroupByChange($event)"
+          >
+          </rx-dropdown>
+        </div>
+      </div>
+
+      <!-- <div class="filter-group">
+        <label>Sort by:</label>
+        <div class="sort-controls">
+          <rx-dropdown
+            [options]="sortByOptions"
+            [value]="selectedSortBy"
+            [transparent]="false"
+            [align]="'left'"
+            (valueChange)="onSortByChange($event)"
+          >
+          </rx-dropdown>
+          <button
+            class="sort-order-btn"
+            (click)="toggleSortOrder()"
+            [title]="sortOrder === 'asc' ? 'Ascending' : 'Descending'"
+          >
+            <img
+              src="/assets/images/arrow-down.svg"
+              alt="sort order"
+              [class.rotated]="sortOrder === 'desc'"
+            />
+          </button>
+        </div>
+      </div> -->
+    </div>
+
+    <!-- Page Filter Section - Label and input in one line -->
+    <div class="filter-section">
+      <div class="filter-row-inline">
+        <label class="section-label">Page:</label>
+        <div class="multi-select-container">
+          <div class="multi-select-wrapper" (click)="togglePageDropdown($event)">
+            <div class="selected-items">
+              <span
+                *ngFor="let pageLabel of getSelectedPageLabels(); let i = index"
+                class="selected-page-pill"
+              >
+                {{ pageLabel }}
+              </span>
+              <span *ngIf="selectedPages.length === 0" class="placeholder">Select pages...</span>
+            </div>
+            <div class="dropdown-arrow">
+              <img src="/assets/images/arrow-down.svg" alt="dropdown" [class.rotated]="pageDropdownOpen" />
+            </div>
+          </div>
+
+          <div *ngIf="pageDropdownOpen" class="multi-select-dropdown">
+            <div class="dropdown-options">
+              <div
+                *ngFor="let page of pageOptions"
+                class="dropdown-option"
+                [class.selected]="isPageSelected(page.value)"
+                (click)="onPageSelect(page.value, $event)"
+              >
+                <input
+                  type="checkbox"
+                  [checked]="page.value === 'all' ? selectedPages.length === (pageOptions.length - 1) : isPageSelected(page.value)"
+                  readonly
+                />
+                <span>{{ page.label }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Author Filter Section - Label and input in one line -->
+    <div class="filter-section">
+      <div class="filter-row-inline">
+        <label class="section-label">Author:</label>
+        <div class="multi-select-container">
+          <div class="multi-select-wrapper" (click)="toggleAuthorDropdown($event)">
+            <div class="selected-items">
+              <span
+                *ngFor="let authorLabel of getSelectedAuthorLabels(); let i = index"
+                class="selected-author-pill"
+              >
+                {{ authorLabel }}
+              </span>
+              <span *ngIf="selectedAuthors.length === 0" class="placeholder">Select authors...</span>
+            </div>
+            <div class="dropdown-arrow">
+              <img src="/assets/images/arrow-down.svg" alt="dropdown" [class.rotated]="authorDropdownOpen" />
+            </div>
+          </div>
+
+          <div *ngIf="authorDropdownOpen" class="multi-select-dropdown">
+            <div class="dropdown-options">
+              <div
+                *ngFor="let author of authorOptions"
+                class="dropdown-option"
+                [class.selected]="isAuthorSelected(author.value)"
+                (click)="onAuthorSelect(author.value, $event)"
+              >
+                <input
+                  type="checkbox"
+                  [checked]="isAuthorSelected(author.value)"
+                  readonly
+                />
+                <span>{{ author.label }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Type Filter Section -->
+    <div class="filter-section">
+      <div class="filter-row-inline">
+        <label class="section-label">Type:</label>
+        <div class="multi-select-container">
+          <div class="multi-select-wrapper" (click)="toggleTypeDropdown($event)">
+            <div class="selected-items">
+              <span
+                *ngFor="let typeObj of getSelectedTypeObjects(); let i = index"
+                class="selected-type-pill"
+              >
+                <rx-annotation-shape-icon
+                  *ngIf="typeObj.type"
+                  [type]="typeObj.type"
+                  [subtype]="typeObj.subtype"
+                  class="pill-type-icon"
+                ></rx-annotation-shape-icon>
+                <span *ngIf="!typeObj.type" class="pill-type-emoji">{{ typeObj.emoji }}</span>
+                <span class="pill-type-label">{{ typeObj.label }}</span>
+              </span>
+              <span *ngIf="selectedTypes.length === 0" class="placeholder">Select types...</span>
+            </div>
+            <div class="dropdown-arrow">
+              <img src="/assets/images/arrow-down.svg" alt="dropdown" [class.rotated]="typeDropdownOpen" />
+            </div>
+          </div>
+
+          <div *ngIf="typeDropdownOpen" class="multi-select-dropdown">
+            <div class="dropdown-options">
+              <div
+                *ngFor="let type of typeOptions"
+                class="dropdown-option"
+                [class.selected]="isTypeSelected(type.value)"
+                (click)="onTypeSelect(type.value, $event)"
+              >
+                <input
+                  type="checkbox"
+                  [checked]="isTypeSelected(type.value)"
+                  readonly
+                />
+                <div class="type-option-content">
+                  <rx-annotation-shape-icon
+                    *ngIf="type.type"
+                    [type]="type.type"
+                    [subtype]="type.subtype"
+                    class="type-icon"
+                  ></rx-annotation-shape-icon>
+                  <span *ngIf="!type.type" class="type-emoji">{{ type.emoji }}</span>
+                  <span class="type-label">{{ type.label }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

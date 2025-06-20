@@ -231,6 +231,8 @@ export class StampPanelComponent implements OnInit {
       };
   }
 
+
+
   async getStandardStamps(): Promise<void> {
     try {
       const stamps = await this.storageService.getAllStandardStamps();
@@ -749,6 +751,7 @@ async deleteImageStamp(id: number): Promise<void> {
       // Add to standard stamps
       const addedStamp = await this.storageService.addStandardStamp(newStamp);
       console.log('Standard stamp added successfully:', addedStamp);
+
       
       // Refresh standard stamps list
       await this.getStandardStamps();

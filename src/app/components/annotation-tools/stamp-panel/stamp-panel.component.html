@@ -91,30 +91,32 @@
               Upload
           </button>
         </div> -->
-      <div class="templates-list" style="height: 390px;">
-        <div *ngFor="let template of uploadImageStamps; let i = index"
-          class="image-container draggable-stamp-container">
-          <div class="stamp-with-filename">
-            <div class="stamp-image-container">
-              <img [stampTemplate]="template" [src]="template.src"
-                   class="stamp-draggable-image draggable-stamp"
-                   draggable="true"
-                   (dragstart)="onStampDragStart($event, template, 'upload')"
-                   (dragend)="onStampDragEnd($event)" />
-
-              <button title="Delete stamp" (click)="deleteImageStamp(template.id)"
-                      class="stamp-delete-button">
-                <img src="/assets/images/trash-ico.svg" />
-              </button>
-            </div>
-            <div *ngIf="template.originalFileName" 
-                 class="filename-display"
-                 [title]="template.originalFileName">
-              {{ truncateFilename(template.originalFileName) }}
+        <div class="templates-list" style="height: 390px;">
+          <div *ngFor="let template of uploadImageStamps; let i = index"
+  
+            class="image-container draggable-stamp-container">
+            <div class="stamp-with-filename">
+              <div class="stamp-image-container">
+                <img [stampTemplate]="template" [src]="template.src"
+                     class="stamp-draggable-image draggable-stamp"
+                     draggable="true"
+                     (dragstart)="onStampDragStart($event, template, 'upload')"
+                     (dragend)="onStampDragEnd($event)" />
+  
+                <button title="Delete stamp" (click)="deleteImageStamp(template.id)"
+                        class="stamp-delete-button">
+                  <img src="/assets/images/trash-ico.svg" />
+                </button>
+              </div>
+              <div *ngIf="template.originalFileName" 
+                   class="filename-display"
+                   [title]="template.originalFileName">
+                {{ truncateFilename(template.originalFileName) }}
+              </div>
             </div>
           </div>
         </div>
-      </div>
+  
     </section>
 
 

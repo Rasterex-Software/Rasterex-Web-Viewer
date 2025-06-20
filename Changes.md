@@ -1,11 +1,15 @@
 June 20, 2025
 # 1. Keep original file name uploaded
-# 2. Keep custom stamp, images even if moving to Standard
+# 2. Keep custom stamp, images even if moving to Standard\
+# 3. Implement drag and drop of qr code
 Updated and new files
 src/app/components/annotation-tools/stamp-panel/stamp-panel.component.html
 src/app/components/annotation-tools/stamp-panel/stamp-panel.component.scss
 src/app/components/annotation-tools/stamp-panel/stamp-panel.component.ts
 src/app/components/annotation-tools/stamp-panel/StampData.ts
+src/app/components/annotation-tools/qr-code-library/qr-code-library.component.html
+src/app/components/annotation-tools/qr-code-library/qr-code-library.component.scss
+src\app\app.module.ts
 
 June 18, 2025
 # 1. Add QR Code Generation Logic

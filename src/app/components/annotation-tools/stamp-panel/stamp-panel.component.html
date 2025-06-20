@@ -93,18 +93,26 @@
         </div> -->
       <div class="templates-list" style="height: 390px;">
         <div *ngFor="let template of uploadImageStamps; let i = index"
-          style="display: flex; align-items: center; width: 210px; justify-content: space-between;"
           class="image-container draggable-stamp-container">
-          <img [stampTemplate]="template" [src]="template.src"
-               class="stamp-draggable-image draggable-stamp"
-               draggable="true"
-               (dragstart)="onStampDragStart($event, template, 'upload')"
-               (dragend)="onStampDragEnd($event)" />
+          <div class="stamp-with-filename">
+            <div class="stamp-image-container">
+              <img [stampTemplate]="template" [src]="template.src"
+                   class="stamp-draggable-image draggable-stamp"
+                   draggable="true"
+                   (dragstart)="onStampDragStart($event, template, 'upload')"
+                   (dragend)="onStampDragEnd($event)" />
 
-          <button title="trash" (click)="deleteImageStamp(template.id)"
-            style="border: none; background: none; cursor: pointer; padding: 0; margin-left: 8px;">
-            <img src="/assets/images/trash-ico.svg" />
-          </button>
+              <button title="Delete stamp" (click)="deleteImageStamp(template.id)"
+                      class="stamp-delete-button">
+                <img src="/assets/images/trash-ico.svg" />
+              </button>
+            </div>
+            <div *ngIf="template.originalFileName" 
+                 class="filename-display"
+                 [title]="template.originalFileName">
+              {{ truncateFilename(template.originalFileName) }}
+            </div>
+          </div>
         </div>
       </div>
     </section>

@@ -162,6 +162,27 @@ export class StampPanelComponent implements OnInit {
     return this.userService.isAdmin();
   }
 
+  // Helper method to truncate filename with ellipsis
+  truncateFilename(filename: string, maxLength: number = 25): string {
+    if (!filename || filename.length <= maxLength) {
+      return filename || '';
+    }
+    
+    const extension = filename.substring(filename.lastIndexOf('.'));
+    const nameWithoutExtension = filename.substring(0, filename.lastIndexOf('.'));
+    
+    if (nameWithoutExtension.length + extension.length <= maxLength) {
+      return filename;
+    }
+    
+    const maxNameLength = maxLength - extension.length - 3; // 3 for "..."
+    if (maxNameLength <= 0) {
+      return filename.substring(0, maxLength - 3) + '...';
+    }
+    
+    return nameWithoutExtension.substring(0, maxNameLength) + '...' + extension;
+  }
+
   ngOnInit(): void {
     // this.loadSvg();
     const now = new Date();
@@ -205,7 +226,8 @@ export class StampPanelComponent implements OnInit {
         src: blobUrl,
         type: item.type,
         height: height, 
-        width: width
+        width: width,
+        originalFileName: item.originalFileName // Include originalFileName if available
       };
   }
 
@@ -315,10 +337,10 @@ export class StampPanelComponent implements OnInit {
     let currentStamp;
     if (type ===  StampType.CustomStamp) {
       currentStamp = this.customStamps.find(d => d.id === id);
-      this.deleteCustomStamp(id);
+      // Note: No longer deleting custom stamp to keep it in the list
     } else if (type=== StampType.UploadStamp) {
       currentStamp = this.uploadImageStamps.find(d => d.id === id);
-      this.deleteImageStamp(id);
+      // Note: No longer deleting upload stamp to keep it in the list
     }
     const {imageData, width, height} = await this.convertUrlToBase64Data(currentStamp.src);
     const newStamp = {
@@ -331,6 +353,7 @@ export class StampPanelComponent implements OnInit {
     this.storageService.addStandardStamp(newStamp).then(() => {
       // refresh standard list
       this.getStandardStamps();
+      console.log(`Converted ${type} stamp to standard (original kept in collection)`);
     }).catch(error => {
       console.error('Error add standard stamp:', error);
     });
@@ -727,15 +750,6 @@ async deleteImageStamp(id: number): Promise<void> {
       const addedStamp = await this.storageService.addStandardStamp(newStamp);
       console.log('Standard stamp added successfully:', addedStamp);
       
-      // Remove from source collection
-      if (sourceType === 'custom') {
-        await this.deleteCustomStamp(stamp.id);
-        console.log('Removed from custom stamps');
-      } else if (sourceType === 'upload') {
-        await this.deleteImageStamp(stamp.id);
-        console.log('Removed from upload stamps');
-      }
-      
       // Refresh standard stamps list
       await this.getStandardStamps();
       console.log('Standard stamps list refreshed');
@@ -788,7 +802,8 @@ async deleteImageStamp(id: number): Promise<void> {
               name: imageName,
               type: imageType,
               width,
-              height
+              height,
+              originalFileName: file.name // Store the original filename
             };
             
             const item = await this.storageService.addUploadImageStamp(imageObject);

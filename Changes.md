@@ -1,3 +1,12 @@
+June 20, 2025
+# 1. Keep original file name uploaded
+# 2. Keep custom stamp, images even if moving to Standard
+Updated and new files
+src/app/components/annotation-tools/stamp-panel/stamp-panel.component.html
+src/app/components/annotation-tools/stamp-panel/stamp-panel.component.scss
+src/app/components/annotation-tools/stamp-panel/stamp-panel.component.ts
+src/app/components/annotation-tools/stamp-panel/StampData.ts
+
 June 18, 2025
 # 1. Add QR Code Generation Logic
 Updated and new files

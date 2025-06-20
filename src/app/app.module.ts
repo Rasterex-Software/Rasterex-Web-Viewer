@@ -55,6 +55,7 @@ import { CountTypeSelectComponent } from './components/common/count-type-select/
 import { NotificationComponent } from './components/notification/notification.component';
 import { StampPanelComponent } from './components/annotation-tools/stamp-panel/stamp-panel.component';
 import { StampTemplateDirective } from './components/annotation-tools/stamp-panel/stamp-template.directive';
+import { QRCodeTemplateDirective } from './components/annotation-tools/qr-code-library/qr-code-template.directive';
 import { MeasurePanelComponent } from './components/annotation-tools/measure-panel/measure-panel.component';
 import { SignatureComponent } from './components/signature/signature.component';
 import { CheckboxComponent } from './components/common/checkbox/checkbox.component';
@@ -171,6 +172,7 @@ const dbConfig: DBConfig  = {
     TooltipComponent,
     StampPanelComponent,
     StampTemplateDirective,
+    QRCodeTemplateDirective,
     //InteractiveStampTemplateDirective,
     MeasurePanelComponent,
     SignatureComponent,

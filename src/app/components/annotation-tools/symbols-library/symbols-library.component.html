@@ -1,24 +1,65 @@
-<rx-panel [title]="'Symbols'" (onClose)="onPanelClose()">
-  <div class="library-panel-container" >
-    <section >
-      <div class="add-custom-stamp">
-        <input type="file" #fileUpload (change)="handleSymbolsUpload($event)" style="display: none;" multiple>
-        <button type="button" id="upload_button" class="btn btn-primary" (click)="fileUpload.click()">Upload Symbols</button>
+<rx-panel [title]="'Symbols Library'" (onClose)="onPanelClose()">
+  <div class="library-panel-container">
+    <section>
+      <!-- Folder Selection Section -->
+      <div class="folder-management">
+        <!-- Loading and Error for Folders -->
+        <div *ngIf="loadingFolders" class="loading-status">
+          <i class="fas fa-spinner fa-spin"></i> Loading folders...
+        </div>
+        <div *ngIf="error && !loadingFolders" class="error-status">
+          <i class="fas fa-exclamation-triangle"></i> {{ error }}
+        </div>
+        <!-- Folder Dropdown -->
+        <div class="folder-dropdown-container" *ngIf="folders.length > 0 && !loadingFolders && !error">
+          <label for="folderDropdown">Select Category:</label>
+          <select id="folderDropdown" [(ngModel)]="selectedFolderId" (change)="selectFolder(selectedFolderId)">
+            <option *ngFor="let folder of folders; trackBy: trackByFolderId" [value]="folder.id">
+              {{ folder.name }}
+            </option>
+          </select>
+        </div>
       </div>
-      
-      <div class="templates-list" style="height: 390px;">
-        <div *ngFor="let template of symbols; let i=index" class="stamp-container"  style="display: flex; align-items: center;">
-          <img
-          [imageTemplate]="template"
-          [src]="template.src"
-          style="width: 100px; height: 100px;object-fit: contain;" />
-          <button (click)="deleteSymbol(i)" style="border: none; background: none; cursor: pointer; padding: 0; margin-left: 8px;">
-            <img src="/assets/images/trash-ico.svg" />
-          </button>
-        </div> 
+
+      <!-- Symbols List -->
+      <div class="templates-list">
+        <div *ngIf="loadingSymbols" class="loading-status">
+          <i class="fas fa-spinner fa-spin"></i> Loading symbols...
+        </div>
+        <div *ngIf="error && !loadingSymbols && !loadingFolders" class="error-status">
+          <i class="fas fa-exclamation-triangle"></i> {{ error }}
+        </div>
+        <div *ngIf="!selectedFolderId && !loadingSymbols && !loadingFolders" class="no-folder-selected">
+          <i class="fas fa-folder-open fa-2x"></i>
+          <p>Select a category to view symbols</p>
+          <small>Choose from the dropdown above to browse available symbols</small>
+        </div>
+
+        <div *ngIf="selectedFolderId && symbols.length === 0 && !loadingSymbols && !loadingFolders" class="no-symbols">
+          <i class="fas fa-images fa-2x"></i>
+          <p>No symbols available in this category</p>
+          <small>This category is currently empty</small>
+        </div>
+
+        <div *ngFor="let template of symbols; trackBy: trackBySymbolId" 
+             class="stamp-container"
+             draggable="true"
+             (dragstart)="onSymbolDragStart($event, template)"
+             (click)="onSymbolClick(template)"
+             title="Click to select or drag to place symbol">
+          <img [imageTemplate]="template" 
+               [src]="template.src" 
+               [alt]="template.name" 
+               class="symbol-image" />
+          <div class="symbol-info">
+            <div class="symbol-name" [title]="template.name">{{ template.name }}</div>
+            <div class="symbol-dimensions">{{ template.width }} × {{ template.height }}px</div>
+          </div>
+          <div class="drag-indicator">
+            <i class="fas fa-arrows-alt"></i>
+          </div>
+        </div>
       </div>
     </section>
   </div>
 </rx-panel>
-
-

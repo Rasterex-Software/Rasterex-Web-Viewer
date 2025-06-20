@@ -79,6 +79,7 @@ import { ToastrModule } from 'ngx-toastr';
 import { ImageLibraryComponent } from './components/image-library/image-library.component';
 import { ImageDragDropDirective } from './components/image-library/image-draggable.directive';
 import { SymbolsLibraryComponent } from './components/annotation-tools/symbols-library/symbols-library.component';
+import { QRCodeLibraryComponent } from './components/annotation-tools/qr-code-library/qr-code-library.component';
 import { LinksLibraryComponent } from './components/annotation-tools/links-library/links-library.component';
 import { LinkDragDropDirective } from './components/annotation-tools/links-library/link-draggable.directive';
 //import { InteractiveStampTemplateDirective } from './components/annotation-tools/stamp-panel/interactive-stamp-template.directive ';
@@ -192,6 +193,7 @@ const dbConfig: DBConfig  = {
     ImageLibraryComponent,
     ImageDragDropDirective,
     SymbolsLibraryComponent,
+    QRCodeLibraryComponent,
     LinksLibraryComponent,
     LinkDragDropDirective,
     ContextMenuComponent,

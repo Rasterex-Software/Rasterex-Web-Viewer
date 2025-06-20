@@ -31,7 +31,9 @@
           <div class="qr-code-preview">
             <img [src]="getQRCodeImageUrl(qrCode)" 
                  [alt]="qrCode.name"
-                 class="qr-image">
+                 class="qr-image draggable-qr"
+                 [qrCodeTemplate]="qrCode"
+                 draggable="true">
           </div>
           <div class="qr-code-info">
             <div class="qr-name">{{ qrCode.name }}</div>

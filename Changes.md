@@ -2,6 +2,7 @@ June 20, 2025
 
 ### 1. Keep original file name uploaded
 ### 2. Keep custom stamp, images even if moving to Standard   
+### 3. QR code drag and drop fix.
 
 
 Updated and new files

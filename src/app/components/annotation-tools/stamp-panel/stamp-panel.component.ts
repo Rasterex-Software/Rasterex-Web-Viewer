@@ -183,7 +183,6 @@ export class StampPanelComponent implements OnInit {
     return nameWithoutExtension.substring(0, maxNameLength) + '...' + extension;
   }
 
-
   ngOnInit(): void {
     // this.loadSvg();
     const now = new Date();
@@ -341,11 +340,9 @@ export class StampPanelComponent implements OnInit {
     if (type ===  StampType.CustomStamp) {
       currentStamp = this.customStamps.find(d => d.id === id);
       // Note: No longer deleting custom stamp to keep it in the list
-      //this.deleteCustomStamp(id);
     } else if (type=== StampType.UploadStamp) {
       currentStamp = this.uploadImageStamps.find(d => d.id === id);
       // Note: No longer deleting upload stamp to keep it in the list
-      //this.deleteImageStamp(id);
     }
     const {imageData, width, height} = await this.convertUrlToBase64Data(currentStamp.src);
     const newStamp = {
@@ -755,15 +752,6 @@ async deleteImageStamp(id: number): Promise<void> {
       const addedStamp = await this.storageService.addStandardStamp(newStamp);
       console.log('Standard stamp added successfully:', addedStamp);
 
-      
-      // Remove from source collection  
-      /*if (sourceType === 'custom') {
-        await this.deleteCustomStamp(stamp.id);
-        console.log('Removed from custom stamps');
-      } else if (sourceType === 'upload') {
-        await this.deleteImageStamp(stamp.id);
-        console.log('Removed from upload stamps');
-      }*/
       
       // Refresh standard stamps list
       await this.getStandardStamps();

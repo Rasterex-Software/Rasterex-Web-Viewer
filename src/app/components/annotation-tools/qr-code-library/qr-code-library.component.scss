@@ -170,6 +170,22 @@
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       border: 1px solid #eee;
       background: white;
+      
+      &.draggable-qr {
+        cursor: grab;
+        transition: all 0.2s ease;
+        
+        &:hover {
+          transform: scale(1.1);
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+          border-color: #2196f3;
+        }
+        
+        &:active {
+          cursor: grabbing;
+          transform: scale(0.95);
+        }
+      }
     }
   }
 

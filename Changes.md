@@ -1,42 +1,35 @@
 June 20, 2025
-
-### 1. Keep original file name uploaded
-### 2. Keep custom stamp, images even if moving to Standard   
-
-
+# 1. Keep original file name uploaded
+# 2. Keep custom stamp, images even if moving to Standard\
+# 3. Implement drag and drop of qr code
 Updated and new files
 src/app/components/annotation-tools/stamp-panel/stamp-panel.component.html
 src/app/components/annotation-tools/stamp-panel/stamp-panel.component.scss
-src/app/components/annotation-tools/stamp-panel/stamp-panel.component.ts 
+src/app/components/annotation-tools/stamp-panel/stamp-panel.component.ts
 src/app/components/annotation-tools/stamp-panel/StampData.ts
+src/app/components/annotation-tools/qr-code-library/qr-code-library.component.html
+src/app/components/annotation-tools/qr-code-library/qr-code-library.component.scss
+src\app\app.module.ts
 
-
-June 19, 2025
-
-### 1. Added QR Code Generation Logic.
-
-Updated and new files 
-
-src/app/app.module.ts 
-src/app/components/annotation-tools/annotation-tools.component.html 
-src/app/components/annotation-tools/annotation-tools.component.ts 
-src/app/components/annotation-tools/annotation-tools.service.ts 
-src/app/components/annotation-tools/qr-code-library/qr-code-library.component.html 
-src/app/components/annotation-tools/qr-code-library/qr-code-library.component.scss 
-src/app/components/annotation-tools/qr-code-library/qr-code-library.component.spec.ts 
-src/app/components/annotation-tools/qr-code-library/qr-code-library.component.ts 
+June 18, 2025
+# 1. Add QR Code Generation Logic
+Updated and new files
+src/app/app.module.ts
+src/app/components/annotation-tools/annotation-tools.component.html
+src/app/components/annotation-tools/annotation-tools.component.ts
+src/app/components/annotation-tools/annotation-tools.service.ts
+src/app/components/annotation-tools/qr-code-library/qr-code-library.component.html
+src/app/components/annotation-tools/qr-code-library/qr-code-library.component.scss
+src/app/components/annotation-tools/qr-code-library/qr-code-library.component.spec.ts
+src/app/components/annotation-tools/qr-code-library/qr-code-library.component.ts
 src/app/components/annotation-tools/qr-code-library/qr-code-library.service.ts
 
-
-June 17, 2025
-
-### 1. Integrate Symbols API
-
-
+June 16, 2025
+# 1. Integrate Symbols API
 Updated and new files
-
-src\app\components\annotation-tools\symbols-library\symbols-library.component.html src\app\components\annotation-tools\symbols-library\symbols-library.component.ts src\app\components\annotation-tools\symbols-library\symbols-library.service.ts
-
+src\app\components\annotation-tools\symbols-library\symbols-library.component.html
+src\app\components\annotation-tools\symbols-library\symbols-library.component.ts
+src\app\components\annotation-tools\symbols-library\symbols-library.service.ts
 
 June 16, 2025
 
@@ -67,15 +60,27 @@ src\app\components\annotation-tools\annotation-tools.component.ts
 
 
 
-June 3, 2025
+June 13, 2025
+# 1. Update symbols to remove upload, delete and just list via localstorage
+Updated and new files
+src/app/components/annotation-tools/symbols-library/symbols-library.component.html
+src/app/components/annotation-tools/symbols-library/symbols-library.component.scss
+src/app/components/annotation-tools/symbols-library/symbols-library.component.ts
 
+Jun 10, 2025
+### 1. Implement Folder Creation in Symbols and manage symbols based on folders
+Updated and new files
+src/app/components/annotation-tools/symbols-library/symbols-library.component.html
+src/app/components/annotation-tools/symbols-library/symbols-library.component.scss
+src/app/components/annotation-tools/symbols-library/symbols-library.component.ts
+
+June 3, 2025
 ### 1. Implement Upload Custom Stamp and Uploaded Images to Backend DB
 
 Updated and new files
 src/app/components/annotation-tools/stamp-panel/stamp-panel.component.html
-src\app\components\annotation-tools\stamp-panel\stamp-panel.component.scss
+src/app/components/annotation-tools/stamp-panel/stamp-panel.component.
 src/app/components/annotation-tools/stamp-panel/stamp-panel.component.ts
-
 
 May 30, 2025
 

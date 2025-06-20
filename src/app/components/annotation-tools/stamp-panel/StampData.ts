@@ -1,4 +1,3 @@
-
 export interface StampData {
   id: number;
   name: string;
@@ -10,10 +9,10 @@ export interface StampData {
 }
 
 export interface StampStoreData {
-  name: string;
-  type: string;
-  content: string;
-  originalFileName?: string; // Optional field for storing original filename
+name: string;
+type: string;
+content: string;
+originalFileName?: string; // Optional field for storing original filename
 }
 
 export enum StampType {

@@ -30,19 +30,19 @@
     <iframe id="iframe2" href=""></iframe>
   </div>
   <script>
-    const getUniqueRoomName = () => {
+    const getUniqueRoomId = () => {
       const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-      let roomName = 'Room_';
+      let roomId = 'document_collaboration_room_';
       for (let i = 0; i < 8; i++) {
         const randomIndex = Math.floor(Math.random() * characters.length);
-        roomName += characters[randomIndex];
+        roomId += characters[randomIndex];
       }
-      return roomName;
+      return roomId;
     }
-    const roomName = getUniqueRoomName();
+    const roomId = getUniqueRoomId();
     const rootUrl = window.location.protocol + '//' + window.location.host + '/collaboration';
     //const rootUrl = window.location.protocol + '//' + window.location.host;
-    const url = `${rootUrl}?roomName=${roomName}`;
+    const url = `${rootUrl}?roomId=${roomId}`;
     console.log('[Collab] iframe.src:', url);
 
     $('#iframe1').attr('src', url);
@@ -66,7 +66,6 @@
                   canFileOpen: false,
                   canGetFileInfo: true,
                   canAnnotate: true,
-                  canCollaborate: true,
                   showAnnotationsOnLoad : true
 
           }
@@ -90,7 +89,6 @@
                   canFileOpen: true,
                   canGetFileInfo: true,
                   canAnnotate: true,
-                  canCollaborate: true,
                   showAnnotationsOnLoad : true
           }
       }, "*");

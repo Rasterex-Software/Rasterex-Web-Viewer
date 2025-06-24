@@ -25,9 +25,9 @@ export class AnnotationStorageService {
    /**
    * Creates an annotation.
    */
-   async createAnnotation(projId: number, docId: string, data: string, createdBy?: number): Promise<Annotation> {
+   async createAnnotation(projId: number, docId: string, data: string, roomId?: string, createdBy?: number): Promise<Annotation> {
     const url = `${this.apiUrl}api/annotation`;
-    const body = { projId, docId, data, createdBy };
+    const body = { projId, docId, roomId, data, createdBy };
     const options = { headers : { 'x-access-token': `${this.userService.accessToken}` } };
 
     return new Promise((resolve, reject) => {
@@ -66,8 +66,11 @@ export class AnnotationStorageService {
   /**
    * Gets annotations from back-end.
    */
-  async getAnnotations(projId: number, docId: string): Promise<Annotation[]> {
-    const url = `${this.apiUrl}api/annotations?projId=${projId}&docId=${docId}`;
+  async getAnnotations(projId: number, docId: string, roomId?: string): Promise<Annotation[]> {
+    let url = `${this.apiUrl}api/annotations?projId=${projId}&docId=${docId}`;
+    if (roomId!== undefined && roomId !== null) {
+      url += `&roomId=${roomId}`;
+    }
     const options = { headers : { 'x-access-token': `${this.userService.accessToken}` } };
 
     return new Promise((resolve, reject) => {
@@ -107,18 +110,41 @@ export class AnnotationStorageService {
   /**
    * Deletes an annotation by id.
    */
-  async deleteAnnotation(id: number): Promise<Annotation> {
+  async deleteAnnotation(id: number): Promise<boolean> {
     const url = `${this.apiUrl}api/annotations/${id}`;
     const options = { headers : { 'x-access-token': `${this.userService.accessToken}` } };
 
     return new Promise((resolve, reject) => {
       this.http.delete<any>(url, options).subscribe({
-        next: (v: Annotation) => {
-          resolve(v);
+        next: (v: any) => {
+          resolve(true);
         },
         error: (e) => {
           console.error('deleteAnnotation failed:', e.error);
-          reject(e);
+          reject(false);
+        }
+      });
+    });
+  }
+
+  /**
+ * Deletes annotations from back-end.
+ */
+  async deleteAnnotations(projId: number, docId: string, roomId?: string): Promise<boolean> {
+    let url = `${this.apiUrl}api/annotations?projId=${projId}&docId=${docId}`;
+    if (roomId!== undefined && roomId !== null) {
+      url += `&roomId=${roomId}`;
+    }
+    const options = { headers : { 'x-access-token': `${this.userService.accessToken}` } };
+
+    return new Promise((resolve, reject) => {
+      this.http.delete<any>(url, options).subscribe({
+        next: (v: any) => {
+          resolve(true);
+        },
+        error: (e) => {
+          console.error('deleteAnnotations failed:', e.error);
+          reject(false);
         }
       });
     });

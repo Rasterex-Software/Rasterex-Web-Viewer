@@ -3,7 +3,7 @@ import { FileGaleryService } from './components/file-galery/file-galery.service'
 import { RxCoreService } from './services/rxcore.service';
 import { RXCore } from 'src/rxcore';
 import { NotificationService } from './components/notification/notification.service';
-import { MARKUP_TYPES } from 'src/rxcore/constants';
+import { MARKUP_TYPES, METRIC } from 'src/rxcore/constants';
 import { AnnotationToolsService } from './components/annotation-tools/annotation-tools.service';
 import { RecentFilesService } from './components/recent-files/recent-files.service';
 import { UserService } from './components/user/user.service';
@@ -14,6 +14,8 @@ import { CollabService } from './services/collab.service';
 import { AnnotationStorageService } from './services/annotation-storage.service';
 import { TooltipService } from './components/tooltip/tooltip.service';
 import { LoginService } from './services/login.service';
+import { MeasurePanelService } from './components/annotation-tools/measure-panel/measure-panel.service';
+import { RouterModule } from '@angular/router';
 
 
 
@@ -41,7 +43,7 @@ export class AppComponent implements AfterViewInit {
   convertPDFAnnots : boolean | undefined = false;
   createPDFAnnotproxy : boolean | undefined = false;
   showAnnotationsOnLoad : boolean | undefined = false;
-  canCollaborate : boolean | undefined = false;
+  canCollaborate : boolean = false;
   eventUploadFile: boolean = false;
   lists: any[] = [];
   state: any;
@@ -51,9 +53,6 @@ export class AppComponent implements AfterViewInit {
   timeoutId: any;
   isUploadFile: boolean = false;
   pasteStyle: { [key: string]: string } = { display: 'none' };
-    // This roomName is only used for document-collaboration.html page, in which, it generates
-  // a random roomName.
-  roomName: string = '';
 
   infoData: Array<any> = [];
   infoPanelVisible: boolean = false;
@@ -68,6 +67,7 @@ export class AppComponent implements AfterViewInit {
     private readonly userService: UserService,
     private readonly collabService: CollabService,  
     private readonly annotationStorageService: AnnotationStorageService,
+    private readonly measurePanelService: MeasurePanelService,
     private titleService:Title,
     private el: ElementRef) { }
     
@@ -79,10 +79,12 @@ export class AppComponent implements AfterViewInit {
     
     this.guiConfig$.subscribe(config => {
       this.guiConfig = config;
+      if (this.rxCoreService.IsCollaboration()) {
+        this.guiConfig.canFileOpen = !!this.userService.getCurrentUser();
+      }
       this.convertPDFAnnots = this.guiConfig.convertPDFAnnots;
       this.createPDFAnnotproxy = this.guiConfig.createPDFAnnotproxy;
       this.showAnnotationsOnLoad = this.guiConfig.showAnnotationsOnLoad;
-      this.canCollaborate = this.guiConfig.canCollaborate;
       RXCore.markupDisplayOnload(this.showAnnotationsOnLoad);
 
     });
@@ -102,16 +104,16 @@ export class AppComponent implements AfterViewInit {
       }
     });
 
-    // if we can find the roomName in the URL, we will create a collabService
+    this.canCollaborate = this.rxCoreService.IsCollaboration();
+    // if we can find the roomId in the URL, we will create a collabService
     const parameters = new URLSearchParams(window.location.search);
-    this.roomName = parameters.get('roomName') || '';
-    if (this.canCollaborate && this.roomName) {
+    const roomId = parameters.get('roomId') || '';
+    if (this.canCollaborate && roomId) {
       const user = this.userService.getCurrentUser();
       const username = user?.username || '';
       const displayName = user?.displayName || '';
       this.collabService.setUsername(username, displayName);
-      this.collabService.joinRoom(this.roomName);
-      //this.collabService.connect(roomName, username);
+      this.collabService.joinRoom(roomId);
       // We need to call openModal() here, so it can call handleFileSelect() in file-galery
       // TODO: there should be a better logic to open a file!
       this.fileGaleryService.openModal();
@@ -479,7 +481,7 @@ export class AppComponent implements AfterViewInit {
     });
 
     RXCore.onGuiFileLoadComplete(() => {
-      
+      console.log('RxCore onGuiFileLoadComplete:');
 
       let FileInfo = RXCore.getCurrentFileInfo();
 
@@ -492,23 +494,6 @@ export class AppComponent implements AfterViewInit {
             
       this.rxCoreService.guiFileLoadComplete.next();
 
-      this.userService.currentUser$.subscribe((user) => {
-        const username = user?.username || '';
-        const displayName = user?.displayName || '';
-        if (this.canCollaborate) {
-          this.collabService.setUsername(username, displayName);
-        }
-
-        let JSNObj = [
-          {
-              Command: "GetConfig",
-              UserName: user?.username || "Demo",
-              DisplayName : user?.displayName || "Demo User"
-          }
-        ];
-        RXCore.setJSONConfiguration(JSNObj);
-      });
-
 
       // TODO: The settings are effective after the file is loaded completely.
       this.userService.canUpdateAnnotation$.subscribe((canUpdate) => {
@@ -519,43 +504,6 @@ export class AppComponent implements AfterViewInit {
       this.userService.canViewAnnotation$.subscribe((canView) => {
         //RXCore.hideMarkUp();
       });
-      
-      console.log('RxCore onGuiFileLoadComplete:');
-      const path = RXCore.getOriginalPath();
-      if (this.guiConfig?.localStoreAnnotation === false && path) {
-        this.annotationStorageService.getAnnotations(1, path).then((annotations)=>{
-          annotations.forEach((annotation)=>{
-
-            if (RXCore.setUniqueMarkupfromJSON) {
-              RXCore.setUniqueMarkupfromJSON(annotation.data, null);
-              
-            }
-            const markupObj = JSON.parse(annotation.data);
-            const markupUniqueID = !markupObj.Entity.UniqueID ? null : markupObj.Entity.UniqueID;
-            let lastMarkup;
-            
-            if (markupUniqueID) {
-              lastMarkup = RXCore.getmarkupobjByGUID(markupUniqueID);
-            } else {
-              lastMarkup = RXCore.getLastMarkup();
-            }
-
-            //const lastMarkup = RXCore.getLastMarkup();
-
-
-            if (lastMarkup && lastMarkup != -1) {
-              const markup = lastMarkup as any;
-              markup.dbUniqueID = annotation.id;
-
-              if (markup.bhasArrow && markup.markupArrowConnected) {
-                markup.markupArrowConnected.dbUniqueID = annotation.id;
-              } else if (markup.bisTextArrow && markup.textBoxConnected) {
-                markup.textBoxConnected.dbUniqueID = annotation.id;
-              }
-            }
-          })   
-        });
-      }
 
       if(this.guiConfig?.watermarkdemo){
 
@@ -577,6 +525,26 @@ export class AppComponent implements AfterViewInit {
       
 
     });
+
+    this.userService.currentUser$.subscribe((user) => {
+        if (this.canCollaborate && this.guiConfig) {
+        this.guiConfig.canFileOpen = !!user;
+      }
+        const username = user?.username || '';
+        const displayName = user?.displayName || '';
+        if (this.canCollaborate) {
+          this.collabService.setUsername(username, displayName);
+        }
+
+        let JSNObj = [
+          {
+              Command: "GetConfig",
+              UserName: user?.username || "Demo",
+              DisplayName : user?.displayName || "Demo User"
+          }
+        ];
+        RXCore.setJSONConfiguration(JSNObj);
+      });
     
     RXCore.onGuiScaleListLoadComplete(() => {
       this.rxCoreService.guiScaleListLoadComplete.next();
@@ -586,44 +554,23 @@ export class AppComponent implements AfterViewInit {
     RXCore.onGuiMarkup((annotation: any, operation: any) => {
       console.log('RxCore GUI_Markup:', annotation, operation);
       if (annotation !== -1 || this.rxCoreService.lastGuiMarkup.markup !== -1) {
-        this.rxCoreService.setGuiMarkup(annotation, operation);
-
-        if (annotation !== -1 && (operation.created || operation.deleted)) {
-          // Handle addition, deletion
-          const path = RXCore.getOriginalPath();
-          const storageAnnotation = this.guiConfig?.localStoreAnnotation === false && path != '';
-
-          // If collab feature is enabled, send the markup message to the server
-          const roomName = this.getRoomName();
-          const collaboration = roomName && this.canCollaborate;
-          // Text with an arrow. Handles it in the onGuiTextInput callback.
-          if ((storageAnnotation || collaboration) && !(operation.created && ((annotation.type == MARKUP_TYPES.TEXT.type && annotation.bhasArrow) || (annotation.type == MARKUP_TYPES.CALLOUT.type && annotation.bisTextArrow)))) {
-            
-            annotation.getJSONUniqueID(operation).then((jsonData)=>{
-
-              if (storageAnnotation) {
-                const user = this.userService.getCurrentUser();
-                if (operation.created && annotation.dbUniqueID == null) {
-                    this.annotationStorageService.createAnnotation(1, path, jsonData,user?.id).then((result)=>{
-                      // Retain the returned unique ID.
-                      annotation.dbUniqueID = result.id;
-                    });
-
-                } else if (operation.deleted && annotation.dbUniqueID != null) {
-                  this.annotationStorageService.deleteAnnotation(annotation.dbUniqueID);
-
-                }
-
-              }
-
-              if (collaboration) {
-                  let cs = this.collabService;
-                  cs.sendMarkupMessage(roomName, jsonData, operation);
-              }
-
-            });
+        
+        if (annotation !== -1 && (this.isCollaborate() || this.isStorageAnnotation())) {
+          if (operation.created) {
+            this.addMarkup(annotation);
+          }
+          else if (operation.deleted) {
+            this.deleteMarkup(annotation);
+            this.rxCoreService.setGuiMarkup(annotation, operation);
+          }
+          else {
+            this.rxCoreService.setGuiMarkup(annotation, operation);
           }
         }
+        else {
+          this.rxCoreService.setGuiMarkup(annotation, operation);
+        }
+        
       }
 
     });    
@@ -679,7 +626,7 @@ export class AppComponent implements AfterViewInit {
     
 
     RXCore.onGuiMarkupList(list => {
-
+      console.log('RxCore onGuiMarkupList:', list);
       if (list){
         this.rxCoreService.setGuiMarkupList(list);
         this.lists = list?.filter(markup => markup.type != MARKUP_TYPES.SIGNATURE.type && markup.subtype != MARKUP_TYPES.SIGNATURE.subType);
@@ -707,40 +654,10 @@ export class AppComponent implements AfterViewInit {
       this.rxCoreService.setGuiTextInput(rectangle, operation);
       console.log('onGuiTextInput:', rectangle, operation);
       if(operation.start && operation.markup){
+        this.addTextMarkup(operation.markup);
+        
 
-        const path = RXCore.getOriginalPath();
-        const storageAnnotation = this.guiConfig?.localStoreAnnotation === false && path != '';
-
-        const roomName = this.getRoomName();
-        const collaboration = roomName && this.canCollaborate;
-
-        if (storageAnnotation || collaboration) {
-
-          const annotation = operation.markup;
-          annotation.getJSONUniqueID({ created: true}).then((jsonData)=>{
-
-            if (storageAnnotation) {
-              const user = this.userService.getCurrentUser();
-              this.annotationStorageService.createAnnotation(1, path, jsonData, user?.id).then((result)=>{
-                // Retain the returned unique ID.
-                annotation.dbUniqueID = result.id;
-                if (annotation.bhasArrow && annotation.markupArrowConnected) {
-                  annotation.markupArrowConnected.dbUniqueID = annotation.dbUniqueID;
-                } else if (annotation.bisTextArrow && annotation.textBoxConnected) {
-                  annotation.textBoxConnected.dbUniqueID = annotation.dbUniqueID;
-                }
-              });
-            }
-
-            if (collaboration) {
-              const cs = this.collabService;
-              cs.sendMarkupMessage(roomName, jsonData, { created: true});
-            }
-
-          });
-        }
-
-        /*if (operation.markup && roomName && this.canCollaborate) {
+        /*if (operation.markup && roomId && this.canCollaborate) {
 
             //&& (operation.created || operation.deleted)
             let cs = this.collabService;
@@ -748,7 +665,7 @@ export class AppComponent implements AfterViewInit {
   
               //const data = JSON.parse(jsondata);
               //data.operation = operation;
-              cs.sendMarkupMessage(roomName, jsondata, { created: true});
+              cs.sendMarkupMessage(roomId, jsondata, { created: true});
   
             });
           
@@ -803,58 +720,11 @@ export class AppComponent implements AfterViewInit {
     });
 
     RXCore.onGuiMarkupChanged((annotation, operation) => {
-      //console.log('RxCore onGuiMarkupChanged:', annotation, operation);
+      console.log('RxCore onGuiMarkupChanged:', annotation, operation);
       this.rxCoreService.guiOnMarkupChanged.next({annotation, operation});
-
-      if (annotation !== -1) {
-      
-        const path = RXCore.getOriginalPath();
-        const storageAnnotation = this.guiConfig?.localStoreAnnotation === false && path != '';
-
-        const roomName = this.getRoomName();
-        const collaboration = roomName && this.canCollaborate;
-
-        if (storageAnnotation || collaboration) {
-
-          const updateAnnotation = (jsonData)=>{
-            if (storageAnnotation) {
-              if (annotation.dbUniqueID != null) {
-                //console.log('RxCore onGuiMarkupChanged:', annotation, operation);
-                this.annotationStorageService.updateAnnotation(annotation.dbUniqueID, annotation.getJSON());
-              }
-            }
-            
-            if (collaboration) {
-              this.collabService.sendMarkupMessage(roomName, jsonData, { modified: true});
-            }
-          };
-          
-          if(annotation.type == 8 && annotation.subtype == 2){
-
-            if(annotation.parent){
-              
-              annotation.parent.getJSONUniqueID({ modified: true}).then((jsonData) => {
-
-                updateAnnotation(jsonData);
-                
-              });
-    
-            }
-
-          } else {
-            
-            annotation.getJSONUniqueID({ modified: true}).then((jsonData) =>{
-
-              updateAnnotation(jsonData);
-
-            });
-          }
-
-        }
-
-      }
-
-
+      //if (operation.modified) {
+      this.updateMarkup(annotation);
+      //}
     });    
 
     RXCore.onGuiPanUpdated((sx, sy, pagerect) => { 
@@ -889,13 +759,232 @@ export class AppComponent implements AfterViewInit {
       }
 
     });*/
-  
+    // this.measurePanelService.markupMeasureState$.subscribe((markup) => {
+    //   if (!markup || markup == -1) {
+    //     return;
+    //   }
+    //   if (!this.isCollaborate()) {
+    //     return;
+    //   }
+    //   // TODO: An actual callback function is needed.
+    //   // const scaleObject = markup.scaleObject;
+    //   // this.collabService.sendChatMessage(this.getRoomId(), {
+    //   //   innerId: 'MeasurementScale',
+    //   //   annotation: markup.getUniqueID(),
+    //   //   data: scaleObject
+    //   // });
+    // });
 
+    this.collabService.chatMessageChange$.subscribe((message) => {
+      if (!message) {
+        return;
+      }
+
+      if (message.innerId === 'MeasurementScale') {
+         if (!message.annotation || !message.data) {
+          return;
+         }
+
+        RXCore.unSelectAllMarkup();
+        // uniqueId
+        RXCore.selectMarkupbyGUID(message.annotation);
+        
+        const scaleObject = message.data;
+        if (scaleObject.metric === METRIC.UNIT_TYPES.METRIC ) {  
+          RXCore.setElementUnit(1);
+          RXCore.elementMetricUnit(scaleObject.metricUnit); 
+        
+        } else if (scaleObject.metric === METRIC.UNIT_TYPES.IMPERIAL ) {   
+          RXCore.setElementUnit(2);  
+          RXCore.elementImperialUnit(scaleObject.metricUnit);
+        } 
+        RXCore.setElementDimPrecision(scaleObject.dimPrecision);
+        RXCore.elementScale(scaleObject.value);
+        RXCore.setElementScaleLabel(scaleObject.label);
+
+        RXCore.unSelectAllMarkup();
+        RXCore.markUpRedraw();
+      }
+
+    });
   }
 
   ngOnDestroy() {
     this.tooltipService.closeTooltip();
     this.infoPanelVisible = false;
+  }
+
+  private isCollaborate() {
+    //const roomId = this.getRoomId();
+    //const collaboration = roomId && this.canCollaborate;
+    const collaboration = this.canCollaborate;
+    return collaboration;
+  }
+
+  private isStorageAnnotation() {
+    //const path = RXCore.getOriginalPath();
+   //const storageAnnotation = this.guiConfig?.localStoreAnnotation === false && path != '';
+    const storageAnnotation = this.guiConfig?.localStoreAnnotation === false;
+    // When "collaborate" is turned on, database storage must be enabled.
+    return storageAnnotation || this.isCollaborate();
+  }
+
+  private addMarkup(annotation: any) {
+    if (!annotation || annotation == -1 ) {
+      return;
+    }
+    if (!this.collabService.needSync()) {
+      return;
+    }
+    
+    const docId = this.collabService.getDocId();
+    const storageAnnotation = this.isStorageAnnotation();
+    const operation = { created: true };
+    // If collab feature is enabled, send the markup message to the server
+    const roomId = this.getRoomId();
+    const collaboration = this.isCollaborate();
+    // Text with an arrow. Handles it in the onGuiTextInput callback.
+    if ((storageAnnotation || collaboration) && !(((annotation.type == MARKUP_TYPES.TEXT.type && annotation.bhasArrow) || (annotation.type == MARKUP_TYPES.CALLOUT.type && annotation.bisTextArrow)))) {
+      
+      annotation.getJSONUniqueID(operation).then((jsonData)=>{
+
+        if (storageAnnotation) {
+          const user = this.userService.getCurrentUser();
+          if (annotation.dbUniqueID == null) {
+              this.annotationStorageService.createAnnotation(1, docId, jsonData, roomId, user?.id).then((result)=>{
+                // Retain the returned unique ID.
+                annotation.dbUniqueID = result.id;
+              });
+          }
+        }
+
+        if (collaboration && roomId) {
+            let cs = this.collabService;
+            cs.sendMarkupMessage(roomId, jsonData, operation);
+        }
+
+        this.rxCoreService.setGuiMarkup(annotation, operation);
+      });
+    }
+  }
+
+  private addTextMarkup(annotation: any) {
+    if (!annotation || annotation == -1 ) {
+      return;
+    }
+    if (!this.collabService.needSync()) {
+      return;
+    }
+
+    const docId = this.collabService.getDocId();
+    const storageAnnotation = this.isStorageAnnotation();
+
+    const roomId = this.getRoomId();
+    const collaboration = this.isCollaborate();
+    const operation = { created: true };
+    if (storageAnnotation || collaboration) {
+      annotation.getJSONUniqueID(operation).then((jsonData)=>{
+
+        if (storageAnnotation) {
+          const user = this.userService.getCurrentUser();
+          this.annotationStorageService.createAnnotation(1, docId, jsonData, roomId, user?.id).then((result)=>{
+            // Retain the returned unique ID.
+            annotation.dbUniqueID = result.id;
+            if (annotation.bhasArrow && annotation.markupArrowConnected) {
+              annotation.markupArrowConnected.dbUniqueID = annotation.dbUniqueID;
+            } else if (annotation.bisTextArrow && annotation.textBoxConnected) {
+              annotation.textBoxConnected.dbUniqueID = annotation.dbUniqueID;
+            }
+          });
+        }
+
+        if (collaboration && roomId) {
+          const cs = this.collabService;
+          cs.sendMarkupMessage(roomId, jsonData, operation);
+        }
+
+      });
+    }
+  }
+
+  private deleteMarkup(annotation: any) {
+    if (!annotation || annotation == -1) {
+      return;
+    }
+
+    if (!this.collabService.needSync()) {
+      return;
+    }
+
+    const storageAnnotation = this.isStorageAnnotation();
+    const operation = { deleted: true };
+    // If collab feature is enabled, send the markup message to the server
+    const roomId = this.getRoomId();
+    const collaboration = this.isCollaborate();
+
+    if (storageAnnotation || collaboration) {
+      annotation.getJSONUniqueID(operation).then((jsonData) => {
+        if (annotation.dbUniqueID != null) {
+          this.annotationStorageService.deleteAnnotation(annotation.dbUniqueID);
+        }
+        if (collaboration && roomId) {
+          let cs = this.collabService;
+          cs.sendMarkupMessage(roomId, jsonData, operation);
+        }
+      });
+    }
+  }
+
+  private updateMarkup(annotation: any) {
+    if (!annotation || annotation == -1) {
+      return;
+    }
+    if (!this.collabService.needSync()) {
+      return;
+    }
+    
+    const storageAnnotation = this.isStorageAnnotation();
+
+    const roomId = this.getRoomId();
+    const collaboration = this.isCollaborate();
+    const operation = { modified: true };
+
+    if (storageAnnotation || collaboration) {
+
+      const updateAnnotation = (jsonData)=>{
+        if (storageAnnotation) {
+          if (annotation.dbUniqueID != null) {
+            //console.log('RxCore onGuiMarkupChanged:', annotation, operation);
+            this.annotationStorageService.updateAnnotation(annotation.dbUniqueID, jsonData);
+          }
+        }
+        
+        if (collaboration && roomId) {
+          this.collabService.sendMarkupMessage(roomId, jsonData, operation);
+        }
+      };
+      
+      if(annotation.type == 8 && annotation.subtype == 2){
+
+        if(annotation.parent){
+          
+          annotation.parent.getJSONUniqueID(operation).then((jsonData) => {
+
+            updateAnnotation(jsonData);
+            
+          });
+
+        }
+
+      } else {
+        
+        annotation.getJSONUniqueID(operation).then((jsonData) =>{
+
+          updateAnnotation(jsonData);
+
+        });
+      }
+    }
   }
 
   private getBlockAttributes(block: IVectorBlock): Array<any> {
@@ -927,13 +1016,11 @@ export class AppComponent implements AfterViewInit {
     }
   }
 
-  getRoomName() {
-    let roomName = this.roomName;
-    if (!this.roomName) {
-      const fileInfo = RXCore.getCurrentFileInfo();
-      roomName = fileInfo.name;
+  getRoomId() {
+    if (!this.isCollaborate()) {
+      return "";
     }
-    return roomName;
+    return this.collabService.getRoomId();
   }
 
 

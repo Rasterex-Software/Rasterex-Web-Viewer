@@ -311,7 +311,7 @@ export class QuickActionsMenuComponent implements OnInit, OnDestroy {
 
     }*/
 
-    console.log(isLeft, isTop);
+//     console.log(isLeft, isTop);
 
 
 

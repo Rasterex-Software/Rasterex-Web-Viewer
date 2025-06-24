@@ -130,10 +130,10 @@ export class SymbolsLibraryComponent implements OnInit {
       };
     });
     if (storedImages.length > 0) {
-      console.log('Images retrieved successfully:', this.symbols);
+      // console.log('Images retrieved successfully:', this.symbols);
     } else {
       this.symbols = [];
-      console.log('No images found in local storage.');
+      // console.log('No images found in local storage.');
     }
   
     // Uncomment and modify the server code if needed in the future

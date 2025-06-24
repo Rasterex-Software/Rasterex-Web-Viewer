@@ -65,13 +65,13 @@ export class PageThumbnailDirective implements OnInit {
 
     this.guiRotateDocument$.subscribe(({degree}) => {
 
-      console.log("ROTATED");
+      // console.log("ROTATED");
 
     });
 
     this.guiRotatePage$.subscribe(({degree, pageIndex}) => {
 
-      console.log("ROTATED")
+      // console.log("ROTATED")
 
       var ctx = this.element.nativeElement.getContext('2d');
 

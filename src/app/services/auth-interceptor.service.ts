@@ -13,12 +13,12 @@ export class AuthInterceptor implements HttpInterceptor {
       // Get the auth token from the service
       const token = this.userService.accessToken;
 
-      console.log('Auth interceptor running for URL:', request.url);
-      console.log('Token available:', !!token);
+    // console.log('Auth interceptor running for URL:', request.url);
+    // console.log('Token available:', !!token);
 
       // Only add the token if it exists and the request doesn't already have it
       if (token && !request.headers.has('x-access-token')) {
-        console.log('Adding auth token to request');
+        // console.log('Adding auth token to request');
 
         // Clone the request and add the new header
         const authReq = request.clone({
@@ -39,11 +39,11 @@ export class AuthInterceptor implements HttpInterceptor {
       }
 
       if (!token) {
-        console.log('No token available to add to request');
+        // console.log('No token available to add to request');
       }
 
       if (request.headers.has('x-access-token')) {
-        console.log('Request already has auth token');
+        // console.log('Request already has auth token');
       }
     } catch (e) {
       console.error('Error in auth interceptor:', e);

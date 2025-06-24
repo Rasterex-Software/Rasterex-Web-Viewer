@@ -669,7 +669,7 @@
     <!-- <span class="tooltip-text tooltip-bottom">Comments</span> -->
   </div>
   <div
-    *ngIf="guiConfig.canCollaborate && fileLength > 0"
+    *ngIf="shouldShowToggleCollabPanelButton() && fileLength > 0"
     [ngClass]="{ selected: collabPanelOpened }"
     class="tooltip collab-icon"
     (click)="onCollabPanelSelect()"

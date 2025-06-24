@@ -32,9 +32,9 @@ export class ImageLibraryComponent implements OnInit {
           width: 200
         };
       });
-      console.log('Images retrieved successfully:', this.images);
+      // console.log('Images retrieved successfully:', this.images);
     } else {
-      console.log('No images found in local storage.');
+      // console.log('No images found in local storage.');
     }
   
     // this.imageUploadService.getAllImages().subscribe(

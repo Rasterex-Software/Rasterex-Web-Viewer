@@ -114,7 +114,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
 
     this.titleService.setTitle(this.title);
     this.fileGaleryService.getEventUploadFile().subscribe(event => {
-      console.log("event: ", event)
+      // console.log("event: ", event)
       if(event){
       this.eventUploadFile = event
       this.isUploadFile = false
@@ -122,12 +122,12 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     });
 
     this.uploadSub = this.uploadFileService.getEventUploadFile().subscribe(flag => {
-      console.log("flag: ", flag)
+      // console.log("flag: ", flag)
       this.isUploadFile = flag;
     });
 
     this.fileGaleryService.modalOpened$.subscribe(opened => {
-      console.log("opened: ", opened)
+      // console.log("opened: ", opened)
       if (!opened) {
         this.eventUploadFile = false;
       }
@@ -167,7 +167,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
 
     // Get the current user from the service to ensure we use authenticated data
     const user = this.userService.getCurrentUser();
-    console.log('App initializing with user:', user?.username || 'none');
+          // console.log('App initializing with user:', user?.username || 'none');
 
     let JSNObj = [
       {
@@ -180,11 +180,11 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     // Subscribe to user changes to update RXCore when authentication state changes
     this.userService.currentUser$.subscribe(updatedUser => {
       if (updatedUser) {
-        console.log('User authenticated, updating RXCore user:', updatedUser.username);
+        // console.log('User authenticated, updating RXCore user:', updatedUser.username);
         RXCore.setUser(updatedUser.username, updatedUser.displayName || updatedUser.username);
       } else if (user !== null) {
         // Only log out if we previously had a user (avoid duplicate init)
-        console.log('User logged out, clearing RXCore user');
+        // console.log('User logged out, clearing RXCore user');
         RXCore.setUser('', '');
 
         // Reset user markup display settings to ensure all annotations are visible after logout
@@ -223,7 +223,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     RXCore.initialize({ offsetWidth: 0, offsetHeight: 0 });
 
     RXCore.onGui2DBlock((block: IVectorBlock) => {
-      console.log('onGui2DBlock');
+      // console.log('onGui2DBlock');
       RXCore.unselectAllBlocks();
       let lastBlock = this.rxCoreService.getSelectedVectorBlock();
       if (lastBlock) {
@@ -435,9 +435,9 @@ export class AppComponent implements AfterViewInit, OnDestroy {
       this.bguireadycalled = true;
       //this.bfoxitreadycalled = true;
 
-      console.log('RxCore GUI_Ready.');
-      console.log(`Read Only Mode - ${RXCore.getReadOnly()}.`);
-      console.log('UI version', this.uiversion);
+          // console.log('RxCore GUI_Ready.');
+    // console.log(`Read Only Mode - ${RXCore.getReadOnly()}.`);
+    // console.log('UI version', this.uiversion);
 
       RXCore.setLayout(0, 0, false);
       RXCore.doResize(
@@ -540,7 +540,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
         //RXCore.hideMarkUp();
       });
 
-      console.log('RxCore onGuiFileLoadComplete:');
+      // console.log('RxCore onGuiFileLoadComplete:');
       this.isUploadFile = false;
       const path = RXCore.getOriginalPath();
       if (this.guiConfig?.localStoreAnnotation === false && path) {
@@ -598,7 +598,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     });
 
     RXCore.onGuiMarkup((annotation: any, operation: any) => {
-      console.log('RxCore GUI_Markup:', annotation, operation);
+      // console.log('RxCore GUI_Markup:', annotation, operation);
       if (annotation !== -1 || this.rxCoreService.lastGuiMarkup.markup !== -1) {
         this.rxCoreService.setGuiMarkup(annotation, operation);
 
@@ -650,11 +650,11 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     });
 
     RXCore.onGuiMarkupJSON((list: String) => {
-      console.log('RxCore GUI_MarkupJSON:', list);
+              // console.log('RxCore GUI_MarkupJSON:', list);
     });
 
     RXCore.onGuiMarkupIndex((annotation: any, operation: any) => {
-      console.log('RxCore GUI_Markup index:', annotation, operation);
+              // console.log('RxCore GUI_Markup index:', annotation, operation);
       if (annotation !== -1 || this.rxCoreService.lastGuiMarkup.markup !== -1) {
         this.rxCoreService.setGuiMarkupIndex(annotation, operation);
         //this.rxCoreService.setGuiMarkupMeasureRealTimeData(annotation);
@@ -715,7 +715,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
 
     RXCore.onGuiTextInput((rectangle: any, operation: any) => {
       this.rxCoreService.setGuiTextInput(rectangle, operation);
-      console.log('onGuiTextInput:', rectangle, operation);
+              // console.log('onGuiTextInput:', rectangle, operation);
       if (operation.start && operation.markup) {
         const path = RXCore.getOriginalPath();
         const storageAnnotation =
@@ -967,7 +967,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   }
 
   handleLoginClick() {
-    console.log('log in pressed');
+    // console.log('log in pressed');
   }
 
   onMouseDown(event): void {
@@ -990,7 +990,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     if (event.key == 'z') {
       event.preventDefault();
       RXCore.pageLock(true);
-      console.log(event.key, 'kay pressed');
+      // console.log(event.key, 'kay pressed');
     }
   }
 
@@ -998,7 +998,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     if (event.key == 'z') {
       event.preventDefault();
       RXCore.pageLock(false);
-      console.log(event.key, 'kay released');
+      // console.log(event.key, 'kay released');
     }
   }
 
@@ -1011,14 +1011,14 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   resetUserMarkupDisplaySettings() {
     try {
       const users = RXCore.getUsers();
-      console.log('Resetting markup display for all users:', users.length);
+      // console.log('Resetting markup display for all users:', users.length);
 
       // Reset display settings for all users to true (visible)
       for (let i = 0; i < users.length; i++) {
         RXCore.SetUserMarkupdisplay(i, true);
       }
 
-      console.log('User markup display settings reset successfully');
+      // console.log('User markup display settings reset successfully');
     } catch (error) {
       console.error('Error resetting user markup display settings:', error);
     }

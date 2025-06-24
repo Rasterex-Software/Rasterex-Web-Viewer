@@ -21,11 +21,6 @@ yarn-error.log
 *.sublime-workspace
 
 # Visual Studio Code
-.vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
 .history/*
 
 # Miscellaneous
@@ -44,3 +39,6 @@ src/app/components/top-nav-menu/top-nav-menu.component_prev.html
 src/app/components/annotation-tools/stamp-panel/old/stamp-panel.component.html
 src/app/components/annotation-tools/stamp-panel/old/stamp-panel.component.scss
 src/app/components/annotation-tools/stamp-panel/old/stamp-panel.component.ts
+config.bat
+temp_auto_push.bat
+temp_interactive_push.bat

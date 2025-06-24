@@ -160,7 +160,7 @@ export class InsertModalComponent implements OnInit {
 
         let pageRange = this.parseStringToNumArray(this.pageRangeStr)
 
-        console.log(pageRange)
+        // console.log(pageRange)
 
         if(this.selectedRadioValue === '2') {
             pageRange = pageRange.map(array => {

@@ -40,9 +40,9 @@ export class LinksLibraryComponent implements OnInit {
     }));
 
     if (storedLinks.length > 0) {
-      console.log('Links retrieved successfully:', this.links);
+//       console.log('Links retrieved successfully:', this.links);
     } else {
-      console.log('No links found in local storage.');
+//       console.log('No links found in local storage.');
     }
   }
 

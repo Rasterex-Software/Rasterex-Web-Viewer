@@ -78,7 +78,7 @@ export class CollabService {
 
     this.initPromise = new Promise((resolve, reject) => {
       socket.on('connect', () => {
-        console.log(`[Collab] ${this.username} connected`);
+        // console.log(`[Collab] ${this.username} connected`);
         resolve(true);
         this.initPromise = undefined;
       });
@@ -98,10 +98,10 @@ export class CollabService {
         this.initPromise = undefined;
       });
       socket.on('disconnect', () => {
-        console.log(`[Collab] ${this.username} disconnected`);
+        // console.log(`[Collab] ${this.username} disconnected`);
       });
       socket.on(this.ROOM_MESSAGE, (msg) => {
-        console.log(`[Collab] ${this.username} received message:`, msg);
+        // console.log(`[Collab] ${this.username} received message:`, msg);
         this.handleMessage(msg);
       });
     });
@@ -142,7 +142,7 @@ export class CollabService {
       }
       this._roomParticipantsChange.next(roomParticipants);
     } else if (msgId === MessageId.ChatMessage) {
-      console.log(`[Collab] ChatMessage: ${msgBody.text}`);
+      // console.log(`[Collab] ChatMessage: ${msgBody.text}`);
     } else if (
       msgId === MessageId.AddMarkup ||
       msgId === MessageId.UpdateMarkup ||

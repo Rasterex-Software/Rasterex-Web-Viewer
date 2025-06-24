@@ -124,11 +124,11 @@
 </rx-panel>
 
 
-<rx-modal-dialog [opened]="opened" (onClose)="opened = false">
+<rx-modal-dialog [opened]="opened" (onClose)="opened = false; resetEditMode()">
   <div class="confirm-modal-container" id="confirmModal">
     <div class="rx-modal-dialog-header">
-      <img (click)="opened = false;" class="close" id="close" src="/assets/images/close-modal-ico.svg" />
-      <span class="title">Add stamp</span>
+      <img (click)="opened = false; resetEditMode()" class="close" id="close" src="/assets/images/close-modal-ico.svg" />
+      <span class="title">{{ isEditMode ? 'Edit Stamp' : 'Add Stamp' }}</span>
     </div>
     <!-- Preview -->
     <div id="preview">
@@ -285,8 +285,8 @@
 
     </div>
     <div class="footer">
-      <button (click)="opened = false;" class="btn btn-light">CANCEL</button>
-      <button (click)="uploadCustomStamp()" class="btn btn-primary">SAVE</button>
+      <button (click)="opened = false; resetEditMode()" class="btn btn-light">CANCEL</button>
+      <button (click)="uploadCustomStamp()" class="btn btn-primary">{{ isEditMode ? 'UPDATE' : 'SAVE' }}</button>
     </div>
   </div>
 </rx-modal-dialog>

@@ -65,6 +65,10 @@ export class StampPanelComponent implements OnInit {
   draggedStamp: StampData | null = null;
   draggedStampType: 'custom' | 'upload' | null = null;
   
+  // Edit mode variables
+  isEditMode: boolean = false;
+  editingStampId: number | null = null;
+  
   // Make Math available in template
   Math = Math;
 
@@ -481,33 +485,55 @@ getSvgData(): string {
     
     //const svgBase64 = btoa(this.svgContent);
     const svgBase64 = btoa(unescape(encodeURIComponent(this.svgContent)));
-    const stampName = 'custom-stamp_' + new Date().getTime();
+    const stampName = this.isEditMode ? 
+      this.customStamps.find(s => s.id === this.editingStampId)?.name || 'custom-stamp_' + new Date().getTime() : 
+      'custom-stamp_' + new Date().getTime();
     const stampType = 'image/svg+xml';
 
+    // Collect all stamp settings for future editing
+    const stampSettings = {
+      stampText: this.stampText,
+      textColor: this.textColor,
+      selectedFontStyle: this.selectedFontStyle,
+      isBold: this.isBold,
+      isItalic: this.isItalic,
+      isUnderline: this.isUnderline,
+      username: this.username,
+      date: this.date,
+      time: this.time,
+      strokeWidth: this.strokeWidth,
+      strokeColor: this.strokeColor,
+      strokeRadius: this.strokeRadius,
+      fillColor: this.fillColor,
+      fillOpacity: this.fillOpacity,
+      font: this.font
+    };
+
     // Include width and height for proper SVG handling
-    const newStamp = {
+    const stampData = {
       name: stampName,
       type: stampType,
       content: svgBase64,
       width: this.svgWidth,
-      height: this.svgHeight
+      height: this.svgHeight,
+      stampSettings: stampSettings
     };
-    // let stamps = JSON.parse(localStorage.getItem('CustomStamps') || '[]');
-    // stamps.push(newStamp);
-    // localStorage.setItem('CustomStamps', JSON.stringify(stamps));
-    this.storageService.addCustomStamp(newStamp).then(async (item: any) => {
-      console.log('Custom stamp added successfully:', item);
-      const stampData = await this.convertToStampData({id: item.id, ...newStamp});
-      this.customStamps.push(stampData);
-      this.opened = false;
-    }).catch(error => {
-      console.error('Error adding custom stamp:', error);
-    });
-   
-    // const link = document.createElement('a');
-    // link.href = 'data:image/svg+xml;base64,' + svgBase64;
-    // link.download = 'custom-stamp.svg';
-    // link.click();
+
+    if (this.isEditMode && this.editingStampId) {
+      // Update existing stamp
+      this.updateCustomStamp(this.editingStampId, stampData);
+    } else {
+      // Create new stamp
+      this.storageService.addCustomStamp(stampData).then(async (item: any) => {
+        console.log('Custom stamp added successfully:', item);
+        const newStampData = await this.convertToStampData({id: item.id, ...stampData});
+        this.customStamps.push(newStampData);
+        this.opened = false;
+        this.resetEditMode();
+      }).catch(error => {
+        console.error('Error adding custom stamp:', error);
+      });
+    }
   }
  
   async handleUploadImageUrl() {
@@ -603,7 +629,79 @@ async deleteImageStamp(id: number): Promise<void> {
 
   editCustomStamp(id: number): void {
     const stampToEdit = this.customStamps.find(stamp => stamp.id === id);
-    //Logic to edit
+    if (!stampToEdit) {
+      console.error('Stamp not found for editing');
+      return;
+    }
+
+    // Load original stamp data with settings
+    this.getOriginalStampData(id, 'custom').then((originalData) => {
+      if (originalData && originalData.stampSettings) {
+        // Load settings into form
+        this.loadStampSettings(originalData.stampSettings);
+      } else {
+        // If no settings saved, use default values
+        this._setDefaults();
+        this.stampText = 'Edit Stamp';
+      }
+      
+      // Set edit mode
+      this.isEditMode = true;
+      this.editingStampId = id;
+      this.opened = true;
+    }).catch(error => {
+      console.error('Error loading stamp for editing:', error);
+    });
+  }
+
+  private updateCustomStamp(id: number, stampData: any): void {
+    // Update the stamp in storage using the proper update method
+    this.storageService.updateCustomStamp(id, stampData).then(async () => {
+      console.log('Custom stamp updated successfully');
+      
+      // Update in local array - keep the same ID
+      const index = this.customStamps.findIndex(s => s.id === id);
+      if (index !== -1) {
+        const updatedStampData = await this.convertToStampData({id: id, ...stampData});
+        this.customStamps[index] = updatedStampData;
+      }
+      
+      this.opened = false;
+      this.resetEditMode();
+    }).catch(error => {
+      console.error('Error updating custom stamp:', error);
+    });
+  }
+
+  resetEditMode(): void {
+    this.isEditMode = false;
+    this.editingStampId = null;
+    this._setDefaults();
+  }
+
+  private loadStampSettings(settings: any): void {
+    this.stampText = settings.stampText || 'Draft';
+    this.textColor = settings.textColor || '#000000';
+    this.selectedFontStyle = settings.selectedFontStyle || 'Arial';
+    this.isBold = settings.isBold || false;
+    this.isItalic = settings.isItalic || false;
+    this.isUnderline = settings.isUnderline || false;
+    this.username = settings.username || false;
+    this.date = settings.date || false;
+    this.time = settings.time || false;
+    this.strokeWidth = settings.strokeWidth || 1;
+    this.strokeColor = settings.strokeColor || '#000000';
+    this.strokeRadius = settings.strokeRadius || 8;
+    this.fillColor = settings.fillColor || '#ffffff';
+    this.fillOpacity = settings.fillOpacity || 0;
+    this.font = settings.font || {
+      style: {
+        bold: false,
+        italic: false
+      },
+      font: 'Arial'
+    };
+    this.color = this.textColor;
   }
 
   // Stamp Drag and Drop Methods - Only for Standard conversion tracking

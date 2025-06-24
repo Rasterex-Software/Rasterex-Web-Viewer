@@ -80,6 +80,30 @@ private addStamp(stamp: StampStoreData, type: StampType): Promise<any> {
     return this.deleteStamp(stampId, StampType.UploadStamp);
   }
 
+  // Update an existing custom stamp
+  updateCustomStamp(stampId: number, stamp: StampStoreData): Promise<any> {
+    return new Promise((resolve, reject) => {
+      const callbackObj = {
+        next: (data) => {
+          resolve(data);
+        },
+        error: (e) => {
+          console.error('Failed to update custom stamp', e);
+          reject(e);
+        }
+      };
+      
+      // Create update object with id and data
+      const updateData = { 
+        id: stampId, 
+        name: stamp.name, 
+        data: JSON.stringify(stamp) 
+      };
+      
+      this.indexedDbService.updateItem(StampType.CustomStamp, updateData).subscribe(callbackObj);
+    });
+  }
+
   private getStampsByType(type: StampType): Promise<any[]> {
     return new Promise((resolve, reject) => {
         const callbackObj = {

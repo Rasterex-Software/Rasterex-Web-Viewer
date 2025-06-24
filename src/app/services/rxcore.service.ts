@@ -354,7 +354,7 @@ export class RxCoreService {
 
 
     setSidebarState(state: boolean) {
-    console.log('SidebarStateService: Setting state to:', state);
+    // console.log('SidebarStateService: Setting state to:', state);
     this.sidebarState.next(state);
   }
 

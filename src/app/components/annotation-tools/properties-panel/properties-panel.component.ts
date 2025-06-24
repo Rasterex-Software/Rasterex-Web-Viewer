@@ -172,7 +172,7 @@ export class PropertiesPanelComponent implements OnInit {
     this.isFillOpacityVisible = true;
     this.isPropertyArrowsVisible = false;
 
-    console.log(this.markup);
+//     console.log(this.markup);
 
     if (this.markup.type == MARKUP_TYPES.ARROW.type ) {
       //this.isFillOpacityVisible = false;
@@ -349,7 +349,7 @@ export class PropertiesPanelComponent implements OnInit {
   }
 
  /*  onStrokeOpacityChange(): void {
-    console.log(this.strokeOpacity);
+//     console.log(this.strokeOpacity);
   } */
 
   onStrokeThicknessChange(): void {

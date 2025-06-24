@@ -212,7 +212,7 @@ export class AnnotationToolsComponent implements OnInit, OnDestroy {
       }
     });
 
-    console.log('deselect all called');
+//     console.log('deselect all called');
     RXCore.restoreDefault();
   }
 
@@ -314,7 +314,7 @@ export class AnnotationToolsComponent implements OnInit, OnDestroy {
               if (this.isActionSelected['PAINT_FREEHAND']) {
                 this.isDrawing = true;
                 this.strokeCounter++;
-                console.log('Freehand stroke started', this.strokeCounter);
+//                 console.log('Freehand stroke started', this.strokeCounter);
               }
             };
 
@@ -322,7 +322,7 @@ export class AnnotationToolsComponent implements OnInit, OnDestroy {
             this.freehandMouseUpListener = () => {
               if (this.isActionSelected['PAINT_FREEHAND'] && this.isDrawing) {
                 this.isDrawing = false;
-                console.log('Freehand stroke completed', this.strokeCounter);
+                // console.log('Freehand stroke completed', this.strokeCounter);
 
                 // Force the stroke to be finalized immediately
                 // This is the key to making each stroke undoable separately
@@ -500,11 +500,11 @@ export class AnnotationToolsComponent implements OnInit, OnDestroy {
 
     // Perform undo or redo
     if (undo) {
-      console.log('Performing undo operation');
+      // console.log('Performing undo operation');
       RXCore.markUpUndo();
     } else {
       // For redo operations, we need a special approach to ensure proper sequencing
-      console.log('Performing enhanced redo operation');
+      // console.log('Performing enhanced redo operation');
 
       try {
         // Temporarily disable all tool selections to prevent interference
@@ -561,7 +561,7 @@ export class AnnotationToolsComponent implements OnInit, OnDestroy {
     if (undo && currentFreehand) {
       // Small delay to ensure undo completes
       setTimeout(() => {
-        console.log('Restoring freehand tool after undo');
+        // console.log('Restoring freehand tool after undo');
         this.isActionSelected['PAINT_FREEHAND'] = true;
         RXCore.markUpFreePen(true);
       }, 100);

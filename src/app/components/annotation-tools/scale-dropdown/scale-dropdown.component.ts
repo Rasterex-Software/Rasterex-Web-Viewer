@@ -95,7 +95,7 @@ export class ScaleDropdownComponent implements OnInit {
 
   onDeleteClick(event, item: any): void {
     event.stopPropagation();
-    console.log("deleted..");
+//     console.log("deleted..");
     this.onValueDelete.emit(item);
   }
 

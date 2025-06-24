@@ -73,7 +73,7 @@ export class LinkDragDropDirective {
     let textContent = 'Content';
     if (textElement) {
       textContent = textElement.textContent || 'Content';
-      console.log('Text Content:', textContent);
+//       console.log('Text Content:', textContent);
     }
 
     // Update the SVG string with the text content

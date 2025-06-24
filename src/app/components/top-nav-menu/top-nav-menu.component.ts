@@ -255,7 +255,7 @@ export class TopNavMenuComponent implements OnInit {
   handleFileSelect(item: any) {
     // Clear any existing annotations before opening a new file
     // This ensures we don't see annotations from previously edited files
-    console.log('Clearing annotations before opening file:', item.file);
+    // console.log('Clearing annotations before opening file:', item.file);
     RXCore.clearMarkup();
 
     // Open the file
@@ -498,7 +498,7 @@ export class TopNavMenuComponent implements OnInit {
                 return RXCore.uploadFile(modifiedFile);
               })
               .then((response) => {
-                console.log('File uploaded successfully');
+                // console.log('File uploaded successfully');
                 // You can add a success notification here if needed
               })
               .catch((error) => {
@@ -546,7 +546,7 @@ export class TopNavMenuComponent implements OnInit {
       this.isActionSelected = true;
     }
 
-    console.log(actionType, this.isActionSelected);
+    // console.log(actionType, this.isActionSelected);
 
     if (actionType === 'Comment') {
       this.annotationToolsService.setSearchPanelState({ visible: false });

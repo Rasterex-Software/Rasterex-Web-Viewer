@@ -91,7 +91,7 @@ export class SearchPanelComponent implements OnInit {
             //not sure what this is supposed to do currently this makes the list empty. modified to retun result.
             //this.splitedResult = this.searchResult.slice(0, this.getPageNumFromId(Math.min(40, this.searchResult.length)))
             this.splitedResult = this.searchResult.slice(0, Math.min(40, this.searchResult.length))
-            console.log(matches)
+//             console.log(matches)
             this.cdr.markForCheck()
         })
 
@@ -188,7 +188,7 @@ export class SearchPanelComponent implements OnInit {
             const target = (event.target as HTMLDivElement)
             let start = 0, end = 0
             this.bDown = target.scrollTop <= this.scrollY
-            console.log(this.bDown)
+//             console.log(this.bDown)
             if(target.scrollTop <= DELTA) {
                 this.currentScrollItem -= 20;
                 if(this.currentScrollItem > 40) {
@@ -204,7 +204,7 @@ export class SearchPanelComponent implements OnInit {
             
             end = this.currentScrollItem
             start = Math.max(0, end - 40)
-            console.log(this.getPageNumFromId(end), end, this.getPageNumFromId(start), start)
+//             console.log(this.getPageNumFromId(end), end, this.getPageNumFromId(start), start)
             end = this.getPageNumFromId(end)
             start = this.getPageNumFromId(start)
             this.splitedResult = this.searchResult.slice(start, end)

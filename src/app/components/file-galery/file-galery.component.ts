@@ -164,7 +164,7 @@ export class FileGaleryComponent implements OnInit {
 
   handleFileSelect(item): void {
     // Clear any existing annotations before opening a new file
-    console.log('Clearing annotations before opening file:', item.file);
+    // console.log('Clearing annotations before opening file:', item.file);
     RXCore.clearMarkup();
 
     this.onSelect.emit(item);

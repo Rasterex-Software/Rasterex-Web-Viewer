@@ -109,12 +109,12 @@ export class BottomToolbarComponent implements OnInit, AfterViewInit {
 
     // Listen for file activation events to update birdseye when files change
     this.rxCoreService.guiFileLoadComplete$.subscribe(() => {
-      console.log('File loaded, updating birdseye if active');
+//       console.log('File loaded, updating birdseye if active');
 
       // When a new file is loaded, we need to temporarily disable and then re-enable
       // birdseye to force a complete refresh of the thumbnail
       if (this.state.isActionSelected['BIRDSEYE']) {
-        console.log("Force resetting Bird's Eye View for new document");
+//         console.log("Force resetting Bird's Eye View for new document");
 
         // Temporarily disable birdseye
         this.state.isActionSelected['BIRDSEYE'] = false;
@@ -131,11 +131,11 @@ export class BottomToolbarComponent implements OnInit, AfterViewInit {
 
     // Listen for the currently active file to change
     RXCore.onGuiActivateFile((fileIndex) => {
-      console.log('Active file changed to index:', fileIndex);
+//       console.log('Active file changed to index:', fileIndex);
 
       // Same approach for file activation events
       if (this.state.isActionSelected['BIRDSEYE']) {
-        console.log("Force resetting Bird's Eye View for activated document");
+//         console.log("Force resetting Bird's Eye View for activated document");
 
         // Temporarily disable birdseye
         this.state.isActionSelected['BIRDSEYE'] = false;
@@ -310,11 +310,11 @@ export class BottomToolbarComponent implements OnInit, AfterViewInit {
       case 'BIRDSEYE':
         if (this.state.isActionSelected[action]) {
           // Bird's Eye View is being activated
-          console.log("Activating Bird's Eye View");
+//           console.log("Activating Bird's Eye View");
           this.forceRefreshBirdseye();
         } else {
           // Bird's Eye View is being deactivated
-          console.log("Deactivating Bird's Eye View");
+//           console.log("Deactivating Bird's Eye View");
           // Clear the canvases when turning off
           this.clearBirdseyeCanvases();
           // Tell RXCore to handle Bird's Eye View state
@@ -350,7 +350,7 @@ export class BottomToolbarComponent implements OnInit, AfterViewInit {
     setTimeout(() => {
       // Get current active file info for logging
       const activeFileInfo = RXCore.getCurrentFileInfo();
-      console.log("Resetting Bird's Eye View for document:", activeFileInfo);
+//       console.log("Resetting Bird's Eye View for document:", activeFileInfo);
 
       // Clear any existing Bird's Eye View data
       this.clearBirdseyeCanvases();
@@ -377,7 +377,7 @@ export class BottomToolbarComponent implements OnInit, AfterViewInit {
           // Force a render
           RXCore.renderBirdseye();
 
-          console.log("Bird's Eye View reset and refreshed");
+//           console.log("Bird's Eye View reset and refreshed");
         }, 150);
       } else {
         // Just initialize the Bird's Eye View with the active document
@@ -389,7 +389,7 @@ export class BottomToolbarComponent implements OnInit, AfterViewInit {
         );
         RXCore.renderBirdseye();
 
-        console.log("Bird's Eye View reset and refreshed");
+//         console.log("Bird's Eye View reset and refreshed");
       }
     }, 100);
   }
@@ -413,7 +413,7 @@ export class BottomToolbarComponent implements OnInit, AfterViewInit {
 
       // Get the current active document
       const activeFileInfo = RXCore.getCurrentFileInfo();
-      console.log('Setting up birdseye for active document:', activeFileInfo);
+//       console.log('Setting up birdseye for active document:', activeFileInfo);
 
       // Initialize and render the Bird's Eye View
       RXCore.birdseyetool();
@@ -428,23 +428,23 @@ export class BottomToolbarComponent implements OnInit, AfterViewInit {
 
   private onBirdseyeThumbnailReceived(index, thumbnail): void {
     // Enhanced logging to debug thumbnail issues
-    console.log('Birdseye thumbnail received:', {
-      index,
-      isActive: thumbnail?.DocRef?.bActive,
-      hasData: !!thumbnail?.birdseyeobj?.birdseye,
-    });
+    // console.log('Birdseye thumbnail received:', {
+    //   index,
+    //   isActive: thumbnail?.DocRef?.bActive,
+    //   hasData: !!thumbnail?.birdseyeobj?.birdseye,
+    // });
 
     // Only process thumbnails for the active document
     if (!thumbnail || !thumbnail.DocRef || !thumbnail.DocRef.bActive) {
-      console.log('Ignoring inactive document thumbnail');
+//       console.log('Ignoring inactive document thumbnail');
       return;
     }
 
-    console.log('Received birdseye thumbnail for active document:', index);
+//     console.log('Received birdseye thumbnail for active document:', index);
 
     // Check if birdseye is still active
     if (!this.state.isActionSelected['BIRDSEYE']) {
-      console.log("Bird's Eye View no longer active, skipping render");
+//       console.log("Bird's Eye View no longer active, skipping render");
       return;
     }
 
@@ -497,7 +497,7 @@ export class BottomToolbarComponent implements OnInit, AfterViewInit {
 
     // Make sure we have a valid context before trying to draw
     if (thumbnail.birdseyeGUIimgctx == null) {
-      console.log('Creating new image context for birdseye');
+//       console.log('Creating new image context for birdseye');
       const imgCtx = this.birdseyeImage.nativeElement.getContext('2d');
       if (imgCtx) {
         thumbnail.birdseyeGUIimgctx = imgCtx;
@@ -533,7 +533,7 @@ export class BottomToolbarComponent implements OnInit, AfterViewInit {
         );
         thumbnail.birdseyeGUIimgctx.restore();
       }
-      console.log('Successfully rendered birdseye thumbnail');
+//       console.log('Successfully rendered birdseye thumbnail');
     } catch (error) {
       console.error('Error rendering birdseye thumbnail:', error);
     }
@@ -582,11 +582,11 @@ export class BottomToolbarComponent implements OnInit, AfterViewInit {
   }
 
   private forceRefreshBirdseye(): void {
-    console.log("Performing forced Bird's Eye View refresh");
+//     console.log("Performing forced Bird's Eye View refresh");
 
     // Get current active file info for logging
     const activeFileInfo = RXCore.getCurrentFileInfo();
-    console.log('Active document for birdseye:', activeFileInfo);
+//     console.log('Active document for birdseye:', activeFileInfo);
 
     // Clear all existing canvas data
     this.clearBirdseyeCanvases();
@@ -626,6 +626,6 @@ export class BottomToolbarComponent implements OnInit, AfterViewInit {
     // Force a render
     RXCore.renderBirdseye();
 
-    console.log("Forced Bird's Eye View refresh completed");
+//     console.log("Forced Bird's Eye View refresh completed");
   }
 }

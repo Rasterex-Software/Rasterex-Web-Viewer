@@ -82,16 +82,16 @@ export class UserService {
 
   // Load authentication state from localStorage
   private loadAuthState(): void {
-    console.log('Attempting to load auth state from storage');
+    // console.log('Attempting to load auth state from storage');
 
     // Try both sessionStorage and localStorage to support different browser settings
     const storedToken = sessionStorage.getItem('rx_access_token') || localStorage.getItem('rx_access_token');
     const storedUser = sessionStorage.getItem('rx_user') || localStorage.getItem('rx_user');
 
-    console.log('Retrieved from storage:', {
-      hasToken: !!storedToken,
-      hasUser: !!storedUser
-    });
+    // console.log('Retrieved from storage:', {
+    //   hasToken: !!storedToken,
+    //   hasUser: !!storedUser
+    // });
 
     if (storedToken && storedUser) {
       try {
@@ -99,13 +99,13 @@ export class UserService {
         const user = JSON.parse(storedUser);
         this._currentUser.next(user);
 
-        console.log('Successfully restored user from storage:', user.username);
+        // console.log('Successfully restored user from storage:', user.username);
 
         // Also set RXCore user
         if (user && user.username) {
           try {
             RXCore.setUser(user.username, user.displayName || user.username);
-            console.log('Set RXCore user successfully');
+            // console.log('Set RXCore user successfully');
           } catch (err) {
             console.error('Error setting RXCore user:', err);
           }
@@ -116,7 +116,7 @@ export class UserService {
         this.clearStoredAuth();
       }
     } else {
-      console.log('No stored authentication found');
+      // console.log('No stored authentication found');
     }
   }
 
@@ -130,7 +130,7 @@ export class UserService {
 
   // Save authentication state to sessionStorage and localStorage for redundancy
   private saveAuthState(token: string, user: User | null): void {
-    console.log('Saving auth state to storage:', { hasToken: !!token, hasUser: !!user });
+    // console.log('Saving auth state to storage:', { hasToken: !!token, hasUser: !!user });
     if (token && user) {
       try {
         // Store in sessionStorage (primary)
@@ -141,13 +141,13 @@ export class UserService {
         localStorage.setItem('rx_access_token', token);
         localStorage.setItem('rx_user', JSON.stringify(user));
 
-        console.log('Auth state saved successfully to both storage types');
+        // console.log('Auth state saved successfully to both storage types');
       } catch (e) {
         console.error('Error saving auth state:', e);
       }
     } else {
       this.clearStoredAuth();
-      console.log('Auth state cleared from storage');
+      // console.log('Auth state cleared from storage');
     }
   }
 
@@ -191,7 +191,7 @@ export class UserService {
           // Reset user markup display settings to ensure all annotations are visible after logout
           this.resetUserMarkupDisplaySettings();
 
-          console.log('logout result:', v);
+          // console.log('logout result:', v);
           resolve();
         },
         error: (e) => {
@@ -209,14 +209,14 @@ export class UserService {
   private resetUserMarkupDisplaySettings(): void {
     try {
       const users = RXCore.getUsers();
-      console.log('Resetting markup display for all users:', users.length);
+      // console.log('Resetting markup display for all users:', users.length);
       
       // Reset display settings for all users to true (visible)
       for (let i = 0; i < users.length; i++) {
         RXCore.SetUserMarkupdisplay(i, true);
       }
       
-      console.log('User markup display settings reset successfully');
+      // console.log('User markup display settings reset successfully');
     } catch (error) {
       console.error('Error resetting user markup display settings:', error);
     }
@@ -418,7 +418,7 @@ export class UserService {
    * Updates UI according to annotations.
    */
   setAnnotations(annos?: Annotation[]) {
-    console.log('Annotations:', annos);
+    // console.log('Annotations:', annos);
     // TODO: implement it
   }
 
@@ -426,7 +426,7 @@ export class UserService {
    * Clears invalid authentication when we get auth errors from the server
    */
   public clearInvalidAuth(): void {
-    console.log('Clearing invalid authentication data');
+    // console.log('Clearing invalid authentication data');
     this.accessToken = '';
     this._currentUser.next(null);
     this.clearStoredAuth();

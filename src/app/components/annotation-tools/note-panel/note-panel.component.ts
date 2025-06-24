@@ -56,7 +56,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
 
   set activeMarkupNumber(value: number) {
     if (this._activeMarkupNumber !== value) {
-      console.log(`🎯 activeMarkupNumber changed from ${this._activeMarkupNumber} to ${value}`);
+      // console.log(`🎯 activeMarkupNumber changed from ${this._activeMarkupNumber} to ${value}`);
       console.trace('Stack trace for activeMarkupNumber change:');
     }
     this._activeMarkupNumber = value;
@@ -284,7 +284,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
   private _showLeaderLineForMarkup(markupNumber: number, markup: IMarkup): void {
     // Prevent race conditions and infinite loops
     if (this.isUpdatingLeaderLine) {
-      console.log(`🚫 _showLeaderLineForMarkup: Already updating leader line, skipping for markup ${markupNumber}`);
+      // console.log(`🚫 _showLeaderLineForMarkup: Already updating leader line, skipping for markup ${markupNumber}`);
       return;
     }
 
@@ -294,7 +294,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       // Remove existing leader line for this markup if it exists
       this._hideLeaderLineForMarkup(markupNumber);
 
-      console.log(`🎯 _showLeaderLineForMarkup: Attempting to show leader line for markup ${markupNumber}`);
+      // console.log(`🎯 _showLeaderLineForMarkup: Attempting to show leader line for markup ${markupNumber}`);
 
       const start = document.getElementById(`note-panel-${markupNumber}`);
       if (!start) {
@@ -303,10 +303,10 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
         return;
       }
 
-      console.log(`✅ _showLeaderLineForMarkup: Found DOM element note-panel-${markupNumber}`);
+      // console.log(`✅ _showLeaderLineForMarkup: Found DOM element note-panel-${markupNumber}`);
 
       // Ensure the markup is selected in RXCore to prevent reset
-      console.log(`🎯 _showLeaderLineForMarkup: Selecting markup ${markupNumber} in RXCore`);
+      // console.log(`🎯 _showLeaderLineForMarkup: Selecting markup ${markupNumber} in RXCore`);
       RXCore.selectMarkUpByIndex(markupNumber);
 
       // Get accurate viewport-aware coordinates
@@ -317,7 +317,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
         return;
       }
 
-      console.log(`✅ _showLeaderLineForMarkup: Got coordinates (${coords.x}, ${coords.y}) for markup ${markupNumber}`);
+              // console.log(`✅ _showLeaderLineForMarkup: Got coordinates (${coords.x}, ${coords.y}) for markup ${markupNumber}`);
 
       const end = document.createElement('div');
       end.style.position = 'fixed';
@@ -348,7 +348,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       this.leaderLines.set(markupNumber, leaderLine);
       this.activeMarkupNumbers.add(markupNumber);
 
-      console.log(`✅ _showLeaderLineForMarkup: Leader line created successfully for markup ${markupNumber}`);
+    // console.log(`✅ _showLeaderLineForMarkup: Leader line created successfully for markup ${markupNumber}`);
     } catch (error) {
       console.error('❌ Error in _showLeaderLineForMarkup:', error);
     } finally {
@@ -467,7 +467,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     this.domWaitTimeout = setTimeout(() => {
       const start = document.getElementById(`note-panel-${markup.markupnumber}`);
       if (start && markup.markupnumber === this.activeMarkupNumber) {
-        console.log(`✅ Found DOM element on retry for markup ${markup.markupnumber}`);
+        // console.log(`✅ Found DOM element on retry for markup ${markup.markupnumber}`);
         this.isUpdatingLeaderLine = false; // Reset flag before retry
         this._showLeaderLine(markup);
       } else {
@@ -516,7 +516,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       const screenX = viewportRect.left + relativeX;
       const screenY = viewportRect.top + relativeY;
 
-      console.log(`📍 Coordinates for markup ${markup.markupnumber}: scaled(${scaledCoords.x}, ${scaledCoords.y}), scroll(${scrollLeft}, ${scrollTop}), screen(${screenX}, ${screenY})`);
+      // console.log(`📍 Coordinates for markup ${markup.markupnumber}: scaled(${scaledCoords.x}, ${scaledCoords.y}), scroll(${scrollLeft}, ${scrollTop}), screen(${screenX}, ${screenY})`);
 
       // Return coordinates regardless of visibility to maintain leader lines during scroll
       return { x: screenX, y: screenY };
@@ -636,7 +636,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     for (const selector of selectors) {
       const element = document.querySelector(selector) as HTMLElement;
       if (element) {
-        console.log(`📱 Found viewport element: ${selector}`);
+        // console.log(`📱 Found viewport element: ${selector}`);
         this.documentViewport = element;
         return element;
       }
@@ -647,14 +647,14 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     for (let i = 0; i < scrollableElements.length; i++) {
       const element = scrollableElements[i] as HTMLElement;
       if (element.scrollHeight > element.clientHeight) {
-        console.log(`📱 Found scrollable viewport element: ${element.tagName}.${element.className}`);
+        // console.log(`📱 Found scrollable viewport element: ${element.tagName}.${element.className}`);
         this.documentViewport = element;
         return this.documentViewport;
       }
     }
 
     // Final fallback to document body
-    console.log('📱 Using document.body as viewport fallback');
+    // console.log('📱 Using document.body as viewport fallback');
     this.documentViewport = document.body;
     return this.documentViewport;
   }
@@ -744,7 +744,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
         }
       } else {
         // Coordinates not available, but don't hide completely - markup might be on different page
-        console.log(`⚠️ Coordinates not available for markup ${markupNumber}, but keeping leader line for now`);
+        // console.log(`⚠️ Coordinates not available for markup ${markupNumber}, but keeping leader line for now`);
       }
     }
   }
@@ -788,14 +788,14 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
    */
   private _waitForDOMAndUpdateLeaderLine(): void {
     if (this.activeMarkupNumbers.size === 0) {
-      console.log('_waitForDOMAndUpdateLeaderLine: No active markup numbers');
+      // console.log('_waitForDOMAndUpdateLeaderLine: No active markup numbers');
       return;
     }
 
     // Clear any existing timeout to prevent overlapping attempts
     this._clearAllTimeouts();
 
-    console.log(`_waitForDOMAndUpdateLeaderLine: Starting search for DOM elements for markups: ${Array.from(this.activeMarkupNumbers).join(', ')}`);
+    // console.log(`_waitForDOMAndUpdateLeaderLine: Starting search for DOM elements for markups: ${Array.from(this.activeMarkupNumbers).join(', ')}`);
 
     // Force change detection first
     this.cdr.detectChanges();
@@ -814,40 +814,40 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     }
 
     const authorDisplayName = RXCore.getDisplayName(markup.signature);
-    console.log(`🔍 _ensureActiveMarkupIsVisible: Processing markup ${markup.markupnumber} by ${authorDisplayName} (signature: ${markup.signature})`);
+    // console.log(`🔍 _ensureActiveMarkupIsVisible: Processing markup ${markup.markupnumber} by ${authorDisplayName} (signature: ${markup.signature})`);
 
-    console.log('Current authorFilter:', Array.from(this.authorFilter));
-    console.log('Current createdByFilter:', Array.from(this.createdByFilter));
+    // console.log('Current authorFilter:', Array.from(this.authorFilter));
+    // console.log('Current createdByFilter:', Array.from(this.createdByFilter));
 
     // Add author to authorFilter if not already present
     if (!this.authorFilter.has(authorDisplayName)) {
       this.authorFilter.add(authorDisplayName);
-      console.log(`✅ Added ${authorDisplayName} to author filter to ensure active markup ${markup.markupnumber} is visible`);
+      // console.log(`✅ Added ${authorDisplayName} to author filter to ensure active markup ${markup.markupnumber} is visible`);
     } else {
-      console.log(`ℹ️ ${authorDisplayName} already in author filter`);
+      // console.log(`ℹ️ ${authorDisplayName} already in author filter`);
     }
 
     // Add signature to createdByFilter if not already present
     if (!this.createdByFilter.has(markup.signature)) {
       this.createdByFilter.add(markup.signature);
-      console.log(`✅ Added signature ${markup.signature} to created by filter to ensure active markup ${markup.markupnumber} is visible`);
+      // console.log(`✅ Added signature ${markup.signature} to created by filter to ensure active markup ${markup.markupnumber} is visible`);
     } else {
-      console.log(`ℹ️ Signature ${markup.signature} already in created by filter`);
+      // console.log(`ℹ️ Signature ${markup.signature} already in created by filter`);
     }
 
-    console.log('Updated authorFilter:', Array.from(this.authorFilter));
-    console.log('Updated createdByFilter:', Array.from(this.createdByFilter));
+    // console.log('Updated authorFilter:', Array.from(this.authorFilter));
+    // console.log('Updated createdByFilter:', Array.from(this.createdByFilter));
 
     // Update the created by filter options to reflect this change
     this._updateCreatedByFilterOptions(this.rxCoreService.getGuiMarkupList());
 
-    console.log('Filter options updated, calling RXCore to show user markups');
+    // console.log('Filter options updated, calling RXCore to show user markups');
 
     // Also ensure the user is visible in RXCore
     let users: Array<any> = RXCore.getUsers();
     let userIndex = users.findIndex(user => user.DisplayName === authorDisplayName);
     if (userIndex >= 0) {
-      console.log(`🔄 Setting user ${authorDisplayName} (index ${userIndex}) markup display to true`);
+      // console.log(`🔄 Setting user ${authorDisplayName} (index ${userIndex}) markup display to true`);
       RXCore.SetUserMarkupdisplay(userIndex, true);
     } else {
       console.warn(`❌ User ${authorDisplayName} not found in RXCore users list`);
@@ -923,11 +923,11 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     // Additional monitoring for the document viewport
     const documentViewport = this._getDocumentViewport();
     if (documentViewport && documentViewport !== this.scrollContainer) {
-      console.log('📱 Setting up additional scroll monitoring for document viewport');
+//       console.log('📱 Setting up additional scroll monitoring for document viewport');
 
       // Listen for scroll events on the document viewport as well
       documentViewport.addEventListener('scroll', (event) => {
-        console.log('📜 Document viewport scroll detected');
+//         console.log('📜 Document viewport scroll detected');
         if (this.activeMarkupNumbers.size > 0 && !this.isUpdatingLeaderLine) {
           // Throttle viewport scroll updates
           if (this.scrollUpdateTimeout) {
@@ -1161,7 +1161,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
    */
   private recalculateActiveCommentPosition(): void {
     if (this.activeMarkupNumbers.size > 0 && !this.isUpdatingLeaderLine) {
-      console.log(`🔄 Recalculating position for active comments: ${Array.from(this.activeMarkupNumbers).join(', ')}`);
+//       console.log(`🔄 Recalculating position for active comments: ${Array.from(this.activeMarkupNumbers).join(', ')}`);
 
       // Clear any pending operations first
       this._clearAllTimeouts();
@@ -1173,12 +1173,12 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
 
   private _processList(list: Array<IMarkup> = [], annotList: Array<IMarkup> = []): void {
     /*modified for comment list panel */
-    console.log('🎯 _processList called with:', {
-      listLength: list.length,
-      annotListLength: annotList.length,
-      showAnnotations: this.showAnnotations,
-      showMeasurements: this.showMeasurements
-    });
+  // console.log('🎯 _processList called with:', {
+  //   listLength: list.length,
+  //   annotListLength: annotList.length,
+  //   showAnnotations: this.showAnnotations,
+  //   showMeasurements: this.showMeasurements
+  // });
 
     const mergeList = [...list, ...annotList];
     const query = mergeList.filter((i: any) => {
@@ -1187,19 +1187,19 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
         // Show only annotations (non-measurements)
         const isAnnotation = !i.ismeasure;
         if (!isAnnotation) {
-          console.log('🎯 Filtering out measurement:', i.getMarkupType().label);
+//           console.log('🎯 Filtering out measurement:', i.getMarkupType().label);
           return false;
         }
       } else if (this.showMeasurements && !this.showAnnotations) {
         // Show only measurements
         const isMeasurement = i.ismeasure;
         if (!isMeasurement) {
-          console.log('🎯 Filtering out annotation:', i.getMarkupType().label);
+//           console.log('🎯 Filtering out annotation:', i.getMarkupType().label);
           return false;
         }
       } else if (!this.showAnnotations && !this.showMeasurements) {
         // Show nothing when both switches are off
-        console.log('🎯 Both switches off - filtering out all items');
+//         console.log('🎯 Both switches off - filtering out all items');
         return false;
       }
       
@@ -1208,12 +1208,12 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       const shouldShow = this._shouldShowMarkupInCommentList(i);
       
       if (!shouldShow) {
-        console.log('🎯 Filtering out due to type filter:', {
-          type: i.getMarkupType().label,
-          markupNumber: i.markupnumber,
-          display: i.display,
-          typeFilterState: this._getmarkupTypeDisplay(i)
-        });
+        // console.log('🎯 Filtering out due to type filter:', {
+        //   type: i.getMarkupType().label,
+        //   markupNumber: i.markupnumber,
+        //   display: i.display,
+        //   typeFilterState: this._getmarkupTypeDisplay(i)
+        // });
       }
       
       return shouldShow;
@@ -1251,16 +1251,16 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     .filter((item: any) => {
       // Always show the active markup regardless of filter
       if (this.activeMarkupNumber > 0 && item.markupnumber === this.activeMarkupNumber) {
-        console.log(`✅ _processList: Keeping active markup ${item.markupnumber} by ${RXCore.getDisplayName(item.signature)}`);
+//         console.log(`✅ _processList: Keeping active markup ${item.markupnumber} by ${RXCore.getDisplayName(item.signature)}`);
         return true;
       }
 
       if(this.createdByFilter.size > 0) {
         const isIncluded = this.createdByFilter.has(item.signature);
-        console.log(`📝 _processList: Markup ${item.markupnumber} by ${RXCore.getDisplayName(item.signature)} (${item.signature}) - ${isIncluded ? 'INCLUDED' : 'FILTERED OUT'}`);
+//         console.log(`📝 _processList: Markup ${item.markupnumber} by ${RXCore.getDisplayName(item.signature)} (${item.signature}) - ${isIncluded ? 'INCLUDED' : 'FILTERED OUT'}`);
         return isIncluded;
       }
-      console.log(`📝 _processList: No filter applied, showing markup ${item.markupnumber} by ${RXCore.getDisplayName(item.signature)}`);
+//       console.log(`📝 _processList: No filter applied, showing markup ${item.markupnumber} by ${RXCore.getDisplayName(item.signature)}`);
       return true; // Show all annotations when no author filter is applied
     })
     .map((item: any) => {
@@ -1278,7 +1278,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
 
       // If the item is expanded, ensure it has a leader line
       if (item.IsExpanded && !this.activeMarkupNumbers.has(item.markupnumber)) {
-        console.log(`🎯 _processList: Ensuring leader line for expanded markup ${item.markupnumber}`);
+//         console.log(`🎯 _processList: Ensuring leader line for expanded markup ${item.markupnumber}`);
         // Schedule showing the leader line after DOM is ready
         setTimeout(() => {
           if (item.IsExpanded) { // Double-check it's still expanded
@@ -1288,7 +1288,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       }
       // If the item is not expanded but has a leader line, remove it
       else if (!item.IsExpanded && this.activeMarkupNumbers.has(item.markupnumber)) {
-        console.log(`🎯 _processList: Removing leader line for collapsed markup ${item.markupnumber}`);
+//         console.log(`🎯 _processList: Removing leader line for collapsed markup ${item.markupnumber}`);
         this._hideLeaderLineForMarkup(item.markupnumber);
       }
 
@@ -1318,10 +1318,10 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       }
     });
 
-    console.log('🎯 _processList final query results:', {
-      totalItems: query.length,
-      itemTypes: query.map(item => item.getMarkupType().label)
-    });
+    // console.log('🎯 _processList final query results:', {
+    //   totalItems: query.length,
+    //   itemTypes: query.map(item => item.getMarkupType().label)
+    // });
 
     switch (this.sortByField) {
       case 'created':
@@ -1412,7 +1412,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     // First check if the markup is actually displayed on the canvas
     // This is the most reliable indicator
     if (markup.display === false) {
-      console.log('🎯 Markup hidden on canvas, hiding from comment list:', markup.getMarkupType().label);
+//       console.log('🎯 Markup hidden on canvas, hiding from comment list:', markup.getMarkupType().label);
       return false;
     }
     
@@ -1422,15 +1422,15 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     // Check author filter state if author filters are active
     const authorFilterResult = this._shouldShowMarkupForAuthor(markup);
     
-    console.log('🎯 Comment list visibility check:', {
-      markupType: markup.getMarkupType().label,
-      markupNumber: markup.markupnumber,
-      markupAuthor: markup.signature,
-      canvasDisplay: markup.display,
-      typeFilterResult: typeFilterResult,
-      authorFilterResult: authorFilterResult,
-      finalDecision: markup.display !== false && typeFilterResult !== false && authorFilterResult !== false
-    });
+    // console.log('🎯 Comment list visibility check:', {
+    //   markupType: markup.getMarkupType().label,
+    //   markupNumber: markup.markupnumber,
+    //   markupAuthor: markup.signature,
+    //   canvasDisplay: markup.display,
+    //   typeFilterResult: typeFilterResult,
+    //   authorFilterResult: authorFilterResult,
+    //   finalDecision: markup.display !== false && typeFilterResult !== false && authorFilterResult !== false
+    // });
     
     // Show if canvas display, type filter, and author filter all allow it
     return markup.display !== false && typeFilterResult !== false && authorFilterResult !== false;
@@ -1448,11 +1448,11 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     // Check if the markup's author is in the selected authors list
     const isAuthorSelected = this.commentsListFiltersComponent.selectedAuthors.includes(markup.signature);
     
-    console.log('🎯 Author filter check:', {
-      markupAuthor: markup.signature,
-      selectedAuthors: this.commentsListFiltersComponent.selectedAuthors,
-      isSelected: isAuthorSelected
-    });
+    // console.log('🎯 Author filter check:', {
+    //   markupAuthor: markup.signature,
+    //   selectedAuthors: this.commentsListFiltersComponent.selectedAuthors,
+    //   isSelected: isAuthorSelected
+    // });
     
     return isAuthorSelected;
   }
@@ -1462,7 +1462,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     this.userSubscription = this.userService.currentUser$.subscribe(user => {
       if (!user) {
         // User has logged out, clear the author filter to ensure all annotations are visible
-        console.log('User logged out, clearing author filter');
+//         console.log('User logged out, clearing author filter');
         this.authorFilter.clear();
         this._processList(this.rxCoreService.getGuiMarkupList());
       }
@@ -1663,7 +1663,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
 
     this.guiZoomUpdated$.subscribe(({params, zoomtype}) => {
       if(zoomtype == 0 || zoomtype == 1){
-        console.log(`🔍 Zoom updated: type ${zoomtype}, activeMarkupNumbers: ${Array.from(this.activeMarkupNumbers).join(', ')}`);
+//         console.log(`🔍 Zoom updated: type ${zoomtype}, activeMarkupNumbers: ${Array.from(this.activeMarkupNumbers).join(', ')}`);
 
         // Clear any pending operations
         this._clearAllTimeouts();
@@ -1681,7 +1681,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     });
 
     this.guiRotatePage$.subscribe(({degree, pageIndex}) => {
-      console.log(`🔄 Page rotated: ${degree} degrees, page ${pageIndex}, activeMarkupNumbers: ${Array.from(this.activeMarkupNumbers).join(', ')}`);
+//       console.log(`🔄 Page rotated: ${degree} degrees, page ${pageIndex}, activeMarkupNumbers: ${Array.from(this.activeMarkupNumbers).join(', ')}`);
 
       // Clear any pending operations
       this._clearAllTimeouts();
@@ -1706,7 +1706,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
           for (const markupNumber of this.activeMarkupNumbers) {
             const activeMarkup = allMarkups.find(markup => markup.markupnumber === markupNumber);
             if (activeMarkup) {
-              console.log(`🔄 Recreating leader line after rotation for markup ${markupNumber}`);
+//               console.log(`🔄 Recreating leader line after rotation for markup ${markupNumber}`);
               this._showLeaderLineForMarkup(markupNumber, activeMarkup);
             }
           }
@@ -1718,7 +1718,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       //this.currentPage = state.currentpage;
 
       if (degree != 0){
-        console.log(degree);
+//         console.log(degree);
       }
 
       if (pageIndex == 0){
@@ -1838,13 +1838,13 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
           const activeMarkupExists = this.activeMarkupNumber > 0 && list.find((itm) => itm.markupnumber === this.activeMarkupNumber);
 
           if (!selectedMarkup && !activeMarkupExists) {
-            console.log(`🎯 Resetting activeMarkupNumber because no selected markup found and active markup ${this.activeMarkupNumber} not in list`);
+//             console.log(`🎯 Resetting activeMarkupNumber because no selected markup found and active markup ${this.activeMarkupNumber} not in list`);
             this.activeMarkupNumber = -1;
           } else if (selectedMarkup && this.activeMarkupNumber !== selectedMarkup.markupnumber) {
-            console.log(`🎯 Setting activeMarkupNumber to selected markup ${selectedMarkup.markupnumber}`);
+//             console.log(`🎯 Setting activeMarkupNumber to selected markup ${selectedMarkup.markupnumber}`);
             this.activeMarkupNumber = selectedMarkup.markupnumber;
           } else {
-            console.log(`🎯 Keeping activeMarkupNumber ${this.activeMarkupNumber} (selectedMarkup: ${selectedMarkup?.markupnumber}, activeExists: ${!!activeMarkupExists})`);
+//             console.log(`🎯 Keeping activeMarkupNumber ${this.activeMarkupNumber} (selectedMarkup: ${selectedMarkup?.markupnumber}, activeExists: ${!!activeMarkupExists})`);
           }
 
           this._processList(list, this.rxCoreService.getGuiAnnotList());
@@ -1864,7 +1864,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
 
 
     this.rxCoreService.guiPage$.subscribe((state) => {
-      console.log(`📄 Page changed to ${state.currentpage}, activeMarkupNumbers: ${Array.from(this.activeMarkupNumbers).join(', ')}`);
+//       console.log(`📄 Page changed to ${state.currentpage}, activeMarkupNumbers: ${Array.from(this.activeMarkupNumbers).join(', ')}`);
 
       // Clear all pending operations first
       this._clearAllTimeouts();
@@ -1895,15 +1895,15 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
             const activeMarkup = allMarkups.find(markup => markup.markupnumber === markupNumber);
 
             if (activeMarkup) {
-              console.log(`📄 Active markup ${markupNumber} is on page ${activeMarkup.pagenumber}, current page is ${state.currentpage}`);
+//               console.log(`📄 Active markup ${markupNumber} is on page ${activeMarkup.pagenumber}, current page is ${state.currentpage}`);
 
               if (activeMarkup.pagenumber === state.currentpage) {
                 // The active markup is on the current page, show leader line
-                console.log(`✅ Active markup ${markupNumber} is on current page, showing leader line`);
+//                 console.log(`✅ Active markup ${markupNumber} is on current page, showing leader line`);
                 this._showLeaderLineForMarkup(markupNumber, activeMarkup);
               } else {
                 // The active markup is on a different page, keep it hidden for now
-                console.log(`🚫 Active markup ${markupNumber} is on different page (${activeMarkup.pagenumber}), keeping leader line hidden`);
+//                 console.log(`🚫 Active markup ${markupNumber} is on different page (${activeMarkup.pagenumber}), keeping leader line hidden`);
               }
             } else {
               console.warn(`❌ Active markup ${markupNumber} not found in markup lists`);
@@ -2130,10 +2130,10 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     
     // Auto-apply filter when both dates are selected
     if (dateRange.startDate && dateRange.endDate) {
-      console.log('🗓️ Date range selected, auto-applying filter:', {
-        startDate: dateRange.startDate.format('YYYY-MM-DD'),
-        endDate: dateRange.endDate.format('YYYY-MM-DD')
-      });
+      // console.log('🗓️ Date range selected, auto-applying filter:', {
+      //   startDate: dateRange.startDate.format('YYYY-MM-DD'),
+      //   endDate: dateRange.endDate.format('YYYY-MM-DD')
+      // });
       
       // Apply date filter to canvas annotations
       this._applyDateFilterToCanvas(dateRange);
@@ -2155,7 +2155,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     const markupList = this.rxCoreService.getGuiMarkupList();
     if (!markupList) return;
 
-    console.log('🗓️ Applying date filter to canvas annotations');
+//     console.log('🗓️ Applying date filter to canvas annotations');
 
     markupList.forEach((markup: any) => {
       const markupDate = dayjs(markup.timestamp);
@@ -2174,14 +2174,14 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
         }
       }
       
-      console.log(`🗓️ Markup ${markup.markupnumber}: date=${markupDate.format('YYYY-MM-DD')}, inRange=${isInDateRange}, shouldShow=${shouldShow}`);
+//       console.log(`🗓️ Markup ${markup.markupnumber}: date=${markupDate.format('YYYY-MM-DD')}, inRange=${isInDateRange}, shouldShow=${shouldShow}`);
       
       markup.setdisplay(shouldShow);
     });
 
     // Redraw canvas to apply changes
     RXCore.markUpRedraw();
-    console.log('🗓️ Canvas annotations filtered by date range');
+//     console.log('🗓️ Canvas annotations filtered by date range');
   }
 
   onPageChange(event): void {
@@ -2196,15 +2196,15 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
 
 
   onFilterApply(): void {
-    console.log(`🔧 onFilterApply: Starting with activeMarkupNumber=${this.activeMarkupNumber}`);
-    console.log('Current filters - authorFilter:', Array.from(this.authorFilter));
-    console.log('Current filters - createdByFilter:', Array.from(this.createdByFilter));
+//     console.log(`🔧 onFilterApply: Starting with activeMarkupNumber=${this.activeMarkupNumber}`);
+//     console.log('Current filters - authorFilter:', Array.from(this.authorFilter));
+//     console.log('Current filters - createdByFilter:', Array.from(this.createdByFilter));
 
     // Use refresh method to apply all filters including switches
     this._refreshAnnotationList();
     this.filterVisible = false;
 
-    console.log('🔧 onFilterApply: Filter applied, waiting for DOM update...');
+//     console.log('🔧 onFilterApply: Filter applied, waiting for DOM update...');
     // Wait for DOM to be ready and then update leader line position
     setTimeout(() => {
       this._waitForDOMAndUpdateLeaderLine();
@@ -2216,7 +2216,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
    */
   toggleFilterVisibility(): void {
     this.filterVisible = !this.filterVisible;
-    console.log('🎯 Filter modal toggled:', this.filterVisible ? 'OPENED' : 'CLOSED');
+//     console.log('🎯 Filter modal toggled:', this.filterVisible ? 'OPENED' : 'CLOSED');
     
     if (this.filterVisible) {
       // When modal opens, sync the current canvas state with filter selections
@@ -2305,7 +2305,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
   onCheckboxChange(event: any): void {
     // Handle checkbox change if needed
     // This method is called when the corner checkbox is clicked
-    console.log('Checkbox changed:', event.target.checked);
+//     console.log('Checkbox changed:', event.target.checked);
   }
 
   GetCommentLength(): number {
@@ -2386,11 +2386,11 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       // Prevent unnecessary operations if already active and leader line exists
       if (this.activeMarkupNumber === markupNo && this.leaderLine &&
           this.lastProcessedMarkupNumber === markupNo) {
-        console.log(`🔄 SetActiveCommentSelect: Markup ${markupNo} already active with leader line, skipping`);
+//         console.log(`🔄 SetActiveCommentSelect: Markup ${markupNo} already active with leader line, skipping`);
         return;
       }
 
-      console.log(`🎯 SetActiveCommentSelect: Setting active markup to ${markupNo}`);
+//       console.log(`🎯 SetActiveCommentSelect: Setting active markup to ${markupNo}`);
 
       // Clear any pending operations before starting new ones
       this._clearAllTimeouts();
@@ -2405,7 +2405,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       this._ensureActiveMarkupIsVisible(markup);
 
       // Navigate to the correct page where the annotation exists
-      console.log(`🚀 SetActiveCommentSelect: Navigating to page ${markup.pagenumber} for markup ${markupNo}`);
+//       console.log(`🚀 SetActiveCommentSelect: Navigating to page ${markup.pagenumber} for markup ${markupNo}`);
       RXCore.gotoPage(markup.pagenumber);
 
       // Reprocess the list to ensure the active markup is visible
@@ -2420,13 +2420,13 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
 
   ItemNoteClick(event, markupNo: number, markup: any): void {
 
-    console.log(markupNo);
+//     console.log(markupNo);
 
   }
 
   SetActiveCommentThread(event, markupNo: number, markup: any): void {
     if (markupNo && markupNo > 0 && markup) {
-      console.log(`🎯 SetActiveCommentThread: Processing markup ${markupNo}`);
+//       console.log(`🎯 SetActiveCommentThread: Processing markup ${markupNo}`);
 
       // Force immediate change detection for responsive UI
       this.cdr.detectChanges();
@@ -2437,7 +2437,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       this.onSelectAnnotation(markup);
 
       // Navigate to the correct page where the annotation exists
-      console.log(`🚀 SetActiveCommentThread: Navigating to page ${markup.pagenumber} for markup ${markupNo}`);
+//       console.log(`🚀 SetActiveCommentThread: Navigating to page ${markup.pagenumber} for markup ${markupNo}`);
       RXCore.gotoPage(markup.pagenumber);
 
       // Toggle the expansion state and manage leader line based on new state
@@ -2454,14 +2454,14 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       // Manage leader line based on expansion state
       if (isNowExpanded) {
         // Comment is now expanded, show leader line
-        console.log(`🎯 SetActiveCommentThread: Showing leader line for expanded markup ${markupNo}`);
+//         console.log(`🎯 SetActiveCommentThread: Showing leader line for expanded markup ${markupNo}`);
         // Add a small delay to prevent race conditions when multiple annotations are expanded simultaneously
         setTimeout(() => {
           this._showLeaderLineForMarkup(markupNo, markup);
         }, 50);
       } else {
         // Comment is now collapsed, hide leader line immediately
-        console.log(`🎯 SetActiveCommentThread: Hiding leader line for collapsed markup ${markupNo}`);
+//         console.log(`🎯 SetActiveCommentThread: Hiding leader line for collapsed markup ${markupNo}`);
         this._hideLeaderLineForMarkup(markupNo);
       }
 
@@ -2531,7 +2531,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     this.leaderLines.clear();
     this.activeEndPoints.clear();
 
-    console.log('🧹 NotePanelComponent destroyed and cleaned up');
+//     console.log('🧹 NotePanelComponent destroyed and cleaned up');
   }
 
   onSelectAnnotation(markup: any): void {
@@ -3068,7 +3068,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       // Only update if we have active markups and we're not already updating
       if (this.activeMarkupNumbers.size > 0 && !this.isUpdatingLeaderLine) {
         this.scrollUpdateTimeout = setTimeout(() => {
-          console.log(`📜 Scroll detected, updating ${this.activeMarkupNumbers.size} leader lines`);
+//           console.log(`📜 Scroll detected, updating ${this.activeMarkupNumbers.size} leader lines`);
           this._updateLeaderLinePosition();
         }, 16); // Increased frequency for smoother scroll tracking (~60fps)
       }
@@ -3256,7 +3256,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
    * When annotations are turned on, measurements are turned off
    */
   onToggleAnnotations(onoff: boolean) {
-    console.log('🎯 onToggleAnnotations called:', onoff);
+//     console.log('🎯 onToggleAnnotations called:', onoff);
     
     if (onoff) {
       // Turn on annotations, turn off measurements
@@ -3291,7 +3291,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
    * When measurements are turned on, annotations are turned off
    */
   onToggleMeasurements(onoff: boolean) {
-    console.log('🎯 onToggleMeasurements called:', onoff);
+//     console.log('🎯 onToggleMeasurements called:', onoff);
     // Call method directly since component always exists in DOM
     this.commentsListFiltersComponent.emitFilterCountChange();
     
@@ -3392,7 +3392,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
   private _clearAllFilterSelections(): void {
     if (this.commentsListFiltersComponent) {
       this.commentsListFiltersComponent.clearAllFiltersInternal();
-      console.log('🎯 All filter selections cleared via clearAllFiltersInternal()');
+//       console.log('🎯 All filter selections cleared via clearAllFiltersInternal()');
     }
   }
 
@@ -3404,7 +3404,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       this.commentsListFiltersComponent.selectedAuthors = [];
       this.commentsListFiltersComponent.selectedPages = [];
       this.commentsListFiltersComponent.forceUIRefresh();
-      console.log('🎯 Author and page selections cleared');
+//       console.log('🎯 Author and page selections cleared');
     }
   }
 
@@ -3413,46 +3413,46 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
    */
   private _ensureMeasurementTypesCleared(): void {
     if (!this.commentsListFiltersComponent) {
-      console.log('❌ commentsListFiltersComponent not available for clearing measurement types');
+//       console.log('❌ commentsListFiltersComponent not available for clearing measurement types');
       return;
     }
 
-    console.log('🎯 Ensuring measurement types are cleared...');
+//     console.log('🎯 Ensuring measurement types are cleared...');
     
     // Log all available type options for debugging
-    console.log('🔍 All available type options:', this.commentsListFiltersComponent.typeOptions);
+//     console.log('🔍 All available type options:', this.commentsListFiltersComponent.typeOptions);
     
     // Get all measurement type values that should be removed
     const measurementTypes = this.commentsListFiltersComponent.typeOptions.filter(type => {
       const isMeasurement = this._isMeasurementType(type);
-      console.log(`🔍 Type "${type.label}" (type: ${type.type}, subtype: ${type.subtype}, value: ${type.value}) is measurement: ${isMeasurement}`);
+//       console.log(`🔍 Type "${type.label}" (type: ${type.type}, subtype: ${type.subtype}, value: ${type.value}) is measurement: ${isMeasurement}`);
       return isMeasurement;
     });
     const measurementTypeValues = measurementTypes.map(type => type.value);
     
-    console.log('🎯 Identified measurement types:', measurementTypes);
-    console.log('🎯 Measurement type values to clear:', measurementTypeValues);
-    console.log('🎯 Current selected types before clearing:', this.commentsListFiltersComponent.selectedTypes);
+//     console.log('🎯 Identified measurement types:', measurementTypes);
+//     console.log('🎯 Measurement type values to clear:', measurementTypeValues);
+//     console.log('🎯 Current selected types before clearing:', this.commentsListFiltersComponent.selectedTypes);
     
     // Also check for Area type specifically
     const areaTypes = this.commentsListFiltersComponent.typeOptions.filter(type => 
       type.label && type.label.toLowerCase().includes('area')
     );
-    console.log('🔍 Found Area types:', areaTypes);
+//     console.log('🔍 Found Area types:', areaTypes);
     
     // Remove any remaining measurement types from selected types
     const beforeCount = this.commentsListFiltersComponent.selectedTypes.length;
     this.commentsListFiltersComponent.selectedTypes = this.commentsListFiltersComponent.selectedTypes.filter(typeValue => {
       const shouldKeep = !measurementTypeValues.includes(typeValue);
       if (!shouldKeep) {
-        console.log(`🗑️ Removing type value: ${typeValue}`);
+//         console.log(`🗑️ Removing type value: ${typeValue}`);
       }
       return shouldKeep;
     });
     const afterCount = this.commentsListFiltersComponent.selectedTypes.length;
     
-    console.log('🎯 Selected types after clearing:', this.commentsListFiltersComponent.selectedTypes);
-    console.log(`🎯 Cleared ${beforeCount - afterCount} measurement types`);
+//     console.log('🎯 Selected types after clearing:', this.commentsListFiltersComponent.selectedTypes);
+//     console.log(`🎯 Cleared ${beforeCount - afterCount} measurement types`);
     
     // If there are still types that look like measurements, clear them manually
     const remainingAreaTypes = this.commentsListFiltersComponent.selectedTypes.filter(typeValue => {
@@ -3461,18 +3461,18 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     });
     
     if (remainingAreaTypes.length > 0) {
-      console.log('🔍 Found remaining area types, removing manually:', remainingAreaTypes);
+//       console.log('🔍 Found remaining area types, removing manually:', remainingAreaTypes);
       this.commentsListFiltersComponent.selectedTypes = this.commentsListFiltersComponent.selectedTypes.filter(typeValue => 
         !remainingAreaTypes.includes(typeValue)
       );
-      console.log('🎯 After manual area removal:', this.commentsListFiltersComponent.selectedTypes);
+//       console.log('🎯 After manual area removal:', this.commentsListFiltersComponent.selectedTypes);
     }
     
     // Force UI refresh to ensure changes are visible
     this.commentsListFiltersComponent.forceUIRefresh();
     this.commentsListFiltersComponent.emitFilterCountChange();
     
-    console.log('✅ Measurement types cleared and UI refreshed');
+//     console.log('✅ Measurement types cleared and UI refreshed');
   }
 
   /**
@@ -3488,7 +3488,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
           label.includes('distance') || 
           label.includes('perimeter') ||
           label.includes('count')) {
-        console.log(`🔍 Type "${type.label}" identified as measurement by label`);
+//         console.log(`🔍 Type "${type.label}" identified as measurement by label`);
         return true;
       }
     }
@@ -3514,13 +3514,13 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       if (measureType.subtype !== undefined) {
         const match = typeNumber === measureType.type && subtypeNumber === measureType.subtype;
         if (match) {
-          console.log(`🔍 Type "${type.label}" matched measurement pattern: type ${measureType.type}, subtype ${measureType.subtype}`);
+//           console.log(`🔍 Type "${type.label}" matched measurement pattern: type ${measureType.type}, subtype ${measureType.subtype}`);
         }
         return match;
       } else {
         const match = typeNumber === measureType.type;
         if (match) {
-          console.log(`🔍 Type "${type.label}" matched measurement pattern: type ${measureType.type}`);
+//           console.log(`🔍 Type "${type.label}" matched measurement pattern: type ${measureType.type}`);
         }
         return match;
       }
@@ -3534,11 +3534,11 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
    */
   private _clearMeasurementTypesByLabel(): void {
     if (!this.commentsListFiltersComponent) {
-      console.log('❌ commentsListFiltersComponent not available for label-based clearing');
+//       console.log('❌ commentsListFiltersComponent not available for label-based clearing');
       return;
     }
 
-    console.log('🎯 Clearing measurement types by label...');
+//     console.log('🎯 Clearing measurement types by label...');
 
     const measurementKeywords = ['area', 'measure', 'length', 'distance', 'perimeter', 'count'];
     const beforeCount = this.commentsListFiltersComponent.selectedTypes.length;
@@ -3549,7 +3549,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
         const label = typeOption.label.toLowerCase();
         const isMeasurementByLabel = measurementKeywords.some(keyword => label.includes(keyword));
         if (isMeasurementByLabel) {
-          console.log(`🗑️ Removing type by label: "${typeOption.label}" (${typeValue})`);
+//           console.log(`🗑️ Removing type by label: "${typeOption.label}" (${typeValue})`);
           return false;
         }
       }
@@ -3557,12 +3557,12 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     });
     
     const afterCount = this.commentsListFiltersComponent.selectedTypes.length;
-    console.log(`🎯 Label-based clearing removed ${beforeCount - afterCount} types`);
+//     console.log(`🎯 Label-based clearing removed ${beforeCount - afterCount} types`);
     
     if (beforeCount !== afterCount) {
       this.commentsListFiltersComponent.forceUIRefresh();
       this.commentsListFiltersComponent.emitFilterCountChange();
-           console.log('✅ UI refreshed after label-based clearing');
+//            console.log('✅ UI refreshed after label-based clearing');
    }
  }
 
@@ -3571,18 +3571,18 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
   */
  private _forceImmediateClearAllMeasurementTypes(): void {
    if (!this.commentsListFiltersComponent) {
-     console.log('❌ commentsListFiltersComponent not available for immediate clearing');
+//      console.log('❌ commentsListFiltersComponent not available for immediate clearing');
      return;
    }
 
-   console.log('🚨 FORCE IMMEDIATE CLEAR - Starting aggressive measurement type removal...');
-   console.log('🚨 Before immediate clear - selectedTypes:', [...this.commentsListFiltersComponent.selectedTypes]);
+//    console.log('🚨 FORCE IMMEDIATE CLEAR - Starting aggressive measurement type removal...');
+//    console.log('🚨 Before immediate clear - selectedTypes:', [...this.commentsListFiltersComponent.selectedTypes]);
 
    // Clear ALL types - nuclear option
    const originalTypes = [...this.commentsListFiltersComponent.selectedTypes];
    this.commentsListFiltersComponent.selectedTypes = [];
    
-   console.log('🚨 CLEARED ALL TYPES - selectedTypes is now empty');
+//    console.log('🚨 CLEARED ALL TYPES - selectedTypes is now empty');
    
    // Immediately refresh UI
    this.commentsListFiltersComponent.forceUIRefresh();
@@ -3591,8 +3591,8 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
    // Force change detection
    this.cdr.detectChanges();
    
-   console.log('🚨 FORCE IMMEDIATE CLEAR - Completed. UI refreshed and change detection triggered.');
-   console.log('🚨 Final selectedTypes:', this.commentsListFiltersComponent.selectedTypes);
+//    console.log('🚨 FORCE IMMEDIATE CLEAR - Completed. UI refreshed and change detection triggered.');
+//    console.log('🚨 Final selectedTypes:', this.commentsListFiltersComponent.selectedTypes);
  }
 
      /**
@@ -3628,33 +3628,33 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     this.commentsListFiltersComponent.selectRelevantAuthors(relevantAuthors);
     this.commentsListFiltersComponent.selectRelevantPages(relevantPages);
 
-    console.log('Selected relevant authors:', relevantAuthors);
-    console.log('Selected relevant pages:', relevantPages);
+//     console.log('Selected relevant authors:', relevantAuthors);
+//     console.log('Selected relevant pages:', relevantPages);
   }
 
   /**
    * Synchronize filter selections with currently visible markups on canvas
    */
   private _syncFiltersWithVisibleMarkups(): void {
-    console.log('🎯 _syncFiltersWithVisibleMarkups called');
+//     console.log('🎯 _syncFiltersWithVisibleMarkups called');
     
     if (!this.commentsListFiltersComponent) {
-      console.log('❌ commentsListFiltersComponent not available');
+//       console.log('❌ commentsListFiltersComponent not available');
       return;
     }
 
     // Ensure typeOptions are properly loaded from rxTypeFilterLoaded
     this.commentsListFiltersComponent.updateOptionsFromParent();
     
-    console.log('🎯 Filter component state:', {
-      typeOptionsLength: this.commentsListFiltersComponent.typeOptions.length,
-      rxTypeFilterLoadedLength: this.rxTypeFilterLoaded.length,
-      currentSelections: this.commentsListFiltersComponent.selectedTypes
-    });
+    // console.log('🎯 Filter component state:', {
+    //   typeOptionsLength: this.commentsListFiltersComponent.typeOptions.length,
+    //   rxTypeFilterLoadedLength: this.rxTypeFilterLoaded.length,
+    //   currentSelections: this.commentsListFiltersComponent.selectedTypes
+    // });
 
     const markupList = this.rxCoreService.getGuiMarkupList();
     if (!markupList || markupList.length === 0) {
-      console.log('❌ No markup list available');
+//       console.log('❌ No markup list available');
       return;
     }
 
@@ -3675,10 +3675,10 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       });
     }
 
-    console.log('🎯 Found visible markups based on switch state:', visibleMarkups.length);
+//     console.log('🎯 Found visible markups based on switch state:', visibleMarkups.length);
 
     if (visibleMarkups.length === 0) {
-      console.log('🎯 No visible markups found on canvas - clearing selections');
+//       console.log('🎯 No visible markups found on canvas - clearing selections');
       this.commentsListFiltersComponent.selectedTypes = [];
       this.commentsListFiltersComponent.forceUIRefresh();
       return;
@@ -3692,7 +3692,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       ismeasure: markup.ismeasure
     }));
     
-    console.log('🎯 Visible markup details:', visibleMarkupInfo);
+//     console.log('🎯 Visible markup details:', visibleMarkupInfo);
 
     // Match visible markups with available filter options
     const matchingTypes = this.commentsListFiltersComponent.typeOptions.filter(typeOption => {
@@ -3706,10 +3706,10 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
         const subtypeMatches = optionSubtype === undefined || optionSubtype === markup.subtype;
         
         if (typeMatches && subtypeMatches) {
-          console.log('✅ Type match found:', {
-            option: { type: optionType, subtype: optionSubtype, label: typeOption.label },
-            markup: { type: markup.type, subtype: markup.subtype }
-          });
+          // console.log('✅ Type match found:', {
+          //   option: { type: optionType, subtype: optionSubtype, label: typeOption.label },
+          //   markup: { type: markup.type, subtype: markup.subtype }
+          // });
           return true;
         }
         return false;
@@ -3717,19 +3717,19 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       return matches;
     });
 
-    console.log('🎯 Matching filter types found:', matchingTypes);
+//     console.log('🎯 Matching filter types found:', matchingTypes);
 
     // Update the filter selections
     this.commentsListFiltersComponent.selectedTypes = matchingTypes.map(type => type.value);
 
-    console.log('🎯 Updated filter selections:', this.commentsListFiltersComponent.selectedTypes);
+//     console.log('🎯 Updated filter selections:', this.commentsListFiltersComponent.selectedTypes);
 
     // Also select relevant authors from visible markups
     const relevantAuthors = [...new Set(visibleMarkups.map(markup => 
       RXCore.getDisplayName(markup.signature)
     ))];
 
-    console.log('🎯 Found relevant authors:', relevantAuthors);
+//     console.log('🎯 Found relevant authors:', relevantAuthors);
 
     // Select relevant authors in the filters
     this.commentsListFiltersComponent.selectRelevantAuthors(relevantAuthors);
@@ -3742,7 +3742,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
    * Enhanced method to ensure proper synchronization with retry logic
    */
   private _ensureFilterSynchronization(): void {
-    console.log('🎯 _ensureFilterSynchronization called');
+//     console.log('🎯 _ensureFilterSynchronization called');
     
     // Try immediate sync first
     this._syncFiltersWithVisibleMarkups();
@@ -3752,11 +3752,11 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
         this.commentsListFiltersComponent.typeOptions.length === 0 ||
         this.commentsListFiltersComponent.selectedTypes.length === 0) {
       
-      console.log('🔄 Initial sync failed, retrying with delays...');
+//       console.log('🔄 Initial sync failed, retrying with delays...');
       
       // Retry after small delay
       setTimeout(() => {
-        console.log('🔄 Retry attempt 1');
+//         console.log('🔄 Retry attempt 1');
         this._syncFiltersWithVisibleMarkups();
         
         // If still no match, try one more time with longer delay
@@ -3764,7 +3764,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
             this.commentsListFiltersComponent.selectedTypes.length === 0) {
           
           setTimeout(() => {
-            console.log('🔄 Retry attempt 2');
+//             console.log('🔄 Retry attempt 2');
             this._syncFiltersWithVisibleMarkups();
           }, 500);
         }
@@ -3822,30 +3822,30 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
   private isProcessingFilterChange: boolean = false;
 
   onShowType($event: any, type : any) {
-    console.log('🎯 onShowType called:', { 
-      event: $event, 
-      type: type,
-      isProcessingFilterChange: this.isProcessingFilterChange,
-      eventType: typeof $event,
-      hasTarget: !!$event.target,
-      action: $event.action,
-      isBulkOperation: $event.isBulkOperation
-    });
+    // console.log('🎯 onShowType called:', { 
+    //   event: $event, 
+    //   type: type,
+    //   isProcessingFilterChange: this.isProcessingFilterChange,
+    //   eventType: typeof $event,
+    //   hasTarget: !!$event.target,
+    //   action: $event.action,
+    //   isBulkOperation: $event.isBulkOperation
+    // });
 
     // Prevent circular event handling
     if (this.isProcessingFilterChange) {
-      console.log('🎯 Skipping onShowType - already processing filter change');
+//       console.log('🎯 Skipping onShowType - already processing filter change');
       return;
     }
 
     // Check if this is coming from the filter component with enhanced data
     if ($event.isSelected !== undefined && $event.action !== undefined) {
       // This is a filter-driven change, use the enhanced handler
-      console.log('🎯 Filter-driven type change:', {
-        type: type.label || type.typename,
-        action: $event.action,
-        isSelected: $event.isSelected
-      });
+      // console.log('🎯 Filter-driven type change:', {
+      //   type: type.label || type.typename,
+      //   action: $event.action,
+      //   isSelected: $event.isSelected
+      // });
 
       // Set flag to prevent circular processing
       this.isProcessingFilterChange = true;
@@ -3872,10 +3872,10 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     // Check if this is a direct checkbox event (has target.checked property)
     if ($event.target && $event.target.checked !== undefined) {
       // This is a direct checkbox interaction - use your original simple logic
-      console.log('🎯 Direct checkbox interaction:', {
-        type: type.label || type.typename,
-        checked: $event.target.checked
-      });
+      // console.log('🎯 Direct checkbox interaction:', {
+      //   type: type.label || type.typename,
+      //   checked: $event.target.checked
+      // });
 
       // Set flag to prevent circular processing
       this.isProcessingFilterChange = true;
@@ -3893,13 +3893,13 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     }
 
     // This is a direct button click (no checkbox), use the toggle logic
-    console.log('🎯 Direct button click - toggling type:', type);
+//     console.log('🎯 Direct button click - toggling type:', type);
 
     // For button clicks, we need to toggle the current state
     const currentState = this.showType(type);
     const newState = !currentState;
 
-    console.log('🎯 onShowType: Toggling from', currentState, 'to', newState);
+//     console.log('🎯 onShowType: Toggling from', currentState, 'to', newState);
 
     // Set flag to prevent circular processing
     this.isProcessingFilterChange = true;
@@ -3926,12 +3926,12 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
    * Enhanced type handling with better matching and consistent behavior
    */
   private _handleShowMarkupTypeEnhanced(type: any, event: any): void {
-    console.log('🎯 _handleShowMarkupTypeEnhanced called:', {
-      type: type,
-      checked: event.target.checked,
-      typename: type.typename,
-      typeLabel: type.label
-    });
+    // console.log('🎯 _handleShowMarkupTypeEnhanced called:', {
+    //   type: type,
+    //   checked: event.target.checked,
+    //   typename: type.typename,
+    //   typeLabel: type.label
+    // });
 
     // Update the rxTypeFilter state
     this._setmarkupTypeDisplayFilter(type, event.target.checked);
@@ -3944,12 +3944,12 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
         const typeMatch = parseInt(type.type) === markup.type;
         const subtypeMatch = type.subtype === '' || parseInt(type.subtype) === markup.subtype;
         if (typeMatch && subtypeMatch) {
-          console.log('✅ Exact type/subtype match:', { 
-            optionType: type.type, 
-            optionSubtype: type.subtype, 
-            markupType: markup.type, 
-            markupSubtype: markup.subtype 
-          });
+          // console.log('✅ Exact type/subtype match:', { 
+          //   optionType: type.type, 
+          //   optionSubtype: type.subtype, 
+          //   markupType: markup.type, 
+          //   markupSubtype: markup.subtype 
+          // });
           return true;
         }
       }
@@ -3964,20 +3964,20 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
 
       const typenameMatch = type.typename === markupTypename;
       if (typenameMatch) {
-        console.log('✅ Typename match:', { 
-          optionTypename: type.typename, 
-          markupTypename: markupTypename 
-        });
+        // console.log('✅ Typename match:', { 
+        //   optionTypename: type.typename, 
+        //   markupTypename: markupTypename 
+        // });
         return true;
       }
 
       // Additional safety check using label matching as last resort
       const labelMatch = markup.getMarkupType().label === type.label;
       if (labelMatch) {
-        console.log('✅ Label match:', { 
-          optionLabel: type.label, 
-          markupLabel: markup.getMarkupType().label 
-        });
+        // console.log('✅ Label match:', { 
+        //   optionLabel: type.label, 
+        //   markupLabel: markup.getMarkupType().label 
+        // });
         return true;
       }
 
@@ -3991,7 +3991,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       event.target.checked
     );
 
-    console.log('🎯 Type filtering completed for:', type.label || type.typename);
+//     console.log('🎯 Type filtering completed for:', type.label || type.typename);
 
     // Sync the filter component selections to reflect the change
     setTimeout(() => {
@@ -4011,7 +4011,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
    * Enhanced method to handle individual filter type changes from the filter component
    */
   private _handleFilterTypeChange(typeValue: string, isSelected: boolean): void {
-    console.log('🎯 _handleFilterTypeChange:', { typeValue, isSelected });
+//     console.log('🎯 _handleFilterTypeChange:', { typeValue, isSelected });
     
     // Find the corresponding type object in rxTypeFilterLoaded
     const typeObj = this.rxTypeFilterLoaded.find(t => {
@@ -4024,7 +4024,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       return;
     }
 
-    console.log('🎯 Found type object:', typeObj);
+//     console.log('🎯 Found type object:', typeObj);
 
     // Create mock event for compatibility
     const mockEvent = {
@@ -4329,7 +4329,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
         // Also update individual markups to respect switch states
         this._updateAuthorMarksWithSwitchRespect(author, false);
       } else {
-        console.log(`Cannot hide author ${author} because their markup ${this.activeMarkupNumber} is currently active`);
+//         console.log(`Cannot hide author ${author} because their markup ${this.activeMarkupNumber} is currently active`);
       }
 
     } else {
@@ -4358,7 +4358,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
         isEditing: false
       };
       task.comments.push(newComment);
-      console.log('Comment added to task', data.taskId, ':', newComment);
+//       console.log('Comment added to task', data.taskId, ':', newComment);
     }
   }
 
@@ -4368,7 +4368,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       const comment = task.comments.find(c => c.id === data.commentId);
       if (comment) {
         comment.content = data.newContent;
-        console.log('Comment edited in task', data.taskId, ':', comment);
+//         console.log('Comment edited in task', data.taskId, ':', comment);
       }
     }
   }
@@ -4379,7 +4379,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       const index = task.comments.findIndex(c => c.id === data.commentId);
       if (index > -1) {
         task.comments.splice(index, 1);
-        console.log('Comment deleted from task', data.taskId, ':', data.commentId);
+//         console.log('Comment deleted from task', data.taskId, ':', data.commentId);
       }
     }
   }
@@ -4388,19 +4388,19 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     const task = this.sampleTasks.find(t => t.id === data.taskId);
     if (task) {
       task.status = data.status as any;
-      console.log('Status changed for task', data.taskId, 'to:', data.status);
+//       console.log('Status changed for task', data.taskId, 'to:', data.status);
     }
   }
 
   // Handle filter count changes from the comments list filters component
   onFilterCountChange(count: number): void {
     this.activeFilterCount = count;
-    console.log('Filter count updated:', count);
+//     console.log('Filter count updated:', count);
   }
 
     // Clear all filters
   clearAllFilters(): void {
-    console.log('🔄 clearAllFilters called - resetting all filters');
+//     console.log('🔄 clearAllFilters called - resetting all filters');
     
     // Reset date filter
     this.dateFilter = {
@@ -4432,7 +4432,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     // Reprocess the list to show all comment cards after clearing filters
     this._processList(this.rxCoreService.getGuiMarkupList());
     
-    console.log('✅ All filters reset successfully - showing all comment cards');
+//     console.log('✅ All filters reset successfully - showing all comment cards');
   }
 
   /**
@@ -4442,7 +4442,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     const markupList = this.rxCoreService.getGuiMarkupList();
     if (!markupList) return;
 
-    console.log('🗓️ Resetting canvas annotations date filter');
+//     console.log('🗓️ Resetting canvas annotations date filter');
 
     markupList.forEach((markup: any) => {
       // Show annotation based on switch states only (no date filtering)
@@ -4459,7 +4459,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
 
     // Redraw canvas to apply changes
     RXCore.markUpRedraw();
-    console.log('🗓️ Canvas annotations date filter reset');
+//     console.log('🗓️ Canvas annotations date filter reset');
   }
 
   // Method to trigger onAuthorSelect in comment-list-filter component
@@ -4516,7 +4516,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     this.commentsListFiltersComponent.emitFilterCountChange();
     this.commentsListFiltersComponent.onCreatedByFilterChange.emit(allAuthorSignatures);
 
-    console.log('✅ All authors selected and events triggered for:', allAuthorSignatures);
+//     console.log('✅ All authors selected and events triggered for:', allAuthorSignatures);
   }
 
   /**
@@ -4591,7 +4591,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
   private _syncFilterSelectionsWithTypeState(): void {
     if (!this.commentsListFiltersComponent) return;
 
-    console.log('🎯 Syncing filter selections with current type state');
+//     console.log('🎯 Syncing filter selections with current type state');
 
     // Get currently visible types based on rxTypeFilter state
     const visibleTypes = this.rxTypeFilter
@@ -4617,42 +4617,42 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       .filter(option => option !== undefined) // Filter out undefined options
       .map(option => option!.value); // Use non-null assertion since we filtered out undefined
 
-    console.log('🎯 Visible types found:', visibleTypes);
+//     console.log('🎯 Visible types found:', visibleTypes);
 
     // Update filter component selections
     this.commentsListFiltersComponent.selectedTypes = visibleTypes;
     this.commentsListFiltersComponent.forceUIRefresh();
 
-    console.log('🎯 Filter selections synced:', this.commentsListFiltersComponent.selectedTypes);
+//     console.log('🎯 Filter selections synced:', this.commentsListFiltersComponent.selectedTypes);
   }
 
   /**
    * Handle author filtering - similar to type filtering but for authors
    */
   onShowAuthor($event: any, author: any) {
-    console.log('🎯 onShowAuthor called:', { 
-      event: $event, 
-      author: author,
-      isProcessingFilterChange: this.isProcessingFilterChange,
-      eventType: typeof $event,
-      hasTarget: !!$event.target,
-      action: $event.action
-    });
+    // console.log('🎯 onShowAuthor called:', { 
+    //   event: $event, 
+    //   author: author,
+    //   isProcessingFilterChange: this.isProcessingFilterChange,
+    //   eventType: typeof $event,
+    //   hasTarget: !!$event.target,
+    //   action: $event.action
+    // });
 
     // Prevent circular event handling
     if (this.isProcessingFilterChange) {
-      console.log('🎯 Skipping onShowAuthor - already processing filter change');
+//       console.log('🎯 Skipping onShowAuthor - already processing filter change');
       return;
     }
 
     // Check if this is coming from the filter component with enhanced data
     if ($event.isSelected !== undefined && $event.action !== undefined) {
       // This is a filter-driven change
-      console.log('🎯 Filter-driven author change:', {
-        author: author.label || author.value,
-        action: $event.action,
-        isSelected: $event.isSelected
-      });
+      // console.log('🎯 Filter-driven author change:', {
+      //   author: author.label || author.value,
+      //   action: $event.action,
+      //   isSelected: $event.isSelected
+      // });
 
       // Set flag to prevent circular processing
       this.isProcessingFilterChange = true;
@@ -4679,10 +4679,10 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     // Check if this is a direct checkbox event (has target.checked property)
     if ($event.target && $event.target.checked !== undefined) {
       // This is a direct checkbox interaction
-      console.log('🎯 Direct checkbox interaction for author:', {
-        author: author.label || author.value,
-        checked: $event.target.checked
-      });
+      // console.log('🎯 Direct checkbox interaction for author:', {
+      //   author: author.label || author.value,
+      //   checked: $event.target.checked
+      // });
 
       // Set flag to prevent circular processing
       this.isProcessingFilterChange = true;
@@ -4699,19 +4699,19 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       return;
     }
 
-    console.log('🎯 Author filtering completed');
+//     console.log('🎯 Author filtering completed');
   }
 
   /**
    * Update individual author markups while respecting switch states
    */
   private _updateAuthorMarksWithSwitchRespect(authorName: string, isVisible: boolean): void {
-    console.log('🎯 _updateAuthorMarksWithSwitchRespect called:', {
-      authorName: authorName,
-      isVisible: isVisible,
-      showAnnotations: this.showAnnotations,
-      showMeasurements: this.showMeasurements
-    });
+    // console.log('🎯 _updateAuthorMarksWithSwitchRespect called:', {
+    //   authorName: authorName,
+    //   isVisible: isVisible,
+    //   showAnnotations: this.showAnnotations,
+    //   showMeasurements: this.showMeasurements
+    // });
 
     const markupList = this.rxCoreService.getGuiMarkupList();
     if (!markupList) return;
@@ -4721,13 +4721,13 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       // Check if this markup belongs to the author
       const markupAuthor = RXCore.getDisplayName(markup.signature);
       if (markupAuthor === authorName) {
-        console.log('🎯 Author markup found:', {
-          markupNumber: markup.markupnumber,
-          markupAuthor: markupAuthor,
-          filterAuthor: authorName,
-          ismeasure: (markup as any).ismeasure,
-          setting: isVisible ? 'visible' : 'hidden'
-        });
+        // console.log('🎯 Author markup found:', {
+        //   markupNumber: markup.markupnumber,
+        //   markupAuthor: markupAuthor,
+        //   filterAuthor: authorName,
+        //   ismeasure: (markup as any).ismeasure,
+        //   setting: isVisible ? 'visible' : 'hidden'
+        // });
         
         // Respect the annotation/measurement switch states
         let shouldShow = isVisible;
@@ -4742,13 +4742,13 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
             shouldShow = this.showAnnotations === true;
           }
           
-          console.log('🎯 Switch state check:', {
-            markupNumber: markup.markupnumber,
-            isMeasurement: (markup as any).ismeasure,
-            showMeasurements: this.showMeasurements,
-            showAnnotations: this.showAnnotations,
-            finalDecision: shouldShow ? 'visible' : 'hidden (blocked by switch)'
-          });
+          // console.log('🎯 Switch state check:', {
+          //   markupNumber: markup.markupnumber,
+          //   isMeasurement: (markup as any).ismeasure,
+          //   showMeasurements: this.showMeasurements,
+          //   showAnnotations: this.showAnnotations,
+          //   finalDecision: shouldShow ? 'visible' : 'hidden (blocked by switch)'
+          // });
         }
         
         // Update canvas display
@@ -4759,19 +4759,19 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     // Redraw canvas
     RXCore.markUpRedraw();
     
-    console.log('🎯 Author markup update completed for:', authorName);
+//     console.log('🎯 Author markup update completed for:', authorName);
   }
 
   /**
    * Handle showing/hiding markups by author
    */
   private _handleShowMarkupAuthor(author: any, event: any): void {
-    console.log('🎯 _handleShowMarkupAuthor called:', {
-      author: author,
-      checked: event.target.checked,
-      showAnnotations: this.showAnnotations,
-      showMeasurements: this.showMeasurements
-    });
+    // console.log('🎯 _handleShowMarkupAuthor called:', {
+    //   author: author,
+    //   checked: event.target.checked,
+    //   showAnnotations: this.showAnnotations,
+    //   showMeasurements: this.showMeasurements
+    // });
 
     const markupList = this.rxCoreService.getGuiMarkupList();
     const isVisible = event.target.checked;
@@ -4782,13 +4782,13 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     for (const markup of markupList) {
       // Check if this markup belongs to the author
       if (markup.signature === author.value) {
-        console.log('🎯 Author match found:', {
-          markupNumber: markup.markupnumber,
-          markupAuthor: markup.signature,
-          filterAuthor: author.value,
-          ismeasure: (markup as any).ismeasure,
-          setting: isVisible ? 'visible' : 'hidden'
-        });
+        // console.log('🎯 Author match found:', {
+        //   markupNumber: markup.markupnumber,
+        //   markupAuthor: markup.signature,
+        //   filterAuthor: author.value,
+        //   ismeasure: (markup as any).ismeasure,
+        //   setting: isVisible ? 'visible' : 'hidden'
+        // });
         
         // Respect the annotation/measurement switch states
         let shouldShow = isVisible;
@@ -4803,13 +4803,13 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
             shouldShow = this.showAnnotations === true;
           }
           
-          console.log('🎯 Switch state check:', {
-            markupNumber: markup.markupnumber,
-            isMeasurement: (markup as any).ismeasure,
-            showMeasurements: this.showMeasurements,
-            showAnnotations: this.showAnnotations,
-            finalDecision: shouldShow ? 'visible' : 'hidden (blocked by switch)'
-          });
+          // console.log('🎯 Switch state check:', {
+          //   markupNumber: markup.markupnumber,
+          //   isMeasurement: (markup as any).ismeasure,
+          //   showMeasurements: this.showMeasurements,
+          //   showAnnotations: this.showAnnotations,
+          //   finalDecision: shouldShow ? 'visible' : 'hidden (blocked by switch)'
+          // });
         }
         
         // Update canvas display
@@ -4823,7 +4823,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     // Update comment list
     this._processList(markupList);
 
-    console.log('🎯 Author filtering completed for:', author.label || author.value);
+//     console.log('🎯 Author filtering completed for:', author.label || author.value);
   }
 
 }

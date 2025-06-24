@@ -11,7 +11,7 @@ export class InteractiveStampTemplateDirective {
   onDragStart(event: DragEvent): void {
     if (!event.dataTransfer) return;
 
-    console.log(event.dataTransfer.effectAllowed);
+//     console.log(event.dataTransfer.effectAllowed);
 
     //RXCore.markupSymbol(true);
     RXCore.markupinteractiveStamp(true);

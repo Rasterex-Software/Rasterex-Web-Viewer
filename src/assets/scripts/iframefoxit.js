@@ -2058,6 +2058,7 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
                     var pwidth = page.getWidth();
                     var pheight = page.getHeight();
                     var rotation = page.getRotationAngle();
+                    //var rotation = page.getRotation();
                     foxview.originalrotation = rotation;
 
 

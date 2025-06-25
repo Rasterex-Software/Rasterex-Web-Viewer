@@ -46,6 +46,7 @@ export class AnnotationToolsComponent implements OnInit, OnDestroy {
     "SCALE_SETTING": false,
     "IMAGES_LIBRARY": false,
     "SYMBOLS_LIBRARY": false,
+    "QR_CODE": false,    
     "LINKS_LIBRARY": false,
     "CALIBRATE": false,
     "MEASURE_CONTINUOUS" : false,
@@ -175,6 +176,50 @@ export class AnnotationToolsComponent implements OnInit, OnDestroy {
       /*if(state.visible && this.isActionSelected['SCALE_SETTING'] === false){
         // this.onActionSelect('SCALE_SETTING');
         this.isActionSelected['SCALE_SETTING'] = true;
+      }*/  
+    });
+
+    this.service.imagePanelState$.subscribe(state => {
+      this.isActionSelected['IMAGES_LIBRARY'] = state.visible;
+    });
+    this.service.symbolPanelState$.subscribe(state => {
+      this.isActionSelected['SYMBOLS_LIBRARY'] = state.visible;
+    });
+
+    this.service.qrCodePanelState$.subscribe(state => {
+      this.isActionSelected['QR_CODE'] = state.visible;
+    });
+
+    this.service.linkPanelState$.subscribe(state => {
+      this.isActionSelected['LINKS_LIBRARY'] = state.visible;
+    });
+
+
+
+    this.service.snapState$.subscribe(state => {
+      if(state) {
+        this.isActionSelected['SNAP'] = state;
+      }
+    });
+
+  }
+
+  private _deselectAllActions(): void {
+    Object.entries(this.isActionSelected).forEach(([key, value]) => {
+
+
+      if (key !== 'MARKUP_LOCK' && key !== 'SNAP' && key !== 'NO_SCALE' && key !== "MEASURE_CONTINUOUS") {
+        this.isActionSelected[key] = false;
+      }
+      
+
+      /*case 'MARKUP_LOCK' :
+        RXCore.lockMarkup(this.isActionSelected[actionName]);
+        break;*/
+
+
+      /*if (key == 'NOTE') {
+        RXCore.markUpNote(false);
       }*/
     });
 
@@ -195,26 +240,26 @@ export class AnnotationToolsComponent implements OnInit, OnDestroy {
     });
   }
 
-  private _deselectAllActions(excludeTools: string[] = []): void {
-    Object.entries(this.isActionSelected).forEach(([key, value]) => {
-      // Skip tools that are in the exclude list
-      if (excludeTools.includes(key)) {
-        return;
-      }
+//   private _deselectAllActions(excludeTools: string[] = []): void {
+//     Object.entries(this.isActionSelected).forEach(([key, value]) => {
+//       // Skip tools that are in the exclude list
+//       if (excludeTools.includes(key)) {
+//         return;
+//       }
 
-      if (
-        key !== 'MARKUP_LOCK' &&
-        key !== 'SNAP' &&
-        key !== 'NO_SCALE' &&
-        key !== 'MEASURE_CONTINUOUS'
-      ) {
-        this.isActionSelected[key] = false;
-      }
-    });
+//       if (
+//         key !== 'MARKUP_LOCK' &&
+//         key !== 'SNAP' &&
+//         key !== 'NO_SCALE' &&
+//         key !== 'MEASURE_CONTINUOUS'
+//       ) {
+//         this.isActionSelected[key] = false;
+//       }
+//     });
 
-//     console.log('deselect all called');
-    RXCore.restoreDefault();
-  }
+// //     console.log('deselect all called');
+//     RXCore.restoreDefault();
+//   }
 
   onActionSelect(actionName: string) {
     const selected = this.isActionSelected[actionName];
@@ -394,11 +439,13 @@ export class AnnotationToolsComponent implements OnInit, OnDestroy {
         });
         break;
       case 'SYMBOLS_LIBRARY':
-        this.service.setSymbolPanelState({
-          visible: this.isActionSelected[actionName],
-        });
-        break;
+          this.service.setSymbolPanelState({ visible: this.isActionSelected[actionName] });
+          break;
 
+      case 'QR_CODE':
+        this.service.setQRCodePanelState({ visible: this.isActionSelected[actionName] });
+        break;
+  
       /*case 'CALIBRATE':
           //RXCore.calibrate(true);
           this.calibrate(true);
@@ -567,6 +614,20 @@ export class AnnotationToolsComponent implements OnInit, OnDestroy {
       }, 100);
     }
   }
+
+  onQRCodeSelect(qrCode: any): void {
+    // Close the QR code library
+    this.onActionSelect('QR_CODE');
+    
+    // Create a stamp annotation with the QR code image
+    // This implementation depends on how stamps work in your system
+    // You might need to add the QR code to stamps or create a direct annotation
+    console.log('QR Code selected:', qrCode);
+    
+    // For now, we'll treat it similar to how symbols are handled
+    // You may need to adjust this based on your stamp implementation
+  }
+
   /*calibrate(selected) {
 
     RXCore.onGuiCalibratediag(onCalibrateFinished);

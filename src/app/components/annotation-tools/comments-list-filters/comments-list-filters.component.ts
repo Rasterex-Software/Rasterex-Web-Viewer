@@ -967,7 +967,7 @@ export class CommentsListFiltersComponent implements OnInit, OnChanges {
     this.selectedTypes = [...measurementTypeValues];
     
     this.forceUIRefresh();
-    console.log('Selected measurement types:', measurementTypeValues);
+    // console.log('Selected measurement types:', measurementTypeValues);
   }
   
   // Method to deselect all measurement types

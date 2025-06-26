@@ -1,3 +1,32 @@
+June 26, 2025
+### 1. Developed file-metadata-modal component to display metadata for CAD files only.
+### 2. Implemented FileMetadataService to retrieve file metadata from the backend.
+### 3. Enhanced handleFileSelect method in the File Gallery component to support CAD file pre-selection.
+### 4. Updated onGuiVectorLayers and onGuiVectorBlocks methods to reflect user-selected layers and blocks.
+### 5. Introduced FileMetadata interface to map API response structure accurately.
+### 6. Created FilePreselectionService to emit selected CAD files and trigger file opening from top-nav-component.
+### 7. Integrated new API endpoint to rxconfig.js SampleFileMetadata to fetch metadata details for selected files.
+
+updated files
+
+src\app.component.ts
+src\app.module.ts
+src\app\components\file-galery-component.ts
+src\style.scss
+src\app\components\side-nav-menu\blocks
+src\app\components\side-nav-menu\vector-layers
+src\app\components\top-nav-menu.component.ts
+src\assets\scripts\rxconfig.js
+
+new files
+
+src\app\components\file-metadata-modal.component.html
+src\app\components\file-metadata-modal.component.ts
+src\app\components\file-metadata-modal.component.scss
+src\app\models\fileMetadata.interface.ts
+src\app\services\file-metadata.service.ts
+src\app\services\file-preselection.service.ts
+
 June 16, 2025
 
 ### 1. Updated Foxit to new version 10.

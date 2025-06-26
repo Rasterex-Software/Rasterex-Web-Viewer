@@ -1,0 +1,91 @@
+<div class="file-metadata-modal">
+  <div class="modal-header">
+    <h2>File Preview & Selection</h2>
+    <button class="close-btn" (click)="onCancel()">×</button>
+  </div>
+
+  <div class="modal-content">
+    <div *ngIf="loading" class="loading">
+      <div class="spinner"></div>
+      <p>Loading file metadata...</p>
+    </div>
+
+    <div *ngIf="error" class="error">
+      <p>Failed to load file metadata. Please try again.</p>
+      <button (click)="loadMetadata()">Retry</button>
+    </div>
+
+    <div *ngIf="!loading && !error && metadata" class="metadata-content">
+      <!-- File Info Section -->
+      <div class="file-info">
+        <div class="thumbnail">
+          <img [src]="'data:image/png;base64,' + metadata.thumbnail" [alt]="metadata.filename" />
+
+        </div>
+        <div class="file-details">
+          <h3>{{ metadata.filename }}</h3>
+          <p><strong>Format:</strong> {{ metadata.format }}</p>
+          <p><strong>Size:</strong> {{ metadata.filesize }} bytes</p>
+        </div>
+      </div>
+
+      <div class="section" *ngIf="metadata.layers && metadata.layers.length > 0">
+        <div class="section-header">
+          <h4>Layers ({{ selectedLayers.length }}/{{ metadata.layers.length }})</h4>
+          <div class="section-actions">
+            <button (click)="selectAllLayers()">Select All</button>
+            <button (click)="deselectAllLayers()">Deselect All</button>
+          </div>
+        </div>
+
+        <div class="items-grid">
+          <div *ngFor="let layer of metadata.layers" class="item" [class.selected]="isLayerSelected(layer)">
+            <input type="checkbox" [checked]="isLayerSelected(layer)" (change)="toggleLayer(layer)" />
+            <span>{{ layer }}</span>
+          </div>
+        </div>
+      </div>
+      <!-- No content found -->
+      <div *ngIf="noContentFound" class="no-content">
+        No layers or blocks found for this file.
+      </div>
+
+      <!-- Only layers are missing -->
+      <div *ngIf="!noContentFound && noLayersFound" class="no-content">
+        No layers found for this file.
+      </div>
+
+      <!-- Only blocks are missing -->
+      <div *ngIf="!noContentFound && noBlocksFound" class="no-content">
+        No blocks found for this file.
+      </div>
+
+      <div class="divider"></div>
+      <!-- Blocks Section -->
+      <div class="section" *ngIf="getAllBlocks().length > 0">
+        <div class="section-header">
+          <h4>Blocks ({{ selectedBlocks.length }}/{{ getAllBlocks().length }})</h4>
+          <div class="section-actions">
+            <button (click)="selectAllBlocks()">Select All</button>
+            <button (click)="deselectAllBlocks()">Deselect All</button>
+          </div>
+        </div>
+
+        <div class="items-grid">
+          <div *ngFor="let block of getAllBlocks()" class="item" [class.selected]="isBlockSelected(block)">
+            <input type="checkbox" [checked]="isBlockSelected(block)" (change)="toggleBlock(block)" />
+            <span>{{ block }}</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <div class="validation-error" *ngIf="validationError">
+    <p>{{ validationErrorMessage }}</p>
+  </div>
+  <div class="modal-actions" *ngIf="!loading && !error && metadata">
+    <button class="btn btn-primary" (click)="onConfirm()">Open File</button>
+    <button class="btn btn-light" (click)="onCancel()">Cancel</button>
+  </div>
+</div>

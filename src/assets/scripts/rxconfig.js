@@ -49,7 +49,8 @@ var RxConfig = (function() {
 
     var PDFLib = baseURLWeb + "pdfjs/build/pdf.js";
     var PDFWorker = baseURLWeb + "pdfjs/build/pdf.worker.js";
-
+    //metadata:
+    var SampleFileMetatadata = baseURLBin+"RxCSISAPI.dll?SampleFileMetadata";
 
     /* config */
 
@@ -113,6 +114,7 @@ var RxConfig = (function() {
         getSignature : getSignature,
         putInitial : putInitial,
         getInitial : getInitial,
+        SampleFileMetatadata:SampleFileMetatadata
     };
 
 })();

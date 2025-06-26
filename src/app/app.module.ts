@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule, Title } from '@angular/platform-browser';
 import { HttpClientModule } from '@angular/common/http';
-
+import { MatDialogModule } from '@angular/material/dialog';
 //import { FormsModule } from '@angular/forms';
 
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -104,6 +104,7 @@ import { LoginModalComponent } from './components/user/login-modal/login-modal.c
 import { NumericRangeDirective } from "./directives/numeric-range.directive";
 import { ResizableDirective } from './directives/resizable.directive';
 import {IsPinnedPipe} from "./components/top-nav-menu/opened-files-tabs/is-pinned.pipe";
+import { FileMetadataModalComponent } from './components/file-metadata-modal/file-metadata-modal.component';
 
 const storeSchema = [
   { name: 'name', keypath: 'name', options: { unique: false } },
@@ -207,7 +208,8 @@ const dbConfig: DBConfig  = {
     LoginComponent,
     RoomPanelComponent,
     ResizableDirective,
-    LoginModalComponent
+    LoginModalComponent,
+    FileMetadataModalComponent
   ],
   imports: [
     BrowserModule,
@@ -223,6 +225,7 @@ const dbConfig: DBConfig  = {
     AngularDraggableModule,
     TreeviewModule.forRoot(),
     ToastrModule.forRoot(), // ToastrModule added
+    MatDialogModule
   ],
   providers: [ColorHelper, Title],
   bootstrap: [AppComponent],

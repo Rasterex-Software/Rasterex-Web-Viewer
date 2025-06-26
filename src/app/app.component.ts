@@ -758,13 +758,82 @@ export class AppComponent implements AfterViewInit {
 
     });
 
-    RXCore.onGuiVectorLayers((layers) => {
-      this.rxCoreService.setGuiVectorLayers(layers);
+    function getSelectionsFromLocalStorage() {
+      let selectedLayers = [];
+      let selectedBlocks = [];
+      if (typeof (Storage) !== "undefined") {
+        const layers = localStorage.getItem("selectedLayers");
+        const blocks = localStorage.getItem("selectedBlocks");
+        if (layers) {
+          try {
+            selectedLayers = JSON.parse(layers);
+          } catch (e) {
+            selectedLayers = [];
+          }
+        }
+        if (blocks) {
+          try {
+            selectedBlocks = JSON.parse(blocks);
+          } catch (e) {
+            selectedBlocks = [];
+          }
+        }
+      }
+      return { selectedLayers, selectedBlocks };
+    }
+
+   RXCore.onGuiVectorLayers((layers) => {
+  const selections = getSelectionsFromLocalStorage();
+  const selectedLayers: string[] = Array.isArray(selections?.selectedLayers)
+    ? selections.selectedLayers
+    : [];
+
+  if (selectedLayers.length > 0 && layers.length > 0) {
+    // Set state = false for unselected layers
+    layers.forEach(layer => {
+      if (!selectedLayers.includes(layer.name.trim())) {
+        layer.state = false;
+      }
     });
 
-    RXCore.onGuiVectorBlocks((blocks) => {
-      this.rxCoreService.setGuiVectorBlocks(blocks);
+    // Only show selected layers in the side nav
+    const filteredLayers = layers.filter(layer =>
+      selectedLayers.includes(layer.name.trim())
+    );
+
+    this.rxCoreService.setGuiVectorLayers(filteredLayers);
+  } else {
+    // No selected layers, show all
+    this.rxCoreService.setGuiVectorLayers(layers);
+  }
+});
+
+RXCore.onGuiVectorBlocks((blocks) => {
+  const selections = getSelectionsFromLocalStorage();
+  const selectedBlocks: string[] = Array.isArray(selections?.selectedBlocks)
+    ? selections.selectedBlocks
+    : [];
+
+  if (selectedBlocks.length > 0 && blocks.length > 0) {
+    // Set state = 0 for unselected blocks
+    blocks.forEach(block => {
+      if (!selectedBlocks.includes(block.name.trim())) {
+        block.state = 0;
+      }
     });
+
+    // Only show selected blocks in the side nav
+    const filteredBlocks = blocks.filter(block =>
+      selectedBlocks.includes(block.name.trim())
+    );
+    
+    this.rxCoreService.setGuiVectorBlocks(filteredBlocks);
+    
+  } else {
+    // No selected blocks, show all
+    this.rxCoreService.setGuiVectorBlocks(blocks);
+  }
+});
 
     RXCore.onGui3DParts((parts) => {
       this.rxCoreService.setGui3DParts(parts);

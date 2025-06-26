@@ -94,6 +94,13 @@ export class AnnotationToolsService {
   public setSymbolPanelState(any): void {
     this._symbolPanelState.next(any);
   }
+
+  private _qrCodePanelState: BehaviorSubject<any> = new BehaviorSubject<any>({});
+  public qrCodePanelState$: Observable<any> = this._qrCodePanelState.asObservable();
+  public setQRCodePanelState(any): void {
+    this._qrCodePanelState.next(any);
+  }
+
   private _linkPanelState: BehaviorSubject<any> = new BehaviorSubject<any>({});
   public linkPanelState$: Observable<any> = this._linkPanelState.asObservable();
   public setLinksPanelState(any): void {

@@ -27,6 +27,76 @@ src\app\models\fileMetadata.interface.ts
 src\app\services\file-metadata.service.ts
 src\app\services\file-preselection.service.ts
 
+June 20, 2025
+
+### 1. Keep original file name uploaded
+### 2. Keep custom stamp, images even if moving to Standard   
+### 3. QR code drag and drop fix.
+
+
+Updated and new files
+src/app/components/annotation-tools/stamp-panel/stamp-panel.component.html
+src/app/components/annotation-tools/stamp-panel/stamp-panel.component.scss
+src/app/components/annotation-tools/stamp-panel/stamp-panel.component.ts 
+src/app/components/annotation-tools/stamp-panel/StampData.ts
+
+
+June 19, 2025
+
+### 1. Added QR Code Generation Logic.
+
+Updated and new files 
+
+src/app/app.module.ts 
+src/app/components/annotation-tools/annotation-tools.component.html 
+src/app/components/annotation-tools/annotation-tools.component.ts 
+src/app/components/annotation-tools/annotation-tools.service.ts 
+src/app/components/annotation-tools/qr-code-library/qr-code-library.component.html 
+src/app/components/annotation-tools/qr-code-library/qr-code-library.component.scss 
+src/app/components/annotation-tools/qr-code-library/qr-code-library.component.spec.ts 
+src/app/components/annotation-tools/qr-code-library/qr-code-library.component.ts 
+src/app/components/annotation-tools/qr-code-library/qr-code-library.service.ts
+
+
+June 17, 2025
+
+### 1. Integrate Symbols API
+
+
+Updated and new files
+
+src\app\components\annotation-tools\symbols-library\symbols-library.component.html src\app\components\annotation-tools\symbols-library\symbols-library.component.ts src\app\components\annotation-tools\symbols-library\symbols-library.service.ts
+
+
+June 26, 2025
+### 1. Developed file-metadata-modal component to display metadata for CAD files only.
+### 2. Implemented FileMetadataService to retrieve file metadata from the backend.
+### 3. Enhanced handleFileSelect method in the File Gallery component to support CAD file pre-selection.
+### 4. Updated onGuiVectorLayers and onGuiVectorBlocks methods to reflect user-selected layers and blocks.
+### 5. Introduced FileMetadata interface to map API response structure accurately.
+### 6. Created FilePreselectionService to emit selected CAD files and trigger file opening from top-nav-component.
+### 7. Integrated new API endpoint to rxconfig.js SampleFileMetadata to fetch metadata details for selected files.
+
+updated files
+
+src\app.component.ts
+src\app.module.ts
+src\app\components\file-galery-component.ts
+src\style.scss
+src\app\components\side-nav-menu\blocks
+src\app\components\side-nav-menu\vector-layers
+src\app\components\top-nav-menu.component.ts
+src\assets\scripts\rxconfig.js
+
+new files
+
+src\app\components\file-metadata-modal.component.html
+src\app\components\file-metadata-modal.component.ts
+src\app\components\file-metadata-modal.component.scss
+src\app\models\fileMetadata.interface.ts
+src\app\services\file-metadata.service.ts
+src\app\services\file-preselection.service.ts
+
 June 16, 2025
 
 ### 1. Updated Foxit to new version 10.

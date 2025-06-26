@@ -49,6 +49,13 @@ var RxConfig = (function() {
 
     var PDFLib = baseURLWeb + "pdfjs/build/pdf.js";
     var PDFWorker = baseURLWeb + "pdfjs/build/pdf.worker.js";
+
+    //admin file upload
+    var SampleFileUploadURL = baseURLBin + "RxCSISAPI.dll?SampleFileUpload";
+    var SampleFileList= baseURLBin+ "RxCSISAPI.dll?SampleFileList";
+    var SampleFileThumbnail = baseURLBin + "RxCSISAPI.dll?SampleFileThumbnail";
+    var SampleFileDelete= baseURLBin+ "RxCSISAPI.dll?SampleFileDelete";
+    
     //metadata:
     var SampleFileMetatadata = baseURLBin+"RxCSISAPI.dll?SampleFileMetadata";
 
@@ -114,6 +121,10 @@ var RxConfig = (function() {
         getSignature : getSignature,
         putInitial : putInitial,
         getInitial : getInitial,
+        SampleFileUploadURL:SampleFileUploadURL,
+        SampleFileList:SampleFileList,
+        SampleFileThumbnail:SampleFileThumbnail,
+        SampleFileDelete:SampleFileDelete   ,     
         SampleFileMetatadata:SampleFileMetatadata
     };
 

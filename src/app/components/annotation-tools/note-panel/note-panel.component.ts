@@ -58,9 +58,6 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
   }
 
   set activeMarkupNumber(value: number) {
-    if (this._activeMarkupNumber !== value) {
-      console.trace('Stack trace for activeMarkupNumber change:');
-    }
     this._activeMarkupNumber = value;
   }
 
@@ -146,9 +143,9 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
   ];
   objectType: string | null = null;
 
-  showAnnotations: boolean | undefined = true;
-  showMeasurements: boolean | undefined = true;
-  showAll: boolean | undefined = true;
+  showAnnotations: boolean | undefined = false;
+  showMeasurements: boolean | undefined = false;
+  showAll: boolean | undefined = false;
   showAnnotationsOnLoad : boolean | undefined = false;
 
   markupTypes : Array<any> = [];
@@ -1614,12 +1611,12 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       }else{
         switch(option.label) {
           case "View":
-            //this.showAll = false;
-            //this.onShowAll(false);
+            // In View mode, start with both switches OFF by default
+            // Users can manually turn them on as needed
+            this.showAnnotations = false;
+            this.showMeasurements = false;
             this.onShowAnnotations(false);
             this.onShowMeasurements(false);
-
-
             break;
           case "Annotate":
             this.showAnnotations = true;
@@ -3595,33 +3592,50 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
 
 
   /**
-   * Handle exclusive toggle for Annotations
-   * When annotations are turned on, measurements are turned off
+   * Handle toggle for Annotations
+   * In View mode: allows both annotations and measurements to be on simultaneously
+   * In Annotate/Measure mode: exclusive behavior (measurements turned off when annotations turned on)
    */
   onToggleAnnotations(onoff: boolean) {
 
     if (onoff) {
-      // Turn on annotations, turn off measurements
+      // Turn on annotations
       this.showAnnotations = true;
-      this.showMeasurements = false;
       
-      // Force canvas update first
+      // In non-View modes, turn off measurements (exclusive behavior)
+      if (this.currentMode !== 'View') {
+        this.showMeasurements = false;
+        this.onShowMeasurements(false);
+      }
+      
+      // Force canvas update
       this.onShowAnnotations(true);
-      this.onShowMeasurements(false); // This will automatically clear date picker since measurements are turned off
       
       // Wait a moment then update filters to match canvas state
       setTimeout(() => {
-        this._selectAnnotationTypesInFilters();
-        this._syncFiltersWithVisibleMarkups();
+        if (this.currentMode === 'View' && this.showMeasurements) {
+          // In View mode with both switches on, select both annotation and measurement types
+          this._selectAnnotationTypesInFilters();
+          this._selectMeasurementTypesInFilters();
+          this._selectRelevantAuthorsAndPages(true, true);
+        } else {
+          // Standard behavior for non-View modes or when only annotations are on
+          this._selectAnnotationTypesInFilters();
+          this._syncFiltersWithVisibleMarkups();
+        }
       }, 200);
     } else {      
       // Turn off annotations
       this.showAnnotations = false;
-      this.onShowAnnotations(false); // This will automatically clear date picker since annotations are turned off
+      this.onShowAnnotations(false);
       
-      // Deselect annotation types and clear authors/pages
+      // Deselect annotation types
       this._deselectAnnotationTypesInFilters();
-      this._clearAuthorAndPageSelections();
+      
+      // If measurements are also off, clear authors/pages
+      if (!this.showMeasurements) {
+        this._clearAuthorAndPageSelections();
+      }
     }
     
     // Update sort filter options since switch state changed
@@ -3632,34 +3646,51 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
   }
 
   /**
-   * Handle exclusive toggle for Measurements
-   * When measurements are turned on, annotations are turned off
+   * Handle toggle for Measurements  
+   * In View mode: allows both annotations and measurements to be on simultaneously
+   * In Annotate/Measure mode: exclusive behavior (annotations turned off when measurements turned on)
    */
   onToggleMeasurements(onoff: boolean) {
     this.commentsListFiltersComponent.emitFilterCountChange();
     
     if (onoff) {
-      // Turn on measurements, turn off annotations
+      // Turn on measurements
       this.showMeasurements = true;
-      this.showAnnotations = false;
       
-      // Force canvas update first
+      // In non-View modes, turn off annotations (exclusive behavior)
+      if (this.currentMode !== 'View') {
+        this.showAnnotations = false;
+        this.onShowAnnotations(false);
+      }
+      
+      // Force canvas update
       this.onShowMeasurements(true);
-      this.onShowAnnotations(false); // This will automatically clear date picker since annotations are turned off
       
       // Wait a moment then update filters to match canvas state
       setTimeout(() => {
-        this._selectMeasurementTypesInFilters();
-        this._syncFiltersWithVisibleMarkups();
+        if (this.currentMode === 'View' && this.showAnnotations) {
+          // In View mode with both switches on, select both annotation and measurement types
+          this._selectAnnotationTypesInFilters();
+          this._selectMeasurementTypesInFilters();
+          this._selectRelevantAuthorsAndPages(true, true);
+        } else {
+          // Standard behavior for non-View modes or when only measurements are on
+          this._selectMeasurementTypesInFilters();
+          this._syncFiltersWithVisibleMarkups();
+        }
       }, 200);
     } else {  
       // Turn off measurements
       this.showMeasurements = false;
-      this.onShowMeasurements(false); // This will automatically clear date picker since measurements are turned off
+      this.onShowMeasurements(false);
       
-      // Deselect measurement types and clear authors/pages
+      // Deselect measurement types
       this._deselectMeasurementTypesInFilters();
-      this._clearAuthorAndPageSelections();
+      
+      // If annotations are also off, clear authors/pages
+      if (!this.showAnnotations) {
+        this._clearAuthorAndPageSelections();
+      }
       
       // IMMEDIATE force clear - don't wait for timeout
       this._forceImmediateClearAllMeasurementTypes();

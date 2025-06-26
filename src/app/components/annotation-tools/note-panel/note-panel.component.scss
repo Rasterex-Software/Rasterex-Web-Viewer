@@ -134,6 +134,15 @@
             font-weight: 400;
             color: $main;
           }
+
+          &.disabled {
+            opacity: 0.5;
+            pointer-events: none;
+
+            span.disabled-text {
+              color: #9ca3af;
+            }
+          }
         }
       }
     }

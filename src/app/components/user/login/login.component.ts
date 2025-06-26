@@ -21,7 +21,7 @@ export class LoginComponent implements OnInit {
   displayName = '';
   email = '';
   groupedPermissions: { [type: string]: string[] } = {};
-  //permissions = '';
+  permissions = '';
   isLoggingIn = false;
   isLoggingOut = false;
   //isLoginFailed = false;
@@ -72,6 +72,34 @@ export class LoginComponent implements OnInit {
     });
   
 
+  }
+
+  private initializeFromStoredUser(): void {
+    const currentUser = this.userService.getCurrentUser();
+    if (currentUser) {
+      // console.log('Login component initialized with stored user:', currentUser.username);
+      this.username = currentUser.username;
+      this.displayName = currentUser.displayName || '';
+      this.email = currentUser.email;
+
+      // Load permissions for the stored user
+      this.loadUserPermissions(currentUser);
+    } else {
+      // console.log('No stored user found during login component initialization');
+    }
+  }
+
+  private loadUserPermissions(user: User): void {
+    // console.log('Loading permissions for user:', user.username);
+    this.userService.getPermissions(1, user.id).then(res => {
+      this.userService.setUserPermissions(res);
+      if (Array.isArray(res)) {
+        const permKeys = res.map((item) => item.permission.key).join(', ');
+        this.permissions = permKeys;
+      }
+    }).catch(error => {
+      console.error('Error loading permissions:', error);
+    });
   }
 
   openLoginDialog() {

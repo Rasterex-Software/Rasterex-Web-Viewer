@@ -980,3 +980,160 @@ Component Path: `components/annotation-tools/search-panel`
 - `markupDocumentSearchResult`
 - `markupTextWithOrange`
 - `onGuiDocumentSearch`
+
+
+May 19, 2025
+
+# Fix: Resolved issues with initial image upload failure, image turning white on rotate, and logout on page refresh during editing.
+
+Component Paths:
+  `modified:   src/app/app.component.ts` 
+  `modified:   src/app/app.module.ts`
+  `modified:   src/app/components/side-nav-menu/insert-modal/insert-modal.component.html`
+  `modified:   src/app/components/side-nav-menu/insert-modal/insert-modal.component.ts`  
+  `modified:   src/app/components/user/login/login.component.ts`
+  `modified:   src/app/components/user/user.service.ts`
+  `new file:   src/app/services/auth-interceptor.service.ts`
+
+
+May 20, 2025
+
+# Fix: Improve Thumbnail and Birdseye display for CAD
+
+Component Paths:
+  `modified:   src/app/components/bottom-toolbar/bottom-toolbar.component.ts`
+  `modified:   src/assets/scripts/iframefoxit.js`
+
+May 21, 2025
+
+# Merge remote-tracking branch 'upstream/main' into develop
+  `modified:   src/app/app.module.ts`
+  `modified:   src/app/components/annotation-tools/links-library/links-library.component.html`
+  `modified:   src/app/components/annotation-tools/links-library/links-library.component.scss`
+  `modified:   src/app/components/annotation-tools/links-library/links-library.component.ts`
+  `modified:   src/app/components/annotation-tools/note-panel/note-panel.component.html`
+  `modified:   src/app/components/annotation-tools/note-panel/note-panel.component.ts`
+  `modified:   src/app/components/annotation-tools/properties-panel/properties-panel.component.ts`
+  `modified:   src/app/components/annotation-tools/stamp-panel/stamp-panel.component.html`
+  `modified:   src/app/components/annotation-tools/stamp-panel/stamp-panel.component.scss`
+  `modified:   src/app/components/annotation-tools/stamp-panel/stamp-panel.component.ts`
+  `modified:   src/app/components/common/date-picker/date-picker.component.ts`
+  `modified:   src/app/components/common/modal-dialog/modal-dialog.component.scss`
+  `modified:   src/app/components/file-galery/file-galery.component.html`
+  `modified:   src/app/components/file-galery/file-galery.component.scss`
+  `modified:   src/app/components/recent-files/recent-files.component.scss`
+  `modified:   src/app/components/side-nav-menu/context-menu/context-menu.component.scss`
+  `new file:   src/app/components/side-nav-menu/pages/numeric-range.directive.ts`
+  `modified:   src/app/components/side-nav-menu/pages/pages.component.html`
+  `modified:   src/app/components/side-nav-menu/pages/pages.component.scss`
+  `modified:   src/app/components/side-nav-menu/pages/pages.component.ts`
+  `modified:   src/app/components/side-nav-menu/side-nav-menu.component.html`
+  `modified:   src/app/components/side-nav-menu/side-nav-menu.component.scss`
+  `modified:   src/app/components/top-nav-menu/top-nav-menu.component.html`
+  `modified:   src/app/components/top-nav-menu/top-nav-menu.component.ts`
+  `new file:   src/app/directives/numeric-range.directive.ts`
+  `new file:   src/app/directives/resizable.directive.ts`
+  `modified:   src/assets/config/UIConfig.js`
+  `new file:   src/assets/images/edit-ico.svg`
+  `deleted:    src/assets/images/files.txt`
+  `new file:   src/assets/images/thumbnails/3d-thumbnail.png`
+  `new file:   src/assets/images/thumbnails/cad-thumbnail.png`
+  `new file:   src/assets/images/thumbnails/documents-thumbnail.png`
+  `new file:   src/assets/images/thumbnails/image-thumbnail.png`
+  `new file:   src/assets/images/thumbnails/plotter-thumbnail.png`
+  `modified:   src/assets/scripts/rxcorefunctions.js`
+  `modified:   src/rxcore/models/IGuiConfig.ts`
+  `new file:   src/rxcore/models/IGuiDateFormat.ts`
+  `modified:   src/rxcore/models/IMarkup.ts`
+
+
+May 26, 2025
+
+# Fix: Logout now fully clears demo user annotations.
+
+  `modified:   src/app/app.component.ts`
+  `modified:   src/app/components/annotation-tools/note-panel/note-panel.component.ts`
+  `modified:   src/app/components/user/user.service.ts`
+
+May 30, 2025
+
+# Fix: the issue with comment history card indication when the file is rotated
+
+  `modified:   src/app/components/annotation-tools/note-panel/note-panel.component.ts`
+
+
+
+June 02, 2025
+
+# Improve UI of Filters
+
+  `modified:   src/app/components/annotation-tools/note-panel/note-panel.component.html`
+  `modified:   src/app/components/annotation-tools/note-panel/note-panel.component.scss`
+  `modified:   src/app/components/annotation-tools/note-panel/note-panel.component.ts  `
+  `modified:   src/app/components/common/dropdown-menu/dropdown-menu.component.scss`
+  `modified:   src/app/components/common/dropdown/dropdown.component.scss`
+
+June 03, 2025
+
+# Implemented Switching Between Annotations & Measurements
+
+  `modified:   src/app/components/annotation-tools/note-panel/note-panel.component.html`
+  `modified:   src/app/components/annotation-tools/note-panel/note-panel.component.ts`
+
+June 03, 2025
+
+# Fix: Issue with Green Pointer Lines on Comments and Annotations
+
+  `modified:   src/app/components/annotation-tools/note-panel/note-panel.component.html`
+  `modified:   src/app/components/annotation-tools/note-panel/note-panel.component.ts`
+
+# Fix: Issue with Green Pointer Lines on Comments and Annotations with multi-page files
+
+  `modified:   src/app/components/annotation-tools/note-panel/note-panel.component.ts`
+
+
+June 13, 2025
+
+# Updated Comments List Filters UI
+
+  `modified:   src/app/app.module.ts`
+  `new file:   src/app/components/annotation-tools/comment-card/comment-card.component.html`
+  `new file:   src/app/components/annotation-tools/comment-card/comment-card.component.scss`
+  `new file:   src/app/components/annotation-tools/comment-card/comment-card.component.spec.ts`
+  `new file:   src/app/components/annotation-tools/comment-card/comment-card.component.ts`
+  `new file:   src/app/components/annotation-tools/comments-list-filters/comments-list-filters.component.html`    
+  `new file:   src/app/components/annotation-tools/comments-list-filters/comments-list-filters.component.scss`    
+  `new file:   src/app/components/annotation-tools/comments-list-filters/comments-list-filters.component.spec.ts` 
+  `new file:   src/app/components/annotation-tools/comments-list-filters/comments-list-filters.component.ts`      
+  `modified:   src/app/components/annotation-tools/note-panel/note-panel.component.html`
+  `modified:   src/app/components/annotation-tools/note-panel/note-panel.component.scss`
+  `modified:   src/app/components/annotation-tools/note-panel/note-panel.component.ts`
+  
+June 16, 2025
+
+# Updated Comments List Card UI
+
+  `modified:   src/app/components/annotation-tools/comment-status-icon/comment-status-icon.component.scss`
+  `modified:   src/app/components/annotation-tools/note-panel/note-panel.component.html`
+  `modified:   src/app/components/annotation-tools/note-panel/note-panel.component.scss`
+  `modified:   src/app/components/annotation-tools/note-panel/note-panel.component.ts`
+
+June 17, 2025
+
+# Filters are functional and working properly
+
+  `modified:   src/app/components/annotation-tools/comments-list-filters/comments-list-filters.component.html`
+  `modified:   src/app/components/annotation-tools/comments-list-filters/comments-list-filters.component.scss`
+  `modified:   src/app/components/annotation-tools/comments-list-filters/comments-list-filters.component.ts`      
+  `modified:   src/app/components/annotation-tools/note-panel/note-panel.component.html`
+  `modified:   src/app/components/annotation-tools/note-panel/note-panel.component.scss`
+  `modified:   src/app/components/annotation-tools/note-panel/note-panel.component.ts`
+  `modified:   src/app/components/common/date-picker/date-picker.component.scss`
+
+June 18, 2025
+
+# Fix filter count display, comment button size, and edit/delete alignment
+
+  `modified:   src/app/components/annotation-tools/note-panel/note-panel.component.html`
+  `modified:   src/app/components/annotation-tools/note-panel/note-panel.component.scss`
+  `modified:   src/app/components/annotation-tools/note-panel/note-panel.component.ts`

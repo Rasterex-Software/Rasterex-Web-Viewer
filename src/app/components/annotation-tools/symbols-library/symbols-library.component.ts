@@ -162,6 +162,27 @@ export class SymbolsLibraryComponent implements OnInit {
             folderId: symbol.folderId
       };
     });
+  
+    // Uncomment and modify the server code if needed in the future
+    // this.imageUploadService.getAllImages().subscribe(
+    //   async response => {
+    //     const imagePromises = response.map(item =>
+    //       this.convertBase64ToBlob(item.imageData).then(blob => ({
+    //         id: item.id,
+    //         src: URL.createObjectURL(blob),
+    //         height: 150,
+    //         width: 200
+    //       }))
+    //     );
+  
+    //     const resolvedImages = await Promise.all(imagePromises);
+    //     this.images = resolvedImages;
+    //     console.log('Images retrieved successfully:', this.images);
+    //   },
+    //   error => {
+    //     console.error('Error retrieving images:', error);
+    //   }
+    // );
         this.loadingSymbols = false;
       },
       error: (err) => {

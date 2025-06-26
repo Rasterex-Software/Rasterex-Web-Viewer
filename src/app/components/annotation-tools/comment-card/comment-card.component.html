@@ -1,0 +1,126 @@
+<div class="comment-card" [class.expanded]="!isCollapsed">
+  <div class="card-container" *ngIf="task">
+    <!-- Corner Checkbox -->
+    <input 
+      type="checkbox" 
+      class="corner-checkbox"
+      [checked]="!isCollapsed"
+      [style.display]="isCollapsed ? 'none' : 'block'"
+      (change)="onCheckboxChange($event)"
+    />
+    
+    <!-- Task Header -->
+    <div class="task-header">
+      <div class="task-avatar" [ngClass]="getAnnotationClass()">
+        <img 
+          class="annotation-icon-img" 
+          [src]="getAnnotationIconPath()" 
+          [alt]="task.annotationType + ' annotation'"
+          *ngIf="getAnnotationIconPath()"
+        />
+      </div>
+      <div class="task-content">
+        <div class="task-meta">
+          <span class="task-author">{{ task.author }}</span>
+          <span class="task-timestamp">{{ task.timestamp | date:'MMM d, h:mm a' }}</span>
+        </div>
+      </div>
+      <div class="task-status">
+        <span class="status-badge" [ngClass]="getStatusClass(task.status)" (click)="toggleStatusDropdown(); $event.stopPropagation()">
+          {{ getCurrentStatusIcon() }}
+        </span>
+        <div class="status-dropdown-container">
+          <div class="status-dropdown" *ngIf="showStatusDropdown" (click)="$event.stopPropagation()">
+            <div class="dropdown-item"
+                 *ngFor="let option of statusOptions"
+                 [class.selected]="task.status === option.value"
+                 (click)="selectStatus(option.value)">
+              <span class="status-icon">{{ option.icon }}</span>
+              <span class="status-label">{{ option.label }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <button class="collapse-toggle" (click)="toggleCollapse()" type="button">
+        <svg width="12" height="12" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path [attr.d]="isCollapsed ? 'M4 6L8 10L12 6' : 'M4 10L8 6L12 10'" fill="currentColor"/>
+        </svg>
+      </button>
+    </div>
+
+    <div>
+      <div class="task-title-container">
+        <div class="task-title">{{ task.title }}</div>
+        <div class="task-comments">
+          <img class="comment-icon" src="/assets/images/comment-ico.svg" alt="comments-icon">
+          <div class="comment-count">({{ task.comments.length }})</div>
+        </div>
+      </div>
+      <div class="task-description" *ngIf="task.description && !isCollapsed">{{ task.description }}</div>
+    </div>
+
+    <!-- Comments List -->
+    <div class="comments-section" *ngIf="!isCollapsed && task.comments && task.comments.length > 0">
+      <div class="comment-item" *ngFor="let comment of task.comments; let i = index">
+        <div class="comment-divider" *ngIf="i > 0"></div>
+        <div class="comment-content-wrapper">
+          <div class="comment-header">
+            <span class="comment-author">{{ comment.author }}</span>
+            <span class="comment-timestamp">{{ comment.timestamp | date:'MMM d, h:mm a' }}</span>
+          </div>
+          <div class="comment-content">
+            <div *ngIf="editingCommentId !== comment.id">
+              <p>{{ comment.content }}</p>
+            </div>
+            <div class="comment-edit" *ngIf="editingCommentId === comment.id">
+              <textarea
+                class="edit-textarea"
+                [(ngModel)]="editCommentText"
+                placeholder="Edit your comment...">
+              </textarea>
+              <div class="edit-actions">
+                <button class="btn btn-save" (click)="saveCommentEdit(comment.id)">Save</button>
+                <button class="btn btn-cancel" (click)="cancelCommentEdit()">Cancel</button>
+              </div>
+            </div>
+          </div>
+          <div class="comment-actions" *ngIf="editingCommentId !== comment.id">
+            <button class="action-btn edit-btn" (click)="startEditComment(comment)" type="button">
+              <svg width="12" height="12" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12.146 0.146a0.5 0.5 0 0 1 0.708 0l3 3a0.5 0.5 0 0 1 0 0.708l-10 10a0.5 0.5 0 0 1-0.168 0.11l-5 2a0.5 0.5 0 0 1-0.65-0.65l2-5a0.5 0.5 0 0 1 0.11-0.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h0.5a0.5 0.5 0 0 1 0.5 0.5v0.5h0.5a0.5 0.5 0 0 1 0.5 0.5v0.5h0.293l6.5-6.5z" fill="currentColor"/>
+              </svg>
+            </button>
+            <button class="action-btn delete-btn" (click)="deleteComment(comment.id)" type="button">
+              <svg width="12" height="12" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M6.5 1h3a0.5 0.5 0 0 1 0.5 0.5v1H14a0.5 0.5 0 0 1 0 1v0.5a0.5 0.5 0 0 1-0.5 0.5H13v9a1.5 1.5 0 0 1-1.5 1.5h-7A1.5 1.5 0 0 1 3 13.5v-9H2.5a0.5 0.5 0 0 1-0.5-0.5V3a0.5 0.5 0 0 1 0-1H6V1.5a0.5 0.5 0 0 1 0.5-0.5zM4.118 4 4.382 13.481A0.5 0.5 0 0 0 4.882 14h6.236a0.5 0.5 0 0 0 0.5-0.519L11.882 4H4.118zM7 5.5a0.5 0.5 0 0 1 0.5 0.5v6a0.5 0.5 0 0 1-1 0V6a0.5 0.5 0 0 1 0.5-0.5zm2 0a0.5 0.5 0 0 1 0.5 0.5v6a0.5 0.5 0 0 1-1 0V6a0.5 0.5 0 0 1 0.5-0.5z" fill="currentColor"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add Comment Section -->
+    <div class="add-comment-section" *ngIf="!isCollapsed">
+      <div class="comment-input-container">
+        <input
+          type="text"
+          class="comment-input"
+          [(ngModel)]="newCommentText"
+          placeholder="Write a comment..."
+          (keyup.enter)="onAddComment()"
+        />
+        <button
+          class="send-btn"
+          (click)="onAddComment()"
+          [disabled]="!newCommentText.trim()"
+          type="button"
+        >
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M15.854 0.146a0.5 0.5 0 0 1 0.11 0.54l-5.819 14.547a0.75 0.75 0 0 1-1.329 0.124l-3.178-4.995L0.643 7.184a0.75 0.75 0 0 1 0.124-1.33L15.314 0.037a0.5 0.5 0 0 1 0.54 0.11z" fill="currentColor"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

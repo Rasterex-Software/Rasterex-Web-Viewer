@@ -67,7 +67,7 @@ export class OpenedFilesTabsComponent implements OnInit {
 
   private _closeTabWithSaveConfirmModal(file): void {
     
-    console.log("closing tab handling");
+    // console.log("closing tab handling");
     
     if (!file) return;
     //const doc = RXCore.printDoc();
@@ -204,7 +204,7 @@ export class OpenedFilesTabsComponent implements OnInit {
     event.preventDefault();
     event.stopPropagation();
 
-    console.log("closing tab");
+    // console.log("closing tab");
     const index = this.pinnedFiles.findIndex(item => item.id === file.id);
     if (index > -1) {
       this.pinnedFiles.splice(index, 1); // remove the item

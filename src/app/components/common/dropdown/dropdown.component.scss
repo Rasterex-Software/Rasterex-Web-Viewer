@@ -15,6 +15,7 @@
         cursor: pointer;
 
         .value {
+            font-size: 9px;
             top: 20px;
             line-height: 24px;
             min-height: 24px;
@@ -28,6 +29,11 @@
             }
         }
 
+        img {
+            width: 10px;
+            height: 10px;
+        }
+
         .left-icon {
             position: absolute;
             top: 20px;
@@ -38,7 +44,7 @@
             border: 1px solid #A4ABAE;
 
             img {
-                filter: invert(1);
+                // filter: invert(1);
             }
 
             .btn-dropdown {

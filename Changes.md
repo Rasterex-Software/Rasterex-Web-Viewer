@@ -1,3 +1,21 @@
+June 26, 2025
+
+### 1. Stamp panel update for custom stamp.
+### 2. Zoom window fix for rotated pdf page.
+
+
+Updated and new files
+
+src\assets\scripts\rxcorefunctions.js
+src\assets\scripts\iframefoxit.js
+
+src/app/components/annotation-tools/stamp-panel/stamp-panel.component.html
+src/app/components/annotation-tools/stamp-panel/stamp-panel.component.ts 
+src\app\components\annotation-tools\stamp-panel\StampData.ts
+src\app\components\annotation-tools\stamp-panel\stamp-template.directive.ts
+src\app\components\annotation-tools\stamp-panel\stamp-storage.service.ts
+
+
 June 20, 2025
 
 ### 1. Keep original file name uploaded

@@ -35,9 +35,11 @@ export class StampPanelComponent implements OnInit {
   time: boolean = false;
   subTextFontSize = 6;
   textOffset = this.subTextFontSize;
-  usernameDefaultText: string = 'Demo';
-  dateDefaultText: string;
-  timeDefaultText: string;
+  // These are no longer needed as we use template placeholders
+  // usernameDefaultText, dateDefaultText, timeDefaultText removed
+  //usernameDefaultText: string = 'Demo';
+  //dateDefaultText: string;
+  //timeDefaultText: string;
   strokeWidth: number = 1;
   strokeColor: string = '#000000';
   strokeRadius: number = 8;
@@ -64,6 +66,11 @@ export class StampPanelComponent implements OnInit {
   isStandardDragOver: boolean = false;
   draggedStamp: StampData | null = null;
   draggedStampType: 'custom' | 'upload' | null = null;
+
+  // Edit mode variables
+  isEditMode: boolean = false;
+  editingStampId: number | null = null;
+  
   
   // Make Math available in template
   Math = Math;
@@ -123,9 +130,24 @@ export class StampPanelComponent implements OnInit {
     return style;
   }
   get timestampText(): string {
-    const userName = this.username ? this.usernameDefaultText : '';
+
+        // For template preview and saved stamps, show placeholders instead of actual values
+        const userName = this.username ? 'User' : '';
+        const date = this.date ? 'Date' : '';
+        const time = this.time ? 'Time' : '';
+        return `${userName} ${date} ${time}`.trim();
+    
+    /*const userName = this.username ? this.usernameDefaultText : '';
     const date = this.date ? this.dateDefaultText : '';
     const time = this.time ? this.timeDefaultText : '';
+    return `${userName} ${date} ${time}`.trim();*/
+  }
+
+   // New method to get actual timestamp text for when stamp is applied
+   get actualTimestampText(): string {
+    const userName = this.username ? (this.userService.getCurrentUser()?.displayName || 'Demo') : '';
+    const date = this.date ? new Date().toLocaleDateString() : '';
+    const time = this.time ? new Date().toLocaleTimeString() : '';
     return `${userName} ${date} ${time}`.trim();
   }
 
@@ -185,10 +207,13 @@ export class StampPanelComponent implements OnInit {
 
 
   ngOnInit(): void {
-    // this.loadSvg();
-    const now = new Date();
-    this.dateDefaultText = now.toLocaleDateString();
-    this.timeDefaultText = now.toLocaleTimeString();
+        // this.loadSvg();
+    // Template placeholders will be used instead of actual default values
+
+    //const now = new Date();
+    //this.dateDefaultText = now.toLocaleDateString();
+    //this.timeDefaultText = now.toLocaleTimeString();
+
     this._setDefaults();
     this.rxCoreService.guiMarkup$.subscribe(({markup, operation}) => {
 
@@ -441,10 +466,13 @@ export class StampPanelComponent implements OnInit {
     return atob(base64Data);
   }
   hasTimestamp(): boolean {
-    const userName = this.username ?  this.dateDefaultText: '';
+
+    return !!(this.username || this.date || this.time);
+
+    /*const userName = this.username ?  this.dateDefaultText: '';
     const date = this.date ? this.dateDefaultText : '';
     const time = this.time ? this.timeDefaultText : '';
-    return !!(userName || date || time);
+    return !!(userName || date || time);*/
 }
 
 getSvgData(): string {
@@ -484,33 +512,61 @@ getSvgData(): string {
     
     //const svgBase64 = btoa(this.svgContent);
     const svgBase64 = btoa(unescape(encodeURIComponent(this.svgContent)));
-    const stampName = 'custom-stamp_' + new Date().getTime();
+
+    const stampName = this.isEditMode ? 
+      this.customStamps.find(s => s.id === this.editingStampId)?.name || 'custom-stamp_' + new Date().getTime() : 
+      'custom-stamp_' + new Date().getTime();
+    //const stampName = 'custom-stamp_' + new Date().getTime();
     const stampType = 'image/svg+xml';
 
+    // Collect all stamp settings for future editing
+    const stampSettings = {
+      stampText: this.stampText,
+      textColor: this.textColor,
+      selectedFontStyle: this.selectedFontStyle,
+      isBold: this.isBold,
+      isItalic: this.isItalic,
+      isUnderline: this.isUnderline,
+      username: this.username,
+      date: this.date,
+      time: this.time,
+      strokeWidth: this.strokeWidth,
+      strokeColor: this.strokeColor,
+      strokeRadius: this.strokeRadius,
+      fillColor: this.fillColor,
+      fillOpacity: this.fillOpacity,
+      font: this.font
+    };
+
+
     // Include width and height for proper SVG handling
-    const newStamp = {
+    const stampData = {
       name: stampName,
       type: stampType,
       content: svgBase64,
       width: this.svgWidth,
-      height: this.svgHeight
+      height: this.svgHeight,
+      stampSettings: stampSettings
     };
-    // let stamps = JSON.parse(localStorage.getItem('CustomStamps') || '[]');
-    // stamps.push(newStamp);
-    // localStorage.setItem('CustomStamps', JSON.stringify(stamps));
-    this.storageService.addCustomStamp(newStamp).then(async (item: any) => {
-      console.log('Custom stamp added successfully:', item);
-      const stampData = await this.convertToStampData({id: item.id, ...newStamp});
-      this.customStamps.push(stampData);
-      this.opened = false;
-    }).catch(error => {
-      console.error('Error adding custom stamp:', error);
-    });
-   
-    // const link = document.createElement('a');
-    // link.href = 'data:image/svg+xml;base64,' + svgBase64;
-    // link.download = 'custom-stamp.svg';
-    // link.click();
+
+
+    if (this.isEditMode && this.editingStampId) {
+      // Update existing stamp
+      this.updateCustomStamp(this.editingStampId, stampData);
+    } else {
+      // Create new stamp
+      this.storageService.addCustomStamp(stampData).then(async (item: any) => {
+        console.log('Custom stamp added successfully:', item);
+        const newStampData = await this.convertToStampData({id: item.id, ...stampData});
+        this.customStamps.push(newStampData);
+        this.opened = false;
+        this.resetEditMode();
+      }).catch(error => {
+        console.error('Error adding custom stamp:', error);
+      });
+    }
+
+    
   }
  
   async handleUploadImageUrl() {
@@ -606,7 +662,80 @@ async deleteImageStamp(id: number): Promise<void> {
 
   editCustomStamp(id: number): void {
     const stampToEdit = this.customStamps.find(stamp => stamp.id === id);
+    if (!stampToEdit) {
+      console.error('Stamp not found for editing');
+      return;
+    }
+
+    // Load original stamp data with settings
+    this.getOriginalStampData(id, 'custom').then((originalData) => {
+      if (originalData && originalData.stampSettings) {
+        // Load settings into form
+        this.loadStampSettings(originalData.stampSettings);
+      } else {
+        // If no settings saved, use default values
+        this._setDefaults();
+        this.stampText = 'Edit Stamp';
+      }
+      
+      // Set edit mode
+      this.isEditMode = true;
+      this.editingStampId = id;
+      this.opened = true;
+    }).catch(error => {
+      console.error('Error loading stamp for editing:', error);
+    });
     //Logic to edit
+  }
+
+  private updateCustomStamp(id: number, stampData: any): void {
+    // Update the stamp in storage using the proper update method
+    this.storageService.updateCustomStamp(id, stampData).then(async () => {
+      console.log('Custom stamp updated successfully');
+      
+      // Update in local array - keep the same ID
+      const index = this.customStamps.findIndex(s => s.id === id);
+      if (index !== -1) {
+        const updatedStampData = await this.convertToStampData({id: id, ...stampData});
+        this.customStamps[index] = updatedStampData;
+      }
+      
+      this.opened = false;
+      this.resetEditMode();
+    }).catch(error => {
+      console.error('Error updating custom stamp:', error);
+    });
+  }
+
+  resetEditMode(): void {
+    this.isEditMode = false;
+    this.editingStampId = null;
+    this._setDefaults();
+  }
+
+  private loadStampSettings(settings: any): void {
+    this.stampText = settings.stampText || 'Draft';
+    this.textColor = settings.textColor || '#000000';
+    this.selectedFontStyle = settings.selectedFontStyle || 'Arial';
+    this.isBold = settings.isBold || false;
+    this.isItalic = settings.isItalic || false;
+    this.isUnderline = settings.isUnderline || false;
+    this.username = settings.username || false;
+    this.date = settings.date || false;
+    this.time = settings.time || false;
+    this.strokeWidth = settings.strokeWidth || 1;
+    this.strokeColor = settings.strokeColor || '#000000';
+    this.strokeRadius = settings.strokeRadius || 8;
+    this.fillColor = settings.fillColor || '#ffffff';
+    this.fillOpacity = settings.fillOpacity || 0;
+    this.font = settings.font || {
+      style: {
+        bold: false,
+        italic: false
+      },
+      font: 'Arial'
+    };
+    this.color = this.textColor;
   }
 
   // Stamp Drag and Drop Methods - Only for Standard conversion tracking
@@ -755,15 +884,6 @@ async deleteImageStamp(id: number): Promise<void> {
       const addedStamp = await this.storageService.addStandardStamp(newStamp);
       console.log('Standard stamp added successfully:', addedStamp);
 
-      
-      // Remove from source collection  
-      /*if (sourceType === 'custom') {
-        await this.deleteCustomStamp(stamp.id);
-        console.log('Removed from custom stamps');
-      } else if (sourceType === 'upload') {
-        await this.deleteImageStamp(stamp.id);
-        console.log('Removed from upload stamps');
-      }*/
       
       // Refresh standard stamps list
       await this.getStandardStamps();

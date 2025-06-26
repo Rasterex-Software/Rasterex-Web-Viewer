@@ -68,6 +68,11 @@ export class StampTemplateDirective {
 
     let updatedSvgContent = svgContent;
 
+    // Replace template placeholders with actual values
+    updatedSvgContent = updatedSvgContent.replace(/\bDate\b/g, currentDate);
+    updatedSvgContent = updatedSvgContent.replace(/\bTime\b/g, currentTime);
+
+    // Keep existing logic for backward compatibility with old stamps
     const dateFormats = [
       /(\d{4}\/\d{1,2}\/\d{1,2})/, // YYYY/MM/DD
       /(\d{1,2}\/\d{1,2}\/\d{4})/, // MM/DD/YYYY
@@ -86,16 +91,18 @@ export class StampTemplateDirective {
 
   private replaceUsernameInSvg(svgContent: string): string {
     const user = this.userService.getCurrentUser();
-    // if not logged in, do nothing
-    if (!user || !user.displayName) {
-      return svgContent;
-    }
+    // if not logged in, use Demo as fallback
+    const displayName = user?.displayName || 'Demo';
 
     let updatedSvgContent = svgContent;
 
-    // The username in svg is always 'Demo' for now, this is not a strict solution but should be ok for now
+    // Replace template placeholder with actual username
+    updatedSvgContent = updatedSvgContent.replace(/\bUser\b/g, displayName);
+
+    // Keep existing logic for backward compatibility with old stamps
     const usernameFormat = /Demo/;
-    updatedSvgContent = updatedSvgContent.replace(usernameFormat, `${user.displayName}`);
+    updatedSvgContent = updatedSvgContent.replace(usernameFormat, displayName);
+    
     return updatedSvgContent;
   }
 

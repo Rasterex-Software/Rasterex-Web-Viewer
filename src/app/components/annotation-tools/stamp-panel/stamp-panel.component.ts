@@ -35,9 +35,8 @@ export class StampPanelComponent implements OnInit {
   time: boolean = false;
   subTextFontSize = 6;
   textOffset = this.subTextFontSize;
-  usernameDefaultText: string = 'Demo';
-  dateDefaultText: string;
-  timeDefaultText: string;
+  // These are no longer needed as we use template placeholders
+  // usernameDefaultText, dateDefaultText, timeDefaultText removed
   strokeWidth: number = 1;
   strokeColor: string = '#000000';
   strokeRadius: number = 8;
@@ -127,9 +126,18 @@ export class StampPanelComponent implements OnInit {
     return style;
   }
   get timestampText(): string {
-    const userName = this.username ? this.usernameDefaultText : '';
-    const date = this.date ? this.dateDefaultText : '';
-    const time = this.time ? this.timeDefaultText : '';
+    // For template preview and saved stamps, show placeholders instead of actual values
+    const userName = this.username ? 'User' : '';
+    const date = this.date ? 'Date' : '';
+    const time = this.time ? 'Time' : '';
+    return `${userName} ${date} ${time}`.trim();
+  }
+
+  // New method to get actual timestamp text for when stamp is applied
+  get actualTimestampText(): string {
+    const userName = this.username ? (this.userService.getCurrentUser()?.displayName || 'Demo') : '';
+    const date = this.date ? new Date().toLocaleDateString() : '';
+    const time = this.time ? new Date().toLocaleTimeString() : '';
     return `${userName} ${date} ${time}`.trim();
   }
 
@@ -189,9 +197,7 @@ export class StampPanelComponent implements OnInit {
 
   ngOnInit(): void {
     // this.loadSvg();
-    const now = new Date();
-    this.dateDefaultText = now.toLocaleDateString();
-    this.timeDefaultText = now.toLocaleTimeString();
+    // Template placeholders will be used instead of actual default values
     this._setDefaults();
     this.rxCoreService.guiMarkup$.subscribe(({markup, operation}) => {
 
@@ -442,10 +448,7 @@ export class StampPanelComponent implements OnInit {
     return atob(base64Data);
   }
   hasTimestamp(): boolean {
-    const userName = this.username ?  this.dateDefaultText: '';
-    const date = this.date ? this.dateDefaultText : '';
-    const time = this.time ? this.timeDefaultText : '';
-    return !!(userName || date || time);
+    return !!(this.username || this.date || this.time);
 }
 
 getSvgData(): string {

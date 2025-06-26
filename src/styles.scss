@@ -923,3 +923,12 @@ input[type="radio"] {
     opacity: 1;
     visibility: visible;
 }
+.cdk-overlay-pane.custom-mat-dialog {
+  width: 620px;
+  max-width: 80vw;
+  position: absolute !important;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+}

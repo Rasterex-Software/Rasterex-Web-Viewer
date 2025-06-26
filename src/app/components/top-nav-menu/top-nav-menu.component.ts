@@ -12,6 +12,8 @@ import {Subject, Subscription} from 'rxjs';
 import { SideNavMenuService } from '../side-nav-menu/side-nav-menu.service';
 import { MeasurePanelService } from '../annotation-tools/measure-panel/measure-panel.service';
 import { ActionType } from './type';
+import { FilePreselectionService } from 'src/app/services/file-preselection.service';
+import { FileMetadataService } from 'src/app/services/file-metadata.service';
 
 
 @Component({
@@ -68,7 +70,9 @@ export class TopNavMenuComponent implements OnInit {
     private readonly compareService: CompareService,
     private readonly service: TopNavMenuService,
     private readonly sideNavMenuService: SideNavMenuService,
-    private readonly measurePanelService: MeasurePanelService
+    private readonly measurePanelService: MeasurePanelService,
+    private filePreselectionService: FilePreselectionService,
+    private readonly fileMetadataService:FileMetadataService,
     ) {
   }
 
@@ -91,6 +95,11 @@ export class TopNavMenuComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.filePreselectionService.selectedFile$.subscribe((file) => {
+    if (file) {
+      RXCore.openFile(`${RXCore.Config.baseFileURL}${file.file}`);
+    }
+  });
     this.handleIconRotation();
     this._setOptions();
 

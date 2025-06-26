@@ -4,7 +4,10 @@ import { RXCore } from 'src/rxcore';
 import { FileGaleryService } from './file-galery.service';
 import { random } from 'lodash-es';
 import { IGuiConfig } from 'src/rxcore/models/IGuiConfig';
-
+import { FileMetadataService } from 'src/app/services/file-metadata.service';
+import { FileMetadataModalComponent } from '../file-metadata-modal/file-metadata-modal.component';
+import { MatDialog } from '@angular/material/dialog';
+import { FilePreselectionService } from 'src/app/services/file-preselection.service';
 @Component({
   selector: 'rx-file-galery',
   templateUrl: './file-galery.component.html',
@@ -114,7 +117,10 @@ export class FileGaleryComponent implements OnInit {
 
   constructor(
     private readonly fileGaleryService: FileGaleryService,
-    private readonly rxCoreService: RxCoreService
+    private readonly rxCoreService: RxCoreService,
+    private readonly fileMetadataService:FileMetadataService,
+    private readonly dialog: MatDialog,
+    private fileSelectionService:FilePreselectionService
   ) { }
 
 
@@ -156,16 +162,48 @@ export class FileGaleryComponent implements OnInit {
       }, 1000);
     }
 
-    
-
   }
+  // handleFileSelect(item): void {
+  //   this.uploadFile(item);
+  //   this.fileType = item.type;
+  //   this.onSelect.emit(item);
+  // }
 
-  
 
-  handleFileSelect(item): void {
+  handleFileSelect(item: any): void {
     this.uploadFile(item);
     this.fileType = item.type;
-    this.onSelect.emit(item);
+    if (this.fileMetadataService.isCADFile(item.file)) {
+      this.handleCloseModalFileGalery();
+      const dialogRef = this.dialog.open(FileMetadataModalComponent, {
+        data: { fileName: item.file },
+        width: '620px',
+        disableClose: true,
+        panelClass: 'custom-mat-dialog'
+      });
+
+      dialogRef.componentInstance.confirmed.subscribe((selection) => {
+        if (selection.selectedLayers?.length || selection.selectedBlocks?.length) {
+          localStorage.setItem('selectedLayers', JSON.stringify(selection.selectedLayers));
+          localStorage.setItem('selectedBlocks', JSON.stringify(selection.selectedBlocks));
+        } else {
+          localStorage.removeItem('selectedLayers');
+          localStorage.removeItem('selectedBlocks');
+        }
+
+        this.fileSelectionService.emitSelectedFile(item);
+        dialogRef.close();
+      });
+
+      dialogRef.componentInstance.cancelled.subscribe(() => {
+        dialogRef.close();
+      });
+    }
+    else {
+      this.uploadFile(item);
+      this.fileType = item.type;
+      this.onSelect.emit(item);
+    }
   }
 
   handleFileUpload(event) {
@@ -217,7 +255,7 @@ export class FileGaleryComponent implements OnInit {
 
       reader.onload = () => {
         currentChunk++;
-        
+          if (this.progressBar?.nativeElement) {
         const progressBar = this.progressBar.nativeElement;
         const increment = 1; 
         const intervalDelay = 20; 
@@ -233,7 +271,7 @@ export class FileGaleryComponent implements OnInit {
             clearInterval(interval); 
           }
         }, intervalDelay);
-
+      }
         if (currentChunk < totalChunks) loadNextChunk();
       };
 

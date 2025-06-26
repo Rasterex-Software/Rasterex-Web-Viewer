@@ -56,6 +56,9 @@ var RxConfig = (function() {
     var SampleFileThumbnail = baseURLBin + "RxCSISAPI.dll?SampleFileThumbnail";
     var SampleFileDelete= baseURLBin+ "RxCSISAPI.dll?SampleFileDelete";
     
+    //metadata:
+    var SampleFileMetatadata = baseURLBin+"RxCSISAPI.dll?SampleFileMetadata";
+
     /* config */
 
     //"http://viewserver.rasterex.com/RxBinweb/RxCSISAPI.dll?WebClientGetConfig";
@@ -121,7 +124,8 @@ var RxConfig = (function() {
         SampleFileUploadURL:SampleFileUploadURL,
         SampleFileList:SampleFileList,
         SampleFileThumbnail:SampleFileThumbnail,
-        SampleFileDelete:SampleFileDelete        
+        SampleFileDelete:SampleFileDelete   ,     
+        SampleFileMetatadata:SampleFileMetatadata
     };
 
 })();

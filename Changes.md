@@ -1027,3 +1027,13 @@ Component Path: `components/annotation-tools/search-panel`
 - `markupDocumentSearchResult`
 - `markupTextWithOrange`
 - `onGuiDocumentSearch`
+
+June 27, 2025.
+
+# Implemented filters for Annotation and Measurements
+
+- `src/app/app.component.ts`
+- `src/app/services/annotation-storage.service.ts`
+- `src/app/components/annotation-tools/note-panel/note-panel.component.ts`
+- `src/app/components/annotation-tools/note-panel/note-panel.component.scss`
+- `src/app/components/annotation-tools/note-panel/note-panel.component.html`

@@ -211,7 +211,7 @@ const dbConfig: DBConfig  = {
     LoginComponent,
     RoomPanelComponent,
     ResizableDirective,
-    LoginModalComponent
+    LoginModalComponent,
   ],
   imports: [
     BrowserModule,

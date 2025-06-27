@@ -1,3 +1,32 @@
+June 27, 2025
+
+### Collaboration update.
+
+### 1. When user open https://test.rasterex.com/collaboration/, join into a default room by default
+### 2. User can create a room
+### 3. User can see room list and able to switch to another room
+### 4. Admin can delete a room
+### 5. User is able to see annotations another one added, there will be tooltip showing who added a annotation
+### 6. Fixed some bugs
+
+Updated and new files
+
+src/app/app.component.ts
+src/app/app.module.ts
+src/app/components/collab/room-panel.component.html
+src/app/components/collab/room-panel.component.scss
+src/app/components/collab/room-panel.component.ts
+src/app/components/file-galery/file-galery.component.ts
+src/app/components/top-nav-menu/top-nav-menu.component.html
+src/app/components/top-nav-menu/top-nav-menu.component.ts
+src/app/services/annotation-storage.service.ts
+src/app/services/collab.service.ts
+src/app/services/rxcore.service.ts
+src/document-collaboration.html
+src/rxcore/index.ts
+src/rxcore/models/IGuiConfig.ts
+
+
 June 26, 2025
 
 ### 1. Stamp panel update for custom stamp.

@@ -410,6 +410,9 @@ export class RXCore {
         RxCore.clearDocumentTextSearch();
     }
 
+    public static clearMarkup() {
+        RxCore.clearMarkup();
+    }
 
     //rotateClockwise
 

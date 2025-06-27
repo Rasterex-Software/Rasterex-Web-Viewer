@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewChild, ElementRef, Input } from '@angular/core';
 import { FileGaleryService } from '../file-galery/file-galery.service';
 import { RxCoreService } from 'src/app/services/rxcore.service';
+import { UserService } from '../user/user.service';
 import { RXCore } from 'src/rxcore';
 import { AnnotationToolsService } from '../annotation-tools/annotation-tools.service';
 import { PrintService } from '../print/print.service';
@@ -68,7 +69,8 @@ export class TopNavMenuComponent implements OnInit {
     private readonly compareService: CompareService,
     private readonly service: TopNavMenuService,
     private readonly sideNavMenuService: SideNavMenuService,
-    private readonly measurePanelService: MeasurePanelService
+    private readonly measurePanelService: MeasurePanelService,
+    private readonly userService: UserService
     ) {
   }
 
@@ -238,6 +240,22 @@ export class TopNavMenuComponent implements OnInit {
   handleOnFileUpload() {
     RXCore.fileSelected();
   }
+
+  // User is able to toggle the collaboration panel when
+  // - the user is logged in
+  // - the user is on https://<site>/collaboration/ page
+  // - the user is not on https://<site>/document-collaboration.html page
+  shouldShowToggleCollabPanelButton(): boolean {
+    // If user is on https://<site>/document-collaboration.html, it includes two iFrames,
+    // iFrame will get src in format of https://<site>/collaboration?roomId=document_collaboration_room_wB4Oe4Qv
+    const parameters = new URLSearchParams(window.location.search);
+    const isOnDocumentCollaborationPage = parameters.get('roomId');
+
+    return window.location.pathname === '/collaboration' &&
+      !!this.userService.getCurrentUser() &&
+      !isOnDocumentCollaborationPage;
+  }
+
 
   onModeChange(option: any, broadcast: boolean = true) {
     this.selectedValue = option;

@@ -1300,7 +1300,7 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
 
     };
 
-    this.zoomtopointdirect = function(pagenum, factor, newpos){
+    /*this.zoomtopointdirect = function(pagenum, factor, newpos){
 
         if(isNaN(factor)){
             return;
@@ -1324,7 +1324,31 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
 
         foxview.pdfViewer.zoomTo(foxview.scale, position);
 
-    }; 
+    };*/ 
+
+
+    this.zoomtopointdirect = function(pagenum, factor, newpos){
+        if (
+            isNaN(factor) ||
+            factor <= 0 ||
+            factor >= foxview.nMaxScale ||
+            !foxview.pdfViewer ||
+            pagenum !== foxview.curpage
+        ) return;
+ 
+        foxview.scale = factor;
+        foxview.pagestates[pagenum].rendered = false;
+        foxview.rendering = true;
+ 
+        const position = {
+            pageIndex: pagenum,
+            x: newpos.mx,
+            y: newpos.my
+        };
+ 
+        foxview.pdfViewer.zoomAtPosition(factor, position);
+ 
+    };
 
 
     /*this.zoomToPoint = function (pagenum, factor, deltaf, mousepoint, offset, center, bIn ){

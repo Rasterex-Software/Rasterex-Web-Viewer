@@ -37,6 +37,9 @@ export class StampPanelComponent implements OnInit {
   textOffset = this.subTextFontSize;
   // These are no longer needed as we use template placeholders
   // usernameDefaultText, dateDefaultText, timeDefaultText removed
+  //usernameDefaultText: string = 'Demo';
+  //dateDefaultText: string;
+  //timeDefaultText: string;
   strokeWidth: number = 1;
   strokeColor: string = '#000000';
   strokeRadius: number = 8;
@@ -63,10 +66,11 @@ export class StampPanelComponent implements OnInit {
   isStandardDragOver: boolean = false;
   draggedStamp: StampData | null = null;
   draggedStampType: 'custom' | 'upload' | null = null;
-  
+
   // Edit mode variables
   isEditMode: boolean = false;
   editingStampId: number | null = null;
+  
   
   // Make Math available in template
   Math = Math;
@@ -126,15 +130,21 @@ export class StampPanelComponent implements OnInit {
     return style;
   }
   get timestampText(): string {
-    // For template preview and saved stamps, show placeholders instead of actual values
-    const userName = this.username ? 'User' : '';
-    const date = this.date ? 'Date' : '';
-    const time = this.time ? 'Time' : '';
-    return `${userName} ${date} ${time}`.trim();
+
+        // For template preview and saved stamps, show placeholders instead of actual values
+        const userName = this.username ? 'User' : '';
+        const date = this.date ? 'Date' : '';
+        const time = this.time ? 'Time' : '';
+        return `${userName} ${date} ${time}`.trim();
+    
+    /*const userName = this.username ? this.usernameDefaultText : '';
+    const date = this.date ? this.dateDefaultText : '';
+    const time = this.time ? this.timeDefaultText : '';
+    return `${userName} ${date} ${time}`.trim();*/
   }
 
-  // New method to get actual timestamp text for when stamp is applied
-  get actualTimestampText(): string {
+   // New method to get actual timestamp text for when stamp is applied
+   get actualTimestampText(): string {
     const userName = this.username ? (this.userService.getCurrentUser()?.displayName || 'Demo') : '';
     const date = this.date ? new Date().toLocaleDateString() : '';
     const time = this.time ? new Date().toLocaleTimeString() : '';
@@ -196,8 +206,13 @@ export class StampPanelComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // this.loadSvg();
+        // this.loadSvg();
     // Template placeholders will be used instead of actual default values
+
+    //const now = new Date();
+    //this.dateDefaultText = now.toLocaleDateString();
+    //this.timeDefaultText = now.toLocaleTimeString();
+
     this._setDefaults();
     this.rxCoreService.guiMarkup$.subscribe(({markup, operation}) => {
 
@@ -448,7 +463,13 @@ export class StampPanelComponent implements OnInit {
     return atob(base64Data);
   }
   hasTimestamp(): boolean {
+
     return !!(this.username || this.date || this.time);
+
+    /*const userName = this.username ?  this.dateDefaultText: '';
+    const date = this.date ? this.dateDefaultText : '';
+    const time = this.time ? this.timeDefaultText : '';
+    return !!(userName || date || time);*/
 }
 
 getSvgData(): string {
@@ -488,9 +509,11 @@ getSvgData(): string {
     
     //const svgBase64 = btoa(this.svgContent);
     const svgBase64 = btoa(unescape(encodeURIComponent(this.svgContent)));
+
     const stampName = this.isEditMode ? 
       this.customStamps.find(s => s.id === this.editingStampId)?.name || 'custom-stamp_' + new Date().getTime() : 
       'custom-stamp_' + new Date().getTime();
+    //const stampName = 'custom-stamp_' + new Date().getTime();
     const stampType = 'image/svg+xml';
 
     // Collect all stamp settings for future editing
@@ -512,6 +535,7 @@ getSvgData(): string {
       font: this.font
     };
 
+
     // Include width and height for proper SVG handling
     const stampData = {
       name: stampName,
@@ -521,6 +545,7 @@ getSvgData(): string {
       height: this.svgHeight,
       stampSettings: stampSettings
     };
+
 
     if (this.isEditMode && this.editingStampId) {
       // Update existing stamp
@@ -537,6 +562,8 @@ getSvgData(): string {
         console.error('Error adding custom stamp:', error);
       });
     }
+
+    
   }
  
   async handleUploadImageUrl() {
@@ -655,6 +682,7 @@ async deleteImageStamp(id: number): Promise<void> {
     }).catch(error => {
       console.error('Error loading stamp for editing:', error);
     });
+    //Logic to edit
   }
 
   private updateCustomStamp(id: number, stampData: any): void {

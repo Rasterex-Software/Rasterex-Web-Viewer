@@ -15,32 +15,48 @@ export class StampTemplateDirective {
 
   @HostListener('dragstart', ['$event'])
   onDragStart(event: DragEvent): void {
-    if (!event.dataTransfer) return;
-
-    const newStampTemplate = { ...this.stampTemplate };
-
-    if (this.stampTemplate.type === 'image/svg+xml') {
-      let svgString = this.replaceDateTimeInSvg(this.convertBlobUrlToSvgString(this.stampTemplate.src));
-
-      svgString = this.replaceUsernameInSvg(svgString);
-
-      //console.log(event.dataTransfer.effectAllowed);
-      const blobUrl = this.svgToBlobUrl(svgString);
-
-      newStampTemplate.src = blobUrl;
-      newStampTemplate.svgContent = svgString;
-
-      //this.stampTemplate.src = blobUrl;
-      //this.stampTemplate.svgContent = svgString;
+    console.log('🚀 Starting drag for stamp:', this.stampTemplate.name, `(${this.stampTemplate.width}x${this.stampTemplate.height})`);
+    
+    if (!event.dataTransfer) {
+      console.error('❌ No dataTransfer object available');
+      return;
     }
 
-    RXCore.markupImageStamp(true);
-    event.dataTransfer.effectAllowed = "move";
+    try {
+      const newStampTemplate = { ...this.stampTemplate };
 
+      if (this.stampTemplate.type === 'image/svg+xml') {
+        let svgString = this.replaceDateTimeInSvg(this.convertBlobUrlToSvgString(this.stampTemplate.src));
+        svgString = this.replaceUsernameInSvg(svgString);
+        const blobUrl = this.svgToBlobUrl(svgString);
 
+        newStampTemplate.src = blobUrl;
+        newStampTemplate.svgContent = svgString;
+      }
 
-    //event.dataTransfer.setData('Text', JSON.stringify(this.stampTemplate));
-    event.dataTransfer.setData('Text', JSON.stringify(newStampTemplate));
+      RXCore.markupImageStamp(true);
+      event.dataTransfer.effectAllowed = "move";
+      event.dataTransfer.setData('Text', JSON.stringify(newStampTemplate));
+      console.log('✅ Drag started successfully');
+      
+    } catch (error) {
+      console.error('💥 Error in drag start:', error);
+      
+      // Create minimal fallback data
+      const fallbackData = {
+        id: this.stampTemplate.id,
+        name: this.stampTemplate.name,
+        type: this.stampTemplate.type,
+        width: this.stampTemplate.width,
+        height: this.stampTemplate.height,
+        _fallback: true
+      };
+      
+      RXCore.markupImageStamp(true);
+      event.dataTransfer.effectAllowed = "move";
+      event.dataTransfer.setData('Text', JSON.stringify(fallbackData));
+      console.log('🔄 Using fallback data due to error');
+    }
   }
 
   private svgToBlobUrl(svgContent: string): string {

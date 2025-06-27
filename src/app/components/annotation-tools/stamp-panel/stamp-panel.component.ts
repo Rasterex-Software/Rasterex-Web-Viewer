@@ -394,21 +394,57 @@ export class StampPanelComponent implements OnInit {
       img.onload = () => {
           const originalWidth = img.width, originalHeight = img.height;
           const aspectRatio = originalWidth / originalHeight;
-          const width = newWidth || originalWidth, height = newWidth ? newWidth / aspectRatio : originalHeight;
+          
+          // Define maximum dimensions for stamp images to ensure drag and drop works
+          // These limits are chosen to be reasonable for stamp usage while avoiding RXCore restrictions
+          const MAX_STAMP_WIDTH = 300;  // Maximum width for stamp images
+          const MAX_STAMP_HEIGHT = 200; // Maximum height for stamp images
+          
+          let width = newWidth || originalWidth;
+          let height = newWidth ? newWidth / aspectRatio : originalHeight;
+          
+          // Always enforce maximum dimensions for uploaded stamp images
+          // This ensures drag and drop will work regardless of original image size
+          if (width > MAX_STAMP_WIDTH || height > MAX_STAMP_HEIGHT) {
+            console.log(`🔧 Resizing image from ${originalWidth}x${originalHeight} to fit stamp limits`);
+            
+            if (width / MAX_STAMP_WIDTH > height / MAX_STAMP_HEIGHT) {
+              // Width is the limiting factor
+              width = MAX_STAMP_WIDTH;
+              height = width / aspectRatio;
+            } else {
+              // Height is the limiting factor  
+              height = MAX_STAMP_HEIGHT;
+              width = height * aspectRatio;
+            }
+            
+            console.log(`✅ New dimensions: ${Math.round(width)}x${Math.round(height)}`);
+          }
+          
+          // Round dimensions to avoid fractional pixels
+          width = Math.round(width);
+          height = Math.round(height);
+          
           canvas.width = width;
           canvas.height = height;
   
           const ctx = canvas.getContext('2d')!;
-          //ctx.fillStyle = 'white';
-          //ctx.fillRect(0, 0, canvas.width, canvas.height);
-          ctx.drawImage(img, 0, 0, width, height);
-          const base64 = canvas.toDataURL();
-          const base64Index = base64.indexOf('base64,') + 'base64,'.length;
-          const imageData = base64.substring(base64Index);
-          resolve({imageData, width, height});
+          
+          try {
+            ctx.drawImage(img, 0, 0, width, height);
+            const base64 = canvas.toDataURL('image/png', 0.8); // Use PNG with good quality
+            const base64Index = base64.indexOf('base64,') + 'base64,'.length;
+            const imageData = base64.substring(base64Index);
+            
+            console.log(`📊 Final image: ${width}x${height}, Base64 size: ${imageData.length} characters`);
+            resolve({imageData, width, height});
+          } catch (error) {
+            // If canvas.toDataURL() fails (e.g., due to very large images), reject
+            reject(new Error('Error converting image to base64: ' + (error instanceof Error ? error.message : 'Unknown error')));
+          }
       };
       img.onerror = function () {
-          reject(new Error('Error convert to base64'));
+          reject(new Error('Error loading image'));
       };
       img.src = url;
     })
@@ -914,17 +950,21 @@ async deleteImageStamp(id: number): Promise<void> {
     }
   }
 
-  private handleFileUpload(files: File[]): void {
+  private async handleFileUpload(files: File[]): Promise<void> {
     const uploadPromises: Promise<void>[] = [];
 
     for (const file of files) {
+      console.log('🔄 Processing file:', file.name, 'Size:', file.size, 'bytes (', (file.size / 1024).toFixed(2), 'KB)');
       const reader = new FileReader();
 
       const uploadPromise = new Promise<void>((resolve, reject) => {
         reader.onload = async (e) => {
           try {
             const imageDataWithPrefix = e.target?.result as string;
+            console.log('📤 Original image data URL length:', imageDataWithPrefix.length, 'characters');
+            
             const {imageData, width, height} = await this.convertUrlToBase64Data(imageDataWithPrefix);
+            console.log('🖼️ Processed image dimensions:', width, 'x', height, 'Base64 length:', imageData.length);
 
             const imageName = file.name + '_' + new Date().getTime();
             const imageType = "image/png";
@@ -938,19 +978,29 @@ async deleteImageStamp(id: number): Promise<void> {
               originalFileName: file.name // Store the original filename
             };
             
+            console.log('💾 Storing image object with size:', JSON.stringify(imageObject).length, 'characters');
+            
             const item = await this.storageService.addUploadImageStamp(imageObject);
-            console.log('Upload image stamp added successfully:', item);
+            console.log('✅ Upload image stamp added successfully:', item.id, 'Name:', imageName);
             const stampData = await this.convertToStampData({id: item.id, ...imageObject});
+            console.log('🏷️ Converted stamp data:', {
+              id: stampData.id,
+              name: stampData.name,
+              dimensions: `${stampData.width}x${stampData.height}`,
+              srcLength: stampData.src.length,
+              type: stampData.type
+            });
             this.uploadImageStamps.push(stampData);
             resolve();
 
           } catch (error) {
-            console.error('Error processing file:', error);
+            console.error('💥 Error processing file:', file.name, error);
             reject(error);
           }
         };
 
         reader.onerror = (error) => {
+          console.error('💥 FileReader error for file:', file.name, error);
           reject(error);
         };
 
@@ -961,9 +1011,9 @@ async deleteImageStamp(id: number): Promise<void> {
     }
 
     Promise.all(uploadPromises).then(() => {
-      console.log('All image stamps uploaded successfully');
+      console.log('🎉 All image stamps uploaded successfully');
     }).catch(error => {
-      console.error('Error uploading some files:', error);
+      console.error('💥 Error uploading some files:', error);
     });
   }
 

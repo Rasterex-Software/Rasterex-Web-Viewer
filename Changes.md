@@ -9,7 +9,12 @@ June 27, 2025
 ### 5. User is able to see annotations another one added, there will be tooltip showing who added a annotation
 ### 6. Fixed some bugs
 
+### 7. Fixed an issue that big images could not be dropped to panel
+
 Updated and new files
+
+src/app/components/annotation-tools/stamp-panel/stamp-panel.component.ts
+src/app/components/annotation-tools/stamp-panel/stamp-template.directive.ts
 
 src/app/app.component.ts
 src/app/app.module.ts

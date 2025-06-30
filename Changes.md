@@ -1,3 +1,13 @@
+
+June 30, 2025
+
+### 1. Fix a bug that annotations are not loaded when collaboration is off
+
+Updated and new files
+
+src/app/components/collab/room-panel.component.ts
+
+
 June 27, 2025
 
 ### Collaboration update.

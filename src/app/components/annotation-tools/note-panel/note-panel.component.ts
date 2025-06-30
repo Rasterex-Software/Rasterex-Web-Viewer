@@ -97,10 +97,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     endDate: dayjs.Dayjs | undefined
   } = { startDate: undefined, endDate: undefined};
   
-  // Sort dropdown state
-  sortDropdownOpen: boolean = false;
-  sortDropdownSearchText: string = '';
-  filteredSortFilterOptions: Array<any> = [];
+
 
  /*added for comment list panel */
 
@@ -2053,7 +2050,6 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     
     this.sortFilterOptions = [];
     this.selectedSortFilterValues = [];
-    this.filteredSortFilterOptions = [];
 
     switch (this.sortByField) {
       case 'author':
@@ -2065,7 +2061,6 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
           selected: true
         }));
         this.selectedSortFilterValues = uniqueAuthors;
-        this.filteredSortFilterOptions = [...this.sortFilterOptions];
         break;
 
       case 'pagenumber':
@@ -2077,7 +2072,6 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
           selected: true
         }));
         this.selectedSortFilterValues = uniquePages;
-        this.filteredSortFilterOptions = [...this.sortFilterOptions];
         break;
 
       case 'annotation':
@@ -2089,7 +2083,6 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
           selected: true
         }));
         this.selectedSortFilterValues = uniqueTypes;
-        this.filteredSortFilterOptions = [...this.sortFilterOptions];
         break;
 
       case 'created':
@@ -2113,7 +2106,6 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
         ];
         this.sortFilterOptions = positionAreas;
         this.selectedSortFilterValues = positionAreas.map(area => area.value);
-        this.filteredSortFilterOptions = [...this.sortFilterOptions];
         break;
 
       default:
@@ -2187,138 +2179,19 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     }, 100);
   }
 
-  // Handle Select2-style sort dropdown toggle
-  toggleSortDropdown(event: Event): void {
-    event.stopPropagation();
-    this.sortDropdownOpen = !this.sortDropdownOpen;
-    
-    // Reset search when opening dropdown
-    if (this.sortDropdownOpen) {
-      this.sortDropdownSearchText = '';
-      this.filteredSortFilterOptions = [...this.sortFilterOptions];
-      
-      // Focus the search input after DOM update
-      setTimeout(() => {
-        const searchInput = document.querySelector('.sort-multi-select-dropdown .search-input') as HTMLInputElement;
-        if (searchInput) {
-          searchInput.focus();
-        }
-      }, 0);
-    }
-  }
 
-  // Get selected sort filter items for display
-  getSelectedSortFilterItems(): Array<any> {
-    return this.sortFilterOptions.filter(option => 
-      this.selectedSortFilterValues.includes(option.value)
-    );
-  }
 
-  // Get smart display text for sort filter dropdown
-  getSortFilterDisplayText(): string {
-    const selectedItems = this.getSelectedSortFilterItems();
-    
-    if (selectedItems.length === 0) {
-      return 'None selected';
-    } else if (selectedItems.length === 1) {
-      return selectedItems[0].label;
-    } else {
-      // Create descriptive text based on the filter type
-      const count = selectedItems.length;
-      switch (this.sortByField) {
-        case 'author':
-          return count === 1 ? '1 Author selected' : `${count} Authors selected`;
-        case 'pagenumber':
-          return count === 1 ? '1 Page selected' : `${count} Pages selected`;
-        case 'annotation':
-          return count === 1 ? '1 Type selected' : `${count} Types selected`;
-        case 'created':
-          return count === 1 ? '1 Date selected' : `${count} Dates selected`;
-        case 'position':
-        default:
-          // For position areas or any other filter
-          if (this.sortFilterLabel.toLowerCase().includes('area')) {
-            return count === 1 ? '1 Position Area selected' : `${count} Position Areas selected`;
-          }
-          return count === 1 ? '1 Item selected' : `${count} Items selected`;
-      }
-    }
-  }
 
-  // Handle search input in sort dropdown
-  onSortDropdownSearch(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    this.sortDropdownSearchText = input.value.toLowerCase();
-    this.filterSortDropdownOptions();
-  }
 
-  // Filter sort dropdown options based on search text
-  private filterSortDropdownOptions(): void {
-    if (!this.sortDropdownSearchText.trim()) {
-      this.filteredSortFilterOptions = [...this.sortFilterOptions];
-    } else {
-      this.filteredSortFilterOptions = this.sortFilterOptions.filter(option =>
-        option.label.toLowerCase().includes(this.sortDropdownSearchText)
-      );
-    }
-  }
 
-  // Check if sort filter option is selected
-  isSortFilterOptionSelected(value: any): boolean {
-    return this.selectedSortFilterValues.includes(value);
-  }
 
-  // Handle sort filter option selection
-  onSortFilterOptionSelect(value: any, event: Event): void {
-    event.stopPropagation();
-    
-    const index = this.selectedSortFilterValues.indexOf(value);
-    if (index > -1) {
-      // Remove from selection
-      this.selectedSortFilterValues.splice(index, 1);
-      // Update the option's selected state
-      const option = this.sortFilterOptions.find(opt => opt.value === value);
-      if (option) {
-        option.selected = false;
-      }
-    } else {
-      // Add to selection
-      this.selectedSortFilterValues.push(value);
-      // Update the option's selected state
-      const option = this.sortFilterOptions.find(opt => opt.value === value);
-      if (option) {
-        option.selected = true;
-      }
-    }
-    
-    
-    // Apply the sort filter to both canvas and comment list
-    this._applySortFilterToCanvas();
-    this._processList(this.rxCoreService.getGuiMarkupList());
-    
-    // Wait for DOM to be ready and then update leader line position
-    setTimeout(() => {
-      this._waitForDOMAndUpdateLeaderLine();
-    }, 100);
-  }
+
 
 
 
   // Handle document clicks to close dropdown
   onDocumentClick(event: Event): void {
-    // Close sort dropdown if clicking outside
-    if (this.sortDropdownOpen) {
-      const target = event.target as HTMLElement;
-      const sortDropdownElement = target.closest('.sort-multi-select-container');
-      if (!sortDropdownElement) {
-        this.sortDropdownOpen = false;
-        // Reset search when closing dropdown
-        this.sortDropdownSearchText = '';
-        this.filteredSortFilterOptions = [...this.sortFilterOptions];
-      }
-    }
-
-    // Handle status menu clicks (original functionality)
+    // Handle status menu clicks
     const mouseEvent = event as MouseEvent;
     const menus = document.querySelectorAll('.statusMenu');
     const buttons = document.querySelectorAll('.statusMenuButton');

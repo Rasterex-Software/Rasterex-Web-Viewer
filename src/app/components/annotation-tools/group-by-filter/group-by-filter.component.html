@@ -1,0 +1,132 @@
+<div class="sort" *ngIf="visible">
+  <div class="sort-row">
+    <div class="sort-section">
+      <span class="sort-label">Group by:</span>
+      <rx-dropdown
+        [options]="sortOptions"
+        [value]="selectedSortOption"
+        (valueChange)="onSortFieldChanged($event)"
+      >
+      </rx-dropdown>
+    </div>
+    <div class="sort-filter-section" *ngIf="sortFilterOptions.length > 0 || sortByField === 'created'">
+      <span class="sort-filter-label">{{ sortFilterLabel }}:</span>
+      <!-- Show Select2-style multi-select for non-date filters -->
+      <div *ngIf="sortByField !== 'created'" class="sort-multi-select-container">
+        <div class="sort-multi-select-wrapper" (click)="toggleSortDropdown($event)">
+          <div class="selected-items">
+            <!-- Show "Select Authors" text when dropdown is open -->
+            <span *ngIf="sortDropdownOpen" class="dropdown-open-text">
+              Select {{ sortFilterLabel }}
+            </span>
+            <!-- Show smart display text when dropdown is closed -->
+            <ng-container *ngIf="!sortDropdownOpen">
+              <span 
+                *ngIf="selectedSortFilterValues.length > 0"
+                class="selected-sort-display"
+                [class.single-selection]="selectedSortFilterValues.length === 1"
+                [class.multiple-selection]="selectedSortFilterValues.length > 1"
+              >
+                {{ getSortFilterDisplayText() }}
+              </span>
+              <span *ngIf="selectedSortFilterValues.length === 0" class="placeholder">Select {{ sortFilterLabel }}...</span>
+            </ng-container>
+          </div>
+          <div class="dropdown-arrow">
+            <img src="/assets/images/arrow-down.svg" alt="dropdown" [class.rotated]="sortDropdownOpen" />
+          </div>
+        </div>
+
+        <div *ngIf="sortDropdownOpen" class="sort-multi-select-dropdown">
+          <!-- Search input -->
+          <div class="dropdown-search">
+            <div class="search-input-wrapper">
+              <svg class="search-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M21 21L15 15M17 10C17 13.866 13.866 17 10 17C6.13401 17 3 13.866 3 10C3 6.13401 6.13401 3 10 3C13.866 3 17 6.13401 17 10Z" stroke="#9ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <input
+                type="text"
+                class="search-input"
+                placeholder="Search..."
+                [value]="sortDropdownSearchText"
+                (input)="onSortDropdownSearch($event)"
+                (click)="$event.stopPropagation()"
+              />
+            </div>
+          </div>
+          <!-- Filtered options -->
+          <div class="dropdown-options">
+            <div
+              *ngFor="let option of filteredSortFilterOptions"
+              class="dropdown-option"
+              [class.selected]="isSortFilterOptionSelected(option.value)"
+              (click)="onSortFilterOptionSelect(option.value, $event)"
+            >
+              <input
+                type="checkbox"
+                [checked]="isSortFilterOptionSelected(option.value)"
+                readonly
+              />
+              <span>{{ option.label }}</span>
+            </div>
+            <!-- No results message -->
+            <div *ngIf="filteredSortFilterOptions.length === 0" class="no-results">
+              No results found
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Show date picker for created date filter -->
+      <div *ngIf="sortByField === 'created'" class="sort-date-picker-container">
+        <div class="date-picker-wrapper" *ngIf="!guiConfig; else sortDatePicker">
+          <input
+            type="date"
+            class="date-picker-input"
+            [value]="sortFilterDateRange?.startDate?.format('YYYY-MM-DD') || ''"
+            (change)="onSortDateChange($event, 'start')"
+            placeholder="Start date"
+          />
+          <span class="date-separator">to</span>
+          <input
+            type="date"
+            class="date-picker-input"
+            [value]="sortFilterDateRange?.endDate?.format('YYYY-MM-DD') || ''"
+            (change)="onSortDateChange($event, 'end')"
+            placeholder="End date"
+          />
+          <button
+            *ngIf="sortFilterDateRange?.startDate || sortFilterDateRange?.endDate"
+            class="clear-date-btn"
+            (click)="onClearSortDateFilter()"
+            title="Clear date filter"
+          >
+            ×
+          </button>
+        </div>
+        <ng-template #sortDatePicker>
+          <div class="custom-date-picker-wrapper">
+            <div class="date-picker-container-with-clear">
+              <rx-date-picker
+                [dateFormat]="guiConfig?.dateFormat"
+                [startDate]="sortFilterDateRange?.startDate"
+                [endDate]="sortFilterDateRange?.endDate"
+                (onSelect)="onSortFilterDateSelect($event)"
+              >
+              </rx-date-picker>
+              <button
+                *ngIf="sortFilterDateRange?.startDate || sortFilterDateRange?.endDate"
+                class="clear-date-picker-btn-inside"
+                (click)="onClearSortDateFilter()"
+                title="Clear date filter"
+              >
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M9 3L3 9M3 3L9 9" stroke="#6B7280" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </ng-template>
+      </div>
+    </div>
+  </div>
+</div> 

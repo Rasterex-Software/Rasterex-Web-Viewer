@@ -87,14 +87,17 @@ export class RoomPanelComponent implements OnInit {
     })
 
     this.topNavMenuService.activeFile$.subscribe((file) => {
+      if (this.guiConfig?.localStoreAnnotation === false || this.canCollaborate) {
+        // fistly, clear the current file's annotations
+        RXCore.clearMarkup();
+        // Add annotations int the empty room to the viewport when the file is loaded.
+        this.collabService.addAnnotationsToViewport("");
+      }
+
       if (!this.canCollaborate) {
         return;
       }
       this.roomInfoArray = [];
-      // fistly, clear the current file's annotations
-      RXCore.clearMarkup();
-      // Add annotations int the empty room to the viewport when the file is loaded.
-      this.collabService.addAnnotationsToViewport("");
 
       if (this.rxCoreService.IsDocumentCollaboration()) {
         // this.updateRoomByCurrentFile();

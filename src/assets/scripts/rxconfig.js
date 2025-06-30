@@ -57,7 +57,7 @@ var RxConfig = (function() {
     var SampleFileDelete= baseURLBin+ "RxCSISAPI.dll?SampleFileDelete";
     
     //metadata:
-    var SampleFileMetatadata = baseURLBin+"RxCSISAPI.dll?SampleFileMetadata";
+    var SampleFileMetadata = baseURLBin+"RxCSISAPI.dll?SampleFileMetadata";
 
     /* config */
 
@@ -125,7 +125,7 @@ var RxConfig = (function() {
         SampleFileList:SampleFileList,
         SampleFileThumbnail:SampleFileThumbnail,
         SampleFileDelete:SampleFileDelete   ,     
-        SampleFileMetatadata:SampleFileMetatadata
+        SampleFileMetadata:SampleFileMetadata
     };
 
 })();

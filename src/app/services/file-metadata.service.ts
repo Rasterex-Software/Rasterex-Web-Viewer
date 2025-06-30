@@ -26,7 +26,7 @@ export class FileMetadataService {
   constructor(private http: HttpClient) {}
 
   getFileMetadata(fileName: string, width: number = 300, height: number = 300): Observable<FileMetadata> {
-    const url = `${RxConfig.SampleFileMetatadata}&${encodeURIComponent(fileName)}&${width}&${height}`;
+    const url = `${RxConfig.SampleFileMetadata}&${encodeURIComponent(fileName)}&${width}&${height}`;
 
     return this.http.get<FileMetadata>(url);
   }

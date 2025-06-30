@@ -777,14 +777,12 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     // Update the created by filter options to reflect this change
     this._updateCreatedByFilterOptions(this.rxCoreService.getGuiMarkupList());
 
-    // Also ensure the user is visible in RXCore
-    let users: Array<any> = RXCore.getUsers();
-    let userIndex = users.findIndex(user => user.DisplayName === authorDisplayName);
-    if (userIndex >= 0) {
-      RXCore.SetUserMarkupdisplay(userIndex, true);
-    } else {
-      console.warn(`❌ User ${authorDisplayName} not found in RXCore users list`);
-    }
+    // Only ensure the user is visible in RXCore if we don't bypass toggle controls
+    // The issue was that RXCore.SetUserMarkupdisplay(userIndex, true) makes ALL markups from that user visible
+    // including measurements when only annotations should be shown, so we remove this to respect toggle states
+    // 
+    // Note: The authorFilter and createdByFilter additions above are sufficient to ensure 
+    // the markup appears in the comment list without bypassing the canvas toggle controls
   }
 
   /**
@@ -2707,8 +2705,9 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
         this._hideLeaderLineForMarkup(markupNo);
       }
 
-      // Reprocess the list to ensure the active markup is visible
-      this._processList(this.rxCoreService.getGuiMarkupList(), this.rxCoreService.getGuiAnnotList());
+      // Force change detection to update the UI without reprocessing all markups
+      // This prevents measurements from being incorrectly rendered when only annotations should be visible
+      this.cdr.detectChanges();
     } else {
       console.warn(`SetActiveCommentThread: Invalid markup number ${markupNo} or markup object`);
     }

@@ -1095,11 +1095,10 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
     this.exportFDF = function (filetype) {
 
         if (foxview.pdfViewer) {
-            pdfDoc = foxview.pdfViewer.getCurrentPDFDoc(); //.getLayerNodesJson().then(function (layernodes){
+            var pdfDoc = foxview.pdfViewer.getCurrentPDFDoc(); //.getLayerNodesJson().then(function (layernodes){
 
             if (pdfDoc) {
                 pdfDoc.exportAnnotsToFDF(filetype, null).then(function (blob) {
-
                     RxCore.exportFDF(blob);
                 });
             }

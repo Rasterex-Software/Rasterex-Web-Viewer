@@ -426,6 +426,43 @@ export class AnnotationToolsComponent implements OnInit {
     if (undo) RXCore.markUpUndo();
     else RXCore.markUpRedo();
   }
+
+  onExportXFDF(toServer: boolean) {
+    RXCore.foxitexportFDF(1,  toServer);
+  }
+
+  onImportXFDF(fromServer: boolean) {
+    if(fromServer)
+      RXCore.importFDF(null, null);
+    else
+      {
+        debugger
+        const input = document.querySelector<HTMLInputElement>('input[type="file"][accept=".xfdf"]');
+        input?.addEventListener('change', this.onXFDFFileSelected.bind(this));
+        input?.click();
+      }
+  }
+
+  onXFDFFileSelected(event: Event) {
+    debugger
+    const input = event.target as HTMLInputElement;
+    if (input.files?.length) {
+        const file = input.files[0];
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const arrayBuffer = (e.target as FileReader).result as ArrayBuffer;
+            if (arrayBuffer) {
+                // Convert to Blob for Foxit SDK
+                const blob = new Blob([arrayBuffer]);
+                RXCore.importFDF(null, blob); // Pass blob instead of arrayBuffer
+            }
+        };
+        reader.readAsArrayBuffer(file); // Read as binary data
+    }
+    // Reset input to allow re-importing same file
+    input.value = '';
+  }
+
   /*calibrate(selected) {
 
     RXCore.onGuiCalibratediag(onCalibrateFinished);

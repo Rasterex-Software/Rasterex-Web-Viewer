@@ -10,12 +10,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 16px;
   cursor: pointer;
   border-radius: 4px;
   transition: all 0.2s ease;
   position: relative;
+  background-color: transparent !important;
   
   &:hover {
     background-color: rgba(0, 0, 0, 0.05);
@@ -40,6 +41,24 @@
     &:hover img {
       opacity: 0.7;
     }
+  }
+  
+  // Top-right corner positioning for comment cards
+  &.eye-icon-top-right {
+    position: absolute;
+    top: 1px;
+    right: 1px;
+    z-index: 10; // Ensure it's above the disabled overlay and content
+    
+    &:hover {
+      background-color: rgba(255, 255, 255, 1);
+      border-color: rgba(0, 0, 0, 0.2);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+    
+    // Ensure visibility even when card is disabled
+    pointer-events: auto !important;
+    opacity: 1 !important;
   }
   
   .tooltip-text {
@@ -990,7 +1009,7 @@
       .list-item {
         width: 100%;
         .note {
-
+          position: relative; // Enable absolute positioning for child elements
           border-radius: 8px;
           padding: 1px;
           background-image: linear-gradient(to right, var(--accent), rgb(0, 223, 175));
@@ -1024,6 +1043,62 @@
               border-top-right-radius: 0;
 
               display: flex;
+            }
+          }
+
+          // Disabled state for hidden annotations
+          &.disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            
+            // Disable pointer events for the content, but not the eye icon
+            .note-comment-list,
+            .note-input {
+              pointer-events: none;
+            }
+            
+            .note-comment-list {
+              background-image: linear-gradient(to right, rgb(240, 240, 240), rgb(235, 244, 241));
+            }
+            
+            .item-comment-left {
+              .author {
+                color: #a4abae;
+              }
+              
+              p {
+                color: #6c757d !important;
+              }
+              
+              .date-and-time {
+                color: #adb5bd;
+              }
+            }
+          }
+
+          // Hidden annotation visual indicator
+          &.hidden-annotation {
+            &::before {
+              content: '';
+              position: absolute;
+              top: 0;
+              left: 0;
+              right: 0;
+              bottom: 0;
+              background-color: rgba(108, 117, 125, 0.1);
+              border-radius: 8px;
+              pointer-events: none;
+              z-index: 5; // Below the eye icon but above content
+            }
+            
+            .note-comment-list {
+              position: relative;
+              z-index: 6; // Above the overlay but below eye icon
+            }
+            
+            .note-input {
+              position: relative;
+              z-index: 6; // Above the overlay but below eye icon
             }
           }
 
@@ -1246,15 +1321,67 @@
         }
       }
 
-      .date {
-        width: 100%;
-        margin: 0;
-        padding: 0;
+      .group-header {
         display: flex;
         align-items: center;
-        font-size: 12px;
-        font-weight: 400;
-        color: #a4abae;
+        justify-content: space-between;
+        width: 100%;
+        margin-bottom: 8px;
+        
+        .date {
+          width: auto;
+          margin: 0;
+          padding: 0;
+          display: flex;
+          align-items: center;
+          font-size: 12px;
+          font-weight: 400;
+          color: #a4abae;
+          flex: 1;
+        }
+        
+        .group-eye-icon {
+          display: flex;
+          align-items: center;
+          margin-left: 8px;
+          
+          .eye-icon-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+            background-color: transparent;
+            
+            &:hover {
+              background-color: rgba(0, 0, 0, 0.05);
+            }
+            
+            img {
+              width: 24px;
+              height: 24px;
+              opacity: 0.7;
+              transition: opacity 0.2s ease;
+            }
+            
+            &:hover img {
+              opacity: 1;
+            }
+            
+            &.eye-closed {
+              img {
+                opacity: 0.4;
+              }
+              
+              &:hover img {
+                opacity: 0.7;
+              }
+            }
+          }
+        }
       }
     }
 

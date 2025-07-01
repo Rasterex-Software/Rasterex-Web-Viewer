@@ -102,16 +102,47 @@
           *ngFor="let group of list | keyvalue : sortOrder; trackBy: trackByFn"
         >
           <div class="list-item">
-            <h4 class="date">{{ group.key }}</h4>
+            <div class="group-header">
+              <h4 class="date">{{ group.key }}</h4>
+              <div class="group-eye-icon">
+                <div 
+                  class="eye-icon-container" 
+                  (click)="toggleGroupVisibility(group.key, group.value)"
+                  [class.eye-closed]="!isGroupVisible(group.key)"
+                  [title]="isGroupVisible(group.key) ? 'Hide all annotations in this group' : 'Show all annotations in this group'"
+                >
+                  <img 
+                    [src]="isGroupVisible(group.key) ? '/assets/images/show-on-ico.svg' : '/assets/images/show-off-ico.svg'" 
+                    alt="group visibility"
+                  />
+                </div>
+              </div>
+            </div>
             <div
               *ngFor="let item of group.value"
               class="note"
               [class.selected]="item.getselected()"
+              [class.disabled]="!isCommentCardClickable(item.markupnumber)"
+              [class.hidden-annotation]="!isAnnotationVisible(item.markupnumber)"
               [ngClass]="{ 'is-active': item.IsExpanded }"
-              (click)="SetActiveCommentThread($event, item.markupnumber, item)"
+              (click)="isCommentCardClickable(item.markupnumber) ? SetActiveCommentThread($event, item.markupnumber, item) : null"
+              [title]="!isCommentCardClickable(item.markupnumber) ? 'This annotation is hidden on canvas. Click the eye icon to show it before expanding.' : ''"
             >
               <!-- [ngClass]="{'is-active': item.markupnumber === activeMarkupNumber}" -->
               <!-- (click)="SetActiveCommentThread($event, item.markupnumber, item)"> -->
+
+              <!-- Eye icon positioned at top-right corner - always clickable -->
+              <div 
+                class="eye-icon-container eye-icon-top-right" 
+                (click)="toggleAnnotationVisibility($event, item)"
+                [class.eye-closed]="!isAnnotationVisible(item.markupnumber)"
+                [title]="isAnnotationVisible(item.markupnumber) ? 'Hide annotation from canvas' : 'Show annotation on canvas'"
+              >
+                <img 
+                  [src]="isAnnotationVisible(item.markupnumber) ? '/assets/images/show-on-ico.svg' : '/assets/images/show-off-ico.svg'" 
+                  alt="visibility"
+                />
+              </div>
 
               <div [id]="'note-panel-' + item.markupnumber">
                 <div>
@@ -147,20 +178,6 @@
                             <img src="/assets/images/zoom-window-ico.svg" />
                           </div>
                           <div style="flex: 1"></div>
-                          <!-- Eye icon for individual annotation visibility -->
-                          <div 
-                            class="eye-icon-container tooltip"
-                            (click)="toggleAnnotationVisibility($event, item)"
-                            [class.eye-closed]="!isAnnotationVisible(item.markupnumber)"
-                          >
-                            <img 
-                              [src]="isAnnotationVisible(item.markupnumber) ? '/assets/images/show-on-ico.svg' : '/assets/images/show-off-ico.svg'" 
-                              alt="visibility"
-                            />
-                            <!-- <span class="tooltip-text tooltip-left">
-                              {{ isAnnotationVisible(item.markupnumber) ? 'Hide annotation' : 'Show annotation' }}
-                            </span> -->
-                          </div>
                           <div
                             class="statusMenuButton"
                             (click)="toogleStatusMenu(item.markupnumber)"

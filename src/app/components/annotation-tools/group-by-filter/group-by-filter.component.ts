@@ -134,6 +134,52 @@ export class GroupByFilterComponent implements OnInit {
     this.sortFilterChange.emit(newSelectedValues);
   }
 
+  onSelectAllToggle(event: Event): void {
+    event.stopPropagation();
+    
+    if (this.areAllFilteredOptionsSelected()) {
+      // If all are selected, deselect all filtered options
+      const selectedFilteredValues = this.filteredSortFilterOptions
+        .map(option => option.value)
+        .filter(value => this.selectedSortFilterValues.includes(value));
+      
+      const newSelectedValues = this.selectedSortFilterValues.filter(value => 
+        !selectedFilteredValues.includes(value)
+      );
+      
+      this.sortFilterChange.emit(newSelectedValues);
+    } else {
+      // If not all are selected, select all filtered options
+      const unselectedFilteredValues = this.filteredSortFilterOptions
+        .map(option => option.value)
+        .filter(value => !this.selectedSortFilterValues.includes(value));
+      
+      const newSelectedValues = [...this.selectedSortFilterValues, ...unselectedFilteredValues];
+      
+      this.sortFilterChange.emit(newSelectedValues);
+    }
+  }
+
+  isPartiallySelected(): boolean {
+    const selectedCount = this.filteredSortFilterOptions.filter(option => 
+      this.selectedSortFilterValues.includes(option.value)
+    ).length;
+    
+    return selectedCount > 0 && selectedCount < this.filteredSortFilterOptions.length;
+  }
+
+  areAllFilteredOptionsSelected(): boolean {
+    return this.filteredSortFilterOptions.every(option => 
+      this.selectedSortFilterValues.includes(option.value)
+    );
+  }
+
+  hasAnyFilteredOptionSelected(): boolean {
+    return this.filteredSortFilterOptions.some(option => 
+      this.selectedSortFilterValues.includes(option.value)
+    );
+  }
+
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: Event): void {
     const target = event.target as HTMLElement;

@@ -241,6 +241,44 @@
             }
           }
 
+          .dropdown-select-all {
+            padding: 6px 8px;
+            border-bottom: 1px solid #e5e7eb;
+            background: #f8fafc;
+
+            .select-all-option {
+              display: flex;
+              align-items: center;
+              gap: 8px;
+              padding: 4px 0;
+              cursor: pointer;
+              font-size: 10px;
+              transition: all 0.2s ease;
+
+              &:hover {
+                background: #ecfdf5;
+              }
+
+              &.selected {
+                background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+                border-left: 3px solid #10b981;
+              }
+
+              input[type="checkbox"] {
+                width: 12px;
+                height: 12px;
+                accent-color: #10b981;
+                cursor: pointer;
+              }
+
+              .select-all-label {
+                color: #059669;
+                font-weight: 600;
+                font-size: 10px;
+              }
+            }
+          }
+
           .dropdown-options {
             flex: 1;
             overflow-y: auto;

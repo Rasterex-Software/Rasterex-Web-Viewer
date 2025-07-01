@@ -1109,12 +1109,6 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
   }
 
   private _processList(list: Array<IMarkup> = [], annotList: Array<IMarkup> = []): void {
-    // CRITICAL FIX: Skip processing if any annotations are hidden to prevent comment cards from disappearing
-    if (this.hiddenAnnotations.size > 0) {
-      console.log('NotePanel: Skipping _processList due to hidden annotations:', this.hiddenAnnotations.size, 'hidden');
-      return;
-    }
-
     // Debounce to prevent excessive processing and blinking
     if (this.processListTimeout) {
       clearTimeout(this.processListTimeout);
@@ -1126,12 +1120,6 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
   }
 
   private _performProcessList(list: Array<IMarkup> = [], annotList: Array<IMarkup> = []): void {
-    // CRITICAL FIX: Skip processing if any annotations are hidden to prevent comment cards from disappearing
-    if (this.hiddenAnnotations.size > 0) {
-      console.log('NotePanel: Skipping _performProcessList due to hidden annotations:', this.hiddenAnnotations.size, 'hidden');
-      return;
-    }
-
     // Prevent multiple simultaneous processing
     if (this.isProcessingList) {
       return;
@@ -3966,11 +3954,14 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     // Step 2: Force immediate canvas redraw to update markup display states
     RXCore.markUpRedraw();
     
-            // Step 3: NEVER process comment list when there are hidden annotations
-    // This prevents hidden annotations from being removed from the comment list
-    // Always skip comment list processing to preserve hidden annotation cards
-    console.log('🚫 Skipping comment list processing to preserve hidden annotations');
-    return;
+    // Step 3: Process comment list to apply filters
+    // We need to process the comment list to apply the new filters
+    // Hidden annotations will be preserved by the _processList protection
+    console.log('🔄 Processing comment list to apply filters...');
+    this._processList(markupList);
+    
+    // Step 4: Force change detection
+    this.cdr.detectChanges();
   }
 
   /**

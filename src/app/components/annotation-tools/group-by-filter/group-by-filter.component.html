@@ -54,6 +54,24 @@
               />
             </div>
           </div>
+          
+          <!-- Select All / Deselect All option -->
+          <div class="dropdown-select-all" *ngIf="filteredSortFilterOptions.length > 0">
+            <div 
+              class="select-all-option"
+              [class.selected]="areAllFilteredOptionsSelected()"
+              (click)="onSelectAllToggle($event)"
+            >
+              <input
+                type="checkbox"
+                [checked]="areAllFilteredOptionsSelected()"
+                [indeterminate]="isPartiallySelected()"
+                readonly
+              />
+              <span class="select-all-label">Select All</span>
+            </div>
+          </div>
+          
           <!-- Filtered options -->
           <div class="dropdown-options">
             <div

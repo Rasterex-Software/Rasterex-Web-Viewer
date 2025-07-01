@@ -19,12 +19,11 @@ export class GroupByFilterComponent implements OnInit {
     { value: "created", label: "Created day", imgSrc: "calendar-ico.svg" },
     { value: "author", label: "Author", imgSrc: "author-icon.svg" },
     { value: "pagenumber", label: "Page", imgSrc: "file-ico.svg" },
-    { value: "position", label: "Position", imgSrc: "next-ico.svg" },
     { value: 'annotation', label: 'Annotation Type', imgSrc: "bookmark-ico.svg" },
   ];
   
   @Input() selectedSortOption: any = this.sortOptions[0];
-  @Input() sortByField: 'created' | 'position' | 'author' | 'pagenumber' | 'annotation' = 'created';
+  @Input() sortByField: 'created' | 'author' | 'pagenumber' | 'annotation' = 'created';
   
   // Filter options and selection
   @Input() sortFilterOptions: Array<any> = [];

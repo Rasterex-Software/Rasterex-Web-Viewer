@@ -72,16 +72,14 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
   pageNumbers: any[] = [];
   //sortByField: 'created' | 'author' = 'created';
   //sortByField: 'created' | 'position' | 'author' = 'created';
-  sortByField: 'created' | 'position' | 'author' | 'pagenumber' | 'annotation' = 'created';
+  sortByField: 'created' | 'author' | 'pagenumber' | 'annotation' = 'created';
 
 
 
   sortOptions = [
-
     { value: "created", label: "Created day", imgSrc: "calendar-ico.svg" },
     { value: "author", label: "Author", imgSrc: "author-icon.svg" },
     { value: "pagenumber", label: "Page", imgSrc: "file-ico.svg" },
-    { value: "position", label: "Position", imgSrc: "next-ico.svg" },
     { value: 'annotation', label: 'Annotation Type', imgSrc: "bookmark-ico.svg" },
   ];
 
@@ -783,9 +781,10 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       this.createdByFilter.add(markup.signature);
     }
 
-
-    // Update the created by filter options to reflect this change
-    this._updateCreatedByFilterOptions(this.rxCoreService.getGuiMarkupList());
+    // Note: We don't call _updateCreatedByFilterOptions here to prevent
+    // triggering unwanted comment list reprocessing that could remove hidden annotations
+    // The authorFilter and createdByFilter additions above are sufficient to ensure 
+    // the markup appears in the comment list without bypassing the canvas toggle controls
 
     // Only ensure the user is visible in RXCore if we don't bypass toggle controls
     // The issue was that RXCore.SetUserMarkupdisplay(userIndex, true) makes ALL markups from that user visible
@@ -1110,6 +1109,12 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
   }
 
   private _processList(list: Array<IMarkup> = [], annotList: Array<IMarkup> = []): void {
+    // CRITICAL FIX: Skip processing if any annotations are hidden to prevent comment cards from disappearing
+    if (this.hiddenAnnotations.size > 0) {
+      console.log('NotePanel: Skipping _processList due to hidden annotations:', this.hiddenAnnotations.size, 'hidden');
+      return;
+    }
+
     // Debounce to prevent excessive processing and blinking
     if (this.processListTimeout) {
       clearTimeout(this.processListTimeout);
@@ -1121,6 +1126,12 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
   }
 
   private _performProcessList(list: Array<IMarkup> = [], annotList: Array<IMarkup> = []): void {
+    // CRITICAL FIX: Skip processing if any annotations are hidden to prevent comment cards from disappearing
+    if (this.hiddenAnnotations.size > 0) {
+      console.log('NotePanel: Skipping _performProcessList due to hidden annotations:', this.hiddenAnnotations.size, 'hidden');
+      return;
+    }
+
     // Prevent multiple simultaneous processing
     if (this.isProcessingList) {
       return;
@@ -1191,9 +1202,10 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
           );
         }
     })
-    .filter((i: any) => {
-      // Check individual annotation visibility (eye icon)
-      return this.isAnnotationVisible(i.markupnumber);
+    .filter((item: any) => {
+      // Check individual annotation visibility (eye icon) - only for comment list display
+      // Comment cards should remain in list even when annotation is hidden on canvas
+      return true; // Always show comment cards in list
     })
     .filter((item: any) => {
       // Always show the active markup regardless of filter
@@ -1233,14 +1245,8 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
           return b.timestamp - a.timestamp;
         case 'author':
           return a.author.localeCompare(b.author);
-        case 'position':
-
-          return a.pagenumber === b.pagenumber ? a.y === b.y ? a.x - b.x : a.y - b.y : a.pagenumber - b.pagenumber;
-
-            //return a.y - b.y;
         case 'pagenumber':
-
-        return a.pagenumber - b.pagenumber;
+          return a.pagenumber - b.pagenumber;
 
         case 'annotation':
             //return a.type - b.type + (a.subtype - b.subtype);
@@ -1293,19 +1299,6 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
           }
           return list;
         }, {});
-        break;
-
-      case 'position':
-        this.list = query.reduce((list, item) => {
-          if (!list[`Page ${item.pagenumber + 1}`]) {
-            list[`Page ${item.pagenumber + 1}`] = [item];
-          } else {
-            list[`Page ${item.pagenumber + 1}`].push(item);
-          }
-
-          return list;
-        }, {});
-
         break;
 
       default:
@@ -1375,20 +1368,10 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       return false;
     }
     
-    // Check individual annotation visibility (eye icon)
-    const individualVisibilityResult = this.isAnnotationVisible(markup.markupnumber);
-    if (!individualVisibilityResult) {
-      return false;
-    }
-    
-    // Enhanced canvas display check to fix synchronization issues
-    // Instead of relying only on markup.display (which might be stale), 
-    // we compute the expected display state based on our filter logic
-    const expectedCanvasDisplay = this._shouldShowMarkupForCanvas(markup);
-    const actualCanvasDisplay = markup.display !== false;
-    
-    // Use the expected display state if they don't match (fixes timing issues)
-    const canvasDisplayResult = expectedCanvasDisplay;
+    // For comment list, we don't check individual visibility (eye icon)
+    // Comment cards should always be shown in the list regardless of canvas visibility
+    // Individual visibility only affects canvas display, not comment list display
+    const canvasDisplayResult = true;
     
     // Add debug logging for annotation type filtering
     if (this.sortByField === 'annotation') {
@@ -1400,9 +1383,6 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
         authorFilterResult,
         sortFilterResult,
         typeFilterResult,
-        expectedCanvasDisplay,
-        actualCanvasDisplay,
-        syncMismatch: expectedCanvasDisplay !== actualCanvasDisplay,
         finalResult: canvasDisplayResult
       });
     }
@@ -1496,25 +1476,6 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
         }
         
         return result;
-
-      case 'position':
-        // Determine position area based on Y coordinate
-        // Assuming page height is normalized, we can divide into thirds
-        const yPosition = markup.y;
-        const pageHeight = 1; // Normalized height
-        const topThreshold = pageHeight * 0.33;
-        const bottomThreshold = pageHeight * 0.67;
-        
-        if (yPosition <= topThreshold && this.selectedSortFilterValues.includes('top')) {
-          return true;
-        }
-        if (yPosition > topThreshold && yPosition <= bottomThreshold && this.selectedSortFilterValues.includes('middle')) {
-          return true;
-        }
-        if (yPosition > bottomThreshold && this.selectedSortFilterValues.includes('bottom')) {
-          return true;
-        }
-        return false;
 
       default:
         return true;
@@ -2267,28 +2228,6 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
         }
         break;
 
-      case 'position':
-        this.sortFilterLabel = 'Position Areas';
-        // Group by position areas (Top, Middle, Bottom)
-        const positionAreas = [
-          { value: 'top', label: 'Top Area' },
-          { value: 'middle', label: 'Middle Area' },
-          { value: 'bottom', label: 'Bottom Area' }
-        ];
-        this.sortFilterOptions = positionAreas.map(area => {
-          // Check if this area was previously selected, default to true if no previous selections
-          const wasSelected = previousSelections.size === 0 || previousSelections.has(area.value);
-          return {
-            ...area,
-            selected: wasSelected
-          };
-        });
-        // Only include previously selected areas in selectedSortFilterValues
-        this.selectedSortFilterValues = positionAreas
-          .filter(area => previousSelections.size === 0 || previousSelections.has(area.value))
-          .map(area => area.value);
-        break;
-
       default:
         this.sortFilterLabel = '';
         break;
@@ -2577,15 +2516,6 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
         return this.getAnnotationTitle(markup.type, markup.subtype);
       case 'created':
         return dayjs(markup.timestamp).format('YYYY-MM-DD');
-      case 'position':
-        const yPosition = markup.y;
-        const pageHeight = 1;
-        const topThreshold = pageHeight * 0.33;
-        const bottomThreshold = pageHeight * 0.67;
-        
-        if (yPosition <= topThreshold) return 'top';
-        if (yPosition > topThreshold && yPosition <= bottomThreshold) return 'middle';
-        return 'bottom';
       default:
         return null;
     }
@@ -4026,7 +3956,8 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       showMeasurements: this.showMeasurements,
       sortByField: this.sortByField,
       selectedSortFilterValues: this.selectedSortFilterValues,
-      markupCount: markupList.length
+      markupCount: markupList.length,
+      hiddenAnnotationsCount: this.hiddenAnnotations.size
     });
 
     // Step 1: Apply all filters to canvas
@@ -4035,92 +3966,11 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     // Step 2: Force immediate canvas redraw to update markup display states
     RXCore.markUpRedraw();
     
-    // Step 3: Wait for canvas to fully update before processing comment list
-    // This ensures markup.display states are properly set
-    setTimeout(() => {
-      console.log('🔄 Processing comment list after canvas update...');
-      
-      // Clear any processing flags that might prevent updates
-      this.isProcessingList = false;
-      
-      // Process the comment list with updated markup states
-      this._processList(markupList);
-      
-      // Multiple change detection strategies to ensure view updates
-      this.cdr.detectChanges();
-      this.cdr.markForCheck();
-      
-      // Force a complete view refresh
-      setTimeout(() => {
-        console.log('🔄 Forcing complete view refresh...');
-        
-        // Trigger multiple change detection cycles to ensure view updates
-        this.cdr.detectChanges();
-        
-        setTimeout(() => {
-          this.cdr.detectChanges();
-          this.cdr.markForCheck();
-          
-          // Force the component to re-evaluate all bindings
-          setTimeout(() => {
-            this.cdr.detectChanges();
-            console.log('✅ Complete view refresh finished');
-            
-            // Trigger the same refresh logic that happens when a card is clicked
-            console.log('🔄 Triggering card refresh logic...');
-            
-            // Clear any processing flags that might prevent updates  
-            this.isProcessingList = false;
-            
-            // Force immediate change detection like in SetActiveCommentThread
-            this.cdr.detectChanges();
-            
-            // Update filter options to ensure everything is in sync
-            if (markupList) {
-              this._updateCreatedByFilterOptions(markupList);
-            }
-            
-            // Force another round of change detection
-            this.cdr.detectChanges();
-            this.cdr.markForCheck();
-            
-            // AGGRESSIVE VIEW FORCE UPDATE - Force the list to re-render
-            console.log('🔄 Force triggering view update...');
-            
-            // Temporarily clear and restore the list to force re-render
-            const tempList = { ...this.list };
-            this.list = {};
-            this.cdr.detectChanges();
-            
-            setTimeout(() => {
-              this.list = tempList;
-              this.cdr.detectChanges();
-              this.cdr.markForCheck();
-              
-                             // Additional force update
-               setTimeout(() => {
-                 this.cdr.detectChanges();
-                 
-                 // Force zone.js change detection cycle
-                 setTimeout(() => {
-                   this.cdr.detectChanges();
-                   this.cdr.markForCheck();
-                   console.log('✅ Force view update completed');
-                 }, 0);
-               }, 10);
-            }, 10);
-            
-            console.log('✅ Card refresh logic completed');
-            
-            // Additional safeguard: verify synchronization and retry if needed
-            setTimeout(() => {
-              this._verifySynchronizationAndRetryIfNeeded(markupList);
-            }, 50);
-          }, 10);
-        }, 10);
-      }, 50);
-      
-    }, 100);
+            // Step 3: NEVER process comment list when there are hidden annotations
+    // This prevents hidden annotations from being removed from the comment list
+    // Always skip comment list processing to preserve hidden annotation cards
+    console.log('🚫 Skipping comment list processing to preserve hidden annotations');
+    return;
   }
 
   /**
@@ -4129,6 +3979,12 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
    */
   private _verifySynchronizationAndRetryIfNeeded(markupList: any[]): void {
     if (!markupList) return;
+    
+    // Skip verification if there are hidden annotations to prevent removing them
+    if (this.hiddenAnnotations.size > 0) {
+      console.log('🚫 Skipping synchronization verification due to hidden annotations');
+      return;
+    }
     
     console.log('🔍 Verifying synchronization...');
     
@@ -4201,7 +4057,12 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
            
            // Clear processing flags and update list
            this.isProcessingList = false;
-           this._processList(markupList);
+           // Skip comment list processing if there are hidden annotations
+           if (this.hiddenAnnotations.size === 0) {
+             this._processList(markupList);
+           } else {
+             console.log('🚫 Skipping retry comment list processing due to hidden annotations');
+           }
            
            // Aggressive change detection for retry
            this.cdr.detectChanges();
@@ -4306,7 +4167,29 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       this._applySortFilterToCanvas();
     }
     
+    // Force refresh of comment list since we can now process it safely
+    this._forceRefreshCommentList();
+    
     this.cdr.detectChanges();
+  }
+
+  private _forceRefreshCommentList(): void {
+    console.log('NotePanel: Force refreshing comment list');
+    
+    // Temporarily clear the list to trigger a fresh rebuild
+    this.list = {};
+    
+    // Force immediate processing of the current markup list
+    const markupList = this.rxCoreService.getGuiMarkupList();
+    const annotList = this.rxCoreService.getGuiAnnotList();
+    
+    // Clear the timeout to ensure immediate processing
+    if (this.processListTimeout) {
+      clearTimeout(this.processListTimeout);
+    }
+    
+    // Process immediately since no annotations are hidden
+    this._performProcessList(markupList, annotList);
   }
 
   /**

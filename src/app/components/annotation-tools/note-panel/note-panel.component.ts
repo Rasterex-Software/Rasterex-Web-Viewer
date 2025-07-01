@@ -1129,13 +1129,6 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
    * Safe wrapper for _performProcessList that ensures hidden annotations are always preserved
    */
   private _processListWithHiddenPreservation(list: Array<IMarkup> = [], annotList: Array<IMarkup> = []): void {
-    console.log('🛡️ Processing list with hidden annotation preservation:', {
-      inputListSize: list.length,
-      annotListSize: annotList.length,
-      hiddenCount: this.hiddenAnnotations.size,
-      groupHiddenCount: this.groupHiddenAnnotations.size
-    });
-
     // Always ensure hidden annotations are included in the processing
     const allHiddenNumbers = new Set([...this.hiddenAnnotations, ...this.groupHiddenAnnotations]);
     
@@ -1150,14 +1143,11 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       hiddenMarkups.forEach(hiddenMarkup => {
         if (!enhancedList.find(existing => existing.markupnumber === hiddenMarkup.markupnumber)) {
           enhancedList.push(hiddenMarkup);
-          console.log('➕ Adding missing hidden annotation to process list:', hiddenMarkup.markupnumber);
         }
       });
       
-      console.log('✅ Enhanced list size:', enhancedList.length);
       this._performProcessList(enhancedList, annotList);
     } else {
-      console.log('ℹ️ No hidden annotations to preserve, processing normally');
       this._performProcessList(list, annotList);
     }
   }
@@ -2131,12 +2121,6 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
 
 
   onSortFieldChanged(event): void {
-    console.log('🔄 Sort field changed:', {
-      from: this.sortByField,
-      to: event.value,
-      showAnnotations: this.showAnnotations,
-      showMeasurements: this.showMeasurements
-    });
     
     this.sortByField = event.value;
     this.selectedSortOption = event;
@@ -2164,15 +2148,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
   // Method to update sort filter options based on selected sort field
   private _updateSortFilterOptions(): void {
     const allMarkupList = this.rxCoreService.getGuiMarkupList();
-    
-    console.log('🔄 Updating sort filter options:', {
-      sortByField: this.sortByField,
-      showAnnotations: this.showAnnotations,
-      showMeasurements: this.showMeasurements,
-      previousSelectedValues: this.selectedSortFilterValues,
-      hiddenCount: this.hiddenAnnotations.size,
-      groupHiddenCount: this.groupHiddenAnnotations.size
-    });
+  
     
     // CRITICAL FIX: Always include hidden annotations in filter options
     const allHiddenNumbers = new Set([...this.hiddenAnnotations, ...this.groupHiddenAnnotations]);
@@ -2183,18 +2159,12 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     if (this.showAnnotations && !this.showMeasurements) {
       // Only annotations
       filteredMarkupList = allMarkupList.filter(markup => !(markup as any).ismeasure);
-      console.log('📊 Filtering for annotations only:', filteredMarkupList.length);
     } else if (!this.showAnnotations && this.showMeasurements) {
       // Only measurements
       filteredMarkupList = allMarkupList.filter(markup => (markup as any).ismeasure);
-      console.log('📊 Filtering for measurements only:', filteredMarkupList.length);
     } else if (!this.showAnnotations && !this.showMeasurements) {
       // Nothing is enabled, so no options should show
       filteredMarkupList = [];
-      console.log('📊 No switches enabled, showing empty list');
-    } else {
-      // Both switches are enabled, show all
-      console.log('📊 Both switches enabled, showing all markups:', filteredMarkupList.length);
     }
 
     // Ensure hidden annotations are always included in filter options, regardless of switch state
@@ -2215,19 +2185,13 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     hiddenToInclude.forEach(hiddenMarkup => {
       if (!filteredMarkupList.find(existing => existing.markupnumber === hiddenMarkup.markupnumber)) {
         filteredMarkupList.push(hiddenMarkup);
-        console.log('➕ Including hidden annotation in filter options:', hiddenMarkup.markupnumber);
       }
     });
     
-    console.log('✅ Final filtered list for filter options:', filteredMarkupList.length);
     
     // Store previous selections to preserve user's filter choices
     const previousSelections = new Set(this.selectedSortFilterValues);
     
-    console.log('💾 Previous selections:', {
-      count: previousSelections.size,
-      values: Array.from(previousSelections)
-    });
     
     this.sortFilterOptions = [];
     this.selectedSortFilterValues = [];
@@ -2273,19 +2237,12 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
         this.sortFilterLabel = 'Annotation Types';
         const uniqueTypes = [...new Set(filteredMarkupList.map(markup => this.getAnnotationTitle(markup.type, markup.subtype)))];
         
-        console.log('📋 Annotation types found:', {
-          totalTypes: uniqueTypes.length,
-          types: uniqueTypes,
-          previousSelectionsCount: previousSelections.size,
-          showAnnotations: this.showAnnotations,
-          showMeasurements: this.showMeasurements
-        });
+
         
         this.sortFilterOptions = uniqueTypes.map(type => {
           // Check if this type was previously selected, default to true if no previous selections
           const wasSelected = previousSelections.size === 0 || previousSelections.has(type);
           
-          console.log(`🔍 Type "${type}": wasSelected = ${wasSelected}`);
           
           return {
             value: type,
@@ -2298,7 +2255,6 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
         if (previousSelections.size === 0) {
           // No previous selections, select all available types
           this.selectedSortFilterValues = [...uniqueTypes];
-          console.log('🆕 No previous selections, selecting all types:', this.selectedSortFilterValues);
         } else {
           // Some previous selections exist, but we need to ensure they're still valid
           const validPreviousSelections = uniqueTypes.filter(type => previousSelections.has(type));
@@ -2306,19 +2262,12 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
           if (validPreviousSelections.length === 0) {
             // None of the previous selections are valid anymore, select all available types
             this.selectedSortFilterValues = [...uniqueTypes];
-            console.log('🔄 No valid previous selections, selecting all types:', this.selectedSortFilterValues);
           } else {
             // Use valid previous selections
             this.selectedSortFilterValues = validPreviousSelections;
-            console.log('✅ Using valid previous selections:', this.selectedSortFilterValues);
           }
         }
         
-        console.log('✅ Final annotation filter state:', {
-          optionsCount: this.sortFilterOptions.length,
-          selectedCount: this.selectedSortFilterValues.length,
-          selectedValues: this.selectedSortFilterValues
-        });
         break;
 
       case 'created':
@@ -2338,26 +2287,13 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
         break;
     }
     
-    console.log('🎯 Final filter options state:', {
-      sortByField: this.sortByField,
-      optionsCount: this.sortFilterOptions.length,
-      selectedCount: this.selectedSortFilterValues.length,
-      selectedValues: this.selectedSortFilterValues
-    });
   }
 
   // Handle sort filter selection changes
   onSortFilterChange(selectedValues: Array<any>): void {
     this.selectedSortFilterValues = selectedValues;
     
-    console.log('🔍 Sort filter changed:', {
-      newValues: selectedValues,
-      sortByField: this.sortByField,
-      showAnnotations: this.showAnnotations,
-      showMeasurements: this.showMeasurements,
-      wasEmpty: selectedValues.length === 0,
-      wasAllDeselected: this.selectedSortFilterValues.length === 0
-    });
+    
     
     // Special handling for "all deselected" to "some selected" transitions
     const previouslyEmpty = this.selectedSortFilterValues.length === 0;
@@ -2365,7 +2301,6 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     const isRecoveringFromEmpty = previouslyEmpty && nowHasSelections;
     
     if (isRecoveringFromEmpty) {
-      console.log('🚨 AGGRESSIVE RESET: Detected recovery from empty selection');
       
       // Step 1: Clear all stuck states and flags
       this.isProcessingList = false;
@@ -2382,25 +2317,21 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
         this._updateSortFilterOptions();
         
         // Step 4: Apply canvas filters with immediate redraw
-        console.log('🔄 Applying canvas filters...');
         this._applySortFilterToCanvas();
         RXCore.markUpRedraw();
         
         // Step 5: Force aggressive change detection immediately
-        console.log('🔄 Forcing aggressive change detection...');
         this.cdr.detectChanges();
         this.cdr.markForCheck();
         
         // Step 6: Process comment list with multiple retries
         setTimeout(() => {
-          console.log('🔄 First comment list processing attempt...');
           this.isProcessingList = false; // Ensure not blocked
           this._processList(markupList);
           this.cdr.detectChanges();
           
           // Immediate retry with different approach
           setTimeout(() => {
-            console.log('🔄 Second comment list processing attempt...');
             this.isProcessingList = false;
             this._performProcessList(markupList, []);
             this.cdr.detectChanges();
@@ -2408,15 +2339,11 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
             
                          // Final aggressive refresh
              setTimeout(() => {
-               console.log('🔄 Final aggressive refresh...');
                this.cdr.detectChanges();
                
                // Simulate the effect of clicking on a card by updating filter options again
                this._updateCreatedByFilterOptions(markupList);
                this.cdr.detectChanges();
-               
-               // AGGRESSIVE VIEW FORCE UPDATE for recovery scenario
-               console.log('🔄 Force triggering view update for recovery...');
                
                // Temporarily clear and restore the list to force re-render
                const tempList = { ...this.list };
@@ -2436,7 +2363,6 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
                    setTimeout(() => {
                      this.cdr.detectChanges();
                      this.cdr.markForCheck();
-                     console.log('✅ Force view update for recovery completed');
                      
                      // Verify the result
                      setTimeout(() => {
@@ -2467,13 +2393,6 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       endDate: dateRange.endDate ? dayjs(dateRange.endDate) : undefined
     };
     
-    console.log('📅 Date filter changed:', {
-      startDate: this.sortFilterDateRange.startDate?.format('YYYY-MM-DD'),
-      endDate: this.sortFilterDateRange.endDate?.format('YYYY-MM-DD'),
-      showAnnotations: this.showAnnotations,
-      showMeasurements: this.showMeasurements
-    });
-    
     // Enhanced synchronization to fix comment list not updating issue
     this._enhancedSynchronizeCanvasAndCommentList();
     
@@ -2493,12 +2412,6 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       this.sortFilterDateRange.endDate = dateValue ? dayjs(dateValue) : undefined;
     }
     
-    console.log('📅 HTML Date input changed:', {
-      type,
-      newValue: dateValue,
-      showAnnotations: this.showAnnotations,
-      showMeasurements: this.showMeasurements
-    });
     
     // Enhanced synchronization to fix comment list not updating issue
     this._enhancedSynchronizeCanvasAndCommentList();
@@ -2512,11 +2425,6 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
   // Clear sort date filter
   clearSortDateFilter(): void {
     this.sortFilterDateRange = { startDate: undefined, endDate: undefined };
-    
-    console.log('📅 Date filter cleared:', {
-      showAnnotations: this.showAnnotations,
-      showMeasurements: this.showMeasurements
-    });
     
     // Enhanced synchronization to fix comment list not updating issue
     this._enhancedSynchronizeCanvasAndCommentList();
@@ -2629,12 +2537,6 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
   onCreatedByFilterChange(values): void {
     this.createdByFilter = new Set(values);
     
-    console.log('👥 Author filter changed:', {
-      newValues: values,
-      filterSize: this.createdByFilter.size,
-      showAnnotations: this.showAnnotations,
-      showMeasurements: this.showMeasurements
-    });
     
     // Enhanced synchronization to fix comment list not updating issue
     this._enhancedSynchronizeCanvasAndCommentList();
@@ -3022,17 +2924,9 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
 
       // Safety check: prevent interaction with hidden annotation cards
       if (!this.isCommentCardClickable(markupNo)) {
-        console.log('🚫 Attempted to click on disabled comment card:', markupNo);
         event.preventDefault();
         return;
       }
-
-      console.log('🎯 Clicking on comment card:', {
-        markupNumber: markupNo,
-        isHidden: this.hiddenAnnotations.has(markupNo),
-        isGroupHidden: this.groupHiddenAnnotations.has(markupNo),
-        annotationType: this.getAnnotationTitle(markup.type, markup.subtype)
-      });
 
       // Force immediate change detection for responsive UI
       this.cdr.detectChanges();
@@ -3081,7 +2975,6 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
         
         // If this is a hidden annotation, temporarily show it on canvas for leader line
         if (isHiddenAnnotation) {
-          console.log('📍 Temporarily showing hidden annotation for leader line:', markupNo);
           // Don't modify the hidden state, just show temporarily for leader line
           const markupList = this.rxCoreService.getGuiMarkupList();
           if (markupList) {
@@ -3098,7 +2991,6 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
         
         // If this is a hidden annotation, restore its hidden state on canvas
         if (isHiddenAnnotation) {
-          console.log('🔄 Restoring hidden state for annotation:', markupNo);
           setTimeout(() => {
             this._updateIndividualAnnotationVisibility(markupNo, false);
           }, 100);
@@ -3142,8 +3034,6 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     );
     
     if (missingHiddenAnnotations.length > 0) {
-      console.log('🔧 Restoring missing hidden annotations to comment list:', missingHiddenAnnotations);
-      
       // Force reprocessing to include hidden annotations
       this._performProcessList(markupList, []);
     }
@@ -3928,13 +3818,6 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
    */
   onToggleAnnotations(onoff: boolean) {
 
-    console.log('🔄 Annotation switch toggled:', {
-      onoff,
-      currentMode: this.currentMode,
-      showMeasurements: this.showMeasurements,
-      sortByField: this.sortByField
-    });
-
     if (onoff) {
       // Turn on annotations
       this.showAnnotations = true;
@@ -3973,10 +3856,6 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
         // Only deselect if both switches are off
         this._deselectAnnotationTypesInFilters();
         this._clearAuthorAndPageSelections();
-      } else {
-        // If measurements are still on, preserve the annotation type filter selections
-        // but ensure only measurement types are visible in the comment list
-        console.log('📊 Preserving annotation type filters for measurements');
       }
     }
     
@@ -4002,13 +3881,6 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
    */
   onToggleMeasurements(onoff: boolean) {
     // Removed filter component dependency
-    
-    console.log('🔄 Measurement switch toggled:', {
-      onoff,
-      currentMode: this.currentMode,
-      showAnnotations: this.showAnnotations,
-      sortByField: this.sortByField
-    });
     
     if (onoff) {
       // Turn on measurements
@@ -4066,7 +3938,6 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       } else {
         // If annotations are still on, preserve the measurement type filter selections
         // but ensure only annotation types are visible in the comment list
-        console.log('📊 Preserving measurement type filters for annotations');
       }
     }
     
@@ -4103,15 +3974,6 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     const markupList = this.rxCoreService.getGuiMarkupList();
     if (!markupList) return;
 
-    console.log('🔄 Forcing synchronization between canvas and comment list');
-    console.log('📊 Current states:', {
-      showAnnotations: this.showAnnotations,
-      showMeasurements: this.showMeasurements,
-      createdByFilterSize: this.createdByFilter.size,
-      selectedSortFilterValues: this.selectedSortFilterValues.length,
-      sortByField: this.sortByField
-    });
-
     // Apply all filters to canvas first
     this._applySortFilterToCanvas();
     
@@ -4130,15 +3992,6 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     const markupList = this.rxCoreService.getGuiMarkupList();
     if (!markupList) return;
 
-    console.log('🔄 Enhanced synchronization between canvas and comment list');
-    console.log('📊 Current filter states:', {
-      showAnnotations: this.showAnnotations,
-      showMeasurements: this.showMeasurements,
-      sortByField: this.sortByField,
-      selectedSortFilterValues: this.selectedSortFilterValues,
-      markupCount: markupList.length,
-      hiddenAnnotationsCount: this.hiddenAnnotations.size
-    });
 
     // Step 1: Apply all filters to canvas
     this._applySortFilterToCanvas();
@@ -4149,7 +4002,6 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     // Step 3: Process comment list to apply filters
     // We need to process the comment list to apply the new filters
     // Hidden annotations will be preserved by the _processList protection
-    console.log('🔄 Processing comment list to apply filters...');
     this._processList(markupList);
     
     // Step 4: Force change detection
@@ -4165,11 +4017,8 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     
     // Skip verification if there are hidden annotations to prevent removing them
     if (this.hiddenAnnotations.size > 0) {
-      console.log('🚫 Skipping synchronization verification due to hidden annotations');
       return;
     }
-    
-    console.log('🔍 Verifying synchronization...');
     
     let canvasVisibleCount = 0;
     let commentListCount = 0;
@@ -4205,17 +4054,9 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       }
     }
     
-    console.log('📊 Detailed synchronization check:', {
-      canvasVisibleCount,
-      commentListCount,
-      isInSync: canvasVisibleCount === commentListCount,
-      canvasVisibleMarkups,
-      commentListMarkups
-    });
-    
+
     // If counts don't match, we have a synchronization issue - retry with more aggressive approach
     if (canvasVisibleCount !== commentListCount) {
-      console.log('⚠️ Synchronization mismatch detected, performing enhanced retry...');
       
       // Find the missing markups
       const canvasIds = new Set(canvasVisibleMarkups.map(m => m.id));
@@ -4223,28 +4064,20 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       const missingFromComments = canvasVisibleMarkups.filter(m => !commentIds.has(m.id));
       const extraInComments = commentListMarkups.filter(m => !canvasIds.has(m.id));
       
-      console.log('🔍 Missing markups analysis:', {
-        missingFromComments,
-        extraInComments
-      });
       
       // Enhanced retry with forced canvas update first
       setTimeout(() => {
-        console.log('🔄 Enhanced retry: Forcing canvas update...');
         this._applySortFilterToCanvas();
         RXCore.markUpRedraw();
         
                  // Then wait and update comment list
          setTimeout(() => {
-           console.log('🔄 Enhanced retry: Updating comment list...');
            
            // Clear processing flags and update list
            this.isProcessingList = false;
            // Skip comment list processing if there are hidden annotations
            if (this.hiddenAnnotations.size === 0) {
              this._processList(markupList);
-           } else {
-             console.log('🚫 Skipping retry comment list processing due to hidden annotations');
            }
            
            // Aggressive change detection for retry
@@ -4256,7 +4089,6 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
              
              setTimeout(() => {
                this.cdr.detectChanges();
-               console.log('✅ Enhanced retry view refresh completed');
                
                // Final verification
                setTimeout(() => {
@@ -4266,9 +4098,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
            }, 10);
          }, 150);
       }, 100);
-    } else {
-      console.log('✅ Canvas and comment list are properly synchronized');
-    }
+    } 
   }
 
   /**
@@ -4296,14 +4126,6 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     const markupNumber = markup.markupnumber;
     const isCurrentlyVisible = this.isAnnotationVisible(markupNumber);
     
-    console.log('👁️ Toggling annotation visibility from top-right eye icon:', {
-      markupNumber,
-      isCurrentlyVisible,
-      willBeVisible: !isCurrentlyVisible,
-      individuallyHidden: this.hiddenAnnotations.has(markupNumber),
-      groupHidden: this.groupHiddenAnnotations.has(markupNumber)
-    });
-    
     if (isCurrentlyVisible) {
       // Hide the annotation individually
       this.hiddenAnnotations.add(markupNumber);
@@ -4326,12 +4148,6 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       this._forceCanvasRefresh();
     }, 100);
     
-    // Log the result for debugging
-    console.log('✅ Visibility toggle complete:', {
-      markupNumber,
-      newVisibility: this.isAnnotationVisible(markupNumber),
-      cardClickable: this.isCommentCardClickable(markupNumber)
-    });
   }
 
   /**
@@ -4350,13 +4166,6 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     // Apply the individual visibility setting
     const finalVisibility = shouldShow && shouldShowBasedOnFilters;
     
-    console.log('🎨 Updating individual annotation visibility:', {
-      markupNumber,
-      shouldShow,
-      shouldShowBasedOnFilters,
-      finalVisibility,
-      annotationType: this.getAnnotationTitle(markup.type, markup.subtype)
-    });
     
     // Set the display state
     markup.setdisplay(finalVisibility);
@@ -4374,7 +4183,6 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
    * Reset all individual annotation visibility settings
    */
   resetAllAnnotationVisibility(): void {
-    console.log('🔄 Resetting all individual annotation visibility');
     this.hiddenAnnotations.clear();
     this.hiddenGroups.clear(); // Also clear hidden groups
     this.groupHiddenAnnotations.clear(); // Clear group-hidden annotations
@@ -4400,8 +4208,6 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
   private _forceCanvasRefresh(): void {
     const markupList = this.rxCoreService.getGuiMarkupList();
     if (!markupList) return;
-    
-    console.log('🔄 Force refreshing canvas for all annotation types');
     
     // Update display state for all annotations
     markupList.forEach(markup => {
@@ -4484,19 +4290,6 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     const isCurrentlyVisible = this.isGroupVisible(groupKey);
     const isExplicitlyHiddenByGroup = this.hiddenGroups.has(groupKey);
     
-    console.log('👁️ Toggling group visibility:', {
-      groupKey,
-      isCurrentlyVisible,
-      isExplicitlyHiddenByGroup,
-      willBeVisible: !isCurrentlyVisible,
-      itemCount: groupItems.length,
-      items: groupItems.map(item => ({
-        markupNumber: item.markupnumber,
-        type: this.getAnnotationTitle(item.type, item.subtype),
-        individuallyHidden: this.hiddenAnnotations.has(item.markupnumber),
-        groupHidden: this.groupHiddenAnnotations.has(item.markupnumber)
-      }))
-    });
     
     if (isCurrentlyVisible) {
       // Hide the group explicitly
@@ -4529,9 +4322,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
         });
       } else {
         // Group appears hidden due to all individual annotations being hidden
-        // Show all annotations in the group by clearing their individual hidden status
-        console.log('📖 Group appears hidden due to individual hiding - showing all annotations');
-        
+        // Show all annotations in the group by clearing their individual hidden status 
         groupItems.forEach(item => {
           const markupNumber = item.markupnumber;
           // Clear individual hiding for all annotations in this group
@@ -4565,11 +4356,6 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     
     if (!markupList) return;
     
-    console.log('🔧 Ensuring group toggle synchronization:', {
-      groupKey,
-      isGroupVisible,
-      itemCount: groupItems.length
-    });
     
     // Verify and fix any inconsistencies
     groupItems.forEach(item => {
@@ -4585,14 +4371,6 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       // Calculate the expected display state
       const expectedDisplayState = shouldBeVisible && this._shouldShowMarkupForCanvasIgnoringIndividualVisibility(markup);
       
-      // Always set the display state to ensure consistency
-      console.log('🔧 Setting display state for synchronization:', {
-        markupNumber,
-        expectedDisplayState,
-        isIndividuallyHidden,
-        isGroupHidden,
-        annotationType: this.getAnnotationTitle(markup.type, markup.subtype)
-      });
       
       markup.setdisplay(expectedDisplayState);
     });
@@ -4676,7 +4454,6 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
   }
 
   private _forceRefreshCommentList(): void {
-    console.log('NotePanel: Force refreshing comment list');
     
     // Temporarily clear the list to trigger a fresh rebuild
     this.list = {};
@@ -4714,18 +4491,6 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       }
     }
     
-    if (finalCanvasCount === finalCommentCount) {
-      console.log('✅ Enhanced retry successful - synchronization achieved!');
-    } else {
-      console.log('❌ Synchronization still not achieved after enhanced retry:', {
-        finalCanvasCount,
-        finalCommentCount,
-        sortByField: this.sortByField,
-        selectedSortFilterValues: this.selectedSortFilterValues,
-        showAnnotations: this.showAnnotations,
-        showMeasurements: this.showMeasurements
-      });
-    }
   }
 
   /**
@@ -4811,13 +4576,6 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
    * This fixes the issue where annotation type filter shows no selected values
    */
   private _ensureProperFilterInitialization(): void {
-    console.log('🔧 Ensuring proper filter initialization:', {
-      sortByField: this.sortByField,
-      showAnnotations: this.showAnnotations,
-      showMeasurements: this.showMeasurements,
-      optionsCount: this.sortFilterOptions.length,
-      selectedCount: this.selectedSortFilterValues.length
-    });
 
     // Handle annotation type filter specifically
     if (this.sortByField === 'annotation' && this.sortFilterOptions.length > 0) {
@@ -4843,26 +4601,13 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
         });
       }
 
-      console.log('📋 Available types based on switch states:', {
-        availableTypes: Array.from(availableTypes),
-        currentSelected: this.selectedSortFilterValues
-      });
-
       // If no types are selected but we have available types, select them all
       if (this.selectedSortFilterValues.length === 0 && availableTypes.size > 0) {
-        console.log('⚠️ No types selected but types are available, selecting all...');
-        
         // Select all available types
         this.selectedSortFilterValues = Array.from(availableTypes);
         this.sortFilterOptions.forEach(option => {
           option.selected = availableTypes.has(option.value);
         });
-        
-        console.log('✅ Fixed annotation type filter:', {
-          selectedCount: this.selectedSortFilterValues.length,
-          selectedValues: this.selectedSortFilterValues
-        });
-        
         // Apply the fix to canvas and comment list
         this._forceSynchronizeCanvasAndCommentList();
       } else if (this.selectedSortFilterValues.length > 0) {
@@ -4870,17 +4615,12 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
         const validSelectedTypes = this.selectedSortFilterValues.filter(type => availableTypes.has(type));
         
         if (validSelectedTypes.length !== this.selectedSortFilterValues.length) {
-          console.log('⚠️ Some selected types are no longer available, updating selection...');
           
           this.selectedSortFilterValues = validSelectedTypes;
           this.sortFilterOptions.forEach(option => {
             option.selected = validSelectedTypes.includes(option.value);
           });
           
-          console.log('✅ Updated annotation type filter:', {
-            selectedCount: this.selectedSortFilterValues.length,
-            selectedValues: this.selectedSortFilterValues
-          });
           
           // Apply the fix to canvas and comment list
           this._forceSynchronizeCanvasAndCommentList();
@@ -4893,12 +4633,6 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
    * Preserve existing filters and apply them to measurements when measurements switch is turned on
    */
   private _preserveFiltersAndApplyToMeasurements(): void {
-    console.log('📊 Preserving filters and applying to measurements:', {
-      currentSortByField: this.sortByField,
-      selectedSortFilterValues: this.selectedSortFilterValues,
-      showAnnotations: this.showAnnotations,
-      showMeasurements: this.showMeasurements
-    });
     
     // Don't modify existing filter selections - they are already preserved by _updateSortFilterOptions()
     // Just ensure that the canvas shows both annotations and measurements that match the existing filters
@@ -4955,7 +4689,6 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
         });
       }
 
-      console.log('📋 Available types after switch turned ON:', Array.from(availableTypes));
 
       // Add new types to the filter options if they don't exist
       const newTypes = Array.from(availableTypes).filter(type => 
@@ -4963,8 +4696,6 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       );
 
       if (newTypes.length > 0) {
-        console.log('🆕 Adding new types to filter options:', newTypes);
-        
         newTypes.forEach(type => {
           this.sortFilterOptions.push({
             value: type,
@@ -4985,11 +4716,6 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
         }
       });
 
-      console.log('✅ Updated filter after switch turned ON:', {
-        optionsCount: this.sortFilterOptions.length,
-        selectedCount: this.selectedSortFilterValues.length,
-        selectedValues: this.selectedSortFilterValues
-      });
     }
   }
 
@@ -4997,12 +4723,6 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
    * Preserve existing filters and apply them to annotations when annotations switch is turned on
    */
   private _preserveFiltersAndApplyToAnnotations(): void {
-    console.log('📊 Preserving filters and applying to annotations:', {
-      currentSortByField: this.sortByField,
-      selectedSortFilterValues: this.selectedSortFilterValues,
-      showAnnotations: this.showAnnotations,
-      showMeasurements: this.showMeasurements
-    });
     
     // Don't modify existing filter selections - they are already preserved by _updateSortFilterOptions()
     // Just ensure that the canvas shows both annotations and measurements that match the existing filters
@@ -5038,11 +4758,6 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       return;
     }
 
-    console.log('📈 Expanding filter options for measurements:', {
-      measurementCount: measurementMarkups.length,
-      currentSortByField: this.sortByField,
-      existingSelectedValues: this.selectedSortFilterValues
-    });
 
     // For annotation type filter, add measurement types if not already present
     if (this.sortByField === 'annotation') {
@@ -5050,10 +4765,6 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       const newMeasurementTypes = [...new Set(measurementMarkups.map(markup => this.getAnnotationTitle(markup.type, markup.subtype)))]
         .filter(type => !existingTypeValues.has(type));
       
-      console.log('📊 Adding measurement types to annotation filter:', {
-        newTypes: newMeasurementTypes,
-        existingTypes: Array.from(existingTypeValues)
-      });
       
       // Add new measurement types as selected (since user wants to see measurements)
       newMeasurementTypes.forEach(type => {
@@ -5065,10 +4776,6 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
         this.selectedSortFilterValues.push(type);
       });
       
-      console.log('✅ Updated annotation filter options:', {
-        totalOptions: this.sortFilterOptions.length,
-        selectedValues: this.selectedSortFilterValues
-      });
     }
 
     // For author filter, add measurement authors if not already present

@@ -2068,9 +2068,25 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
 
 
   onSortFieldChanged(event): void {
+    console.log('🔄 Sort field changed:', {
+      from: this.sortByField,
+      to: event.value,
+      showAnnotations: this.showAnnotations,
+      showMeasurements: this.showMeasurements
+    });
+    
     this.sortByField = event.value;
     this.selectedSortOption = event;
+    
+    // Clear previous selections when changing sort field to ensure clean state
+    this.selectedSortFilterValues = [];
+    
     this._updateSortFilterOptions();
+    
+    // Ensure proper initialization when both switches are ON
+    setTimeout(() => {
+      this._ensureProperFilterInitialization();
+    }, 50);
     
     // Apply the sort filter to both canvas and comment list
     this._applySortFilterToCanvas();
@@ -2086,22 +2102,39 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
   private _updateSortFilterOptions(): void {
     const allMarkupList = this.rxCoreService.getGuiMarkupList();
     
+    console.log('🔄 Updating sort filter options:', {
+      sortByField: this.sortByField,
+      showAnnotations: this.showAnnotations,
+      showMeasurements: this.showMeasurements,
+      previousSelectedValues: this.selectedSortFilterValues
+    });
+    
     // Filter markups based on annotation/measurement switch state
     let filteredMarkupList = allMarkupList;
     if (this.showAnnotations && !this.showMeasurements) {
       // Only annotations
       filteredMarkupList = allMarkupList.filter(markup => !(markup as any).ismeasure);
+      console.log('📊 Filtering for annotations only:', filteredMarkupList.length);
     } else if (!this.showAnnotations && this.showMeasurements) {
       // Only measurements
       filteredMarkupList = allMarkupList.filter(markup => (markup as any).ismeasure);
+      console.log('📊 Filtering for measurements only:', filteredMarkupList.length);
     } else if (!this.showAnnotations && !this.showMeasurements) {
       // Nothing is enabled, so no options should show
       filteredMarkupList = [];
+      console.log('📊 No switches enabled, showing empty list');
+    } else {
+      // Both switches are enabled, show all
+      console.log('📊 Both switches enabled, showing all markups:', filteredMarkupList.length);
     }
-    // If both are enabled, show all (filteredMarkupList = allMarkupList)
     
     // Store previous selections to preserve user's filter choices
     const previousSelections = new Set(this.selectedSortFilterValues);
+    
+    console.log('💾 Previous selections:', {
+      count: previousSelections.size,
+      values: Array.from(previousSelections)
+    });
     
     this.sortFilterOptions = [];
     this.selectedSortFilterValues = [];
@@ -2146,19 +2179,53 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       case 'annotation':
         this.sortFilterLabel = 'Annotation Types';
         const uniqueTypes = [...new Set(filteredMarkupList.map(markup => this.getAnnotationTitle(markup.type, markup.subtype)))];
+        
+        console.log('📋 Annotation types found:', {
+          totalTypes: uniqueTypes.length,
+          types: uniqueTypes,
+          previousSelectionsCount: previousSelections.size,
+          showAnnotations: this.showAnnotations,
+          showMeasurements: this.showMeasurements
+        });
+        
         this.sortFilterOptions = uniqueTypes.map(type => {
           // Check if this type was previously selected, default to true if no previous selections
           const wasSelected = previousSelections.size === 0 || previousSelections.has(type);
+          
+          console.log(`🔍 Type "${type}": wasSelected = ${wasSelected}`);
+          
           return {
             value: type,
             label: type,
             selected: wasSelected
           };
         });
-        // Only include previously selected types in selectedSortFilterValues
-        this.selectedSortFilterValues = uniqueTypes.filter(type => 
-          previousSelections.size === 0 || previousSelections.has(type)
-        );
+        
+        // Determine which types should be selected
+        if (previousSelections.size === 0) {
+          // No previous selections, select all available types
+          this.selectedSortFilterValues = [...uniqueTypes];
+          console.log('🆕 No previous selections, selecting all types:', this.selectedSortFilterValues);
+        } else {
+          // Some previous selections exist, but we need to ensure they're still valid
+          const validPreviousSelections = uniqueTypes.filter(type => previousSelections.has(type));
+          
+          if (validPreviousSelections.length === 0) {
+            // None of the previous selections are valid anymore, select all available types
+            this.selectedSortFilterValues = [...uniqueTypes];
+            console.log('🔄 No valid previous selections, selecting all types:', this.selectedSortFilterValues);
+          } else {
+            // Use valid previous selections
+            this.selectedSortFilterValues = validPreviousSelections;
+            console.log('✅ Using valid previous selections:', this.selectedSortFilterValues);
+          }
+        }
+        
+        console.log('✅ Final annotation filter state:', {
+          optionsCount: this.sortFilterOptions.length,
+          selectedCount: this.selectedSortFilterValues.length,
+          selectedValues: this.selectedSortFilterValues
+        });
         break;
 
       case 'created':
@@ -2199,6 +2266,13 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
         this.sortFilterLabel = '';
         break;
     }
+    
+    console.log('🎯 Final filter options state:', {
+      sortByField: this.sortByField,
+      optionsCount: this.sortFilterOptions.length,
+      selectedCount: this.selectedSortFilterValues.length,
+      selectedValues: this.selectedSortFilterValues
+    });
   }
 
   // Handle sort filter selection changes
@@ -3638,6 +3712,9 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       // Force canvas update
       this.onShowAnnotations(true);
       
+      // Handle the switch being turned ON
+      this._handleSwitchTurnedOn('annotations');
+      
       // Wait a moment then update filters to match canvas state
       setTimeout(() => {
         if (this.currentMode === 'View' && this.showMeasurements) {
@@ -3669,6 +3746,11 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     
     // Update sort filter options since switch state changed (this will now preserve existing selections)
     this._updateSortFilterOptions();
+    
+    // Ensure proper initialization when both switches are ON
+    setTimeout(() => {
+      this._ensureProperFilterInitialization();
+    }, 50);
     
     // Apply existing filters to both annotations and measurements
     this._applySortFilterToCanvas();
@@ -3704,6 +3786,9 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       
       // Force canvas update
       this.onShowMeasurements(true);
+      
+      // Handle the switch being turned ON
+      this._handleSwitchTurnedOn('measurements');
       
       // Wait a moment then update filters to match canvas state
       setTimeout(() => {
@@ -3752,6 +3837,11 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     // Update sort filter options since switch state changed (this will now preserve existing selections)
     this._updateSortFilterOptions();
     
+    // Ensure proper initialization when both switches are ON
+    setTimeout(() => {
+      this._ensureProperFilterInitialization();
+    }, 50);
+    
     // Apply existing filters to both annotations and measurements
     this._applySortFilterToCanvas();
     
@@ -3782,7 +3872,8 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       showAnnotations: this.showAnnotations,
       showMeasurements: this.showMeasurements,
       createdByFilterSize: this.createdByFilter.size,
-      selectedSortFilterValues: this.selectedSortFilterValues.length
+      selectedSortFilterValues: this.selectedSortFilterValues.length,
+      sortByField: this.sortByField
     });
 
     // Apply all filters to canvas first
@@ -3793,6 +3884,89 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     
     // Force canvas redraw to ensure visual consistency
     RXCore.markUpRedraw();
+  }
+
+  /**
+   * Ensure proper initialization of filter options when switches are toggled
+   * This fixes the issue where annotation type filter shows no selected values
+   */
+  private _ensureProperFilterInitialization(): void {
+    console.log('🔧 Ensuring proper filter initialization:', {
+      sortByField: this.sortByField,
+      showAnnotations: this.showAnnotations,
+      showMeasurements: this.showMeasurements,
+      optionsCount: this.sortFilterOptions.length,
+      selectedCount: this.selectedSortFilterValues.length
+    });
+
+    // Handle annotation type filter specifically
+    if (this.sortByField === 'annotation' && this.sortFilterOptions.length > 0) {
+      const markupList = this.rxCoreService.getGuiMarkupList();
+      if (!markupList) return;
+
+      // Get all available types based on current switch states
+      const availableTypes = new Set<string>();
+      
+      if (this.showAnnotations) {
+        // Add annotation types
+        const annotationMarkups = markupList.filter(markup => !(markup as any).ismeasure);
+        annotationMarkups.forEach(markup => {
+          availableTypes.add(this.getAnnotationTitle(markup.type, markup.subtype));
+        });
+      }
+      
+      if (this.showMeasurements) {
+        // Add measurement types
+        const measurementMarkups = markupList.filter(markup => (markup as any).ismeasure);
+        measurementMarkups.forEach(markup => {
+          availableTypes.add(this.getAnnotationTitle(markup.type, markup.subtype));
+        });
+      }
+
+      console.log('📋 Available types based on switch states:', {
+        availableTypes: Array.from(availableTypes),
+        currentSelected: this.selectedSortFilterValues
+      });
+
+      // If no types are selected but we have available types, select them all
+      if (this.selectedSortFilterValues.length === 0 && availableTypes.size > 0) {
+        console.log('⚠️ No types selected but types are available, selecting all...');
+        
+        // Select all available types
+        this.selectedSortFilterValues = Array.from(availableTypes);
+        this.sortFilterOptions.forEach(option => {
+          option.selected = availableTypes.has(option.value);
+        });
+        
+        console.log('✅ Fixed annotation type filter:', {
+          selectedCount: this.selectedSortFilterValues.length,
+          selectedValues: this.selectedSortFilterValues
+        });
+        
+        // Apply the fix to canvas and comment list
+        this._forceSynchronizeCanvasAndCommentList();
+      } else if (this.selectedSortFilterValues.length > 0) {
+        // Some types are selected, but we need to ensure they match the available types
+        const validSelectedTypes = this.selectedSortFilterValues.filter(type => availableTypes.has(type));
+        
+        if (validSelectedTypes.length !== this.selectedSortFilterValues.length) {
+          console.log('⚠️ Some selected types are no longer available, updating selection...');
+          
+          this.selectedSortFilterValues = validSelectedTypes;
+          this.sortFilterOptions.forEach(option => {
+            option.selected = validSelectedTypes.includes(option.value);
+          });
+          
+          console.log('✅ Updated annotation type filter:', {
+            selectedCount: this.selectedSortFilterValues.length,
+            selectedValues: this.selectedSortFilterValues
+          });
+          
+          // Apply the fix to canvas and comment list
+          this._forceSynchronizeCanvasAndCommentList();
+        }
+      }
+    }
   }
 
   /**
@@ -3827,6 +4001,76 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     setTimeout(() => {
       this._forceSynchronizeCanvasAndCommentList();
     }, 100);
+  }
+
+  /**
+   * Handle the case when a switch is turned back ON to ensure proper filter synchronization
+   */
+  private _handleSwitchTurnedOn(switchType: 'annotations' | 'measurements'): void {
+    console.log(`🔄 Switch turned ON: ${switchType}`, {
+      showAnnotations: this.showAnnotations,
+      showMeasurements: this.showMeasurements,
+      sortByField: this.sortByField
+    });
+
+    // If we're currently on annotation type filter, we need to update the selections
+    if (this.sortByField === 'annotation') {
+      const markupList = this.rxCoreService.getGuiMarkupList();
+      if (!markupList) return;
+
+      // Get the types that should be available now
+      const availableTypes = new Set<string>();
+      
+      if (this.showAnnotations) {
+        const annotationMarkups = markupList.filter(markup => !(markup as any).ismeasure);
+        annotationMarkups.forEach(markup => {
+          availableTypes.add(this.getAnnotationTitle(markup.type, markup.subtype));
+        });
+      }
+      
+      if (this.showMeasurements) {
+        const measurementMarkups = markupList.filter(markup => (markup as any).ismeasure);
+        measurementMarkups.forEach(markup => {
+          availableTypes.add(this.getAnnotationTitle(markup.type, markup.subtype));
+        });
+      }
+
+      console.log('📋 Available types after switch turned ON:', Array.from(availableTypes));
+
+      // Add new types to the filter options if they don't exist
+      const newTypes = Array.from(availableTypes).filter(type => 
+        !this.sortFilterOptions.some(option => option.value === type)
+      );
+
+      if (newTypes.length > 0) {
+        console.log('🆕 Adding new types to filter options:', newTypes);
+        
+        newTypes.forEach(type => {
+          this.sortFilterOptions.push({
+            value: type,
+            label: type,
+            selected: true
+          });
+          this.selectedSortFilterValues.push(type);
+        });
+      }
+
+      // Update the selected state of existing options
+      this.sortFilterOptions.forEach(option => {
+        if (availableTypes.has(option.value)) {
+          option.selected = true;
+          if (!this.selectedSortFilterValues.includes(option.value)) {
+            this.selectedSortFilterValues.push(option.value);
+          }
+        }
+      });
+
+      console.log('✅ Updated filter after switch turned ON:', {
+        optionsCount: this.sortFilterOptions.length,
+        selectedCount: this.selectedSortFilterValues.length,
+        selectedValues: this.selectedSortFilterValues
+      });
+    }
   }
 
   /**

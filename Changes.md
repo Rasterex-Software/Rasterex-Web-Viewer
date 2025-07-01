@@ -1,3 +1,17 @@
+July 1, 2025
+
+### 1. Added XFDF import/export
+
+Updated and new files
+
+src\rxcore\index.ts
+src\assets\scripts\rxcorefunctions.js
+src\assets\scripts\iframefoxit.js
+src\app\components\annotation-tools\annotation-tools.component.ts
+src\app\components\annotation-tools\annotation-tools.component.html
+
+
+
 
 June 30, 2025
 
@@ -98,18 +112,19 @@ June 17, 2025
 
 Updated and new files
 
-src\app\components\annotation-tools\symbols-library\symbols-library.component.html src\app\components\annotation-tools\symbols-library\symbols-library.component.ts src\app\components\annotation-tools\symbols-library\symbols-library.service.ts
+src\app\components\annotation-tools\symbols-library\symbols-library.component.html 
+src\app\components\annotation-tools\symbols-library\symbols-library.component.ts 
+src\app\components\annotation-tools\symbols-library\symbols-library.service.ts
 
 
 June 16, 2025
 
-### 1. Updated Foxit to new version 10.
-### 2. New method used for zoom to point for PDF.
-### 3. Fixed snap to point for rotated PDF files.
-### 3. Fixed snap to point for rotated PDF files.
-### 4. Removed automatic load of bookmarks for PDF this are now loaded on demand.
-### 5. Quick action menu for annoations are no longer loaded for non-owning users.
-
+### 1. Updated Foxit to new version 10. RxCore, Foxit
+### 2. New method used for zoom to point for PDF. RxCore, Foxit
+### 3. Fixed snap to point for rotated PDF files. RxCore, Foxit
+### 3. Fixed snap to point for rotated PDF files. -RxCore, Foxit
+### 4. Removed automatic load of bookmarks for PDF this are now loaded on demand. -RxCore, Foxit.
+### 5. Quick action menu for annoations are no longer loaded for non-owning users. Frontend.
 
 Updated and new files
 
@@ -118,6 +133,7 @@ RxCore version is now 35.926
 src\assets\scripts\rxcorefunctions.js
 src\assets\scripts\iframefoxit.js
 src\assets\html\foxpage.html
+
 
 tsconfig.app.json
 src\rxcore\index.ts

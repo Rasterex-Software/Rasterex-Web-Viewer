@@ -541,6 +541,23 @@
                 </svg>
                 <span class="tooltip-text tooltip-left">Lock Annotations</span>
             </li>
+            <li *ngIf="(guiState$ | async).isPDF" class="tooltip" (click)="onImportXFDF(false)">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M10 2V14M10 14L6 10M10 14L14 10" stroke="#333C4E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <rect x="3" y="16" width="14" height="2" rx="1" fill="#333C4E"/>
+                </svg>
+                <span class="tooltip-text tooltip-left">Import XFDF</span>
+                <input type="file" accept=".xfdf" style="display:none" #xfdfInput (change)="onXFDFFileSelected($event)">
+            </li>
+            <li *ngIf="(guiState$ | async).isPDF" class="tooltip" (click)="onExportXFDF(false)">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M10 18V6M10 6L6 10M10 6L14 10" stroke="#333C4E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <rect x="3" y="2" width="14" height="2" rx="1" fill="#333C4E"/>
+                </svg>
+                <span class="tooltip-text tooltip-left">Export XFDF</span>
+            </li>
+
+
         </ul>
 
         <ul *ngIf="!(guiConfig$ | async).disableMarkupUndoRedoButtons && ((canAddAnnotation | async) || (canUpdateAnnotation | async) || (canDeleteAnnotation | async))" class="toolbar-menu">

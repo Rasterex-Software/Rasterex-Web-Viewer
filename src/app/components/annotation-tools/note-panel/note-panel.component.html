@@ -52,6 +52,17 @@
         (sortDateChange)="onSortDateChange($event.event, $event.type)"
         (clearSortDateFilter)="clearSortDateFilter()"
       ></rx-group-by-filter>
+      
+      <!-- Reset individual visibility button -->
+      <!-- <div 
+        *ngIf="hiddenAnnotationsCount > 0" 
+        class="reset-visibility-btn"
+        (click)="resetAllAnnotationVisibility()"
+        title="Show all hidden annotations"
+      >
+        <img src="/assets/images/show-on-ico.svg" alt="show all" />
+        <span>Show all hidden ({{ hiddenAnnotationsCount }})</span>
+      </div> -->
         <!-- <div class="filter-section">
           <div class="filter-controls">
             <div class="filter-header">
@@ -136,6 +147,20 @@
                             <img src="/assets/images/zoom-window-ico.svg" />
                           </div>
                           <div style="flex: 1"></div>
+                          <!-- Eye icon for individual annotation visibility -->
+                          <div 
+                            class="eye-icon-container tooltip"
+                            (click)="toggleAnnotationVisibility($event, item)"
+                            [class.eye-closed]="!isAnnotationVisible(item.markupnumber)"
+                          >
+                            <img 
+                              [src]="isAnnotationVisible(item.markupnumber) ? '/assets/images/show-on-ico.svg' : '/assets/images/show-off-ico.svg'" 
+                              alt="visibility"
+                            />
+                            <!-- <span class="tooltip-text tooltip-left">
+                              {{ isAnnotationVisible(item.markupnumber) ? 'Hide annotation' : 'Show annotation' }}
+                            </span> -->
+                          </div>
                           <div
                             class="statusMenuButton"
                             (click)="toogleStatusMenu(item.markupnumber)"

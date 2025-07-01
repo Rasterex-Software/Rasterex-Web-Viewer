@@ -155,6 +155,16 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
   // Active filter count for dynamic display
   activeFilterCount: number = 0;
 
+  // Individual annotation visibility tracking
+  private hiddenAnnotations: Set<number> = new Set<number>();
+
+  /**
+   * Get the number of hidden annotations for display in the reset button
+   */
+  get hiddenAnnotationsCount(): number {
+    return this.hiddenAnnotations.size;
+  }
+
   rxTypeFilter : Array<any> = [];
 
   rxTypeFilterLoaded : Array<any> = [];
@@ -1181,6 +1191,10 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
           );
         }
     })
+    .filter((i: any) => {
+      // Check individual annotation visibility (eye icon)
+      return this.isAnnotationVisible(i.markupnumber);
+    })
     .filter((item: any) => {
       // Always show the active markup regardless of filter
       if (this.activeMarkupNumber > 0 && item.markupnumber === this.activeMarkupNumber) {
@@ -1358,6 +1372,12 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     // Check the type filter state for additional filtering logic
     const typeFilterResult = this._getmarkupTypeDisplay(markup);
     if (typeFilterResult === false) {
+      return false;
+    }
+    
+    // Check individual annotation visibility (eye icon)
+    const individualVisibilityResult = this.isAnnotationVisible(markup.markupnumber);
+    if (!individualVisibilityResult) {
       return false;
     }
     
@@ -2525,6 +2545,11 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       // Also check author filter if author filters are active
       if (shouldShow) {
         shouldShow = this._shouldShowMarkupForAuthor(markup);
+      }
+      
+      // Check individual annotation visibility (eye icon)
+      if (shouldShow) {
+        shouldShow = this.isAnnotationVisible(markup.markupnumber);
       }
       
       markup.setdisplay(shouldShow);
@@ -4203,6 +4228,88 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
   }
 
   /**
+   * Check if a specific annotation is visible (not hidden by eye icon)
+   */
+  isAnnotationVisible(markupNumber: number): boolean {
+    return !this.hiddenAnnotations.has(markupNumber);
+  }
+
+  /**
+   * Toggle the visibility of an individual annotation
+   */
+  toggleAnnotationVisibility(event: Event, markup: any): void {
+    event.stopPropagation(); // Prevent triggering the card click
+    
+    const markupNumber = markup.markupnumber;
+    const isCurrentlyVisible = this.isAnnotationVisible(markupNumber);
+    
+    console.log('👁️ Toggling annotation visibility:', {
+      markupNumber,
+      isCurrentlyVisible,
+      willBeVisible: !isCurrentlyVisible
+    });
+    
+    if (isCurrentlyVisible) {
+      // Hide the annotation
+      this.hiddenAnnotations.add(markupNumber);
+    } else {
+      // Show the annotation
+      this.hiddenAnnotations.delete(markupNumber);
+    }
+    
+    // Update the canvas to reflect the change
+    this._updateIndividualAnnotationVisibility(markupNumber, !isCurrentlyVisible);
+    
+    // Force change detection to update the eye icon
+    this.cdr.detectChanges();
+  }
+
+  /**
+   * Update the visibility of a specific annotation on the canvas
+   */
+  private _updateIndividualAnnotationVisibility(markupNumber: number, shouldShow: boolean): void {
+    const markupList = this.rxCoreService.getGuiMarkupList();
+    if (!markupList) return;
+    
+    const markup = markupList.find(m => m.markupnumber === markupNumber);
+    if (!markup) return;
+    
+    // Check if the annotation should be shown based on all other filters
+    const shouldShowBasedOnFilters = this._shouldShowMarkupForCanvas(markup);
+    
+    // Apply the individual visibility setting
+    const finalVisibility = shouldShow && shouldShowBasedOnFilters;
+    
+    console.log('🎨 Updating individual annotation visibility:', {
+      markupNumber,
+      shouldShow,
+      shouldShowBasedOnFilters,
+      finalVisibility
+    });
+    
+    markup.setdisplay(finalVisibility);
+    
+    // Redraw the canvas
+    RXCore.markUpRedraw();
+  }
+
+  /**
+   * Reset all individual annotation visibility settings
+   */
+  resetAllAnnotationVisibility(): void {
+    console.log('🔄 Resetting all individual annotation visibility');
+    this.hiddenAnnotations.clear();
+    
+    // Update all annotations on canvas
+    const markupList = this.rxCoreService.getGuiMarkupList();
+    if (markupList) {
+      this._applySortFilterToCanvas();
+    }
+    
+    this.cdr.detectChanges();
+  }
+
+  /**
    * Final synchronization check - if still mismatched, log detailed info for debugging
    */
   private _finalSynchronizationCheck(markupList: any[]): void {
@@ -4302,6 +4409,12 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     
     // Check bisTextArrow filter (same as in _performProcessList)
     if (markup.bisTextArrow) {
+      return false;
+    }
+    
+    // Check individual annotation visibility (eye icon)
+    const isIndividuallyVisible = this.isAnnotationVisible(markup.markupnumber);
+    if (!isIndividuallyVisible) {
       return false;
     }
     
@@ -5375,6 +5488,9 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
 
     // Reset author filters in note-panel
     this.authorFilter = new Set(this.getUniqueAuthorList());
+    
+    // Reset individual annotation visibility (eye icon)
+    this.resetAllAnnotationVisibility();
     
     // Trigger author selection in comment-list-filter component
     this.triggerAuthorSelection();

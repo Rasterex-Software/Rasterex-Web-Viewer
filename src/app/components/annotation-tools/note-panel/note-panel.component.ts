@@ -1325,31 +1325,75 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
    * This method checks both the canvas display state and the type filter state
    */
   private _shouldShowMarkupInCommentList(markup: any): boolean {
-    // First check if the markup is actually displayed on the canvas
-    // This is the most reliable indicator
-    if (markup.display === false) {
+    // Check annotation/measurement switch states first
+    const isMeasurement = (markup as any).ismeasure === true;
+    const showAnnotationsState = this.showAnnotations === true;
+    const showMeasurementsState = this.showMeasurements === true;
+    
+    let switchAllowsDisplay = false;
+    if (isMeasurement) {
+      // This is a measurement - only show if measurements switch is on
+      switchAllowsDisplay = showMeasurementsState;
+    } else {
+      // This is an annotation - only show if annotations switch is on
+      switchAllowsDisplay = showAnnotationsState;
+    }
+    
+    if (!switchAllowsDisplay) {
       return false;
     }
     
-    // Also check the type filter state for additional filtering logic
-    const typeFilterResult = this._getmarkupTypeDisplay(markup);
-    
-    // Check author filter state if author filters are active
+    // Check author filter state
     const authorFilterResult = this._shouldShowMarkupForAuthor(markup);
+    if (!authorFilterResult) {
+      return false;
+    }
     
     // Check sort filter values
     const sortFilterResult = this._shouldShowMarkupForSortFilter(markup);
+    if (!sortFilterResult) {
+      return false;
+    }
     
-    // Show if canvas display, type filter, author filter, and sort filter all allow it
-    return markup.display !== false && typeFilterResult !== false && authorFilterResult !== false && sortFilterResult !== false;
+    // Check the type filter state for additional filtering logic
+    const typeFilterResult = this._getmarkupTypeDisplay(markup);
+    if (typeFilterResult === false) {
+      return false;
+    }
+    
+    // Finally check if the markup is actually displayed on the canvas
+    // This should match our filtering logic above
+    const canvasDisplayResult = markup.display !== false;
+    
+    // Add debug logging for annotation type filtering
+    if (this.sortByField === 'annotation') {
+      const annotationType = this.getAnnotationTitle(markup.type, markup.subtype);
+      console.log(`📋 Comment list check for ${isMeasurement ? 'measurement' : 'annotation'}:`, {
+        markupNumber: markup.markupnumber,
+        annotationType,
+        switchAllowsDisplay,
+        authorFilterResult,
+        sortFilterResult,
+        typeFilterResult,
+        canvasDisplayResult,
+        finalResult: switchAllowsDisplay && authorFilterResult && sortFilterResult && typeFilterResult && canvasDisplayResult
+      });
+    }
+    
+    return canvasDisplayResult;
   }
 
   /**
    * Check if a markup should be shown based on author filtering
    */
   private _shouldShowMarkupForAuthor(markup: any): boolean {
-    // Always return true since comment list filters component is removed
-    return true;
+    // If no author filter is active, show all
+    if (this.createdByFilter.size === 0) {
+      return true;
+    }
+    
+    // Check if the markup's author is in the selected filter
+    return this.createdByFilter.has(markup.signature);
   }
 
   /**
@@ -1382,7 +1426,17 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
 
       case 'annotation':
         const annotationType = this.getAnnotationTitle(markup.type, markup.subtype);
-        return this.selectedSortFilterValues.includes(annotationType);
+        const isSelected = this.selectedSortFilterValues.includes(annotationType);
+        
+        console.log(`🔍 Annotation type filter check:`, {
+          markupType: annotationType,
+          isSelected,
+          selectedValues: this.selectedSortFilterValues,
+          markupNumber: markup.markupnumber,
+          isMeasurement: (markup as any).ismeasure
+        });
+        
+        return isSelected;
 
       case 'created':
         // If no date range is set, show all items (initial state for date filter)
@@ -2046,6 +2100,9 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     }
     // If both are enabled, show all (filteredMarkupList = allMarkupList)
     
+    // Store previous selections to preserve user's filter choices
+    const previousSelections = new Set(this.selectedSortFilterValues);
+    
     this.sortFilterOptions = [];
     this.selectedSortFilterValues = [];
 
@@ -2053,34 +2110,55 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       case 'author':
         this.sortFilterLabel = 'Authors';
         const uniqueAuthors = [...new Set(filteredMarkupList.map(markup => RXCore.getDisplayName(markup.signature)))];
-        this.sortFilterOptions = uniqueAuthors.map(author => ({
-          value: author,
-          label: author,
-          selected: true
-        }));
-        this.selectedSortFilterValues = uniqueAuthors;
+        this.sortFilterOptions = uniqueAuthors.map(author => {
+          // Check if this author was previously selected, default to true if no previous selections
+          const wasSelected = previousSelections.size === 0 || previousSelections.has(author);
+          return {
+            value: author,
+            label: author,
+            selected: wasSelected
+          };
+        });
+        // Only include previously selected authors in selectedSortFilterValues
+        this.selectedSortFilterValues = uniqueAuthors.filter(author => 
+          previousSelections.size === 0 || previousSelections.has(author)
+        );
         break;
 
       case 'pagenumber':
         this.sortFilterLabel = 'Pages';
         const uniquePages = [...new Set(filteredMarkupList.map(markup => markup.pagenumber + 1))].sort((a, b) => a - b);
-        this.sortFilterOptions = uniquePages.map(page => ({
-          value: page,
-          label: page.toString(), // Show only the number
-          selected: true
-        }));
-        this.selectedSortFilterValues = uniquePages;
+        this.sortFilterOptions = uniquePages.map(page => {
+          // Check if this page was previously selected, default to true if no previous selections
+          const wasSelected = previousSelections.size === 0 || previousSelections.has(page);
+          return {
+            value: page,
+            label: page.toString(), // Show only the number
+            selected: wasSelected
+          };
+        });
+        // Only include previously selected pages in selectedSortFilterValues
+        this.selectedSortFilterValues = uniquePages.filter(page => 
+          previousSelections.size === 0 || previousSelections.has(page)
+        );
         break;
 
       case 'annotation':
         this.sortFilterLabel = 'Annotation Types';
         const uniqueTypes = [...new Set(filteredMarkupList.map(markup => this.getAnnotationTitle(markup.type, markup.subtype)))];
-        this.sortFilterOptions = uniqueTypes.map(type => ({
-          value: type,
-          label: type,
-          selected: true
-        }));
-        this.selectedSortFilterValues = uniqueTypes;
+        this.sortFilterOptions = uniqueTypes.map(type => {
+          // Check if this type was previously selected, default to true if no previous selections
+          const wasSelected = previousSelections.size === 0 || previousSelections.has(type);
+          return {
+            value: type,
+            label: type,
+            selected: wasSelected
+          };
+        });
+        // Only include previously selected types in selectedSortFilterValues
+        this.selectedSortFilterValues = uniqueTypes.filter(type => 
+          previousSelections.size === 0 || previousSelections.has(type)
+        );
         break;
 
       case 'created':
@@ -2088,8 +2166,9 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
         // For created date, we use a date picker instead of predefined ranges
         this.sortFilterOptions = [];
         this.selectedSortFilterValues = [];
-        // Reset date range when switching to created sort
-        if (!this.sortFilterDateRange.startDate && !this.sortFilterDateRange.endDate) {
+        // Don't reset date range when switching between annotation/measurement switches
+        // Only reset if there was no previous date range
+        if (!this.sortFilterDateRange.startDate && !this.sortFilterDateRange.endDate && previousSelections.size === 0) {
           this.sortFilterDateRange = { startDate: undefined, endDate: undefined };
         }
         break;
@@ -2098,12 +2177,22 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
         this.sortFilterLabel = 'Position Areas';
         // Group by position areas (Top, Middle, Bottom)
         const positionAreas = [
-          { value: 'top', label: 'Top Area', selected: true },
-          { value: 'middle', label: 'Middle Area', selected: true },
-          { value: 'bottom', label: 'Bottom Area', selected: true }
+          { value: 'top', label: 'Top Area' },
+          { value: 'middle', label: 'Middle Area' },
+          { value: 'bottom', label: 'Bottom Area' }
         ];
-        this.sortFilterOptions = positionAreas;
-        this.selectedSortFilterValues = positionAreas.map(area => area.value);
+        this.sortFilterOptions = positionAreas.map(area => {
+          // Check if this area was previously selected, default to true if no previous selections
+          const wasSelected = previousSelections.size === 0 || previousSelections.has(area.value);
+          return {
+            ...area,
+            selected: wasSelected
+          };
+        });
+        // Only include previously selected areas in selectedSortFilterValues
+        this.selectedSortFilterValues = positionAreas
+          .filter(area => previousSelections.size === 0 || previousSelections.has(area.value))
+          .map(area => area.value);
         break;
 
       default:
@@ -2115,7 +2204,16 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
   // Handle sort filter selection changes
   onSortFilterChange(selectedValues: Array<any>): void {
     this.selectedSortFilterValues = selectedValues;
-    this._processList(this.rxCoreService.getGuiMarkupList());
+    
+    console.log('🔍 Sort filter changed:', {
+      newValues: selectedValues,
+      sortByField: this.sortByField,
+      showAnnotations: this.showAnnotations,
+      showMeasurements: this.showMeasurements
+    });
+    
+    // Force complete synchronization to ensure both annotations and measurements are properly filtered
+    this._forceSynchronizeCanvasAndCommentList();
 
     // Wait for DOM to be ready and then update leader line position
     setTimeout(() => {
@@ -2130,11 +2228,15 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       endDate: dateRange.endDate ? dayjs(dateRange.endDate) : undefined
     };
     
+    console.log('📅 Date filter changed:', {
+      startDate: this.sortFilterDateRange.startDate?.format('YYYY-MM-DD'),
+      endDate: this.sortFilterDateRange.endDate?.format('YYYY-MM-DD'),
+      showAnnotations: this.showAnnotations,
+      showMeasurements: this.showMeasurements
+    });
     
-    
-    // Apply the sort filter to both canvas and comment list
-    this._applySortFilterToCanvas();
-    this._processList(this.rxCoreService.getGuiMarkupList());
+    // Force complete synchronization to ensure both annotations and measurements are properly filtered
+    this._forceSynchronizeCanvasAndCommentList();
     
     // Wait for DOM to be ready and then update leader line position
     setTimeout(() => {
@@ -2152,10 +2254,15 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       this.sortFilterDateRange.endDate = dateValue ? dayjs(dateValue) : undefined;
     }
     
+    console.log('📅 HTML Date input changed:', {
+      type,
+      newValue: dateValue,
+      showAnnotations: this.showAnnotations,
+      showMeasurements: this.showMeasurements
+    });
     
-    // Apply the sort filter to both canvas and comment list
-    this._applySortFilterToCanvas();
-    this._processList(this.rxCoreService.getGuiMarkupList());
+    // Force complete synchronization to ensure both annotations and measurements are properly filtered
+    this._forceSynchronizeCanvasAndCommentList();
     
     // Wait for DOM to be ready and then update leader line position
     setTimeout(() => {
@@ -2167,9 +2274,13 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
   clearSortDateFilter(): void {
     this.sortFilterDateRange = { startDate: undefined, endDate: undefined };
     
-    // Apply the sort filter to both canvas and comment list
-    this._applySortFilterToCanvas();
-    this._processList(this.rxCoreService.getGuiMarkupList());
+    console.log('📅 Date filter cleared:', {
+      showAnnotations: this.showAnnotations,
+      showMeasurements: this.showMeasurements
+    });
+    
+    // Force complete synchronization to ensure both annotations and measurements are properly filtered
+    this._forceSynchronizeCanvasAndCommentList();
     
     // Wait for DOM to be ready and then update leader line position
     setTimeout(() => {
@@ -2236,6 +2347,11 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
         shouldShow = this._shouldShowMarkupForSortFilter(markup);
       }
       
+      // Also check author filter if author filters are active
+      if (shouldShow) {
+        shouldShow = this._shouldShowMarkupForAuthor(markup);
+      }
+      
       markup.setdisplay(shouldShow);
       
       if (shouldShow) {
@@ -2277,7 +2393,16 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
 
   onCreatedByFilterChange(values): void {
     this.createdByFilter = new Set(values);
-    this._processList(this.rxCoreService.getGuiMarkupList());
+    
+    console.log('👥 Author filter changed:', {
+      newValues: values,
+      filterSize: this.createdByFilter.size,
+      showAnnotations: this.showAnnotations,
+      showMeasurements: this.showMeasurements
+    });
+    
+    // Force complete synchronization to ensure both annotations and measurements are properly filtered
+    this._forceSynchronizeCanvasAndCommentList();
 
     // Wait for DOM to be ready and then update leader line position
     setTimeout(() => {
@@ -3493,6 +3618,13 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
    */
   onToggleAnnotations(onoff: boolean) {
 
+    console.log('🔄 Annotation switch toggled:', {
+      onoff,
+      currentMode: this.currentMode,
+      showMeasurements: this.showMeasurements,
+      sortByField: this.sortByField
+    });
+
     if (onoff) {
       // Turn on annotations
       this.showAnnotations = true;
@@ -3509,10 +3641,8 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       // Wait a moment then update filters to match canvas state
       setTimeout(() => {
         if (this.currentMode === 'View' && this.showMeasurements) {
-          // In View mode with both switches on, select both annotation and measurement types
-          this._selectAnnotationTypesInFilters();
-          this._selectMeasurementTypesInFilters();
-          this._selectRelevantAuthorsAndPages(true, true);
+          // In View mode with both switches on, preserve existing filters and apply them to annotations
+          this._preserveFiltersAndApplyToAnnotations();
         } else {
           // Standard behavior for non-View modes or when only annotations are on
           this._selectAnnotationTypesInFilters();
@@ -3524,17 +3654,24 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       this.showAnnotations = false;
       this.onShowAnnotations(false);
       
-      // Deselect annotation types
-      this._deselectAnnotationTypesInFilters();
-      
-      // If measurements are also off, clear authors/pages
+      // IMPORTANT: Don't deselect annotation types if measurements are still on
+      // This preserves measurement type selections when annotations are turned off
       if (!this.showMeasurements) {
+        // Only deselect if both switches are off
+        this._deselectAnnotationTypesInFilters();
         this._clearAuthorAndPageSelections();
+      } else {
+        // If measurements are still on, preserve the annotation type filter selections
+        // but ensure only measurement types are visible in the comment list
+        console.log('📊 Preserving annotation type filters for measurements');
       }
     }
     
-    // Update sort filter options since switch state changed
+    // Update sort filter options since switch state changed (this will now preserve existing selections)
     this._updateSortFilterOptions();
+    
+    // Apply existing filters to both annotations and measurements
+    this._applySortFilterToCanvas();
     
     // Refresh the list to apply the new filter
     this._refreshAnnotationList();
@@ -3547,6 +3684,13 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
    */
   onToggleMeasurements(onoff: boolean) {
     // Removed filter component dependency
+    
+    console.log('🔄 Measurement switch toggled:', {
+      onoff,
+      currentMode: this.currentMode,
+      showAnnotations: this.showAnnotations,
+      sortByField: this.sortByField
+    });
     
     if (onoff) {
       // Turn on measurements
@@ -3564,10 +3708,8 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       // Wait a moment then update filters to match canvas state
       setTimeout(() => {
         if (this.currentMode === 'View' && this.showAnnotations) {
-          // In View mode with both switches on, select both annotation and measurement types
-          this._selectAnnotationTypesInFilters();
-          this._selectMeasurementTypesInFilters();
-          this._selectRelevantAuthorsAndPages(true, true);
+          // In View mode with both switches on, preserve existing filters and apply them to measurements
+          this._preserveFiltersAndApplyToMeasurements();
         } else {
           // Standard behavior for non-View modes or when only measurements are on
           this._selectMeasurementTypesInFilters();
@@ -3579,32 +3721,39 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       this.showMeasurements = false;
       this.onShowMeasurements(false);
       
-      // Deselect measurement types
-      this._deselectMeasurementTypesInFilters();
-      
-      // If annotations are also off, clear authors/pages
+      // IMPORTANT: Don't deselect measurement types if annotations are still on
+      // This preserves annotation type selections when measurements are turned off
       if (!this.showAnnotations) {
+        // Only deselect if both switches are off
+        this._deselectMeasurementTypesInFilters();
         this._clearAuthorAndPageSelections();
+        
+        // IMMEDIATE force clear - don't wait for timeout
+        this._forceImmediateClearAllMeasurementTypes();
+        
+        // Also do delayed clearing as backup
+        setTimeout(() => {
+          this._ensureMeasurementTypesCleared();
+          this._clearMeasurementTypesByLabel();
+          this._forceImmediateClearAllMeasurementTypes();
+        }, 100);
+        
+        // Final backup after UI has had time to update
+        setTimeout(() => {
+          this._forceImmediateClearAllMeasurementTypes();
+        }, 300);
+      } else {
+        // If annotations are still on, preserve the measurement type filter selections
+        // but ensure only annotation types are visible in the comment list
+        console.log('📊 Preserving measurement type filters for annotations');
       }
-      
-      // IMMEDIATE force clear - don't wait for timeout
-      this._forceImmediateClearAllMeasurementTypes();
-      
-      // Also do delayed clearing as backup
-      setTimeout(() => {
-        this._ensureMeasurementTypesCleared();
-        this._clearMeasurementTypesByLabel();
-        this._forceImmediateClearAllMeasurementTypes();
-      }, 100);
-      
-      // Final backup after UI has had time to update
-      setTimeout(() => {
-        this._forceImmediateClearAllMeasurementTypes();
-      }, 300);
     }
     
-    // Update sort filter options since switch state changed
+    // Update sort filter options since switch state changed (this will now preserve existing selections)
     this._updateSortFilterOptions();
+    
+    // Apply existing filters to both annotations and measurements
+    this._applySortFilterToCanvas();
     
     // Refresh the list to apply the new filter
     this._refreshAnnotationList();
@@ -3617,6 +3766,258 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     const markupList = this.rxCoreService.getGuiMarkupList();
     if (markupList) {
       this._processList(markupList);
+    }
+  }
+
+  /**
+   * Force synchronization between canvas display and comment list filters
+   * This ensures that both annotations and measurements respect all active filters
+   */
+  private _forceSynchronizeCanvasAndCommentList(): void {
+    const markupList = this.rxCoreService.getGuiMarkupList();
+    if (!markupList) return;
+
+    console.log('🔄 Forcing synchronization between canvas and comment list');
+    console.log('📊 Current states:', {
+      showAnnotations: this.showAnnotations,
+      showMeasurements: this.showMeasurements,
+      createdByFilterSize: this.createdByFilter.size,
+      selectedSortFilterValues: this.selectedSortFilterValues.length
+    });
+
+    // Apply all filters to canvas first
+    this._applySortFilterToCanvas();
+    
+    // Then refresh the comment list to match
+    this._processList(markupList);
+    
+    // Force canvas redraw to ensure visual consistency
+    RXCore.markUpRedraw();
+  }
+
+  /**
+   * Preserve existing filters and apply them to measurements when measurements switch is turned on
+   */
+  private _preserveFiltersAndApplyToMeasurements(): void {
+    console.log('📊 Preserving filters and applying to measurements:', {
+      currentSortByField: this.sortByField,
+      selectedSortFilterValues: this.selectedSortFilterValues,
+      showAnnotations: this.showAnnotations,
+      showMeasurements: this.showMeasurements
+    });
+    
+    // Don't modify existing filter selections - they are already preserved by _updateSortFilterOptions()
+    // Just ensure that the canvas shows both annotations and measurements that match the existing filters
+    
+    // The existing selectedSortFilterValues and sortFilterDateRange should already contain the user's selections
+    // and _updateSortFilterOptions() has preserved them
+    
+    // Apply the existing filter criteria to canvas to show both annotations and measurements
+    this._applySortFilterToCanvas();
+    
+    // Update the filter options to include measurement types that match the existing filter criteria
+    // This ensures newly visible measurements are included in the available filter options
+    const markupList = this.rxCoreService.getGuiMarkupList();
+    if (markupList) {
+      // Add any new measurement authors/pages/types that weren't previously available
+      this._expandFilterOptionsForMeasurements(markupList);
+    }
+    
+    // Force a complete synchronization to ensure everything is consistent
+    setTimeout(() => {
+      this._forceSynchronizeCanvasAndCommentList();
+    }, 100);
+  }
+
+  /**
+   * Preserve existing filters and apply them to annotations when annotations switch is turned on
+   */
+  private _preserveFiltersAndApplyToAnnotations(): void {
+    console.log('📊 Preserving filters and applying to annotations:', {
+      currentSortByField: this.sortByField,
+      selectedSortFilterValues: this.selectedSortFilterValues,
+      showAnnotations: this.showAnnotations,
+      showMeasurements: this.showMeasurements
+    });
+    
+    // Don't modify existing filter selections - they are already preserved by _updateSortFilterOptions()
+    // Just ensure that the canvas shows both annotations and measurements that match the existing filters
+    
+    // The existing selectedSortFilterValues and sortFilterDateRange should already contain the user's selections
+    // and _updateSortFilterOptions() has preserved them
+    
+    // Apply the existing filter criteria to canvas to show both annotations and measurements
+    this._applySortFilterToCanvas();
+    
+    // Update the filter options to include annotation types that match the existing filter criteria
+    // This ensures newly visible annotations are included in the available filter options
+    const markupList = this.rxCoreService.getGuiMarkupList();
+    if (markupList) {
+      // Add any new annotation authors/pages/types that weren't previously available
+      this._expandFilterOptionsForAnnotations(markupList);
+    }
+    
+    // Force a complete synchronization to ensure everything is consistent
+    setTimeout(() => {
+      this._forceSynchronizeCanvasAndCommentList();
+    }, 100);
+  }
+
+  /**
+   * Expand filter options to include measurement types while preserving existing selections
+   */
+  private _expandFilterOptionsForMeasurements(markupList: any[]): void {
+    // Get measurement markups
+    const measurementMarkups = markupList.filter(markup => (markup as any).ismeasure);
+    
+    if (measurementMarkups.length === 0) {
+      return;
+    }
+
+    console.log('📈 Expanding filter options for measurements:', {
+      measurementCount: measurementMarkups.length,
+      currentSortByField: this.sortByField,
+      existingSelectedValues: this.selectedSortFilterValues
+    });
+
+    // For annotation type filter, add measurement types if not already present
+    if (this.sortByField === 'annotation') {
+      const existingTypeValues = new Set(this.sortFilterOptions.map(option => option.value));
+      const newMeasurementTypes = [...new Set(measurementMarkups.map(markup => this.getAnnotationTitle(markup.type, markup.subtype)))]
+        .filter(type => !existingTypeValues.has(type));
+      
+      console.log('📊 Adding measurement types to annotation filter:', {
+        newTypes: newMeasurementTypes,
+        existingTypes: Array.from(existingTypeValues)
+      });
+      
+      // Add new measurement types as selected (since user wants to see measurements)
+      newMeasurementTypes.forEach(type => {
+        this.sortFilterOptions.push({
+          value: type,
+          label: type,
+          selected: true
+        });
+        this.selectedSortFilterValues.push(type);
+      });
+      
+      console.log('✅ Updated annotation filter options:', {
+        totalOptions: this.sortFilterOptions.length,
+        selectedValues: this.selectedSortFilterValues
+      });
+    }
+
+    // For author filter, add measurement authors if not already present
+    if (this.sortByField === 'author') {
+      const existingAuthorValues = new Set(this.sortFilterOptions.map(option => option.value));
+      const newMeasurementAuthors = [...new Set(measurementMarkups.map(markup => RXCore.getDisplayName(markup.signature)))]
+        .filter(author => !existingAuthorValues.has(author));
+      
+      // Add new measurement authors as selected (since user wants to see measurements)
+      newMeasurementAuthors.forEach(author => {
+        this.sortFilterOptions.push({
+          value: author,
+          label: author,
+          selected: true
+        });
+        this.selectedSortFilterValues.push(author);
+      });
+    }
+
+    // For page filter, add measurement pages if not already present
+    if (this.sortByField === 'pagenumber') {
+      const existingPageValues = new Set(this.sortFilterOptions.map(option => option.value));
+      const newMeasurementPages = [...new Set(measurementMarkups.map(markup => markup.pagenumber + 1))]
+        .filter(page => !existingPageValues.has(page));
+      
+      // Add new measurement pages as selected (since user wants to see measurements)
+      newMeasurementPages.forEach(page => {
+        this.sortFilterOptions.push({
+          value: page,
+          label: page.toString(),
+          selected: true
+        });
+        this.selectedSortFilterValues.push(page);
+      });
+      
+      // Sort pages numerically
+      this.sortFilterOptions.sort((a, b) => {
+        if (typeof a.value === 'number' && typeof b.value === 'number') {
+          return a.value - b.value;
+        }
+        return 0;
+      });
+    }
+  }
+
+  /**
+   * Expand filter options to include annotation types while preserving existing selections
+   */
+  private _expandFilterOptionsForAnnotations(markupList: any[]): void {
+    // Get annotation markups
+    const annotationMarkups = markupList.filter(markup => !(markup as any).ismeasure);
+    
+    if (annotationMarkups.length === 0) {
+      return;
+    }
+
+    // For annotation type filter, add annotation types if not already present
+    if (this.sortByField === 'annotation') {
+      const existingTypeValues = new Set(this.sortFilterOptions.map(option => option.value));
+      const newAnnotationTypes = [...new Set(annotationMarkups.map(markup => this.getAnnotationTitle(markup.type, markup.subtype)))]
+        .filter(type => !existingTypeValues.has(type));
+      
+      // Add new annotation types as selected (since user wants to see annotations)
+      newAnnotationTypes.forEach(type => {
+        this.sortFilterOptions.push({
+          value: type,
+          label: type,
+          selected: true
+        });
+        this.selectedSortFilterValues.push(type);
+      });
+    }
+
+    // For author filter, add annotation authors if not already present
+    if (this.sortByField === 'author') {
+      const existingAuthorValues = new Set(this.sortFilterOptions.map(option => option.value));
+      const newAnnotationAuthors = [...new Set(annotationMarkups.map(markup => RXCore.getDisplayName(markup.signature)))]
+        .filter(author => !existingAuthorValues.has(author));
+      
+      // Add new annotation authors as selected (since user wants to see annotations)
+      newAnnotationAuthors.forEach(author => {
+        this.sortFilterOptions.push({
+          value: author,
+          label: author,
+          selected: true
+        });
+        this.selectedSortFilterValues.push(author);
+      });
+    }
+
+    // For page filter, add annotation pages if not already present
+    if (this.sortByField === 'pagenumber') {
+      const existingPageValues = new Set(this.sortFilterOptions.map(option => option.value));
+      const newAnnotationPages = [...new Set(annotationMarkups.map(markup => markup.pagenumber + 1))]
+        .filter(page => !existingPageValues.has(page));
+      
+      // Add new annotation pages as selected (since user wants to see annotations)
+      newAnnotationPages.forEach(page => {
+        this.sortFilterOptions.push({
+          value: page,
+          label: page.toString(),
+          selected: true
+        });
+        this.selectedSortFilterValues.push(page);
+      });
+      
+      // Sort pages numerically
+      this.sortFilterOptions.sort((a, b) => {
+        if (typeof a.value === 'number' && typeof b.value === 'number') {
+          return a.value - b.value;
+        }
+        return 0;
+      });
     }
   }
 
@@ -4261,6 +4662,9 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
 
     }
 
+    // Apply the complete filter including both switches and author selection
+    this._applySortFilterToCanvas();
+    
     this._refreshAnnotationList();
   }
 

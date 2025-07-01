@@ -1361,9 +1361,14 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       return false;
     }
     
-    // Finally check if the markup is actually displayed on the canvas
-    // This should match our filtering logic above
-    const canvasDisplayResult = markup.display !== false;
+    // Enhanced canvas display check to fix synchronization issues
+    // Instead of relying only on markup.display (which might be stale), 
+    // we compute the expected display state based on our filter logic
+    const expectedCanvasDisplay = this._shouldShowMarkupForCanvas(markup);
+    const actualCanvasDisplay = markup.display !== false;
+    
+    // Use the expected display state if they don't match (fixes timing issues)
+    const canvasDisplayResult = expectedCanvasDisplay;
     
     // Add debug logging for annotation type filtering
     if (this.sortByField === 'annotation') {
@@ -1375,8 +1380,10 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
         authorFilterResult,
         sortFilterResult,
         typeFilterResult,
-        canvasDisplayResult,
-        finalResult: switchAllowsDisplay && authorFilterResult && sortFilterResult && typeFilterResult && canvasDisplayResult
+        expectedCanvasDisplay,
+        actualCanvasDisplay,
+        syncMismatch: expectedCanvasDisplay !== actualCanvasDisplay,
+        finalResult: canvasDisplayResult
       });
     }
     
@@ -2283,16 +2290,110 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       newValues: selectedValues,
       sortByField: this.sortByField,
       showAnnotations: this.showAnnotations,
-      showMeasurements: this.showMeasurements
+      showMeasurements: this.showMeasurements,
+      wasEmpty: selectedValues.length === 0,
+      wasAllDeselected: this.selectedSortFilterValues.length === 0
     });
     
-    // Force complete synchronization to ensure both annotations and measurements are properly filtered
-    this._forceSynchronizeCanvasAndCommentList();
+    // Special handling for "all deselected" to "some selected" transitions
+    const previouslyEmpty = this.selectedSortFilterValues.length === 0;
+    const nowHasSelections = selectedValues.length > 0;
+    const isRecoveringFromEmpty = previouslyEmpty && nowHasSelections;
+    
+    if (isRecoveringFromEmpty) {
+      console.log('🚨 AGGRESSIVE RESET: Detected recovery from empty selection');
+      
+      // Step 1: Clear all stuck states and flags
+      this.isProcessingList = false;
+      this.isUpdatingLeaderLine = false;
+      
+      // Step 2: Force immediate observable updates
+      const markupList = this.rxCoreService.getGuiMarkupList();
+      if (markupList) {
+        // Force markup list observable to emit
+        this.rxCoreService.setGuiMarkupList(markupList);
+        
+        // Step 3: Reset filter states completely
+        this._updateCreatedByFilterOptions(markupList);
+        this._updateSortFilterOptions();
+        
+        // Step 4: Apply canvas filters with immediate redraw
+        console.log('🔄 Applying canvas filters...');
+        this._applySortFilterToCanvas();
+        RXCore.markUpRedraw();
+        
+        // Step 5: Force aggressive change detection immediately
+        console.log('🔄 Forcing aggressive change detection...');
+        this.cdr.detectChanges();
+        this.cdr.markForCheck();
+        
+        // Step 6: Process comment list with multiple retries
+        setTimeout(() => {
+          console.log('🔄 First comment list processing attempt...');
+          this.isProcessingList = false; // Ensure not blocked
+          this._processList(markupList);
+          this.cdr.detectChanges();
+          
+          // Immediate retry with different approach
+          setTimeout(() => {
+            console.log('🔄 Second comment list processing attempt...');
+            this.isProcessingList = false;
+            this._performProcessList(markupList, []);
+            this.cdr.detectChanges();
+            this.cdr.markForCheck();
+            
+                         // Final aggressive refresh
+             setTimeout(() => {
+               console.log('🔄 Final aggressive refresh...');
+               this.cdr.detectChanges();
+               
+               // Simulate the effect of clicking on a card by updating filter options again
+               this._updateCreatedByFilterOptions(markupList);
+               this.cdr.detectChanges();
+               
+               // AGGRESSIVE VIEW FORCE UPDATE for recovery scenario
+               console.log('🔄 Force triggering view update for recovery...');
+               
+               // Temporarily clear and restore the list to force re-render
+               const tempList = { ...this.list };
+               this.list = {};
+               this.cdr.detectChanges();
+               
+               setTimeout(() => {
+                 this.list = tempList;
+                 this.cdr.detectChanges();
+                 this.cdr.markForCheck();
+                 
+                 // Additional force update
+                 setTimeout(() => {
+                   this.cdr.detectChanges();
+                   
+                   // Force zone.js change detection cycle
+                   setTimeout(() => {
+                     this.cdr.detectChanges();
+                     this.cdr.markForCheck();
+                     console.log('✅ Force view update for recovery completed');
+                     
+                     // Verify the result
+                     setTimeout(() => {
+                       this._verifySynchronizationAndRetryIfNeeded(markupList);
+                     }, 100);
+                   }, 0);
+                 }, 10);
+               }, 10);
+             }, 50);
+          }, 100);
+        }, 150);
+      }
+    } else {
+      // Normal enhanced synchronization
+      this._enhancedSynchronizeCanvasAndCommentList();
+    }
 
     // Wait for DOM to be ready and then update leader line position
     setTimeout(() => {
       this._waitForDOMAndUpdateLeaderLine();
-    }, 100);
+    }, 150);
   }
 
   // Handle date picker selection for sort filter
@@ -2309,13 +2410,13 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       showMeasurements: this.showMeasurements
     });
     
-    // Force complete synchronization to ensure both annotations and measurements are properly filtered
-    this._forceSynchronizeCanvasAndCommentList();
+    // Enhanced synchronization to fix comment list not updating issue
+    this._enhancedSynchronizeCanvasAndCommentList();
     
     // Wait for DOM to be ready and then update leader line position
     setTimeout(() => {
       this._waitForDOMAndUpdateLeaderLine();
-    }, 100);
+    }, 150);
   }
 
   // Handle HTML date input changes for sort filter
@@ -2335,13 +2436,13 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       showMeasurements: this.showMeasurements
     });
     
-    // Force complete synchronization to ensure both annotations and measurements are properly filtered
-    this._forceSynchronizeCanvasAndCommentList();
+    // Enhanced synchronization to fix comment list not updating issue
+    this._enhancedSynchronizeCanvasAndCommentList();
     
     // Wait for DOM to be ready and then update leader line position
     setTimeout(() => {
       this._waitForDOMAndUpdateLeaderLine();
-    }, 100);
+    }, 150);
   }
 
   // Clear sort date filter
@@ -2353,13 +2454,13 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       showMeasurements: this.showMeasurements
     });
     
-    // Force complete synchronization to ensure both annotations and measurements are properly filtered
-    this._forceSynchronizeCanvasAndCommentList();
+    // Enhanced synchronization to fix comment list not updating issue
+    this._enhancedSynchronizeCanvasAndCommentList();
     
     // Wait for DOM to be ready and then update leader line position
     setTimeout(() => {
       this._waitForDOMAndUpdateLeaderLine();
-    }, 100);
+    }, 150);
   }
 
 
@@ -2475,13 +2576,13 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       showMeasurements: this.showMeasurements
     });
     
-    // Force complete synchronization to ensure both annotations and measurements are properly filtered
-    this._forceSynchronizeCanvasAndCommentList();
+    // Enhanced synchronization to fix comment list not updating issue
+    this._enhancedSynchronizeCanvasAndCommentList();
 
     // Wait for DOM to be ready and then update leader line position
     setTimeout(() => {
       this._waitForDOMAndUpdateLeaderLine();
-    }, 100);
+    }, 150);
   }
 
   ngAfterViewInit(): void {
@@ -3884,6 +3985,327 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     
     // Force canvas redraw to ensure visual consistency
     RXCore.markUpRedraw();
+  }
+
+  /**
+   * Enhanced synchronization method to fix comment list not updating after page filter changes
+   * This addresses the timing issue where canvas updates and comment list updates are out of sync
+   */
+  private _enhancedSynchronizeCanvasAndCommentList(): void {
+    const markupList = this.rxCoreService.getGuiMarkupList();
+    if (!markupList) return;
+
+    console.log('🔄 Enhanced synchronization between canvas and comment list');
+    console.log('📊 Current filter states:', {
+      showAnnotations: this.showAnnotations,
+      showMeasurements: this.showMeasurements,
+      sortByField: this.sortByField,
+      selectedSortFilterValues: this.selectedSortFilterValues,
+      markupCount: markupList.length
+    });
+
+    // Step 1: Apply all filters to canvas
+    this._applySortFilterToCanvas();
+    
+    // Step 2: Force immediate canvas redraw to update markup display states
+    RXCore.markUpRedraw();
+    
+    // Step 3: Wait for canvas to fully update before processing comment list
+    // This ensures markup.display states are properly set
+    setTimeout(() => {
+      console.log('🔄 Processing comment list after canvas update...');
+      
+      // Clear any processing flags that might prevent updates
+      this.isProcessingList = false;
+      
+      // Process the comment list with updated markup states
+      this._processList(markupList);
+      
+      // Multiple change detection strategies to ensure view updates
+      this.cdr.detectChanges();
+      this.cdr.markForCheck();
+      
+      // Force a complete view refresh
+      setTimeout(() => {
+        console.log('🔄 Forcing complete view refresh...');
+        
+        // Trigger multiple change detection cycles to ensure view updates
+        this.cdr.detectChanges();
+        
+        setTimeout(() => {
+          this.cdr.detectChanges();
+          this.cdr.markForCheck();
+          
+          // Force the component to re-evaluate all bindings
+          setTimeout(() => {
+            this.cdr.detectChanges();
+            console.log('✅ Complete view refresh finished');
+            
+            // Trigger the same refresh logic that happens when a card is clicked
+            console.log('🔄 Triggering card refresh logic...');
+            
+            // Clear any processing flags that might prevent updates  
+            this.isProcessingList = false;
+            
+            // Force immediate change detection like in SetActiveCommentThread
+            this.cdr.detectChanges();
+            
+            // Update filter options to ensure everything is in sync
+            if (markupList) {
+              this._updateCreatedByFilterOptions(markupList);
+            }
+            
+            // Force another round of change detection
+            this.cdr.detectChanges();
+            this.cdr.markForCheck();
+            
+            // AGGRESSIVE VIEW FORCE UPDATE - Force the list to re-render
+            console.log('🔄 Force triggering view update...');
+            
+            // Temporarily clear and restore the list to force re-render
+            const tempList = { ...this.list };
+            this.list = {};
+            this.cdr.detectChanges();
+            
+            setTimeout(() => {
+              this.list = tempList;
+              this.cdr.detectChanges();
+              this.cdr.markForCheck();
+              
+                             // Additional force update
+               setTimeout(() => {
+                 this.cdr.detectChanges();
+                 
+                 // Force zone.js change detection cycle
+                 setTimeout(() => {
+                   this.cdr.detectChanges();
+                   this.cdr.markForCheck();
+                   console.log('✅ Force view update completed');
+                 }, 0);
+               }, 10);
+            }, 10);
+            
+            console.log('✅ Card refresh logic completed');
+            
+            // Additional safeguard: verify synchronization and retry if needed
+            setTimeout(() => {
+              this._verifySynchronizationAndRetryIfNeeded(markupList);
+            }, 50);
+          }, 10);
+        }, 10);
+      }, 50);
+      
+    }, 100);
+  }
+
+  /**
+   * Verify that canvas and comment list are properly synchronized
+   * If not, attempt to fix the synchronization
+   */
+  private _verifySynchronizationAndRetryIfNeeded(markupList: any[]): void {
+    if (!markupList) return;
+    
+    console.log('🔍 Verifying synchronization...');
+    
+    let canvasVisibleCount = 0;
+    let commentListCount = 0;
+    let canvasVisibleMarkups: any[] = [];
+    let commentListMarkups: any[] = [];
+    
+    // Count visible markups on canvas and collect them for debugging
+    for (const markup of markupList) {
+      const shouldShowOnCanvas = this._shouldShowMarkupForCanvas(markup);
+      if (shouldShowOnCanvas) {
+        canvasVisibleCount++;
+        canvasVisibleMarkups.push({
+          id: markup.markupnumber,
+          page: markup.pagenumber + 1,
+          type: this.getAnnotationTitle(markup.type, markup.subtype),
+          isMeasurement: !!(markup as any).ismeasure
+        });
+      }
+    }
+    
+    // Count visible markups in comment list and collect them
+    for (const groupKey in this.list) {
+      if (this.list[groupKey]) {
+        commentListCount += this.list[groupKey].length;
+        for (const markup of this.list[groupKey]) {
+          commentListMarkups.push({
+            id: markup.markupnumber,
+            page: markup.pagenumber + 1,
+            type: this.getAnnotationTitle(markup.type, markup.subtype),
+            isMeasurement: !!(markup as any).ismeasure
+          });
+        }
+      }
+    }
+    
+    console.log('📊 Detailed synchronization check:', {
+      canvasVisibleCount,
+      commentListCount,
+      isInSync: canvasVisibleCount === commentListCount,
+      canvasVisibleMarkups,
+      commentListMarkups
+    });
+    
+    // If counts don't match, we have a synchronization issue - retry with more aggressive approach
+    if (canvasVisibleCount !== commentListCount) {
+      console.log('⚠️ Synchronization mismatch detected, performing enhanced retry...');
+      
+      // Find the missing markups
+      const canvasIds = new Set(canvasVisibleMarkups.map(m => m.id));
+      const commentIds = new Set(commentListMarkups.map(m => m.id));
+      const missingFromComments = canvasVisibleMarkups.filter(m => !commentIds.has(m.id));
+      const extraInComments = commentListMarkups.filter(m => !canvasIds.has(m.id));
+      
+      console.log('🔍 Missing markups analysis:', {
+        missingFromComments,
+        extraInComments
+      });
+      
+      // Enhanced retry with forced canvas update first
+      setTimeout(() => {
+        console.log('🔄 Enhanced retry: Forcing canvas update...');
+        this._applySortFilterToCanvas();
+        RXCore.markUpRedraw();
+        
+                 // Then wait and update comment list
+         setTimeout(() => {
+           console.log('🔄 Enhanced retry: Updating comment list...');
+           
+           // Clear processing flags and update list
+           this.isProcessingList = false;
+           this._processList(markupList);
+           
+           // Aggressive change detection for retry
+           this.cdr.detectChanges();
+           this.cdr.markForCheck();
+           
+           setTimeout(() => {
+             this.cdr.detectChanges();
+             
+             setTimeout(() => {
+               this.cdr.detectChanges();
+               console.log('✅ Enhanced retry view refresh completed');
+               
+               // Final verification
+               setTimeout(() => {
+                 this._finalSynchronizationCheck(markupList);
+               }, 100);
+             }, 10);
+           }, 10);
+         }, 150);
+      }, 100);
+    } else {
+      console.log('✅ Canvas and comment list are properly synchronized');
+    }
+  }
+
+  /**
+   * Final synchronization check - if still mismatched, log detailed info for debugging
+   */
+  private _finalSynchronizationCheck(markupList: any[]): void {
+    let finalCanvasCount = 0;
+    let finalCommentCount = 0;
+    
+    // Count final states
+    for (const markup of markupList) {
+      if (this._shouldShowMarkupForCanvas(markup)) {
+        finalCanvasCount++;
+      }
+    }
+    
+    for (const groupKey in this.list) {
+      if (this.list[groupKey]) {
+        finalCommentCount += this.list[groupKey].length;
+      }
+    }
+    
+    if (finalCanvasCount === finalCommentCount) {
+      console.log('✅ Enhanced retry successful - synchronization achieved!');
+    } else {
+      console.log('❌ Synchronization still not achieved after enhanced retry:', {
+        finalCanvasCount,
+        finalCommentCount,
+        sortByField: this.sortByField,
+        selectedSortFilterValues: this.selectedSortFilterValues,
+        showAnnotations: this.showAnnotations,
+        showMeasurements: this.showMeasurements
+      });
+    }
+  }
+
+  /**
+   * Helper method to check if markup should be visible on canvas based on current filters
+   * This uses the EXACT same logic as _shouldShowMarkupInCommentList to ensure synchronization
+   */
+  private _shouldShowMarkupForCanvas(markup: any): boolean {
+    // Use the exact same logic as comment list filtering but without the final canvas display check
+    // to avoid circular dependency
+    
+    // Check annotation/measurement switch states first
+    const isMeasurement = (markup as any).ismeasure === true;
+    const showAnnotationsState = this.showAnnotations === true;
+    const showMeasurementsState = this.showMeasurements === true;
+    
+    let switchAllowsDisplay = false;
+    if (isMeasurement) {
+      switchAllowsDisplay = showMeasurementsState;
+    } else {
+      switchAllowsDisplay = showAnnotationsState;
+    }
+    
+    if (!switchAllowsDisplay) {
+      return false;
+    }
+    
+    // Check author filter state
+    const authorFilterResult = this._shouldShowMarkupForAuthor(markup);
+    if (!authorFilterResult) {
+      return false;
+    }
+    
+    // Check sort filter values
+    const sortFilterResult = this._shouldShowMarkupForSortFilter(markup);
+    if (!sortFilterResult) {
+      return false;
+    }
+    
+    // Check the type filter state for additional filtering logic
+    const typeFilterResult = this._getmarkupTypeDisplay(markup);
+    if (typeFilterResult === false) {
+      return false;
+    }
+    
+    // Apply the same date filter logic as in _performProcessList
+    if (this.pageNumber > 0) {
+      // Page-specific filtering
+      if (markup.pagenumber !== this.pageNumber - 1) {
+        return false;
+      }
+    }
+    
+    // Apply date filter
+    if (this.dateFilter.startDate || this.dateFilter.endDate) {
+      const passesDateFilter = (this.dateFilter.startDate
+        ? dayjs(markup.timestamp).isSameOrAfter(this.dateFilter.startDate)
+        : true) &&
+      (this.dateFilter.endDate
+        ? dayjs(markup.timestamp).isSameOrBefore(this.dateFilter.endDate.endOf('day'))
+        : true);
+      
+      if (!passesDateFilter) {
+        return false;
+      }
+    }
+    
+    // Check bisTextArrow filter (same as in _performProcessList)
+    if (markup.bisTextArrow) {
+      return false;
+    }
+    
+    return true;
   }
 
   /**

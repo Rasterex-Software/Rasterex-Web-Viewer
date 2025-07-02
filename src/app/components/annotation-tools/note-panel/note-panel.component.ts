@@ -2288,6 +2288,33 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       if (removedPages.length > 0 || selectedValues.length === 0) {
         const markupList = this.rxCoreService.getGuiMarkupList();
         if (markupList) {
+          // Clear individual visibility settings for annotations from removed pages
+          removedPages.forEach(removedPage => {
+            markupList.forEach(markup => {
+              const pageNumber = markup.pagenumber + 1;
+              if (pageNumber === removedPage) {
+                // Remove from individual hidden sets since the page is now filtered out
+                this.hiddenAnnotations.delete(markup.markupnumber);
+                this.groupHiddenAnnotations.delete(markup.markupnumber);
+                
+                // Also clear any group hidden states for this page
+                const groupKey = this._getGroupKeyForMarkup(markup);
+                if (groupKey) {
+                  // Check if all annotations in this group are from the removed page
+                  const groupItems = this._getGroupItems(groupKey);
+                  const allFromRemovedPage = groupItems.every(item => {
+                    const itemPageNumber = item.pagenumber + 1;
+                    return itemPageNumber === removedPage;
+                  });
+                  
+                  if (allFromRemovedPage) {
+                    this.hiddenGroups.delete(groupKey);
+                  }
+                }
+              }
+            });
+          });
+          
           // First collapse any expanded cards that will be hidden
           markupList.forEach(markup => {
             const pageNumber = markup.pagenumber + 1;
@@ -2301,6 +2328,18 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
           
           // Force canvas refresh to ensure annotations are hidden
           this._forceCanvasRefresh();
+          
+          // Additional step: Ensure annotations from unselected pages are hidden on canvas
+          if (selectedValues.length > 0) {
+            markupList.forEach(markup => {
+              const pageNumber = markup.pagenumber + 1;
+              if (!selectedValues.includes(pageNumber)) {
+                // Hide annotations from unselected pages on canvas
+                markup.setdisplay(false);
+              }
+            });
+            RXCore.markUpRedraw();
+          }
           
           // Force change detection
           this.cdr.detectChanges();
@@ -3066,8 +3105,22 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       });
     });
     
-    // Check for missing hidden annotations
-    const missingHiddenAnnotations = Array.from(allHiddenNumbers).filter(
+    // Filter out hidden annotations that should not be preserved due to page filtering
+    const preservedHiddenAnnotations = Array.from(allHiddenNumbers).filter(markupNumber => {
+      const markup = markupList.find(m => m.markupnumber === markupNumber);
+      if (!markup) return false;
+      
+      // If we're filtering by page, check if the annotation's page is selected
+      if (this.sortByField === 'pagenumber' && this.selectedSortFilterValues.length > 0) {
+        const pageNumber = markup.pagenumber + 1;
+        return this.selectedSortFilterValues.includes(pageNumber);
+      }
+      
+      return true; // Preserve for other filter types
+    });
+    
+    // Check for missing hidden annotations that should be preserved
+    const missingHiddenAnnotations = preservedHiddenAnnotations.filter(
       markupNumber => !commentListNumbers.has(markupNumber)
     );
     

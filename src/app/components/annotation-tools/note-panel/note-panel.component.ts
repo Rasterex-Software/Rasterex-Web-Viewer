@@ -1161,41 +1161,44 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     this.isProcessingList = true;
 
     try {
-
-    // Initialize sort filter options if they haven't been initialized yet and we have data
-    if (list.length > 0 && this.sortFilterOptions.length === 0) {
-      this._updateSortFilterOptions();
-    }
-
-    const mergeList = [...list, ...annotList];
-    const query = mergeList.filter((i: any) => {
-      // Apply annotation/measurement filtering based on switches first
-      if (this.showAnnotations && !this.showMeasurements) {
-        // Show only annotations (non-measurements)
-        const isAnnotation = !i.ismeasure;
-        if (!isAnnotation) {
-          return false;
-        }
-      } else if (this.showMeasurements && !this.showAnnotations) {
-        // Show only measurements
-        const isMeasurement = i.ismeasure;
-        if (!isMeasurement) {
-          return false;
-        }
-      } else if (!this.showAnnotations && !this.showMeasurements) {
-        // Show nothing when both switches are off
-        return false;
+      // Initialize sort filter options if they haven't been initialized yet and we have data
+      if (list.length > 0 && this.sortFilterOptions.length === 0) {
+        this._updateSortFilterOptions();
       }
-      
-      // Check if the markup should be shown based on all filters
-      // This includes author filters, sort filters (pages), etc.
-      const shouldShow = this._shouldShowMarkupInCommentList(i);
-      
-      return shouldShow;
-    })
-    .filter((i: any) => {
-    /*modified for comment list panel */
 
+      const mergeList = [...list, ...annotList];
+      const query = mergeList.filter((i: any) => {
+        // Apply annotation/measurement filtering based on switches first
+        if (this.showAnnotations && !this.showMeasurements) {
+          // Show only annotations (non-measurements)
+          const isAnnotation = !i.ismeasure;
+          if (!isAnnotation) {
+            return false;
+          }
+        } else if (this.showMeasurements && !this.showAnnotations) {
+          // Show only measurements
+          const isMeasurement = i.ismeasure;
+          if (!isMeasurement) {
+            return false;
+          }
+        } else if (!this.showAnnotations && !this.showMeasurements) {
+          // Show nothing when both switches are off
+          return false;
+        }
+
+        // Always include hidden annotations in the list
+        if (this.hiddenAnnotations.has(i.markupnumber) || this.groupHiddenAnnotations.has(i.markupnumber)) {
+          return true;
+        }
+        
+        // Check if the markup should be shown based on all filters
+        // This includes author filters, sort filters (pages), etc.
+        const shouldShow = this._shouldShowMarkupInCommentList(i);
+        
+        return shouldShow;
+      })
+      .filter((i: any) => {
+        /*modified for comment list panel */
         if (this.pageNumber > 0) {
           return (
             (this.dateFilter.startDate
@@ -1222,124 +1225,86 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
             !i.bisTextArrow
           );
         }
-    })
-    .filter((item: any) => {
-      // Check individual annotation visibility (eye icon) - only for comment list display
-      // Comment cards should remain in list even when annotation is hidden on canvas
-      return true; // Always show comment cards in list
-    })
-    .filter((item: any) => {
-      // Always show the active markup regardless of any filter
-      if (this.activeMarkupNumber > 0 && item.markupnumber === this.activeMarkupNumber) {
-        return true;
-      }
-      
-      // For all other items, the filtering is already handled in _shouldShowMarkupInCommentList
-      return true;
-    })
-    .map((item: any) => {
-      //item.author = item.title !== '' ? item.title : RXCore.getDisplayName(item.signature);
-
-      item.author = RXCore.getDisplayName(item.signature);
-
-      //item.createdStr = dayjs(item.timestamp).format(`MMM D,${dayjs().year() != dayjs(item.timestamp).year() ? 'YYYY ': ''} h:mm A`);
-      item.createdStr = dayjs(item.timestamp).format(this.guiConfig?.dateFormat?.dateTimeWithConditionalYear || 'MMM d, [yyyy] h:mm a');
-
-
-      //item.IsExpanded = item?.IsExpanded;
-      //item.IsExpanded = this.activeMarkupNumber > 0 ? item?.IsExpanded : false;
-      item.IsExpanded = item?.IsExpanded;
-
-      // REMOVED LEADER LINE MANAGEMENT FROM _processList TO PREVENT BLINKING
-      // Leader lines are now managed only in SetActiveCommentThread and onHideComment methods
-
-      return item;
-    })
-    .sort((a, b) => {
-
-      switch(this.sortByField) {
-
-        case 'created':
-          return b.timestamp - a.timestamp;
-        case 'author':
-          return a.author.localeCompare(b.author);
-        case 'pagenumber':
-          return a.pagenumber - b.pagenumber;
-
-        case 'annotation':
-            //return a.type - b.type + (a.subtype - b.subtype);
-            return this.getAnnotationTitle(a.type, a.subtype).localeCompare(this.getAnnotationTitle(b.type, b.subtype));
-
-      }
-    });
-
-
-    switch (this.sortByField) {
-      case 'created':
-        this.list = query.reduce((list, item) => {
-          const date = dayjs(item.timestamp).fromNow();
-          if (!list[date]) {
-            list[date] = [item];
-          } else {
-            list[date].push(item);
-          }
-          return list;
-        }, {});
-        break;
-      case 'author':
-        this.list = query.reduce((list, item) => {
-          if (!list[item.author]) {
-            list[item.author] = [item];
-          } else {
-            list[item.author].push(item);
-          }
-
-          return list;
-        }, {});
-        break;
-      case 'annotation':
-        this.list = query.reduce((list, item) => {
-          const annotationLabel = this.getAnnotationTitle(item.type, item.subtype);
-          if (!list[annotationLabel]) {
-            list[annotationLabel] = [item];
-          } else {
-            list[annotationLabel].push(item);
-          }
-          return list;
-        }, {});
-        break;
-      case 'pagenumber':
-        this.list = query.reduce((list, item) => {
-          if (!list[`Page ${item.pagenumber + 1}`]) {
-            list[`Page ${item.pagenumber + 1}`] = [item];
-          } else {
-            list[`Page ${item.pagenumber + 1}`].push(item);
-          }
-          return list;
-        }, {});
-        break;
-
-      default:
-        this.list = {'': query};
-    }
-
-
-    /*if (this.sortByField == 'created') {
-      this.list = query.reduce((list, item) => {
-        const date = dayjs(item.timestamp).fromNow();
-        if (!list[date]) {
-          list[date] = [item];
-        } else {
-          list[date].push(item);
+      })
+      .filter((item: any) => {
+        // Check individual annotation visibility (eye icon) - only for comment list display
+        // Comment cards should remain in list even when annotation is hidden on canvas
+        return true; // Always show comment cards in list
+      })
+      .filter((item: any) => {
+        // Always show the active markup regardless of any filter
+        if (this.activeMarkupNumber > 0 && item.markupnumber === this.activeMarkupNumber) {
+          return true;
         }
+        
+        // For all other items, the filtering is already handled in _shouldShowMarkupInCommentList
+        return true;
+      })
+      .map((item: any) => {
+        item.author = RXCore.getDisplayName(item.signature);
+        item.createdStr = dayjs(item.timestamp).format(this.guiConfig?.dateFormat?.dateTimeWithConditionalYear || 'MMM d, [yyyy] h:mm a');
+        item.IsExpanded = item?.IsExpanded;
+        return item;
+      })
+      .sort((a, b) => {
+        switch(this.sortByField) {
+          case 'created':
+            return b.timestamp - a.timestamp;
+          case 'author':
+            return a.author.localeCompare(b.author);
+          case 'pagenumber':
+            return a.pagenumber - b.pagenumber;
+          case 'annotation':
+            return this.getAnnotationTitle(a.type, a.subtype).localeCompare(this.getAnnotationTitle(b.type, b.subtype));
+        }
+      });
 
-        return list;
-      }, {});
-    } else {
-      this.list = {
-        '': query,
-      };
-    }*/
+      switch (this.sortByField) {
+        case 'created':
+          this.list = query.reduce((list, item) => {
+            const date = dayjs(item.timestamp).fromNow();
+            if (!list[date]) {
+              list[date] = [item];
+            } else {
+              list[date].push(item);
+            }
+            return list;
+          }, {});
+          break;
+        case 'author':
+          this.list = query.reduce((list, item) => {
+            if (!list[item.author]) {
+              list[item.author] = [item];
+            } else {
+              list[item.author].push(item);
+            }
+            return list;
+          }, {});
+          break;
+        case 'annotation':
+          this.list = query.reduce((list, item) => {
+            const annotationLabel = this.getAnnotationTitle(item.type, item.subtype);
+            if (!list[annotationLabel]) {
+              list[annotationLabel] = [item];
+            } else {
+              list[annotationLabel].push(item);
+            }
+            return list;
+          }, {});
+          break;
+        case 'pagenumber':
+          this.list = query.reduce((list, item) => {
+            if (!list[`Page ${item.pagenumber + 1}`]) {
+              list[`Page ${item.pagenumber + 1}`] = [item];
+            } else {
+              list[`Page ${item.pagenumber + 1}`].push(item);
+            }
+            return list;
+          }, {});
+          break;
+        default:
+          this.list = {'': query};
+      }
     } finally {
       this.isProcessingList = false;
     }
@@ -1438,16 +1403,25 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
    */
   private _shouldShowMarkupForAuthor(markup: any): boolean {
     // When using group-by filter in author mode, use the selectedSortFilterValues
-    if (this.sortByField === 'author' && this.selectedSortFilterValues.length > 0) {
+    if (this.sortByField === 'author') {
+      // If no authors are selected, show nothing
+      if (this.selectedSortFilterValues.length === 0) {
+        return false;
+      }
+      
       const authorName = RXCore.getDisplayName(markup.signature);
-      return this.selectedSortFilterValues.includes(authorName);
+      const isAuthorSelected = this.selectedSortFilterValues.includes(authorName);
+      
+      // If this is a hidden annotation and its author is not selected, don't show it
+      if (this.hiddenAnnotations.has(markup.markupnumber) || this.groupHiddenAnnotations.has(markup.markupnumber)) {
+        return isAuthorSelected;
+      }
+      
+      return isAuthorSelected;
     }
     
-    // When using group-by filter but not in author mode, check if any authors are selected
-    // If authors are selected via group-by filter, respect that selection
-    if (this.sortByField !== 'author' && this.sortFilterOptions.length > 0) {
-      // If we're not in author sort mode but have sort filter options, 
-      // don't apply author filtering (it should only apply when sortByField is 'author')
+    // When not in author mode but have sort filter options, don't apply author filtering
+    if (this.sortFilterOptions.length > 0) {
       return true;
     }
     
@@ -1457,7 +1431,14 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     }
     
     // Check if the markup's author is in the selected filter
-    return this.createdByFilter.has(markup.signature);
+    const isAuthorInFilter = this.createdByFilter.has(markup.signature);
+    
+    // If this is a hidden annotation and its author is not in the filter, don't show it
+    if (this.hiddenAnnotations.has(markup.markupnumber) || this.groupHiddenAnnotations.has(markup.markupnumber)) {
+      return isAuthorInFilter;
+    }
+    
+    return isAuthorInFilter;
   }
 
   /**
@@ -2944,36 +2925,60 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
 
   }
 
-  SetActiveCommentThread(event, markupNo: number, markup: any): void {
-    if (markupNo && markupNo > 0 && markup) {
+  SetActiveCommentThread(event: MouseEvent, markupNo: number, markup: any): void {
+    console.log('🔍 SetActiveCommentThread - Event:', event);
+    console.log('🔍 SetActiveCommentThread - Target:', event.target);
+    console.log('🔍 SetActiveCommentThread - Current Target:', event.currentTarget);
+    console.log('🔍 SetActiveCommentThread - MarkupNo:', markupNo);
+    console.log('🔍 SetActiveCommentThread - Markup:', markup);
+    console.log('🔍 SetActiveCommentThread - Hidden State:', {
+      hiddenAnnotations: Array.from(this.hiddenAnnotations),
+      groupHiddenAnnotations: Array.from(this.groupHiddenAnnotations),
+      hiddenGroups: Array.from(this.hiddenGroups)
+    });
 
+    // If the click is on a control element (eye icon, status menu, etc.), ignore it
+    const target = event.target as HTMLElement;
+    if (target.closest('.eye-icon-container') || 
+        target.closest('.statusMenuButton') || 
+        target.closest('.comments-controls') ||
+        target.closest('.note-input')) {
+      console.log('🔍 SetActiveCommentThread - Click on control element, ignoring');
+      return;
+    }
+
+    if (markupNo && markupNo > 0 && markup) {
       // Safety check: prevent interaction with hidden annotation cards
       if (!this.isCommentCardClickable(markupNo)) {
+        console.log('🔍 SetActiveCommentThread - Card not clickable:', markupNo);
         event.preventDefault();
         return;
       }
 
+      console.log('🔍 SetActiveCommentThread - Before change detection - List state:', this.list);
       // Force immediate change detection for responsive UI
       this.cdr.detectChanges();
 
-      // Ensure the markup's author is always visible by adding to filters if needed
-      this._ensureActiveMarkupIsVisible(markup);
-
       // Select the annotation (this is safe and doesn't affect visibility)
+      console.log('🔍 SetActiveCommentThread - Before onSelectAnnotation');
       this.onSelectAnnotation(markup);
+      console.log('🔍 SetActiveCommentThread - After onSelectAnnotation');
 
       // Navigate to the correct page where the annotation exists
       RXCore.gotoPage(markup.pagenumber);
 
       // First, collapse ALL other cards and hide their leader lines
       let targetCard: any = null;
+      console.log('🔍 SetActiveCommentThread - Current list state before collapse:', this.list);
       Object.values(this.list || {}).forEach((comments) => {
         comments.forEach((comment: any) => {
           if (comment.markupnumber === markupNo) {
             // Store reference to the target card
             targetCard = comment;
+            console.log('🔍 SetActiveCommentThread - Found target card:', comment);
           } else if (comment.IsExpanded) {
             // Collapse all other expanded cards
+            console.log('🔍 SetActiveCommentThread - Collapsing card:', comment.markupnumber);
             comment.IsExpanded = false;
             // Hide leader line for this collapsed card
             this._hideLeaderLineForMarkup(comment.markupnumber);
@@ -2986,15 +2991,20 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       if (targetCard) {
         targetCard.IsExpanded = !targetCard.IsExpanded;
         isNowExpanded = targetCard.IsExpanded;
+        console.log('🔍 SetActiveCommentThread - Target card expanded state:', isNowExpanded);
       }
 
       // For hidden annotations, only show leader lines but don't modify canvas visibility
       const isHiddenAnnotation = this.hiddenAnnotations.has(markupNo) || this.groupHiddenAnnotations.has(markupNo);
+      console.log('🔍 SetActiveCommentThread - Is hidden annotation:', isHiddenAnnotation);
+      console.log('🔍 SetActiveCommentThread - Hidden annotations set:', Array.from(this.hiddenAnnotations));
+      console.log('🔍 SetActiveCommentThread - Group hidden annotations set:', Array.from(this.groupHiddenAnnotations));
       
       // Manage leader line for the target card based on its new expansion state
       if (isNowExpanded) {
         // Add a small delay to prevent race conditions
         setTimeout(() => {
+          console.log('🔍 SetActiveCommentThread - Showing leader line for:', markupNo);
           this._showLeaderLineForMarkup(markupNo, markup);
         }, 50);
         
@@ -3002,9 +3012,11 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
         if (isHiddenAnnotation) {
           // Don't modify the hidden state, just show temporarily for leader line
           const markupList = this.rxCoreService.getGuiMarkupList();
+          console.log('🔍 SetActiveCommentThread - Markup list for hidden annotation:', markupList);
           if (markupList) {
             const targetMarkup = markupList.find(m => m.markupnumber === markupNo);
             if (targetMarkup) {
+              console.log('🔍 SetActiveCommentThread - Temporarily showing hidden annotation:', markupNo);
               targetMarkup.setdisplay(true);
               RXCore.markUpRedraw();
             }
@@ -3012,23 +3024,27 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
         }
       } else {
         // Card is now collapsed, hide its leader line immediately
+        console.log('🔍 SetActiveCommentThread - Hiding leader line for:', markupNo);
         this._hideLeaderLineForMarkup(markupNo);
         
         // If this is a hidden annotation, restore its hidden state on canvas
         if (isHiddenAnnotation) {
           setTimeout(() => {
+            console.log('🔍 SetActiveCommentThread - Restoring hidden state for:', markupNo);
             this._updateIndividualAnnotationVisibility(markupNo, false);
           }, 100);
         }
       }
 
+      // Ensure hidden annotations stay in the list and synchronize states
+      setTimeout(() => {
+        this._preserveHiddenAnnotationsInCommentList();
+        this._forceSynchronizeCanvasAndCommentList();
+      }, 150);
+
+      console.log('🔍 SetActiveCommentThread - Final list state:', this.list);
       // Force change detection to update the UI
       this.cdr.detectChanges();
-      
-      // CRITICAL: Do NOT call _preserveHiddenAnnotationsInCommentList or _processList here
-      // as they can cause comment cards to be removed. The comment list should remain stable
-      // when clicking on cards.
-      
     } else {
       console.warn(`SetActiveCommentThread: Invalid markup number ${markupNo} or markup object`);
     }
@@ -3998,14 +4014,27 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
   private _forceSynchronizeCanvasAndCommentList(): void {
     const markupList = this.rxCoreService.getGuiMarkupList();
     if (!markupList) return;
-
-    // Apply all filters to canvas first
-    this._applySortFilterToCanvas();
     
-    // Then refresh the comment list to match
-    this._processList(markupList);
+    console.log('🔍 Synchronizing canvas and comment list states');
     
-    // Force canvas redraw to ensure visual consistency
+    markupList.forEach(markup => {
+      const markupNumber = markup.markupnumber;
+      // Access display state through the markup object
+      const displayState = (markup as any).display === true;
+      const isVisibleInList = this.isAnnotationVisible(markupNumber);
+      
+      if (displayState !== isVisibleInList) {
+        console.log(`🔍 State mismatch for markup ${markupNumber}:`, {
+          canvasDisplay: displayState,
+          listVisible: isVisibleInList
+        });
+        
+        // Update canvas to match list state
+        markup.setdisplay(isVisibleInList);
+      }
+    });
+    
+    // Ensure changes are reflected
     RXCore.markUpRedraw();
   }
 
@@ -4130,23 +4159,66 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
    * Check if a specific annotation is visible (not hidden by eye icon or group toggle)
    */
   isAnnotationVisible(markupNumber: number): boolean {
-    // An annotation is visible if it's not individually hidden AND not hidden by group
-    return !this.hiddenAnnotations.has(markupNumber) && !this.groupHiddenAnnotations.has(markupNumber);
+    // First check if the annotation is hidden individually
+    if (this.hiddenAnnotations.has(markupNumber)) {
+      return false;
+    }
+
+    // Then check if it's hidden by group
+    if (this.groupHiddenAnnotations.has(markupNumber)) {
+      return false;
+    }
+
+    // Get the markup object to check its group
+    const markupList = this.rxCoreService.getGuiMarkupList();
+    if (!markupList) return true;
+
+    const markup = markupList.find(m => m.markupnumber === markupNumber);
+    if (!markup) return true;
+
+    // Check if the group is hidden
+    const groupKey = this._getGroupKeyForMarkup(markup);
+    if (this.hiddenGroups.has(groupKey)) {
+      return false;
+    }
+
+    // If none of the above conditions are met, the annotation is visible
+    return true;
   }
 
   /**
-   * Check if a comment card should be clickable
-   * Cards are only clickable when their annotation is visible
+   * Check if a comment card can be clicked (expanded/collapsed)
    */
   isCommentCardClickable(markupNumber: number): boolean {
-    return this.isAnnotationVisible(markupNumber);
+    // Get the markup object
+    const markupList = this.rxCoreService.getGuiMarkupList();
+    if (!markupList) return false;
+
+    const markup = markupList.find(m => m.markupnumber === markupNumber);
+    if (!markup) return false;
+
+    // Check if the markup should be shown based on filters
+    const passesFilters = this._shouldShowMarkupForCanvasIgnoringIndividualVisibility(markup);
+    if (!passesFilters) return false;
+
+    // Always allow clicking if the annotation is visible
+    if (this.isAnnotationVisible(markupNumber)) {
+      return true;
+    }
+
+    // For hidden annotations, check if they're in the list
+    const isInList = Object.values(this.list || {}).some(group =>
+      group.some(item => item.markupnumber === markupNumber)
+    );
+
+    return isInList;
   }
 
   /**
-   * Check if a comment card should show disabled styling
+   * Check if a comment card should be disabled (grayed out)
    */
   isCommentCardDisabled(markupNumber: number): boolean {
-    return !this.isAnnotationVisible(markupNumber);
+    return !this.isCommentCardClickable(markupNumber);
   }
 
   /**
@@ -4210,12 +4282,46 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     const markup = markupList.find(m => m.markupnumber === markupNumber);
     if (!markup) return;
     
-    // Check if the annotation should be shown based on all other filters (excluding individual visibility)
+    // Get the group key for this markup
+    const groupKey = this._getGroupKeyForMarkup(markup);
+    
+    // Update visibility state based on shouldShow parameter
+    if (shouldShow) {
+      // Remove from both individual and group hidden sets
+      this.hiddenAnnotations.delete(markupNumber);
+      this.groupHiddenAnnotations.delete(markupNumber);
+      
+      // If this was the last hidden annotation in the group, remove the group from hidden groups
+      const groupItems = this._getGroupItems(groupKey);
+      const hasOtherHiddenAnnotations = groupItems.some(item => 
+        item.markupnumber !== markupNumber && 
+        (this.hiddenAnnotations.has(item.markupnumber) || this.groupHiddenAnnotations.has(item.markupnumber))
+      );
+      
+      if (!hasOtherHiddenAnnotations) {
+        this.hiddenGroups.delete(groupKey);
+      }
+    } else {
+      // Add to individual hidden set
+      this.hiddenAnnotations.add(markupNumber);
+      
+      // If all annotations in the group are now hidden, add the group to hidden groups
+      const groupItems = this._getGroupItems(groupKey);
+      const allHidden = groupItems.every(item => 
+        this.hiddenAnnotations.has(item.markupnumber) || 
+        this.groupHiddenAnnotations.has(item.markupnumber)
+      );
+      
+      if (allHidden) {
+        this.hiddenGroups.add(groupKey);
+      }
+    }
+    
+    // Check if the annotation should be shown based on all other filters
     const shouldShowBasedOnFilters = this._shouldShowMarkupForCanvasIgnoringIndividualVisibility(markup);
     
     // Apply the individual visibility setting
     const finalVisibility = shouldShow && shouldShowBasedOnFilters;
-    
     
     // Set the display state
     markup.setdisplay(finalVisibility);
@@ -4226,6 +4332,9 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     // Additional redraw after a short delay to ensure all annotations are properly updated
     setTimeout(() => {
       RXCore.markUpRedraw();
+      
+      // Ensure synchronization
+      this._forceSynchronizeCanvasAndCommentList();
     }, 50);
   }
 
@@ -4259,25 +4368,76 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     const markupList = this.rxCoreService.getGuiMarkupList();
     if (!markupList) return;
     
-    // Update display state for all annotations
+    console.log('🔍 Force Canvas Refresh - Starting:', {
+      totalMarkups: markupList.length,
+      hiddenAnnotations: Array.from(this.hiddenAnnotations),
+      groupHiddenAnnotations: Array.from(this.groupHiddenAnnotations),
+      hiddenGroups: Array.from(this.hiddenGroups)
+    });
+    
+    // First pass: Update display state for all annotations
     markupList.forEach(markup => {
-      const shouldShow = this._shouldShowMarkupForCanvasIgnoringIndividualVisibility(markup);
-      const isIndividuallyVisible = this.isAnnotationVisible(markup.markupnumber);
-      const finalVisibility = shouldShow && isIndividuallyVisible;
+      const markupNumber = markup.markupnumber;
+      const groupKey = this._getGroupKeyForMarkup(markup);
+      const isGroupHidden = this.hiddenGroups.has(groupKey);
+      const isIndividuallyHidden = this.hiddenAnnotations.has(markupNumber);
+      const isHiddenByGroup = this.groupHiddenAnnotations.has(markupNumber);
+      const shouldShow = !isIndividuallyHidden && !isHiddenByGroup && !isGroupHidden;
+      
+      // Check if the markup should be shown based on filters
+      const passesFilters = this._shouldShowMarkupForCanvasIgnoringIndividualVisibility(markup);
+      const finalVisibility = shouldShow && passesFilters;
+      
+      console.log(`🔍 Markup ${markupNumber} visibility:`, {
+        groupKey,
+        isGroupHidden,
+        isIndividuallyHidden,
+        isHiddenByGroup,
+        shouldShow,
+        passesFilters,
+        finalVisibility
+      });
       
       markup.setdisplay(finalVisibility);
     });
     
-    // Multiple redraws to ensure all annotation types are properly rendered
+    // Force immediate redraw
     RXCore.markUpRedraw();
     
+    // Second pass: Verify display states
     setTimeout(() => {
-      RXCore.markUpRedraw();
-    }, 50);
+      let needsCorrection = false;
+      markupList.forEach(markup => {
+        const markupNumber = markup.markupnumber;
+        const currentDisplay = (markup as any).display === true;
+        const expectedDisplay = !this.hiddenAnnotations.has(markupNumber) && 
+                              !this.groupHiddenAnnotations.has(markupNumber) &&
+                              this._shouldShowMarkupForCanvasIgnoringIndividualVisibility(markup);
+        
+        if (currentDisplay !== expectedDisplay) {
+          console.log(`🔍 Correcting display state for markup ${markupNumber}:`, {
+            currentDisplay,
+            expectedDisplay
+          });
+          markup.setdisplay(expectedDisplay);
+          needsCorrection = true;
+        }
+      });
+      
+      if (needsCorrection) {
+        RXCore.markUpRedraw();
+      }
+      
+      // Ensure comment list is synchronized
+      this._preserveHiddenAnnotationsInCommentList();
+      this._forceSynchronizeCanvasAndCommentList();
+    }, 100);
     
+    // Final pass: Ensure all annotation types are rendered
     setTimeout(() => {
       RXCore.markUpRedraw();
-    }, 150);
+      console.log('🔍 Force Canvas Refresh - Complete');
+    }, 200);
   }
 
   /**
@@ -4345,6 +4505,15 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     const isCurrentlyVisible = this.isGroupVisible(groupKey);
     const isExplicitlyHiddenByGroup = this.hiddenGroups.has(groupKey);
     
+    console.log('🔍 Group Visibility Toggle:', {
+      groupKey,
+      isCurrentlyVisible,
+      isExplicitlyHiddenByGroup,
+      itemCount: groupItems.length,
+      hiddenAnnotations: Array.from(this.hiddenAnnotations),
+      groupHiddenAnnotations: Array.from(this.groupHiddenAnnotations)
+    });
+    
     if (isCurrentlyVisible) {
       // First collapse all expanded cards in the group
       const expandedItems = groupItems.filter(item => item.IsExpanded);
@@ -4366,41 +4535,60 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       // Hide the group explicitly
       this.hiddenGroups.add(groupKey);
       
-      // Hide all annotations in this group on canvas, but respect individual overrides
+      // Hide all annotations in this group on canvas
       groupItems.forEach(item => {
         const markupNumber = item.markupnumber;
-        // Only hide if not individually overridden to be shown
-        if (!this.hiddenAnnotations.has(markupNumber)) {
-          this.groupHiddenAnnotations.add(markupNumber);
-          this._updateIndividualAnnotationVisibility(markupNumber, false);
-        }
+        this.hiddenAnnotations.add(markupNumber);
+        this.groupHiddenAnnotations.add(markupNumber);
+        this._updateIndividualAnnotationVisibility(markupNumber, false);
+      });
+
+      console.log('🔍 After Hiding Group:', {
+        groupKey,
+        hiddenGroups: Array.from(this.hiddenGroups),
+        hiddenAnnotations: Array.from(this.hiddenAnnotations),
+        groupHiddenAnnotations: Array.from(this.groupHiddenAnnotations)
       });
     } else {
-      // Group is currently not visible - could be due to explicit hiding or all individual hiding
-      if (isExplicitlyHiddenByGroup) {
-        // Group was explicitly hidden, so show it
-        this.hiddenGroups.delete(groupKey);
-        
-        // Show ALL annotations in this group - group "show" action overrides individual hiding
-        groupItems.forEach(item => {
-          const markupNumber = item.markupnumber;
-          // Clear both individual and group hiding - group show action takes precedence
-          this.hiddenAnnotations.delete(markupNumber);
-          this.groupHiddenAnnotations.delete(markupNumber);
-          this._updateIndividualAnnotationVisibility(markupNumber, true);
-        });
-      } else {
-        // Group appears hidden due to all individual annotations being hidden
-        // Show all annotations in the group by clearing their individual hidden status 
-        groupItems.forEach(item => {
-          const markupNumber = item.markupnumber;
-          // Clear both individual and group hiding for all annotations in this group
-          // This gives users a way to "reset" all annotations in a group to visible
-          this.hiddenAnnotations.delete(markupNumber);
-          this.groupHiddenAnnotations.delete(markupNumber);
-          this._updateIndividualAnnotationVisibility(markupNumber, true);
-        });
-      }
+      // Group is currently not visible - show all annotations in the group
+      this.hiddenGroups.delete(groupKey);
+      
+      // Show ALL annotations in this group
+      const markupList = this.rxCoreService.getGuiMarkupList();
+      if (!markupList) return;
+      
+      // First, clear all hidden states for this group
+      groupItems.forEach(item => {
+        const markupNumber = item.markupnumber;
+        this.hiddenAnnotations.delete(markupNumber);
+        this.groupHiddenAnnotations.delete(markupNumber);
+      });
+      
+      // Then update visibility for each annotation
+      groupItems.forEach(item => {
+        const markupNumber = item.markupnumber;
+        const markup = markupList.find(m => m.markupnumber === markupNumber);
+        if (markup) {
+          // Check if the annotation should be shown based on filters
+          const shouldShow = this._shouldShowMarkupForCanvasIgnoringIndividualVisibility(markup);
+          markup.setdisplay(shouldShow);
+        }
+      });
+      
+      // Force immediate canvas redraw
+      RXCore.markUpRedraw();
+      
+      // Additional redraw to ensure all types are properly rendered
+      setTimeout(() => {
+        RXCore.markUpRedraw();
+      }, 50);
+
+      console.log('🔍 After Showing Group:', {
+        groupKey,
+        hiddenGroups: Array.from(this.hiddenGroups),
+        hiddenAnnotations: Array.from(this.hiddenAnnotations),
+        groupHiddenAnnotations: Array.from(this.groupHiddenAnnotations)
+      });
     }
     
     // Force change detection to update the toggle switch and eye icons
@@ -4409,12 +4597,9 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     // Ensure proper synchronization after group toggle
     setTimeout(() => {
       this._ensureGroupToggleSynchronization(groupKey, groupItems);
+      this._preserveHiddenAnnotationsInCommentList();
+      this._forceSynchronizeCanvasAndCommentList();
     }, 100);
-    
-    // Force comprehensive canvas refresh to ensure all annotation types are properly displayed
-    setTimeout(() => {
-      this._forceCanvasRefresh();
-    }, 200);
   }
 
   /**
@@ -4436,7 +4621,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       
       const isIndividuallyHidden = this.hiddenAnnotations.has(markupNumber);
       const isGroupHidden = this.groupHiddenAnnotations.has(markupNumber);
-      const shouldBeVisible = !isIndividuallyHidden && !isGroupHidden;
+      const shouldBeVisible = !isIndividuallyHidden && !isGroupHidden && isGroupVisible;
       
       // Calculate the expected display state
       const expectedDisplayState = shouldBeVisible && this._shouldShowMarkupForCanvasIgnoringIndividualVisibility(markup);
@@ -4456,52 +4641,57 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
 
   /**
    * Check if markup should be visible on canvas, ignoring individual visibility state
-   * This is used for synchronization to avoid circular dependencies
    */
   private _shouldShowMarkupForCanvasIgnoringIndividualVisibility(markup: any): boolean {
-    // Check annotation/measurement switch states first
-    const isMeasurement = (markup as any).ismeasure === true;
-    const showAnnotationsState = this.showAnnotations === true;
-    const showMeasurementsState = this.showMeasurements === true;
+    // First strictly check the annotation/measurement switch states
+    const isMeasurement = markup.ismeasure === true;
     
-    let switchAllowsDisplay = false;
-    if (isMeasurement) {
-      switchAllowsDisplay = showMeasurementsState;
-    } else {
-      switchAllowsDisplay = showAnnotationsState;
-    }
-    
-    if (!switchAllowsDisplay) {
+    // Log the initial state check
+    console.log(`🔍 Checking visibility for ${isMeasurement ? 'measurement' : 'annotation'} ${markup.markupnumber}:`, {
+      isMeasurement,
+      showAnnotations: this.showAnnotations,
+      showMeasurements: this.showMeasurements,
+      type: markup.type,
+      subtype: markup.subtype
+    });
+
+    // Early return based on switch states
+    if (isMeasurement && !this.showMeasurements) {
+      console.log(`🔍 Markup ${markup.markupnumber} hidden: measurements switch is OFF`);
       return false;
     }
     
-    // Check author filter state
+    if (!isMeasurement && !this.showAnnotations) {
+      console.log(`🔍 Markup ${markup.markupnumber} hidden: annotations switch is OFF`);
+      return false;
+    }
+
+    // If we get here, the appropriate switch is ON, now check other filters
     const authorFilterResult = this._shouldShowMarkupForAuthor(markup);
     if (!authorFilterResult) {
+      console.log(`🔍 Markup ${markup.markupnumber} hidden by author filter`);
       return false;
     }
-    
-    // Check sort filter values
+
     const sortFilterResult = this._shouldShowMarkupForSortFilter(markup);
     if (!sortFilterResult) {
+      console.log(`🔍 Markup ${markup.markupnumber} hidden by sort filter`);
       return false;
     }
-    
-    // Check the type filter state for additional filtering logic
+
     const typeFilterResult = this._getmarkupTypeDisplay(markup);
     if (typeFilterResult === false) {
+      console.log(`🔍 Markup ${markup.markupnumber} hidden by type filter`);
       return false;
     }
-    
-    // Apply the same date filter logic as in _performProcessList
-    if (this.pageNumber > 0) {
-      // Page-specific filtering
-      if (markup.pagenumber !== this.pageNumber - 1) {
-        return false;
-      }
+
+    // Apply page-specific filtering
+    if (this.pageNumber > 0 && markup.pagenumber !== this.pageNumber - 1) {
+      console.log(`🔍 Markup ${markup.markupnumber} hidden by page filter`);
+      return false;
     }
-    
-    // Apply date filter
+
+    // Apply date filter if active
     if (this.dateFilter.startDate || this.dateFilter.endDate) {
       const passesDateFilter = (this.dateFilter.startDate
         ? dayjs(markup.timestamp).isSameOrAfter(this.dateFilter.startDate)
@@ -4509,19 +4699,19 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       (this.dateFilter.endDate
         ? dayjs(markup.timestamp).isSameOrBefore(this.dateFilter.endDate.endOf('day'))
         : true);
-      
+
       if (!passesDateFilter) {
+        console.log(`🔍 Markup ${markup.markupnumber} hidden by date filter`);
         return false;
       }
     }
-    
-    // Check bisTextArrow filter (same as in _performProcessList)
-    if (markup.bisTextArrow) {
-      return false;
-    }
-    
+
+    // If all checks pass, the markup should be shown
+    console.log(`🔍 Markup ${markup.markupnumber} passes all visibility checks`);
     return true;
   }
+
+
 
   private _forceRefreshCommentList(): void {
     
@@ -5935,3 +6125,4 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
 
 
 }
+

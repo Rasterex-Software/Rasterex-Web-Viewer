@@ -961,7 +961,14 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     if(returntype){
       return showtype;
     }else{
-      return this.showAnnotations;
+      // When no specific type filter is found, check if it's an annotation or measurement 
+      // and return the appropriate switch state
+      const isMeasurement = (markup as any).ismeasure === true;
+      if (isMeasurement) {
+        return this.showMeasurements;
+      } else {
+        return this.showAnnotations;
+      }
     }
 
 
@@ -2475,9 +2482,9 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     const markupList = this.rxCoreService.getGuiMarkupList();
     if (!markupList) return;
 
-    
     let visibleCount = 0;
     let hiddenCount = 0;
+    let updatedCount = 0;
     
     for (const markup of markupList) {
       // First check annotation/measurement switch state
@@ -2495,12 +2502,11 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
         shouldShow = showAnnotationsState;
       }
       
-      // If the switch allows it to be shown, then apply sort filter
+      // If the switch allows it to be shown, then apply other filters
       if (shouldShow) {
         shouldShow = this._shouldShowMarkupForSortFilter(markup);
       }
       
-      // Also check author filter if author filters are active
       if (shouldShow) {
         shouldShow = this._shouldShowMarkupForAuthor(markup);
       }
@@ -2510,7 +2516,12 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
         shouldShow = this.isAnnotationVisible(markup.markupnumber);
       }
       
-      markup.setdisplay(shouldShow);
+      // Only update if the state actually changed
+      const currentDisplay = (markup as any).display === true;
+      if (currentDisplay !== shouldShow) {
+        markup.setdisplay(shouldShow);
+        updatedCount++;
+      }
       
       if (shouldShow) {
         visibleCount++;
@@ -2518,10 +2529,11 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
         hiddenCount++;
       }
     }
-    
 
-    // Redraw the canvas to reflect the changes
-    RXCore.markUpRedraw();
+    // Only redraw if we actually changed something
+    if (updatedCount > 0) {
+      RXCore.markUpRedraw();
+    }
   }
 
   // Helper method to get the filter value for a markup based on current sort field
@@ -2926,59 +2938,49 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
   }
 
   SetActiveCommentThread(event: MouseEvent, markupNo: number, markup: any): void {
-    console.log('🔍 SetActiveCommentThread - Event:', event);
-    console.log('🔍 SetActiveCommentThread - Target:', event.target);
-    console.log('🔍 SetActiveCommentThread - Current Target:', event.currentTarget);
-    console.log('🔍 SetActiveCommentThread - MarkupNo:', markupNo);
-    console.log('🔍 SetActiveCommentThread - Markup:', markup);
-    console.log('🔍 SetActiveCommentThread - Hidden State:', {
-      hiddenAnnotations: Array.from(this.hiddenAnnotations),
-      groupHiddenAnnotations: Array.from(this.groupHiddenAnnotations),
-      hiddenGroups: Array.from(this.hiddenGroups)
-    });
-
     // If the click is on a control element (eye icon, status menu, etc.), ignore it
     const target = event.target as HTMLElement;
     if (target.closest('.eye-icon-container') || 
         target.closest('.statusMenuButton') || 
         target.closest('.comments-controls') ||
         target.closest('.note-input')) {
-      console.log('🔍 SetActiveCommentThread - Click on control element, ignoring');
       return;
     }
 
     if (markupNo && markupNo > 0 && markup) {
-      // Safety check: prevent interaction with hidden annotation cards
-      if (!this.isCommentCardClickable(markupNo)) {
-        console.log('🔍 SetActiveCommentThread - Card not clickable:', markupNo);
+      // Check if the switch allows this type to be interacted with
+      const isMeasurement = (markup as any).ismeasure === true;
+      const switchAllowsInteraction = isMeasurement ? this.showMeasurements : this.showAnnotations;
+      
+      if (!switchAllowsInteraction) {
         event.preventDefault();
         return;
       }
 
-      console.log('🔍 SetActiveCommentThread - Before change detection - List state:', this.list);
+      // Safety check: prevent interaction with hidden annotation cards
+      if (!this.isCommentCardClickable(markupNo)) {
+        event.preventDefault();
+        return;
+      }
+
       // Force immediate change detection for responsive UI
       this.cdr.detectChanges();
 
       // Select the annotation (this is safe and doesn't affect visibility)
-      console.log('🔍 SetActiveCommentThread - Before onSelectAnnotation');
       this.onSelectAnnotation(markup);
-      console.log('🔍 SetActiveCommentThread - After onSelectAnnotation');
 
       // Navigate to the correct page where the annotation exists
       RXCore.gotoPage(markup.pagenumber);
 
       // First, collapse ALL other cards and hide their leader lines
       let targetCard: any = null;
-      console.log('🔍 SetActiveCommentThread - Current list state before collapse:', this.list);
       Object.values(this.list || {}).forEach((comments) => {
         comments.forEach((comment: any) => {
           if (comment.markupnumber === markupNo) {
             // Store reference to the target card
             targetCard = comment;
-            console.log('🔍 SetActiveCommentThread - Found target card:', comment);
           } else if (comment.IsExpanded) {
             // Collapse all other expanded cards
-            console.log('🔍 SetActiveCommentThread - Collapsing card:', comment.markupnumber);
             comment.IsExpanded = false;
             // Hide leader line for this collapsed card
             this._hideLeaderLineForMarkup(comment.markupnumber);
@@ -2991,46 +2993,44 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       if (targetCard) {
         targetCard.IsExpanded = !targetCard.IsExpanded;
         isNowExpanded = targetCard.IsExpanded;
-        console.log('🔍 SetActiveCommentThread - Target card expanded state:', isNowExpanded);
       }
 
       // For hidden annotations, only show leader lines but don't modify canvas visibility
       const isHiddenAnnotation = this.hiddenAnnotations.has(markupNo) || this.groupHiddenAnnotations.has(markupNo);
-      console.log('🔍 SetActiveCommentThread - Is hidden annotation:', isHiddenAnnotation);
-      console.log('🔍 SetActiveCommentThread - Hidden annotations set:', Array.from(this.hiddenAnnotations));
-      console.log('🔍 SetActiveCommentThread - Group hidden annotations set:', Array.from(this.groupHiddenAnnotations));
       
       // Manage leader line for the target card based on its new expansion state
       if (isNowExpanded) {
         // Add a small delay to prevent race conditions
         setTimeout(() => {
-          console.log('🔍 SetActiveCommentThread - Showing leader line for:', markupNo);
           this._showLeaderLineForMarkup(markupNo, markup);
         }, 50);
         
         // If this is a hidden annotation, temporarily show it on canvas for leader line
+        // BUT ONLY if the corresponding switch is ON
         if (isHiddenAnnotation) {
-          // Don't modify the hidden state, just show temporarily for leader line
           const markupList = this.rxCoreService.getGuiMarkupList();
-          console.log('🔍 SetActiveCommentThread - Markup list for hidden annotation:', markupList);
           if (markupList) {
             const targetMarkup = markupList.find(m => m.markupnumber === markupNo);
             if (targetMarkup) {
-              console.log('🔍 SetActiveCommentThread - Temporarily showing hidden annotation:', markupNo);
-              targetMarkup.setdisplay(true);
-              RXCore.markUpRedraw();
+              // Check if the switch allows this type to be displayed
+              const isMeasurement = (targetMarkup as any).ismeasure === true;
+              const switchAllowsDisplay = isMeasurement ? this.showMeasurements : this.showAnnotations;
+              
+              if (switchAllowsDisplay) {
+                // Only show if the appropriate switch is ON
+                targetMarkup.setdisplay(true);
+                RXCore.markUpRedraw();
+              }
             }
           }
         }
       } else {
         // Card is now collapsed, hide its leader line immediately
-        console.log('🔍 SetActiveCommentThread - Hiding leader line for:', markupNo);
         this._hideLeaderLineForMarkup(markupNo);
         
         // If this is a hidden annotation, restore its hidden state on canvas
         if (isHiddenAnnotation) {
           setTimeout(() => {
-            console.log('🔍 SetActiveCommentThread - Restoring hidden state for:', markupNo);
             this._updateIndividualAnnotationVisibility(markupNo, false);
           }, 100);
         }
@@ -3042,11 +3042,8 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
         this._forceSynchronizeCanvasAndCommentList();
       }, 150);
 
-      console.log('🔍 SetActiveCommentThread - Final list state:', this.list);
       // Force change detection to update the UI
       this.cdr.detectChanges();
-    } else {
-      console.warn(`SetActiveCommentThread: Invalid markup number ${markupNo} or markup object`);
     }
     event.preventDefault();
   }
@@ -3712,23 +3709,22 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
   }
 
   private _updateMarkupDisplay(markupList: any[], filterFn: (markup: any) => boolean, onoff: boolean) {
-
-
-    //markup.type === type.type && markup.subtype === type.subtype
-
     if (!markupList) return;
+    
+    let updatedCount = 0;
     for (const markup of markupList) {
-
-
       if (filterFn(markup)) {
-
         markup.setdisplay(onoff);
-
         this._setmarkupTypeDisplay(markup, onoff);
-
+        updatedCount++;
       }
     }
-    RXCore.markUpRedraw();
+    
+    // Only redraw if we actually updated something
+    if (updatedCount > 0) {
+      RXCore.markUpRedraw();
+    }
+    
     this._processList(markupList);
   }
 
@@ -3764,41 +3760,11 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       this.clearSortDateFilter();
     }
 
-    /*this.typeFilter.showEllipse = onoff;
-    this.typeFilter.showFreehand = onoff;
-    this.typeFilter.showText = onoff;
-    this.typeFilter.showPolyline = onoff;
-    this.typeFilter.showRectangle = onoff;
-    this.typeFilter.showStamp = onoff;
-    this.typeFilter.showNote = onoff;
-    this.typeFilter.showCallout = onoff;
-    this.typeFilter.showLink = onoff;
-    this.typeFilter.showHighlighter = onoff;
-
-    this.typeFilter.showSingleEndArrow = onoff;
-    this.typeFilter.showFilledSingleEndArrow = onoff;
-    this.typeFilter.showBothEndsArrow = onoff;
-    this.typeFilter.showFilledBothEndsArrow = onoff;
-    this.typeFilter.showCloud = onoff;*/
-
-    this._updateMarkupDisplay(markupList, (markup) => !markup.ismeasure, onoff);
+    // Only update annotation markups (non-measurements)
+    this._updateMarkupDisplay(markupList, (markup) => !(markup as any).ismeasure, onoff);
 
     // Update sort filter options when annotation switch changes
     this._updateSortFilterOptions();
-    
-    /*this._updateMarkupDisplay(
-      markupList,
-      (markup) => !(
-        markup.type === MARKUP_TYPES.MEASURE.LENGTH.type ||
-        (markup.type === MARKUP_TYPES.MEASURE.AREA.type &&
-          markup.subtype === MARKUP_TYPES.MEASURE.AREA.subType) ||
-        (markup.type === MARKUP_TYPES.MEASURE.PATH.type &&
-          markup.subtype === MARKUP_TYPES.MEASURE.PATH.subType) ||
-        (markup.type === MARKUP_TYPES.MEASURE.RECTANGLE.type && markup.subtype === MARKUP_TYPES.MEASURE.RECTANGLE.subType)
-        //markup.type === MARKUP_TYPES.SIGNATURE.type
-      ),
-      onoff
-    );*/
   }
 
   onShowMeasurements(onoff: boolean) {
@@ -3810,29 +3776,11 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       this.clearSortDateFilter();
     }
 
-    //this.typeFilter.showMeasureLength = onoff;
-    //this.typeFilter.showMeasureArea = onoff;
-    //this.typeFilter.showMeasurePath = onoff;
-    //this.typeFilter.showMeasureRectangle = onoff;
-    //this.typeFilter.showMeasureAngle = onoff;
-
-
-    this._updateMarkupDisplay(markupList, (markup) => markup.ismeasure, onoff);
+    // Only update measurement markups
+    this._updateMarkupDisplay(markupList, (markup) => (markup as any).ismeasure, onoff);
 
     // Update sort filter options when measurement switch changes
     this._updateSortFilterOptions();
-
-      /*(markup) =>
-        markup.type === MARKUP_TYPES.MEASURE.LENGTH.type ||
-        (markup.type === MARKUP_TYPES.MEASURE.AREA.type &&
-          markup.subtype === MARKUP_TYPES.MEASURE.AREA.subType) ||
-        (markup.type === MARKUP_TYPES.MEASURE.PATH.type &&
-          markup.subtype === MARKUP_TYPES.MEASURE.PATH.subType) ||
-        (markup.type === MARKUP_TYPES.MEASURE.RECTANGLE.type &&
-          markup.subtype === MARKUP_TYPES.MEASURE.RECTANGLE.subType),
-      onoff
-    );*/
-
   }
 
   onShowAll(onoff: boolean) {
@@ -3854,14 +3802,16 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
 
   /**
    * Handle toggle for Annotations
-   * In View mode: allows both annotations and measurements to be on simultaneously
-   * In Annotate/Measure mode: exclusive behavior (measurements turned off when annotations turned on)
+   * Simplified logic to ensure proper switch behavior:
+   * - When ON: Show only annotations (if measurements switch is OFF) or both (if measurements switch is ON)
+   * - When OFF: Hide annotations, show measurements only if measurements switch is ON
    */
   onToggleAnnotations(onoff: boolean) {
-
+    this.showAnnotations = onoff;
+    
     if (onoff) {
       // Turn on annotations
-      this.showAnnotations = true;
+      this.onShowAnnotations(true);
       
       // In non-View modes, turn off measurements (exclusive behavior)
       if (this.currentMode !== 'View') {
@@ -3869,63 +3819,38 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
         this.onShowMeasurements(false);
       }
       
-      // Force canvas update
-      this.onShowAnnotations(true);
+      // Update filter options to include annotation types
+      this._updateSortFilterOptions();
       
-      // Handle the switch being turned ON
-      this._handleSwitchTurnedOn('annotations');
-      
-      // Wait a moment then update filters to match canvas state
-      setTimeout(() => {
-        if (this.currentMode === 'View' && this.showMeasurements) {
-          // In View mode with both switches on, preserve existing filters and apply them to annotations
-          this._preserveFiltersAndApplyToAnnotations();
-        } else {
-          // Standard behavior for non-View modes or when only annotations are on
-          this._selectAnnotationTypesInFilters();
-          this._syncFiltersWithVisibleMarkups();
-        }
-      }, 200);
+      // Apply filters with current switch states
+      this._applySortFilterToCanvas();
     } else {      
       // Turn off annotations
-      this.showAnnotations = false;
       this.onShowAnnotations(false);
       
-      // IMPORTANT: Don't deselect annotation types if measurements are still on
-      // This preserves measurement type selections when annotations are turned off
-      if (!this.showMeasurements) {
-        // Only deselect if both switches are off
-        this._deselectAnnotationTypesInFilters();
-        this._clearAuthorAndPageSelections();
-      }
+      // Update filter options
+      this._updateSortFilterOptions();
+      
+      // Apply filters with current switch states
+      this._applySortFilterToCanvas();
     }
     
-    // Update sort filter options since switch state changed (this will now preserve existing selections)
-    this._updateSortFilterOptions();
-    
-    // Ensure proper initialization when both switches are ON
-    setTimeout(() => {
-      this._ensureProperFilterInitialization();
-    }, 50);
-    
-    // Apply existing filters to both annotations and measurements
-    this._applySortFilterToCanvas();
-    
-    // Refresh the list to apply the new filter
+    // Refresh the comment list
     this._refreshAnnotationList();
   }
 
   /**
    * Handle toggle for Measurements  
-   * In View mode: allows both annotations and measurements to be on simultaneously
-   * In Annotate/Measure mode: exclusive behavior (annotations turned off when measurements turned on)
+   * Simplified logic to ensure proper switch behavior:
+   * - When ON: Show only measurements (if annotations switch is OFF) or both (if annotations switch is ON)
+   * - When OFF: Hide measurements, show annotations only if annotations switch is ON
    */
   onToggleMeasurements(onoff: boolean) {
-    // Removed filter component dependency
+    this.showMeasurements = onoff;
     
     if (onoff) {
       // Turn on measurements
-      this.showMeasurements = true;
+      this.onShowMeasurements(true);
       
       // In non-View modes, turn off annotations (exclusive behavior)
       if (this.currentMode !== 'View') {
@@ -3933,67 +3858,23 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
         this.onShowAnnotations(false);
       }
       
-      // Force canvas update
-      this.onShowMeasurements(true);
+      // Update filter options to include measurement types
+      this._updateSortFilterOptions();
       
-      // Handle the switch being turned ON
-      this._handleSwitchTurnedOn('measurements');
-      
-      // Wait a moment then update filters to match canvas state
-      setTimeout(() => {
-        if (this.currentMode === 'View' && this.showAnnotations) {
-          // In View mode with both switches on, preserve existing filters and apply them to measurements
-          this._preserveFiltersAndApplyToMeasurements();
-        } else {
-          // Standard behavior for non-View modes or when only measurements are on
-          this._selectMeasurementTypesInFilters();
-          this._syncFiltersWithVisibleMarkups();
-        }
-      }, 200);
+      // Apply filters with current switch states
+      this._applySortFilterToCanvas();
     } else {  
       // Turn off measurements
-      this.showMeasurements = false;
       this.onShowMeasurements(false);
       
-      // IMPORTANT: Don't deselect measurement types if annotations are still on
-      // This preserves annotation type selections when measurements are turned off
-      if (!this.showAnnotations) {
-        // Only deselect if both switches are off
-        this._deselectMeasurementTypesInFilters();
-        this._clearAuthorAndPageSelections();
-        
-        // IMMEDIATE force clear - don't wait for timeout
-        this._forceImmediateClearAllMeasurementTypes();
-        
-        // Also do delayed clearing as backup
-        setTimeout(() => {
-          this._ensureMeasurementTypesCleared();
-          this._clearMeasurementTypesByLabel();
-          this._forceImmediateClearAllMeasurementTypes();
-        }, 100);
-        
-        // Final backup after UI has had time to update
-        setTimeout(() => {
-          this._forceImmediateClearAllMeasurementTypes();
-        }, 300);
-      } else {
-        // If annotations are still on, preserve the measurement type filter selections
-        // but ensure only annotation types are visible in the comment list
-      }
+      // Update filter options
+      this._updateSortFilterOptions();
+      
+      // Apply filters with current switch states
+      this._applySortFilterToCanvas();
     }
     
-    // Update sort filter options since switch state changed (this will now preserve existing selections)
-    this._updateSortFilterOptions();
-    
-    // Ensure proper initialization when both switches are ON
-    setTimeout(() => {
-      this._ensureProperFilterInitialization();
-    }, 50);
-    
-    // Apply existing filters to both annotations and measurements
-    this._applySortFilterToCanvas();
-    
-    // Refresh the list to apply the new filter
+    // Refresh the comment list
     this._refreshAnnotationList();
   }
 
@@ -4019,18 +3900,33 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     
     markupList.forEach(markup => {
       const markupNumber = markup.markupnumber;
+      const isMeasurement = (markup as any).ismeasure === true;
+      
+      // Check if the switch allows this type to be displayed
+      const switchAllowsDisplay = isMeasurement ? this.showMeasurements : this.showAnnotations;
+      
       // Access display state through the markup object
       const displayState = (markup as any).display === true;
       const isVisibleInList = this.isAnnotationVisible(markupNumber);
       
-      if (displayState !== isVisibleInList) {
+      // Only update if the switch allows this type to be displayed
+      if (switchAllowsDisplay && displayState !== isVisibleInList) {
         console.log(`🔍 State mismatch for markup ${markupNumber}:`, {
           canvasDisplay: displayState,
-          listVisible: isVisibleInList
+          listVisible: isVisibleInList,
+          isMeasurement,
+          switchAllowsDisplay
         });
         
         // Update canvas to match list state
         markup.setdisplay(isVisibleInList);
+      } else if (!switchAllowsDisplay && displayState === true) {
+        // If switch is OFF but markup is displayed, hide it
+        console.log(`🔍 Hiding markup ${markupNumber} because switch is OFF:`, {
+          isMeasurement,
+          switchAllowsDisplay
+        });
+        markup.setdisplay(false);
       }
     });
     
@@ -4046,8 +3942,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     const markupList = this.rxCoreService.getGuiMarkupList();
     if (!markupList) return;
 
-
-    // Step 1: Apply all filters to canvas
+    // Step 1: Apply all filters to canvas (this already respects switch states)
     this._applySortFilterToCanvas();
     
     // Step 2: Force immediate canvas redraw to update markup display states
@@ -4197,9 +4092,10 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     const markup = markupList.find(m => m.markupnumber === markupNumber);
     if (!markup) return false;
 
-    // Check if the markup should be shown based on filters
-    const passesFilters = this._shouldShowMarkupForCanvasIgnoringIndividualVisibility(markup);
-    if (!passesFilters) return false;
+    // Strictly check the switch state
+    const isMeasurement = (markup as any).ismeasure === true;
+    const switchAllowsDisplay = isMeasurement ? this.showMeasurements : this.showAnnotations;
+    if (!switchAllowsDisplay) return false;
 
     // Always allow clicking if the annotation is visible
     if (this.isAnnotationVisible(markupNumber)) {
@@ -4259,6 +4155,15 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     if (isCurrentlyVisible) {
       await this._collapseAndHideAnnotation(markup);
     } else {
+      // Before showing individually, check if the appropriate switch is ON
+      const isMeasurement = markup.ismeasure === true;
+      const switchAllowsDisplay = isMeasurement ? this.showMeasurements : this.showAnnotations;
+      
+      if (!switchAllowsDisplay) {
+        // Don't show if the appropriate switch is OFF
+        return;
+      }
+      
       // Show the annotation individually
       this.hiddenAnnotations.delete(markup.markupnumber);
       this.groupHiddenAnnotations.delete(markup.markupnumber);
@@ -4320,7 +4225,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     // Check if the annotation should be shown based on all other filters
     const shouldShowBasedOnFilters = this._shouldShowMarkupForCanvasIgnoringIndividualVisibility(markup);
     
-    // Apply the individual visibility setting
+    // Apply the individual visibility setting, but respect switch states
     const finalVisibility = shouldShow && shouldShowBasedOnFilters;
     
     // Set the display state
@@ -4346,7 +4251,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     this.hiddenGroups.clear(); // Also clear hidden groups
     this.groupHiddenAnnotations.clear(); // Clear group-hidden annotations
     
-    // Update all annotations on canvas
+    // Update all annotations on canvas - this will respect switch states
     const markupList = this.rxCoreService.getGuiMarkupList();
     if (markupList) {
       this._applySortFilterToCanvas();
@@ -4355,7 +4260,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     // Force refresh of comment list since we can now process it safely
     this._forceRefreshCommentList();
     
-    // Ensure all annotation types are properly displayed on canvas
+    // Ensure all annotation types are properly displayed on canvas (respecting switches)
     this._forceCanvasRefresh();
     
     this.cdr.detectChanges();
@@ -4368,35 +4273,32 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     const markupList = this.rxCoreService.getGuiMarkupList();
     if (!markupList) return;
     
-    console.log('🔍 Force Canvas Refresh - Starting:', {
-      totalMarkups: markupList.length,
-      hiddenAnnotations: Array.from(this.hiddenAnnotations),
-      groupHiddenAnnotations: Array.from(this.groupHiddenAnnotations),
-      hiddenGroups: Array.from(this.hiddenGroups)
-    });
-    
-    // First pass: Update display state for all annotations
+    // Apply the same consistent logic for all markups
     markupList.forEach(markup => {
       const markupNumber = markup.markupnumber;
+      
+      // Check if annotation/measurement should be shown based on switch states
+      const isMeasurement = (markup as any).ismeasure === true;
+      const switchAllowsDisplay = isMeasurement ? this.showMeasurements : this.showAnnotations;
+      
+      if (!switchAllowsDisplay) {
+        // If switch is OFF, hide immediately
+        markup.setdisplay(false);
+        return;
+      }
+      
+      // If switch is ON, check individual visibility and filters
       const groupKey = this._getGroupKeyForMarkup(markup);
       const isGroupHidden = this.hiddenGroups.has(groupKey);
       const isIndividuallyHidden = this.hiddenAnnotations.has(markupNumber);
       const isHiddenByGroup = this.groupHiddenAnnotations.has(markupNumber);
-      const shouldShow = !isIndividuallyHidden && !isHiddenByGroup && !isGroupHidden;
+      const isVisibleByIndividualToggle = !isIndividuallyHidden && !isHiddenByGroup && !isGroupHidden;
       
-      // Check if the markup should be shown based on filters
-      const passesFilters = this._shouldShowMarkupForCanvasIgnoringIndividualVisibility(markup);
-      const finalVisibility = shouldShow && passesFilters;
+      // Check if passes other filters (author, sort, type, etc.)
+      const passesOtherFilters = this._shouldShowMarkupForCanvasIgnoringIndividualVisibility(markup);
       
-      console.log(`🔍 Markup ${markupNumber} visibility:`, {
-        groupKey,
-        isGroupHidden,
-        isIndividuallyHidden,
-        isHiddenByGroup,
-        shouldShow,
-        passesFilters,
-        finalVisibility
-      });
+      // Final visibility is the combination of all conditions
+      const finalVisibility = isVisibleByIndividualToggle && passesOtherFilters;
       
       markup.setdisplay(finalVisibility);
     });
@@ -4404,40 +4306,9 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     // Force immediate redraw
     RXCore.markUpRedraw();
     
-    // Second pass: Verify display states
-    setTimeout(() => {
-      let needsCorrection = false;
-      markupList.forEach(markup => {
-        const markupNumber = markup.markupnumber;
-        const currentDisplay = (markup as any).display === true;
-        const expectedDisplay = !this.hiddenAnnotations.has(markupNumber) && 
-                              !this.groupHiddenAnnotations.has(markupNumber) &&
-                              this._shouldShowMarkupForCanvasIgnoringIndividualVisibility(markup);
-        
-        if (currentDisplay !== expectedDisplay) {
-          console.log(`🔍 Correcting display state for markup ${markupNumber}:`, {
-            currentDisplay,
-            expectedDisplay
-          });
-          markup.setdisplay(expectedDisplay);
-          needsCorrection = true;
-        }
-      });
-      
-      if (needsCorrection) {
-        RXCore.markUpRedraw();
-      }
-      
-      // Ensure comment list is synchronized
-      this._preserveHiddenAnnotationsInCommentList();
-      this._forceSynchronizeCanvasAndCommentList();
-    }, 100);
-    
-    // Final pass: Ensure all annotation types are rendered
-    setTimeout(() => {
-      RXCore.markUpRedraw();
-      console.log('🔍 Force Canvas Refresh - Complete');
-    }, 200);
+    // Ensure comment list is synchronized
+    this._preserveHiddenAnnotationsInCommentList();
+    this._forceSynchronizeCanvasAndCommentList();
   }
 
   /**
@@ -4583,12 +4454,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
         RXCore.markUpRedraw();
       }, 50);
 
-      console.log('🔍 After Showing Group:', {
-        groupKey,
-        hiddenGroups: Array.from(this.hiddenGroups),
-        hiddenAnnotations: Array.from(this.hiddenAnnotations),
-        groupHiddenAnnotations: Array.from(this.groupHiddenAnnotations)
-      });
+
     }
     
     // Force change detection to update the toggle switch and eye icons
@@ -4611,32 +4477,36 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     
     if (!markupList) return;
     
-    
-    // Verify and fix any inconsistencies
+    // Verify and fix any inconsistencies with switch state respect
     groupItems.forEach(item => {
       const markupNumber = item.markupnumber;
       const markup = markupList.find(m => m.markupnumber === markupNumber);
       
       if (!markup) return;
       
+      // First check if the switch allows this type to be displayed
+      const isMeasurement = (markup as any).ismeasure === true;
+      const switchAllowsDisplay = isMeasurement ? this.showMeasurements : this.showAnnotations;
+      
+      if (!switchAllowsDisplay) {
+        // If switch is OFF, hide regardless of group state
+        markup.setdisplay(false);
+        return;
+      }
+      
+      // If switch is ON, check individual and group visibility
       const isIndividuallyHidden = this.hiddenAnnotations.has(markupNumber);
       const isGroupHidden = this.groupHiddenAnnotations.has(markupNumber);
       const shouldBeVisible = !isIndividuallyHidden && !isGroupHidden && isGroupVisible;
       
-      // Calculate the expected display state
+      // Calculate the expected display state with all filters
       const expectedDisplayState = shouldBeVisible && this._shouldShowMarkupForCanvasIgnoringIndividualVisibility(markup);
-      
       
       markup.setdisplay(expectedDisplayState);
     });
     
     // Force immediate redraw to reflect all changes
     RXCore.markUpRedraw();
-    
-    // Additional redraw after a short delay to ensure all annotation types are properly updated
-    setTimeout(() => {
-      RXCore.markUpRedraw();
-    }, 100);
   }
 
   /**
@@ -4644,50 +4514,35 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
    */
   private _shouldShowMarkupForCanvasIgnoringIndividualVisibility(markup: any): boolean {
     // First strictly check the annotation/measurement switch states
-    const isMeasurement = markup.ismeasure === true;
-    
-    // Log the initial state check
-    console.log(`🔍 Checking visibility for ${isMeasurement ? 'measurement' : 'annotation'} ${markup.markupnumber}:`, {
-      isMeasurement,
-      showAnnotations: this.showAnnotations,
-      showMeasurements: this.showMeasurements,
-      type: markup.type,
-      subtype: markup.subtype
-    });
+    const isMeasurement = (markup as any).ismeasure === true;
 
     // Early return based on switch states
     if (isMeasurement && !this.showMeasurements) {
-      console.log(`🔍 Markup ${markup.markupnumber} hidden: measurements switch is OFF`);
       return false;
     }
     
     if (!isMeasurement && !this.showAnnotations) {
-      console.log(`🔍 Markup ${markup.markupnumber} hidden: annotations switch is OFF`);
       return false;
     }
 
     // If we get here, the appropriate switch is ON, now check other filters
     const authorFilterResult = this._shouldShowMarkupForAuthor(markup);
     if (!authorFilterResult) {
-      console.log(`🔍 Markup ${markup.markupnumber} hidden by author filter`);
       return false;
     }
 
     const sortFilterResult = this._shouldShowMarkupForSortFilter(markup);
     if (!sortFilterResult) {
-      console.log(`🔍 Markup ${markup.markupnumber} hidden by sort filter`);
       return false;
     }
 
     const typeFilterResult = this._getmarkupTypeDisplay(markup);
     if (typeFilterResult === false) {
-      console.log(`🔍 Markup ${markup.markupnumber} hidden by type filter`);
       return false;
     }
 
     // Apply page-specific filtering
     if (this.pageNumber > 0 && markup.pagenumber !== this.pageNumber - 1) {
-      console.log(`🔍 Markup ${markup.markupnumber} hidden by page filter`);
       return false;
     }
 
@@ -4701,13 +4556,11 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
         : true);
 
       if (!passesDateFilter) {
-        console.log(`🔍 Markup ${markup.markupnumber} hidden by date filter`);
         return false;
       }
     }
 
     // If all checks pass, the markup should be shown
-    console.log(`🔍 Markup ${markup.markupnumber} passes all visibility checks`);
     return true;
   }
 

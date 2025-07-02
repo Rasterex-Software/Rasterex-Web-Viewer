@@ -122,11 +122,12 @@
               *ngFor="let item of group.value"
               class="note"
               [class.selected]="item.getselected()"
-              [class.disabled]="!isCommentCardClickable(item.markupnumber)"
+              [class.disabled]="isCommentCardDisabled(item.markupnumber)"
               [class.hidden-annotation]="!isAnnotationVisible(item.markupnumber)"
               [ngClass]="{ 'is-active': item.IsExpanded }"
-              (click)="isCommentCardClickable(item.markupnumber) ? SetActiveCommentThread($event, item.markupnumber, item) : null"
-              [title]="!isCommentCardClickable(item.markupnumber) ? 'This annotation is hidden on canvas. Click the eye icon to show it before expanding.' : ''"
+              (click)="SetActiveCommentThread($event, item.markupnumber, item)"
+              [title]="!isAnnotationVisible(item.markupnumber) ? 'This annotation is hidden from canvas and cannot be expanded' : ''"
+              [style.cursor]="isCommentCardClickable(item.markupnumber) ? 'pointer' : 'not-allowed'"
             >
               <!-- [ngClass]="{'is-active': item.markupnumber === activeMarkupNumber}" -->
               <!-- (click)="SetActiveCommentThread($event, item.markupnumber, item)"> -->

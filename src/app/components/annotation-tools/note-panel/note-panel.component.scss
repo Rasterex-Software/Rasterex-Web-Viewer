@@ -13,7 +13,7 @@
   width: 22px;
   height: 16px;
   cursor: pointer;
-  border-radius: 4px;
+  border-radius: 7px;
   transition: all 0.2s ease;
   position: relative;
   background-color: transparent !important;
@@ -58,7 +58,7 @@
     
     // Ensure visibility even when card is disabled
     pointer-events: auto !important;
-    opacity: 1 !important;
+    // opacity: 1 !important;
   }
   
   .tooltip-text {
@@ -86,7 +86,7 @@
       margin-left: -5px;
       border-width: 5px;
       border-style: solid;
-      border-color: #333 transparent transparent transparent;
+      border-color: #10b981 transparent transparent transparent;
     }
   }
   
@@ -175,6 +175,31 @@
   width: 300px;
   display: flex;
   flex-direction: column;
+  
+  // Disabled card styling
+  .note.disabled {
+    pointer-events: none;
+    opacity: 0.6;
+    background-color: #f8f9fa;
+    
+    // Keep eye icon clickable even when card is disabled
+    .eye-icon-container {
+      pointer-events: auto;
+      opacity: 1;
+    }
+  }
+  
+  // Hidden annotation styling
+  .note.hidden-annotation {
+    background-color: #f8f9fa;
+    border-color: #dee2e6;
+    
+    // Ensure eye icon remains clickable and visible
+    .eye-icon-container {
+      pointer-events: auto;
+      opacity: 1;
+    }
+  }
 
   .header-section {
     border-bottom: 1px solid #edf1f2;
@@ -1046,38 +1071,14 @@
             }
           }
 
-          // Disabled state for hidden annotations
-          &.disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            
-            // Disable pointer events for the content, but not the eye icon
-            .note-comment-list,
-            .note-input {
-              pointer-events: none;
-            }
-            
-            .note-comment-list {
-              background-image: linear-gradient(to right, rgb(240, 240, 240), rgb(235, 244, 241));
-            }
-            
-            .item-comment-left {
-              .author {
-                color: #a4abae;
-              }
-              
-              p {
-                color: #6c757d !important;
-              }
-              
-              .date-and-time {
-                color: #adb5bd;
-              }
-            }
-          }
+
 
           // Hidden annotation visual indicator
           &.hidden-annotation {
+            // Ensure the card remains clickable even when hidden
+            pointer-events: auto !important;
+            cursor: pointer !important;
+            
             &::before {
               content: '';
               position: absolute;
@@ -1087,18 +1088,104 @@
               bottom: 0;
               background-color: rgba(108, 117, 125, 0.1);
               border-radius: 8px;
-              pointer-events: none;
+              pointer-events: none; // Only the overlay should be non-interactive
               z-index: 5; // Below the eye icon but above content
             }
             
             .note-comment-list {
               position: relative;
               z-index: 6; // Above the overlay but below eye icon
+              background-image: linear-gradient(to right, rgb(240, 240, 240), rgb(235, 244, 241)) !important;
+              pointer-events: auto !important; // Ensure content remains clickable
             }
             
             .note-input {
               position: relative;
               z-index: 6; // Above the overlay but below eye icon
+              pointer-events: auto !important; // Ensure content remains clickable
+            }
+            
+            // Ensure text appears muted when hidden
+            .item-comment-left {
+              .author {
+                color: #a4abae !important;
+              }
+              
+              p {
+                color: #6c757d !important;
+              }
+              
+              .date-and-time {
+                color: #adb5bd !important;
+              }
+            }
+            
+            // Add a subtle border to indicate hidden state
+            border: 1px solid rgba(108, 117, 125, 0.2) !important;
+            
+            // Ensure all interactive elements remain clickable
+            * {
+              pointer-events: auto !important;
+            }
+          }
+
+          // Enhanced styling for disabled cards (cards remain clickable but eye icon stands out)
+          &.disabled {
+            // Ensure the card itself remains fully interactive
+            pointer-events: auto !important;
+            cursor: pointer !important;
+            
+            // Enhanced eye icon styling when card is disabled
+            .eye-icon-container.eye-icon-top-right {
+              background-color: rgba(255, 255, 255, 0.95) !important;
+              border: 2px solid #10b981 !important;
+              box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25) !important;
+              opacity: 1 !important;
+              z-index: 15 !important;
+              pointer-events: auto !important;
+              
+              &:hover {
+                background-color: #ffffff !important;
+                border-color: #10b981 !important;
+                box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35) !important;
+                transform: scale(1.05);
+              }
+              
+              &:active {
+                transform: scale(0.98);
+                box-shadow: 0 2px 6px rgba(16, 185, 129, 0.4) !important;
+              }
+              
+              img {
+                opacity: 0.9 !important;
+                filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+              }
+              
+              &:hover img {
+                opacity: 1 !important;
+              }
+              
+              // Enhanced tooltip for disabled state
+              .tooltip-text {
+                background-color: #1f2937;
+                color: white;
+                font-weight: 500;
+                padding: 6px 10px;
+                font-size: 11px;
+                border-radius: 6px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+                
+                &::after {
+                  border-color: #1f2937 transparent transparent transparent;
+                  border-width: 6px;
+                  margin-left: -6px;
+                }
+              }
+            }
+            
+            // Ensure all content inside disabled cards remains interactive
+            * {
+              pointer-events: auto !important;
             }
           }
 

@@ -1388,19 +1388,19 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       return false;
     }
     
-    // Add debug logging for annotation type filtering
-    if (this.sortByField === 'annotation') {
-      const annotationType = this.getAnnotationTitle(markup.type, markup.subtype);
-      console.log(`📋 Comment list check for ${isMeasurement ? 'measurement' : 'annotation'}:`, {
-        markupNumber: markup.markupnumber,
-        annotationType,
-        switchAllowsDisplay,
-        authorFilterResult,
-        sortFilterResult,
-        typeAllowed,
-        finalResult: typeAllowed
-      });
-    }
+    // // Add debug logging for annotation type filtering
+    // if (this.sortByField === 'annotation') {
+    //   const annotationType = this.getAnnotationTitle(markup.type, markup.subtype);
+    //   console.log(`📋 Comment list check for ${isMeasurement ? 'measurement' : 'annotation'}:`, {
+    //     markupNumber: markup.markupnumber,
+    //     annotationType,
+    //     switchAllowsDisplay,
+    //     authorFilterResult,
+    //     sortFilterResult,
+    //     typeAllowed,
+    //     finalResult: typeAllowed
+    //   });
+    // }
     
     return typeAllowed;
   }
@@ -1484,15 +1484,6 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       case 'annotation':
         const annotationType = this.getAnnotationTitle(markup.type, markup.subtype);
         const isSelected = this.selectedSortFilterValues.includes(annotationType);
-        
-        console.log(`🔍 Annotation type filter check:`, {
-          markupType: annotationType,
-          isSelected,
-          selectedValues: this.selectedSortFilterValues,
-          markupNumber: markup.markupnumber,
-          isMeasurement: (markup as any).ismeasure
-        });
-        
         return isSelected;
 
       case 'created':
@@ -3949,7 +3940,6 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     const markupList = this.rxCoreService.getGuiMarkupList();
     if (!markupList) return;
     
-    console.log('🔍 Synchronizing canvas and comment list states');
     
     markupList.forEach(markup => {
       const markupNumber = markup.markupnumber;
@@ -3964,21 +3954,13 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       
       // Only update if the switch allows this type to be displayed
       if (switchAllowsDisplay && displayState !== isVisibleInList) {
-        console.log(`🔍 State mismatch for markup ${markupNumber}:`, {
-          canvasDisplay: displayState,
-          listVisible: isVisibleInList,
-          isMeasurement,
-          switchAllowsDisplay
-        });
+        
         
         // Update canvas to match list state
         markup.setdisplay(isVisibleInList);
       } else if (!switchAllowsDisplay && displayState === true) {
         // If switch is OFF but markup is displayed, hide it
-        console.log(`🔍 Hiding markup ${markupNumber} because switch is OFF:`, {
-          isMeasurement,
-          switchAllowsDisplay
-        });
+        
         markup.setdisplay(false);
       }
     });
@@ -4429,14 +4411,6 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     const isCurrentlyVisible = this.isGroupVisible(groupKey);
     const isExplicitlyHiddenByGroup = this.hiddenGroups.has(groupKey);
     
-    console.log('🔍 Group Visibility Toggle:', {
-      groupKey,
-      isCurrentlyVisible,
-      isExplicitlyHiddenByGroup,
-      itemCount: groupItems.length,
-      hiddenAnnotations: Array.from(this.hiddenAnnotations),
-      groupHiddenAnnotations: Array.from(this.groupHiddenAnnotations)
-    });
     
     if (isCurrentlyVisible) {
       // First collapse all expanded cards in the group
@@ -4467,12 +4441,6 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
         this._updateIndividualAnnotationVisibility(markupNumber, false);
       });
 
-      console.log('🔍 After Hiding Group:', {
-        groupKey,
-        hiddenGroups: Array.from(this.hiddenGroups),
-        hiddenAnnotations: Array.from(this.hiddenAnnotations),
-        groupHiddenAnnotations: Array.from(this.groupHiddenAnnotations)
-      });
     } else {
       // Group is currently not visible - show all annotations in the group
       this.hiddenGroups.delete(groupKey);
@@ -4827,11 +4795,6 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
    * Handle the case when a switch is turned back ON to ensure proper filter synchronization
    */
   private _handleSwitchTurnedOn(switchType: 'annotations' | 'measurements'): void {
-    console.log(`🔄 Switch turned ON: ${switchType}`, {
-      showAnnotations: this.showAnnotations,
-      showMeasurements: this.showMeasurements,
-      sortByField: this.sortByField
-    });
 
     // If we're currently on annotation type filter, we need to update the selections
     if (this.sortByField === 'annotation') {

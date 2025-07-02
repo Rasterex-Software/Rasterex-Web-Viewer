@@ -8,8 +8,8 @@ export interface Annotation {
   projId: number;
   docId: string;
   data: string;
-  createdBy?: string;
-  updatedBy?: string;
+  createdBy?: number;
+  updatedBy?: number;
 }
 
 @Injectable({

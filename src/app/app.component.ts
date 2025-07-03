@@ -744,6 +744,24 @@ export class AppComponent implements AfterViewInit {
 
     });
 
+    let timeoutId: any = null;
+
+    RXCore.onGuiPageScale((fileindex, pagenumber, scaleobject) => {
+      console.log('RxCore onGuiPageScale:', fileindex, pagenumber, scaleobject);
+      if (!this.isCollaborate() || !this.collabService.needMeasureScaleSync()) {
+        return;
+      }
+      // Avoid triggering frequently.
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        this.collabService.sendChatMessage(this.getRoomId(), {
+          text: 'MeasurementScale',
+          data: scaleobject,
+        });
+      }, 1000);
+     
+    });
+
     /*RXCore.onGuiUpload((upload :any) =>{
       
       this.isUploadFile = true;
@@ -759,54 +777,6 @@ export class AppComponent implements AfterViewInit {
       }
 
     });*/
-    // this.measurePanelService.markupMeasureState$.subscribe((markup) => {
-    //   if (!markup || markup == -1) {
-    //     return;
-    //   }
-    //   if (!this.isCollaborate()) {
-    //     return;
-    //   }
-    //   // TODO: An actual callback function is needed.
-    //   // const scaleObject = markup.scaleObject;
-    //   // this.collabService.sendChatMessage(this.getRoomId(), {
-    //   //   innerId: 'MeasurementScale',
-    //   //   annotation: markup.getUniqueID(),
-    //   //   data: scaleObject
-    //   // });
-    // });
-
-    this.collabService.chatMessageChange$.subscribe((message) => {
-      if (!message) {
-        return;
-      }
-
-      if (message.innerId === 'MeasurementScale') {
-         if (!message.annotation || !message.data) {
-          return;
-         }
-
-        RXCore.unSelectAllMarkup();
-        // uniqueId
-        RXCore.selectMarkupbyGUID(message.annotation);
-        
-        const scaleObject = message.data;
-        if (scaleObject.metric === METRIC.UNIT_TYPES.METRIC ) {  
-          RXCore.setElementUnit(1);
-          RXCore.elementMetricUnit(scaleObject.metricUnit); 
-        
-        } else if (scaleObject.metric === METRIC.UNIT_TYPES.IMPERIAL ) {   
-          RXCore.setElementUnit(2);  
-          RXCore.elementImperialUnit(scaleObject.metricUnit);
-        } 
-        RXCore.setElementDimPrecision(scaleObject.dimPrecision);
-        RXCore.elementScale(scaleObject.value);
-        RXCore.setElementScaleLabel(scaleObject.label);
-
-        RXCore.unSelectAllMarkup();
-        RXCore.markUpRedraw();
-      }
-
-    });
   }
 
   ngOnDestroy() {

@@ -1,3 +1,20 @@
+July 3, 2025
+
+### 1. Support to sync scaling/calibration change for different users.
+### 2. Fix IsCollaboration() in rxcore.service.
+
+Updated and new files
+
+src\app\app.component.ts
+src\app\components\annotation-tools\measure-panel\measure-panel.component.ts
+src\app\services\collab.service.ts
+src\app\components\collab\room-panel.component.html
+src\app\components\top-nav-menu\top-nav-menu.component.ts
+src\app\services\rxcore.service.ts
+src\assets\scripts\rxcorefunctions.js
+src\rxcore\index.ts
+
+
 July 1, 2025
 
 ### 1. Added XFDF import/export

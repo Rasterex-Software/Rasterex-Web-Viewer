@@ -1198,6 +1198,10 @@ export class RXCore {
         RxCore.GUI_MarkupChanged.connect(callback);
     }
 
+    public static onGuiPageScale(callback: Function): void {
+        RxCore.GUI_pageScale.connect(callback);
+    }
+
     public static onGuiPutSignatureComplete(callback: (username: string) => void): void {
         RxCore.GUI_putsignatureComplete.connect(callback);
     }

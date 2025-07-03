@@ -248,12 +248,10 @@ export class TopNavMenuComponent implements OnInit {
   shouldShowToggleCollabPanelButton(): boolean {
     // If user is on https://<site>/document-collaboration.html, it includes two iFrames,
     // iFrame will get src in format of https://<site>/collaboration?roomId=document_collaboration_room_wB4Oe4Qv
-    const parameters = new URLSearchParams(window.location.search);
-    const isOnDocumentCollaborationPage = parameters.get('roomId');
 
-    return window.location.pathname === '/collaboration' &&
+    return this.rxCoreService.IsCollaboration() &&
       !!this.userService.getCurrentUser() &&
-      !isOnDocumentCollaborationPage;
+      !this.rxCoreService.IsDocumentCollaboration();
   }
 
 

@@ -25,16 +25,16 @@
           <span title="{{getDisplayRoomId(room.roomId)}}">{{getDisplayRoomId(room.roomId) + (isActiveRoom(room.roomId) ? " (Active)" : "")}}</span>
           <div class="button-group">
             <button *ngIf="user && !isActiveRoom(room.roomId)" (click)="joinRoom(room.roomId)" class="btn" title="Join room">
-              <img src="/assets/images/join-room.svg" alt="" srcset="">
+              <img src="/assets/images/join-room.svg" alt="Join" srcset="">
             </button>
             <button *ngIf="user && isActiveRoom(room.roomId)" (click)="leaveRoom()" class="btn" title="Leave room">
-              <img src="/assets/images/leave-room.svg" alt="" srcset="">
+              <img src="/assets/images/leave-room.svg" alt="Leave" srcset="">
             </button>
             <button *ngIf="user && isAdmin() && hasMarkupForRoom(room.roomId)" (click)="deleteMarkupsForRoom(room.roomId)" class="btn" title="Delete markups for room">
-              <img src="/assets/images/clean-room.svg" alt="" srcset="">
+              <img src="/assets/images/clean-room.svg" alt="Clear" srcset="">
             </button>
             <button *ngIf="user && isAdmin() && !isDefaultRoom(room.roomId)" (click)="deleteRoom(room.roomId)" class="btn" title="Delete room">
-              <img src="/assets/images/trash-ico.svg" alt="" srcset="">
+              <img src="/assets/images/trash-ico.svg" alt="Delete" srcset="">
             </button>
           </div>
         </li>

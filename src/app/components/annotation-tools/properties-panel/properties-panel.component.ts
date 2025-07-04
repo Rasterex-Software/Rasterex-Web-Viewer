@@ -28,6 +28,7 @@ export class PropertiesPanelComponent implements OnInit {
   strokeColor: string;
   snap: boolean = false;
   locked : boolean = false;
+  isCtrlPressed: boolean = false;
 
   //strokeOpacity: number = 100;
   strokeThickness: number = 1;
@@ -219,6 +220,11 @@ export class PropertiesPanelComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    document.addEventListener('keydown', this.handleKeyboardShortcuts.bind(this));
+    document.addEventListener('keydown', this.handleDrawingModifiers.bind(this));
+    document.addEventListener('keyup', this.handleDrawingModifiers.bind(this));
+    document.addEventListener('mousedown', this.onDragStart.bind(this), true);
+    document.addEventListener('mouseup', this.onDragEnd.bind(this));
 
     this.guiConfig$.subscribe(config => {
       this.dateFormat = config?.dateFormat ?? {} as IGuiDateFormat;
@@ -330,6 +336,57 @@ export class PropertiesPanelComponent implements OnInit {
 
 
     });
+  }
+
+  handleKeyboardShortcuts(event: KeyboardEvent): void {
+    if (event.ctrlKey && event.key.toLowerCase() === 'c') {
+      event.preventDefault();
+      RXCore.copyMarkUp()
+    }
+    if (event.ctrlKey && event.key.toLowerCase() === 'x') {
+      event.preventDefault();
+      RXCore.cutMarkUp();
+    }
+    if (event.ctrlKey && event.key.toLowerCase() === 'v') {
+      event.preventDefault();
+      RXCore.pasteMarkUp();
+      RXCore.markUpRedraw();
+    }
+    if (event.ctrlKey && event.key.toLowerCase() === 'z') {
+      event.preventDefault();
+      RXCore.markUpUndo();
+    }
+    if (event.ctrlKey && event.key.toLowerCase() === 'y') {
+      event.preventDefault();
+      RXCore.markUpRedo();
+    }
+  }
+
+  handleDrawingModifiers(event: KeyboardEvent): void {
+    // Ctrl key to drag and copy
+    if (event.key === 'Control') {
+      this.isCtrlPressed = event.type === 'keydown';
+    }
+
+    // Toggle 45-degree drawing with Alt key
+    if (event.key === 'Alt') {
+      const isPressed = event.type === 'keydown';
+      RXCore.useOrtho(isPressed, 45);  // true = enable, false = disable
+    }
+  }
+
+  onDragStart(event: MouseEvent): void {
+    if (event.ctrlKey) {
+      console.log('Ctrl+Drag started');
+      RXCore.copyMarkUp();
+    }
+  }
+
+  onDragEnd(): void {
+    if (this.isCtrlPressed) {
+      RXCore.pasteMarkUp();
+      RXCore.markUpRedraw();
+    }
   }
 
   onTextChange(event): void {

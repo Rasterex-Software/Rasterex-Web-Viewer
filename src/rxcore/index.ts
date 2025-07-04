@@ -611,8 +611,16 @@ export class RXCore {
         RxCore.copyMarkUp();
     }
 
+    public static cutMarkUp(): void {
+        RxCore.cutMarkUp();
+    }
+
     public static pasteMarkUp(): void {
         RxCore.pasteMarkUp()
+    }
+
+    public static useOrtho(onoff: boolean, degree: number): void {
+        RxCore.useOrtho(onoff, degree);
     }
 
     public static markUpHighlight(onoff: boolean): void {

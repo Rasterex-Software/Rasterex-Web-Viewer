@@ -28,8 +28,6 @@ export class VectorLayersComponent implements OnInit {
       //this.canChangeSign = state.numpages && state.isPDF && RXCore.getCanChangeSign();
 
     });
-
-
   }
 
   onVectorLayersAllSelect(onoff: boolean): void {

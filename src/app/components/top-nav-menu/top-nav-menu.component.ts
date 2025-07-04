@@ -13,6 +13,10 @@ import {Subject, Subscription} from 'rxjs';
 import { SideNavMenuService } from '../side-nav-menu/side-nav-menu.service';
 import { MeasurePanelService } from '../annotation-tools/measure-panel/measure-panel.service';
 import { ActionType } from './type';
+import { FilePreselectionService } from 'src/app/services/file-preselection.service';
+import { FileMetadataService } from 'src/app/services/file-metadata.service';
+import { FileMetadataModalComponent } from '../file-metadata-modal/file-metadata-modal.component';
+import { MatDialog } from '@angular/material/dialog';
 
 
 @Component({
@@ -70,7 +74,10 @@ export class TopNavMenuComponent implements OnInit {
     private readonly service: TopNavMenuService,
     private readonly sideNavMenuService: SideNavMenuService,
     private readonly measurePanelService: MeasurePanelService,
-    private readonly userService: UserService
+    private readonly userService: UserService,
+    private filePreselectionService: FilePreselectionService,
+    private readonly fileMetadataService:FileMetadataService,
+    private readonly dialog: MatDialog,
     ) {
   }
 
@@ -92,7 +99,13 @@ export class TopNavMenuComponent implements OnInit {
     this.annotationToolsService.setSelectedOption(this.selectedValue);
   }
 
-  ngOnInit(): void {
+  ngOnInit(): void 
+  {
+    this.filePreselectionService.selectedFile$.subscribe((file) => {
+    if (file) {
+      RXCore.openFile(`${RXCore.Config.baseFileURL}${file.file}`);
+    }
+  });
     this.handleIconRotation();
     this._setOptions();
 
@@ -181,6 +194,54 @@ export class TopNavMenuComponent implements OnInit {
         this.sidebarPanelActive = false;
       }
     });
+    (window as any).angularComponentRef = {
+      openCADPreselectionModal: (fileName: string) => {
+          //  Check if context is comparison mode
+    if (this.filePreselectionService.isComparison()) {
+       this.handleCloseModalFileGalery();
+      // Skip preselection modal, just emit the file directly
+      this.filePreselectionService.emitSelectedFile({
+        file: fileName,
+        type: 'CAD',
+        size: 0
+      });
+
+      return;
+    }
+    this.handleCloseModalFileGalery();
+        const dialogRef = this.dialog.open(FileMetadataModalComponent, {
+          data: { fileName, isUploaded: true },
+          width: '620px',
+          disableClose: true,
+          panelClass: 'custom-mat-dialog'
+        });
+
+        dialogRef.componentInstance.confirmed.subscribe((selection) => {
+          const selectedLayers = selection.selectedLayers || [];
+          const selectedBlocks = selection.selectedBlocks || [];
+          this.filePreselectionService.selectedLayers = selectedLayers;
+          this.filePreselectionService.selectedBlocks = selectedBlocks;
+          this.filePreselectionService.hasHandledMetadata = true;
+          this.filePreselectionService.setSelectionsForFile(
+            fileName,
+            selectedLayers,
+            selectedBlocks
+          );
+          this.filePreselectionService.emitSelectedFile({
+            file: fileName,
+            type: 'CAD',
+            size: 0
+          });
+
+          dialogRef.close();
+        });
+
+        dialogRef.componentInstance.cancelled.subscribe(() => {
+          dialogRef.close();
+        });
+      }
+    };
+
 
   }
 
@@ -231,6 +292,7 @@ export class TopNavMenuComponent implements OnInit {
 
   handleCloseModalFileGalery() {
     this.fileGaleryService.closeModal();
+    this.filePreselectionService.resetContext();
   }
 
   handleFileSelect(item: any) {

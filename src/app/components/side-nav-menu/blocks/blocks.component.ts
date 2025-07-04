@@ -31,7 +31,8 @@ export class BlocksComponent implements OnInit, OnDestroy {
   searchListData: any[] = [];
   searchResultInfo: string;
   isSearchResultDirty = false; // used when search criteria is changed and search result is not updated yet
-
+  hasvectorBlocks: IVectorBlock[] = [];
+  vectorBlocksSet:boolean=true;
 
   
   constructor(private readonly rxCoreService: RxCoreService, private readonly tooltipService: TooltipService, private el: ElementRef) {}
@@ -39,6 +40,18 @@ export class BlocksComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.rxCoreService.guiVectorBlocks$.subscribe((blocks) => {
       // this.vectorBlocks = blocks;
+      if(this.vectorBlocksSet)
+      {
+      this.hasvectorBlocks = (blocks || []).filter(
+          (block): block is IVectorBlock =>
+            block &&
+            typeof block.index === 'number' &&
+            typeof block.name === 'string' &&
+            typeof block.state === 'number'
+        );
+         this.vectorBlocksSet=false;
+      }
+    
       this.vectorBlocks = [];
       blocks.forEach((block) => {
         const attributes = RXCore.getBlockAttributes(block.index);
@@ -118,8 +131,7 @@ export class BlocksComponent implements OnInit, OnDestroy {
 
     
     this.rxCoreService.setSelectedVectorBlock(undefined);
-        
-
+   
   }
 
   ngOnDestroy() {

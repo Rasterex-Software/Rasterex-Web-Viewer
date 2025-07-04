@@ -1,3 +1,30 @@
+July 4, 2025
+### 1. Enhanced the UploadFile method in the File Gallery component to support preselection of layers and      blocks for CAD files.
+### 2. Modified the FileSelected method to properly handle CAD file preselection on file selection.
+### 3. Updated the UploadComplete method in rxcorefunctions.js to invoke the file-metadata-modal for preselection before rendering the file in the viewer..
+### 4. Improved the FilePreselectionService to manage preselection states consistently for both handleFileSelect and UploadFile scenarios.
+### 5. Refined the onGuiVectorLayers and onGuiVectorBlocks methods to reflect user-selected layers and blocks for both file selection and file upload processes.
+### 6. Updated the top-nav component to trigger the FileMetadataModalComponent for CAD file preselection upon file upload.
+### 7. Integrated a new API endpoint in rxconfig.js (UploadedFileMetadata) to fetch metadata details of uploaded files via the file upload flow.
+### 8. Updated the file-metadata-modal component to correctly fetch and display metadata from the API for both handleFileSelect and UploadFile flows.
+### 9. Updated the getUploadedFileMetadata method in the FileMetadataService to properly handle and structure malformed JSON or unexpected responses from the backend for fileupload metadata.
+
+updated files
+
+src\app.component.ts
+src\app\components\file-galery-component.ts
+src\app\components\side-nav-menu\blocks
+src\app\components\side-nav-menu\vector-layers
+src\app\components\top-nav-menu.component.ts
+src\assets\scripts\rxconfig.js
+src\assets\scripts\rxcorefunctions.js
+src\app\services\file-preselection.service.ts
+src\app\components\file-metadata-modal\file-metadata-modal.component.ts
+src\app\components\file-metadata-modal\file-metadata-modal.component.html
+src\app\services\file-metadata.service.ts
+src\app\components\compare\create-comparison\create-comparison.component.ts
+src\app\services\file-preselection.service.ts
+
 July 1, 2025
 
 ### 1. Added XFDF import/export
@@ -74,6 +101,37 @@ src\app\components\annotation-tools\stamp-panel\stamp-template.directive.ts
 src\app\components\annotation-tools\stamp-panel\stamp-storage.service.ts
 
 
+
+
+June 26, 2025
+### 1. Developed file-metadata-modal component to display metadata for CAD files only.
+### 2. Implemented FileMetadataService to retrieve file metadata from the backend.
+### 3. Enhanced handleFileSelect method in the File Gallery component to support CAD file pre-selection.
+### 4. Updated onGuiVectorLayers and onGuiVectorBlocks methods to reflect user-selected layers and blocks.
+### 5. Introduced FileMetadata interface to map API response structure accurately.
+### 6. Created FilePreselectionService to emit selected CAD files and trigger file opening from top-nav-component.
+### 7. Integrated new API endpoint to rxconfig.js SampleFileMetadata to fetch metadata details for selected files.
+
+updated files
+
+src\app.component.ts
+src\app.module.ts
+src\app\components\file-galery-component.ts
+src\style.scss
+src\app\components\side-nav-menu\blocks
+src\app\components\side-nav-menu\vector-layers
+src\app\components\top-nav-menu.component.ts
+src\assets\scripts\rxconfig.js
+
+new files
+
+src\app\components\file-metadata-modal.component.html
+src\app\components\file-metadata-modal.component.ts
+src\app\components\file-metadata-modal.component.scss
+src\app\models\fileMetadata.interface.ts
+src\app\services\file-metadata.service.ts
+src\app\services\file-preselection.service.ts
+
 June 20, 2025
 
 ### 1. Keep original file name uploaded
@@ -116,6 +174,35 @@ src\app\components\annotation-tools\symbols-library\symbols-library.component.ht
 src\app\components\annotation-tools\symbols-library\symbols-library.component.ts 
 src\app\components\annotation-tools\symbols-library\symbols-library.service.ts
 
+
+June 26, 2025
+### 1. Developed file-metadata-modal component to display metadata for CAD files only.
+### 2. Implemented FileMetadataService to retrieve file metadata from the backend.
+### 3. Enhanced handleFileSelect method in the File Gallery component to support CAD file pre-selection.
+### 4. Updated onGuiVectorLayers and onGuiVectorBlocks methods to reflect user-selected layers and blocks.
+### 5. Introduced FileMetadata interface to map API response structure accurately.
+### 6. Created FilePreselectionService to emit selected CAD files and trigger file opening from top-nav-component.
+### 7. Integrated new API endpoint to rxconfig.js SampleFileMetadata to fetch metadata details for selected files.
+
+updated files
+
+src\app.component.ts
+src\app.module.ts
+src\app\components\file-galery-component.ts
+src\style.scss
+src\app\components\side-nav-menu\blocks
+src\app\components\side-nav-menu\vector-layers
+src\app\components\top-nav-menu.component.ts
+src\assets\scripts\rxconfig.js
+
+new files
+
+src\app\components\file-metadata-modal.component.html
+src\app\components\file-metadata-modal.component.ts
+src\app\components\file-metadata-modal.component.scss
+src\app\models\fileMetadata.interface.ts
+src\app\services\file-metadata.service.ts
+src\app\services\file-preselection.service.ts
 
 June 16, 2025
 

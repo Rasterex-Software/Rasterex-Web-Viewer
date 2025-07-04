@@ -35,9 +35,11 @@ export class StampPanelComponent implements OnInit {
   time: boolean = false;
   subTextFontSize = 6;
   textOffset = this.subTextFontSize;
-  usernameDefaultText: string = 'Demo';
-  dateDefaultText: string;
-  timeDefaultText: string;
+  // These are no longer needed as we use template placeholders
+  // usernameDefaultText, dateDefaultText, timeDefaultText removed
+  //usernameDefaultText: string = 'Demo';
+  //dateDefaultText: string;
+  //timeDefaultText: string;
   strokeWidth: number = 1;
   strokeColor: string = '#000000';
   strokeRadius: number = 8;
@@ -64,6 +66,11 @@ export class StampPanelComponent implements OnInit {
   isStandardDragOver: boolean = false;
   draggedStamp: StampData | null = null;
   draggedStampType: 'custom' | 'upload' | null = null;
+
+  // Edit mode variables
+  isEditMode: boolean = false;
+  editingStampId: number | null = null;
+  
   
   // Make Math available in template
   Math = Math;
@@ -123,9 +130,24 @@ export class StampPanelComponent implements OnInit {
     return style;
   }
   get timestampText(): string {
-    const userName = this.username ? this.usernameDefaultText : '';
+
+        // For template preview and saved stamps, show placeholders instead of actual values
+        const userName = this.username ? 'User' : '';
+        const date = this.date ? 'Date' : '';
+        const time = this.time ? 'Time' : '';
+        return `${userName} ${date} ${time}`.trim();
+    
+    /*const userName = this.username ? this.usernameDefaultText : '';
     const date = this.date ? this.dateDefaultText : '';
     const time = this.time ? this.timeDefaultText : '';
+    return `${userName} ${date} ${time}`.trim();*/
+  }
+
+   // New method to get actual timestamp text for when stamp is applied
+   get actualTimestampText(): string {
+    const userName = this.username ? (this.userService.getCurrentUser()?.displayName || 'Demo') : '';
+    const date = this.date ? new Date().toLocaleDateString() : '';
+    const time = this.time ? new Date().toLocaleTimeString() : '';
     return `${userName} ${date} ${time}`.trim();
   }
 
@@ -185,10 +207,13 @@ export class StampPanelComponent implements OnInit {
 
 
   ngOnInit(): void {
-    // this.loadSvg();
-    const now = new Date();
-    this.dateDefaultText = now.toLocaleDateString();
-    this.timeDefaultText = now.toLocaleTimeString();
+        // this.loadSvg();
+    // Template placeholders will be used instead of actual default values
+
+    //const now = new Date();
+    //this.dateDefaultText = now.toLocaleDateString();
+    //this.timeDefaultText = now.toLocaleTimeString();
+
     this._setDefaults();
     this.rxCoreService.guiMarkup$.subscribe(({markup, operation}) => {
 
@@ -372,21 +397,61 @@ export class StampPanelComponent implements OnInit {
       img.onload = () => {
           const originalWidth = img.width, originalHeight = img.height;
           const aspectRatio = originalWidth / originalHeight;
-          const width = newWidth || originalWidth, height = newWidth ? newWidth / aspectRatio : originalHeight;
+
+                    // Define maximum dimensions for stamp images to ensure drag and drop works
+          // These limits are chosen to be reasonable for stamp usage while avoiding RXCore restrictions
+          const MAX_STAMP_WIDTH = 300;  // Maximum width for stamp images
+          const MAX_STAMP_HEIGHT = 200; // Maximum height for stamp images
+          
+          let width = newWidth || originalWidth;
+          let height = newWidth ? newWidth / aspectRatio : originalHeight;
+          
+          // Always enforce maximum dimensions for uploaded stamp images
+          // This ensures drag and drop will work regardless of original image size
+          if (width > MAX_STAMP_WIDTH || height > MAX_STAMP_HEIGHT) {
+            console.log(`🔧 Resizing image from ${originalWidth}x${originalHeight} to fit stamp limits`);
+            
+            if (width / MAX_STAMP_WIDTH > height / MAX_STAMP_HEIGHT) {
+              // Width is the limiting factor
+              width = MAX_STAMP_WIDTH;
+              height = width / aspectRatio;
+            } else {
+              // Height is the limiting factor  
+              height = MAX_STAMP_HEIGHT;
+              width = height * aspectRatio;
+            }
+            
+            console.log(`✅ New dimensions: ${Math.round(width)}x${Math.round(height)}`);
+          }
+          
+          // Round dimensions to avoid fractional pixels
+          width = Math.round(width);
+          height = Math.round(height);
+
+
+          //const width = newWidth || originalWidth, height = newWidth ? newWidth / aspectRatio : originalHeight;
           canvas.width = width;
           canvas.height = height;
   
           const ctx = canvas.getContext('2d')!;
-          //ctx.fillStyle = 'white';
-          //ctx.fillRect(0, 0, canvas.width, canvas.height);
-          ctx.drawImage(img, 0, 0, width, height);
-          const base64 = canvas.toDataURL();
-          const base64Index = base64.indexOf('base64,') + 'base64,'.length;
-          const imageData = base64.substring(base64Index);
-          resolve({imageData, width, height});
+
+          try {
+            ctx.drawImage(img, 0, 0, width, height);
+            const base64 = canvas.toDataURL('image/png', 0.8); // Use PNG with good quality
+            const base64Index = base64.indexOf('base64,') + 'base64,'.length;
+            const imageData = base64.substring(base64Index);
+            
+            console.log(`📊 Final image: ${width}x${height}, Base64 size: ${imageData.length} characters`);
+            resolve({imageData, width, height});
+          } catch (error) {
+            // If canvas.toDataURL() fails (e.g., due to very large images), reject
+            reject(new Error('Error converting image to base64: ' + (error instanceof Error ? error.message : 'Unknown error')));
+          }
+          
       };
+
       img.onerror = function () {
-          reject(new Error('Error convert to base64'));
+          reject(new Error('Error loading image'));
       };
       img.src = url;
     })
@@ -441,10 +506,13 @@ export class StampPanelComponent implements OnInit {
     return atob(base64Data);
   }
   hasTimestamp(): boolean {
-    const userName = this.username ?  this.dateDefaultText: '';
+
+    return !!(this.username || this.date || this.time);
+
+    /*const userName = this.username ?  this.dateDefaultText: '';
     const date = this.date ? this.dateDefaultText : '';
     const time = this.time ? this.timeDefaultText : '';
-    return !!(userName || date || time);
+    return !!(userName || date || time);*/
 }
 
 getSvgData(): string {
@@ -484,33 +552,61 @@ getSvgData(): string {
     
     //const svgBase64 = btoa(this.svgContent);
     const svgBase64 = btoa(unescape(encodeURIComponent(this.svgContent)));
-    const stampName = 'custom-stamp_' + new Date().getTime();
+
+    const stampName = this.isEditMode ? 
+      this.customStamps.find(s => s.id === this.editingStampId)?.name || 'custom-stamp_' + new Date().getTime() : 
+      'custom-stamp_' + new Date().getTime();
+    //const stampName = 'custom-stamp_' + new Date().getTime();
     const stampType = 'image/svg+xml';
 
+    // Collect all stamp settings for future editing
+    const stampSettings = {
+      stampText: this.stampText,
+      textColor: this.textColor,
+      selectedFontStyle: this.selectedFontStyle,
+      isBold: this.isBold,
+      isItalic: this.isItalic,
+      isUnderline: this.isUnderline,
+      username: this.username,
+      date: this.date,
+      time: this.time,
+      strokeWidth: this.strokeWidth,
+      strokeColor: this.strokeColor,
+      strokeRadius: this.strokeRadius,
+      fillColor: this.fillColor,
+      fillOpacity: this.fillOpacity,
+      font: this.font
+    };
+
+
     // Include width and height for proper SVG handling
-    const newStamp = {
+    const stampData = {
       name: stampName,
       type: stampType,
       content: svgBase64,
       width: this.svgWidth,
-      height: this.svgHeight
+      height: this.svgHeight,
+      stampSettings: stampSettings
     };
-    // let stamps = JSON.parse(localStorage.getItem('CustomStamps') || '[]');
-    // stamps.push(newStamp);
-    // localStorage.setItem('CustomStamps', JSON.stringify(stamps));
-    this.storageService.addCustomStamp(newStamp).then(async (item: any) => {
-      console.log('Custom stamp added successfully:', item);
-      const stampData = await this.convertToStampData({id: item.id, ...newStamp});
-      this.customStamps.push(stampData);
-      this.opened = false;
-    }).catch(error => {
-      console.error('Error adding custom stamp:', error);
-    });
-   
-    // const link = document.createElement('a');
-    // link.href = 'data:image/svg+xml;base64,' + svgBase64;
-    // link.download = 'custom-stamp.svg';
-    // link.click();
+
+
+    if (this.isEditMode && this.editingStampId) {
+      // Update existing stamp
+      this.updateCustomStamp(this.editingStampId, stampData);
+    } else {
+      // Create new stamp
+      this.storageService.addCustomStamp(stampData).then(async (item: any) => {
+        console.log('Custom stamp added successfully:', item);
+        const newStampData = await this.convertToStampData({id: item.id, ...stampData});
+        this.customStamps.push(newStampData);
+        this.opened = false;
+        this.resetEditMode();
+      }).catch(error => {
+        console.error('Error adding custom stamp:', error);
+      });
+    }
+
+    
   }
  
   async handleUploadImageUrl() {
@@ -606,7 +702,80 @@ async deleteImageStamp(id: number): Promise<void> {
 
   editCustomStamp(id: number): void {
     const stampToEdit = this.customStamps.find(stamp => stamp.id === id);
+    if (!stampToEdit) {
+      console.error('Stamp not found for editing');
+      return;
+    }
+
+    // Load original stamp data with settings
+    this.getOriginalStampData(id, 'custom').then((originalData) => {
+      if (originalData && originalData.stampSettings) {
+        // Load settings into form
+        this.loadStampSettings(originalData.stampSettings);
+      } else {
+        // If no settings saved, use default values
+        this._setDefaults();
+        this.stampText = 'Edit Stamp';
+      }
+      
+      // Set edit mode
+      this.isEditMode = true;
+      this.editingStampId = id;
+      this.opened = true;
+    }).catch(error => {
+      console.error('Error loading stamp for editing:', error);
+    });
     //Logic to edit
+  }
+
+  private updateCustomStamp(id: number, stampData: any): void {
+    // Update the stamp in storage using the proper update method
+    this.storageService.updateCustomStamp(id, stampData).then(async () => {
+      console.log('Custom stamp updated successfully');
+      
+      // Update in local array - keep the same ID
+      const index = this.customStamps.findIndex(s => s.id === id);
+      if (index !== -1) {
+        const updatedStampData = await this.convertToStampData({id: id, ...stampData});
+        this.customStamps[index] = updatedStampData;
+      }
+      
+      this.opened = false;
+      this.resetEditMode();
+    }).catch(error => {
+      console.error('Error updating custom stamp:', error);
+    });
+  }
+
+  resetEditMode(): void {
+    this.isEditMode = false;
+    this.editingStampId = null;
+    this._setDefaults();
+  }
+
+  private loadStampSettings(settings: any): void {
+    this.stampText = settings.stampText || 'Draft';
+    this.textColor = settings.textColor || '#000000';
+    this.selectedFontStyle = settings.selectedFontStyle || 'Arial';
+    this.isBold = settings.isBold || false;
+    this.isItalic = settings.isItalic || false;
+    this.isUnderline = settings.isUnderline || false;
+    this.username = settings.username || false;
+    this.date = settings.date || false;
+    this.time = settings.time || false;
+    this.strokeWidth = settings.strokeWidth || 1;
+    this.strokeColor = settings.strokeColor || '#000000';
+    this.strokeRadius = settings.strokeRadius || 8;
+    this.fillColor = settings.fillColor || '#ffffff';
+    this.fillOpacity = settings.fillOpacity || 0;
+    this.font = settings.font || {
+      style: {
+        bold: false,
+        italic: false
+      },
+      font: 'Arial'
+    };
+    this.color = this.textColor;
   }
 
   // Stamp Drag and Drop Methods - Only for Standard conversion tracking
@@ -756,15 +925,6 @@ async deleteImageStamp(id: number): Promise<void> {
       console.log('Standard stamp added successfully:', addedStamp);
 
       
-      // Remove from source collection  
-      /*if (sourceType === 'custom') {
-        await this.deleteCustomStamp(stamp.id);
-        console.log('Removed from custom stamps');
-      } else if (sourceType === 'upload') {
-        await this.deleteImageStamp(stamp.id);
-        console.log('Removed from upload stamps');
-      }*/
-      
       // Refresh standard stamps list
       await this.getStandardStamps();
       console.log('Standard stamps list refreshed');
@@ -797,17 +957,21 @@ async deleteImageStamp(id: number): Promise<void> {
     }
   }
 
-  private handleFileUpload(files: File[]): void {
+  private async handleFileUpload(files: File[]): Promise<void> {
     const uploadPromises: Promise<void>[] = [];
 
     for (const file of files) {
+      console.log('🔄 Processing file:', file.name, 'Size:', file.size, 'bytes (', (file.size / 1024).toFixed(2), 'KB)');
       const reader = new FileReader();
 
       const uploadPromise = new Promise<void>((resolve, reject) => {
         reader.onload = async (e) => {
           try {
             const imageDataWithPrefix = e.target?.result as string;
+            console.log('📤 Original image data URL length:', imageDataWithPrefix.length, 'characters');
+            
             const {imageData, width, height} = await this.convertUrlToBase64Data(imageDataWithPrefix);
+            console.log('🖼️ Processed image dimensions:', width, 'x', height, 'Base64 length:', imageData.length);
 
             const imageName = file.name + '_' + new Date().getTime();
             const imageType = "image/png";
@@ -821,19 +985,29 @@ async deleteImageStamp(id: number): Promise<void> {
               originalFileName: file.name // Store the original filename
             };
             
+            console.log('💾 Storing image object with size:', JSON.stringify(imageObject).length, 'characters');
+            
             const item = await this.storageService.addUploadImageStamp(imageObject);
-            console.log('Upload image stamp added successfully:', item);
+            console.log('✅ Upload image stamp added successfully:', item.id, 'Name:', imageName);
             const stampData = await this.convertToStampData({id: item.id, ...imageObject});
+            console.log('🏷️ Converted stamp data:', {
+              id: stampData.id,
+              name: stampData.name,
+              dimensions: `${stampData.width}x${stampData.height}`,
+              srcLength: stampData.src.length,
+              type: stampData.type
+            });
             this.uploadImageStamps.push(stampData);
             resolve();
 
           } catch (error) {
-            console.error('Error processing file:', error);
+            console.error('💥 Error processing file:', file.name, error);
             reject(error);
           }
         };
 
         reader.onerror = (error) => {
+          console.error('💥 FileReader error for file:', file.name, error);
           reject(error);
         };
 
@@ -844,10 +1018,12 @@ async deleteImageStamp(id: number): Promise<void> {
     }
 
     Promise.all(uploadPromises).then(() => {
-      console.log('All image stamps uploaded successfully');
+      console.log('🎉 All image stamps uploaded successfully');
     }).catch(error => {
-      console.error('Error uploading some files:', error);
+      console.error('💥 Error uploading some files:', error);
     });
   }
+
+  
 
 }

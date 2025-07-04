@@ -25,6 +25,84 @@ src\app\services\file-metadata.service.ts
 src\app\components\compare\create-comparison\create-comparison.component.ts
 src\app\services\file-preselection.service.ts
 
+July 1, 2025
+
+### 1. Added XFDF import/export
+
+Updated and new files
+
+src\rxcore\index.ts
+src\assets\scripts\rxcorefunctions.js
+src\assets\scripts\iframefoxit.js
+src\app\components\annotation-tools\annotation-tools.component.ts
+src\app\components\annotation-tools\annotation-tools.component.html
+
+
+
+
+June 30, 2025
+
+### 1. Fix a bug that annotations are not loaded when collaboration is off
+
+Updated and new files
+
+src/app/components/collab/room-panel.component.ts
+
+
+June 27, 2025
+
+### Collaboration update.
+
+### 1. When user open https://test.rasterex.com/collaboration/, join into a default room by default
+### 2. User can create a room
+### 3. User can see room list and able to switch to another room
+### 4. Admin can delete a room
+### 5. User is able to see annotations another one added, there will be tooltip showing who added a annotation
+### 6. Fixed some bugs
+
+### 7. Fixed an issue that big images could not be dropped to panel
+
+Updated and new files
+
+src/app/components/annotation-tools/stamp-panel/stamp-panel.component.ts
+src/app/components/annotation-tools/stamp-panel/stamp-template.directive.ts
+
+src/app/app.component.ts
+src/app/app.module.ts
+src/app/components/collab/room-panel.component.html
+src/app/components/collab/room-panel.component.scss
+src/app/components/collab/room-panel.component.ts
+src/app/components/file-galery/file-galery.component.ts
+src/app/components/top-nav-menu/top-nav-menu.component.html
+src/app/components/top-nav-menu/top-nav-menu.component.ts
+src/app/services/annotation-storage.service.ts
+src/app/services/collab.service.ts
+src/app/services/rxcore.service.ts
+src/document-collaboration.html
+src/rxcore/index.ts
+src/rxcore/models/IGuiConfig.ts
+
+
+June 26, 2025
+
+### 1. Stamp panel update for custom stamp.
+### 2. Zoom window fix for rotated pdf page.
+
+
+Updated and new files
+
+src\assets\scripts\rxcorefunctions.js
+src\assets\scripts\iframefoxit.js
+
+src/app/components/annotation-tools/stamp-panel/stamp-panel.component.html
+src/app/components/annotation-tools/stamp-panel/stamp-panel.component.ts 
+src\app\components\annotation-tools\stamp-panel\StampData.ts
+src\app\components\annotation-tools\stamp-panel\stamp-template.directive.ts
+src\app\components\annotation-tools\stamp-panel\stamp-storage.service.ts
+
+
+
+
 June 26, 2025
 ### 1. Developed file-metadata-modal component to display metadata for CAD files only.
 ### 2. Implemented FileMetadataService to retrieve file metadata from the backend.
@@ -92,7 +170,9 @@ June 17, 2025
 
 Updated and new files
 
-src\app\components\annotation-tools\symbols-library\symbols-library.component.html src\app\components\annotation-tools\symbols-library\symbols-library.component.ts src\app\components\annotation-tools\symbols-library\symbols-library.service.ts
+src\app\components\annotation-tools\symbols-library\symbols-library.component.html 
+src\app\components\annotation-tools\symbols-library\symbols-library.component.ts 
+src\app\components\annotation-tools\symbols-library\symbols-library.service.ts
 
 
 June 26, 2025
@@ -126,13 +206,12 @@ src\app\services\file-preselection.service.ts
 
 June 16, 2025
 
-### 1. Updated Foxit to new version 10.
-### 2. New method used for zoom to point for PDF.
-### 3. Fixed snap to point for rotated PDF files.
-### 3. Fixed snap to point for rotated PDF files.
-### 4. Removed automatic load of bookmarks for PDF this are now loaded on demand.
-### 5. Quick action menu for annoations are no longer loaded for non-owning users.
-
+### 1. Updated Foxit to new version 10. RxCore, Foxit
+### 2. New method used for zoom to point for PDF. RxCore, Foxit
+### 3. Fixed snap to point for rotated PDF files. RxCore, Foxit
+### 3. Fixed snap to point for rotated PDF files. -RxCore, Foxit
+### 4. Removed automatic load of bookmarks for PDF this are now loaded on demand. -RxCore, Foxit.
+### 5. Quick action menu for annoations are no longer loaded for non-owning users. Frontend.
 
 Updated and new files
 
@@ -141,6 +220,7 @@ RxCore version is now 35.926
 src\assets\scripts\rxcorefunctions.js
 src\assets\scripts\iframefoxit.js
 src\assets\html\foxpage.html
+
 
 tsconfig.app.json
 src\rxcore\index.ts

@@ -410,6 +410,9 @@ export class RXCore {
         RxCore.clearDocumentTextSearch();
     }
 
+    public static clearMarkup() {
+        RxCore.clearMarkup();
+    }
 
     //rotateClockwise
 
@@ -1338,6 +1341,15 @@ export class RXCore {
     public static removeWatermarkFromAllPages(): void {
         RxCore.removeWatermarkFromAllPages();
     }
+
+    public static importFDF(url : any, blob : any): void {
+        RxCore.importFDF(url, blob);
+    }
+    
+    public static foxitexportFDF(filetype : any, toServer: boolean): void {
+        RxCore.foxitexportFDF(filetype, toServer);
+    }
+
 
 
 }

@@ -137,7 +137,7 @@ export class FileGaleryComponent implements OnInit {
 
     this.guiConfig$.subscribe(config => {
       this.guiConfig = config;
-      this.canCollaborate = this.guiConfig.canCollaborate;
+      //this.canCollaborate = this.guiConfig.canCollaborate;
 
 
       //this.groups = RXCore.ViewUIConfig.demofiles;
@@ -151,11 +151,14 @@ export class FileGaleryComponent implements OnInit {
     });
 
 
-    // If we can find the roomName in the URL, we will create a collabService
+    this.canCollaborate =  window.location.pathname.includes('collaboration');
+    // If we can find the roomId in the URL, we will create a collabService
+
     // There maybe a better way to open a file, we may refactor this later
     const parameters = new URLSearchParams(window.location.search);
-    const roomName = parameters.get('roomName');
-    if (this.canCollaborate && roomName) {
+    const roomId = parameters.get('roomId');
+    
+    if (this.canCollaborate && roomId) {
       // don't know why we need to wait for a while, there is console error if we call directly
       setTimeout(() => {
         this.handleFileSelect(this.groups[0].items[0]);

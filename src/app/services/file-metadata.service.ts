@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { map, Observable, of } from 'rxjs';
 declare var RxConfig: any;
 export interface FileMetadata {
   filename: string;
@@ -31,6 +31,17 @@ export class FileMetadataService {
     return this.http.get<FileMetadata>(url);
   }
 
+
+  getUploadedFileMetadata(fileName: string, width: number = 300, height: number = 300): Observable<FileMetadata> {
+    const fullPath = `${RxConfig.UploadServerfolder}${fileName}`;
+    const url = `${RxConfig.UploadedFileMetadata}&${fullPath}&${width}&${height}`;
+    return this.http.get(url, { responseType: 'text' }).pipe(
+      map(text => {
+        const cleaned = text.replace(/,\s*([\]}])/g, '$1'); 
+        return JSON.parse(cleaned);
+      })
+    );
+  }
 
   isCADFile(fileName: string): boolean {
     const cadExtensions = ['.dwg', '.dgn', '.idw'];

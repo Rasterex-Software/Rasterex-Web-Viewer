@@ -11,11 +11,15 @@ export class FileMetadataModalComponent {
   filePath: string = '';
   @Output() confirmed = new EventEmitter<FileSelectionOptions>();
   @Output() cancelled = new EventEmitter<void>();
+// @Input() fallbackMode = false;
 
   metadata: FileMetadata | null = null;
   loading = true;
   error = false;
 
+  noLayersFound = false;
+  noBlocksFound = false;
+  noContentFound = false;
   selectedLayers: string[] = [];
   selectedBlocks: string[] = [];
 
@@ -23,20 +27,22 @@ export class FileMetadataModalComponent {
   constructor(
     private fileMetadataService: FileMetadataService,
     private dialogRef: MatDialogRef<FileMetadataModalComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { fileName: string }
+    @Inject(MAT_DIALOG_DATA) public data: { fileName: string, isUploaded?: boolean }
   ) {
     this.fileName = data.fileName;
   }
 
   ngOnInit() {
-    this.loadMetadata(this.fileName);
+  this.loadFileMetadata();
+}
+
+async loadFileMetadata(): Promise<void> {
+  if (this.data.isUploaded) {
+    await this.loadUploadedFileMetadata(this.fileName);
+  } else {
+    await this.loadMetadata(this.fileName);
   }
-
-
-  noLayersFound = false;
-  noBlocksFound = false;
-  noContentFound = false;
-
+}
 
 
   async loadMetadata(fileName: string): Promise<void> {
@@ -50,7 +56,6 @@ export class FileMetadataModalComponent {
           error: (err) => reject(err)
         });
       });
-
       if (!data) {
         this.error = true;
         console.warn('No metadata received for file:', fileName);
@@ -86,6 +91,35 @@ export class FileMetadataModalComponent {
   }
 
 
+  private async loadUploadedFileMetadata(filePath: string): Promise<void> {
+    this.loading = true;
+    this.error = false;
+
+    try {
+      const data = await new Promise<any>((resolve, reject) => {
+        this.fileMetadataService.getUploadedFileMetadata(filePath).subscribe({
+          next: res => resolve(res),
+          error: err => reject(err)
+        });
+      });
+      const layers = Array.isArray(data.layers) ? [...data.layers] : [];
+      const layouts = Array.isArray(data.layouts) ? [...data.layouts] : [];
+
+      this.metadata = { ...data, layers, layouts };
+      this.selectedLayers = [...layers];
+      this.selectedBlocks = this.getAllBlocks();
+
+      this.noLayersFound = layers.length === 0;
+      this.noBlocksFound = this.selectedBlocks.length === 0;
+      this.noContentFound = this.noLayersFound && this.noBlocksFound;
+
+    } catch (err) {
+      this.error = true;
+      console.error('Failed to load uploaded file metadata:', err);
+    } finally {
+      this.loading = false;
+    }
+  }
 
   private getAllBlocks(): string[] {
     if (!this.metadata?.layouts) return [];

@@ -14,7 +14,10 @@ import { CollabService } from './services/collab.service';
 import { AnnotationStorageService } from './services/annotation-storage.service';
 import { TooltipService } from './components/tooltip/tooltip.service';
 import { LoginService } from './services/login.service';
-
+import { FileMetadataModalComponent } from './components/file-metadata-modal/file-metadata-modal.component';
+import { MatDialog } from '@angular/material/dialog';
+import { FilePreselectionService } from './services/file-preselection.service';
+import { FileMetadataService } from './services/file-metadata.service';
 
 
 
@@ -69,6 +72,8 @@ export class AppComponent implements AfterViewInit {
     private readonly collabService: CollabService,  
     private readonly annotationStorageService: AnnotationStorageService,
     private titleService:Title,
+    private filePreselectionService:FilePreselectionService,
+    private readonly dialog: MatDialog,
     private el: ElementRef) { }
     
   ngOnInit() {
@@ -782,58 +787,66 @@ export class AppComponent implements AfterViewInit {
       return { selectedLayers, selectedBlocks };
     }
 
-   RXCore.onGuiVectorLayers((layers) => {
-  const selections = getSelectionsFromLocalStorage();
-  const selectedLayers: string[] = Array.isArray(selections?.selectedLayers)
-    ? selections.selectedLayers
-    : [];
+    RXCore.onGuiVectorLayers((layers) => {
+      const fileInfo = RXCore.getCurrentFileInfo();
+      const fileName = fileInfo?.name || this.filePreselectionService.currentFileName;
 
-  if (selectedLayers.length > 0 && layers.length > 0) {
-    // Set state = false for unselected layers
-    layers.forEach(layer => {
-      if (!selectedLayers.includes(layer.name.trim())) {
-        layer.state = false;
+      let selectedLayers: string[] = [];
+
+      if (fileName) {
+        const selections = this.filePreselectionService.getSelectionsForFile(fileName);
+        if (selections?.layers?.length) {
+          selectedLayers = selections.layers;
+        }
+      }
+
+      if (selectedLayers.length > 0 && layers.length > 0) {
+        layers.forEach(layer => {
+          if (!selectedLayers.includes(layer.name.trim())) {
+            layer.state = false;
+          }
+        });
+
+        const filteredLayers = layers.filter(layer =>
+          selectedLayers.includes(layer.name.trim())
+        );
+
+        this.rxCoreService.setGuiVectorLayers(filteredLayers);
+      } else {
+        this.rxCoreService.setGuiVectorLayers(layers);
       }
     });
 
-    // Only show selected layers in the side nav
-    const filteredLayers = layers.filter(layer =>
-      selectedLayers.includes(layer.name.trim())
-    );
 
-    this.rxCoreService.setGuiVectorLayers(filteredLayers);
-  } else {
-    // No selected layers, show all
-    this.rxCoreService.setGuiVectorLayers(layers);
-  }
-});
+    RXCore.onGuiVectorBlocks((blocks) => {
+      const fileInfo = RXCore.getCurrentFileInfo();
+      const fileName = fileInfo?.name || this.filePreselectionService.currentFileName;
 
-RXCore.onGuiVectorBlocks((blocks) => {
-  const selections = getSelectionsFromLocalStorage();
-  const selectedBlocks: string[] = Array.isArray(selections?.selectedBlocks)
-    ? selections.selectedBlocks
-    : [];
+      let selectedBlocks: string[] = [];
 
-  if (selectedBlocks.length > 0 && blocks.length > 0) {
-    // Set state = 0 for unselected blocks
-    blocks.forEach(block => {
-      if (!selectedBlocks.includes(block.name.trim())) {
-        block.state = 0;
+      if (fileName) {
+        const selections = this.filePreselectionService.getSelectionsForFile(fileName);
+        if (selections?.blocks?.length) {
+          selectedBlocks = selections.blocks;
+        }
+      }
+
+      if (selectedBlocks.length > 0 && blocks.length > 0) {
+        blocks.forEach(block => {
+          if (!selectedBlocks.includes(block.name.trim())) {
+            block.state = 0;
+          }
+        });
+
+        const filteredBlocks = blocks.filter(block =>
+          selectedBlocks.includes(block.name.trim())
+        );
+
+        this.rxCoreService.setGuiVectorBlocks(filteredBlocks);
+      } else {
+        this.rxCoreService.setGuiVectorBlocks(blocks);
       }
     });
-
-    // Only show selected blocks in the side nav
-    const filteredBlocks = blocks.filter(block =>
-      selectedBlocks.includes(block.name.trim())
-    );
-    
-    this.rxCoreService.setGuiVectorBlocks(filteredBlocks);
-    
-  } else {
-    // No selected blocks, show all
-    this.rxCoreService.setGuiVectorBlocks(blocks);
-  }
-});
 
     RXCore.onGui3DParts((parts) => {
       this.rxCoreService.setGui3DParts(parts);

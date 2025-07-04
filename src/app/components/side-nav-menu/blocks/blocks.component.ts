@@ -131,10 +131,6 @@ export class BlocksComponent implements OnInit, OnDestroy {
 
     
     this.rxCoreService.setSelectedVectorBlock(undefined);
-        if(this.hasvectorBlocks==null)
-        {
-      localStorage.removeItem("selectedBlocks");
-        }
    
   }
 

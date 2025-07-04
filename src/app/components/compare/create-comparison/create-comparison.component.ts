@@ -9,6 +9,7 @@ import { Subscription } from 'rxjs';
 import { IComparison } from 'src/rxcore/models/IComparison';
 import { FileCategoryService } from 'src/app/services/file-category.service';
 import { FileCategory } from 'src/app/shared/enums/file-category';
+import { FilePreselectionService } from 'src/app/services/file-preselection.service';
 
 @Component({
   selector: 'rx-create-comparison',
@@ -44,7 +45,8 @@ export class CreateComparisonComponent implements OnInit, OnDestroy {
     private readonly colorHelper: ColorHelper,
     private readonly fileGaleryService: FileGaleryService,
     private readonly topNavMenuService: TopNavMenuService,
-    private readonly fileCategoryService: FileCategoryService
+    private readonly fileCategoryService: FileCategoryService,
+    private filePreselectionService: FilePreselectionService,
     ) {}
 
   private _init(setOtherFile: boolean = false): void {
@@ -136,6 +138,7 @@ export class CreateComparisonComponent implements OnInit, OnDestroy {
   }
 
   onSelectNewDocument(): void {
+    this.filePreselectionService.setContext('comparison');
     this.fileGaleryService.openModal();
   }
 

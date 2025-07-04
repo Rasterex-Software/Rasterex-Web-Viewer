@@ -12,7 +12,7 @@
 
     <div *ngIf="error" class="error">
       <p>Failed to load file metadata. Please try again.</p>
-      <button (click)="loadMetadata()">Retry</button>
+      <button (click)="loadFileMetadata()">Retry</button>
     </div>
 
     <div *ngIf="!loading && !error && metadata" class="metadata-content">

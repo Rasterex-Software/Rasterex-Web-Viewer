@@ -120,7 +120,7 @@ export class FileGaleryComponent implements OnInit {
     private readonly rxCoreService: RxCoreService,
     private readonly fileMetadataService:FileMetadataService,
     private readonly dialog: MatDialog,
-    private fileSelectionService:FilePreselectionService
+    private filePreselectionService: FilePreselectionService,
   ) { }
 
 
@@ -173,7 +173,14 @@ export class FileGaleryComponent implements OnInit {
   handleFileSelect(item: any): void {
     this.uploadFile(item);
     this.fileType = item.type;
+    const fileName: string = item.file;
     if (this.fileMetadataService.isCADFile(item.file)) {
+       if (this.filePreselectionService.isComparison()) {
+      this.handleCloseModalFileGalery();
+      // Skipping  modal, directly emit the selected file
+      this.filePreselectionService.emitSelectedFile(item);
+      return;
+    }
       this.handleCloseModalFileGalery();
       const dialogRef = this.dialog.open(FileMetadataModalComponent, {
         data: { fileName: item.file },
@@ -183,15 +190,17 @@ export class FileGaleryComponent implements OnInit {
       });
 
       dialogRef.componentInstance.confirmed.subscribe((selection) => {
-        if (selection.selectedLayers?.length || selection.selectedBlocks?.length) {
-          localStorage.setItem('selectedLayers', JSON.stringify(selection.selectedLayers));
-          localStorage.setItem('selectedBlocks', JSON.stringify(selection.selectedBlocks));
-        } else {
-          localStorage.removeItem('selectedLayers');
-          localStorage.removeItem('selectedBlocks');
-        }
-
-        this.fileSelectionService.emitSelectedFile(item);
+        const selectedLayers = selection.selectedLayers || [];
+        const selectedBlocks = selection.selectedBlocks || [];
+        this.filePreselectionService.selectedLayers = selection.selectedLayers || [];
+        this.filePreselectionService.selectedBlocks = selection.selectedBlocks || [];
+        this.filePreselectionService.hasHandledMetadata = false; 
+        this.filePreselectionService.setSelectionsForFile(
+          fileName,
+          selectedLayers,
+          selectedBlocks
+        );
+        this.filePreselectionService.emitSelectedFile(item);
         dialogRef.close();
       });
 
@@ -298,6 +307,7 @@ export class FileGaleryComponent implements OnInit {
 
   handleCloseModalFileGalery() {
     this.fileGaleryService.closeModal();
+     this.filePreselectionService.resetContext();
     if (this.selectedFileName) this.clearData();
   }
 

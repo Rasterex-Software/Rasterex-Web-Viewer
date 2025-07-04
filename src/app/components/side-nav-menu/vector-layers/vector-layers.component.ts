@@ -28,10 +28,6 @@ export class VectorLayersComponent implements OnInit {
       //this.canChangeSign = state.numpages && state.isPDF && RXCore.getCanChangeSign();
 
     });
-    if(!this.vectorLayers)
-    {
-      localStorage.removeItem("selectedLayers");
-    }
   }
 
   onVectorLayersAllSelect(onoff: boolean): void {

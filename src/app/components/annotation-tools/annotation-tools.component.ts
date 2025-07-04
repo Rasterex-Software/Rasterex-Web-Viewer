@@ -439,7 +439,6 @@ export class AnnotationToolsComponent implements OnInit {
       RXCore.importFDF(null, null);
     else
       {
-        debugger
         const input = document.querySelector<HTMLInputElement>('input[type="file"][accept=".xfdf"]');
         input?.addEventListener('change', this.onXFDFFileSelected.bind(this));
         input?.click();
@@ -447,7 +446,6 @@ export class AnnotationToolsComponent implements OnInit {
   }
 
   onXFDFFileSelected(event: Event) {
-    debugger
     const input = event.target as HTMLInputElement;
     if (input.files?.length) {
         const file = input.files[0];

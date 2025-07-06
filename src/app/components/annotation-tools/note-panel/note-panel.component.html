@@ -4,18 +4,8 @@
   (onClose)="onClose()"
   [draggable]="false"
 >
-  <!-- <span *ngIf="showAnnotationsOnLoad" style="float: right;" >({{calcAllCount()}})</span> -->
   <div class="note-panel-container">
     <div class="header-section">
-      <!-- <div class="search">
-        <img src="/assets/images/search-ico.svg" />
-        <input
-          type="text"
-          placeholder="Search for comments..."
-          [(ngModel)]="search"
-          (keyup)="onSearch($event)"
-        />
-      </div> -->
       <div class="switch-container" *ngIf="!showAnnotationsOnLoad">
         <div class="switch-group">
           <div [class.disabled]="isAnnotationSwitchDisabled">
@@ -52,48 +42,6 @@
         (sortDateChange)="onSortDateChange($event.event, $event.type)"
         (clearSortDateFilter)="clearSortDateFilter()"
       ></rx-group-by-filter>
-      
-      <!-- Reset individual visibility button -->
-      <!-- <div 
-        *ngIf="hiddenAnnotationsCount > 0" 
-        class="reset-visibility-btn"
-        (click)="resetAllAnnotationVisibility()"
-        title="Show all hidden annotations"
-      >
-        <img src="/assets/images/show-on-ico.svg" alt="show all" />
-        <span>Show all hidden ({{ hiddenAnnotationsCount }})</span>
-      </div> -->
-        <!-- <div class="filter-section">
-          <div class="filter-controls">
-            <div class="filter-header">
-              <div class="filter-text">Filters</div>
-              <div
-                class="filter-count"
-                *ngIf="
-                  activeFilterCount > 0
-                "
-              >
-                {{ activeFilterCount }}
-              </div>
-            </div>
-            <div
-              class="clear-filters-btn"
-              *ngIf="isFilterActive || filterVisible"
-              (click)="clearAllFilters()"
-            >
-              Reset filters
-            </div>
-          </div>
-          <div class="filter-icon-container">
-            <img
-              src="/assets/images/filter-ico.svg"
-              role="button"
-              class="filter-icon"
-              [class.active]="isFilterActive"
-              (click)="toggleFilterVisibility()"
-            />
-          </div>
-        </div> -->
     </div>
 
     <div class="main-section" (scroll)="scrollHandler($event)">
@@ -129,10 +77,6 @@
               [title]="!isAnnotationVisible(item.markupnumber) ? 'This annotation is hidden from canvas and cannot be expanded' : ''"
               [style.cursor]="isCommentCardClickable(item.markupnumber) ? 'pointer' : 'not-allowed'"
             >
-              <!-- [ngClass]="{'is-active': item.markupnumber === activeMarkupNumber}" -->
-              <!-- (click)="SetActiveCommentThread($event, item.markupnumber, item)"> -->
-
-              <!-- Eye icon positioned at top-right corner - always clickable -->
               <div 
                 class="eye-icon-container eye-icon-top-right" 
                 (click)="toggleAnnotationVisibility($event, item)"
@@ -238,7 +182,6 @@
                             <div class="author">{{ itemNote.signature }}</div>
                             <div class="comments-date-count">
                               <div class="date-and-time">
-                                <!-- {{ item.createdStr }} -->
                                 {{ itemNote.timestamp | date: (guiConfig$ | async).dateFormat?.dateTimeWithoutYear }}
                               </div>
                               <div
@@ -319,13 +262,6 @@
         </ng-container>
       </div>
       <ng-template #emptyList>
-        <!--         <div class="empty-list">
-          <p>
-            You don't have any notes yet. Click on the document to create a
-            note.
-          </p>
-        </div>
- -->
       </ng-template>
     </div>
   </div>

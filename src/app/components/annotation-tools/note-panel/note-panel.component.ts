@@ -74,7 +74,11 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
   //sortByField: 'created' | 'position' | 'author' = 'created';
   sortByField: 'created' | 'author' | 'pagenumber' | 'annotation' = 'created';
 
-
+  // Flags to track which grouping is currently active
+  isPagenumberFlag: boolean = false;
+  isAnnotationFlag: boolean = false;
+  isCreatedFlag: boolean = true; // Default to true since sortByField defaults to 'created'
+  isAuthorFlag: boolean = false;
 
   sortOptions = [
     { value: "created", label: "Created day", imgSrc: "calendar-ico.svg" },
@@ -1128,35 +1132,8 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     }
 
     this.processListTimeout = setTimeout(() => {
-      this._processListWithHiddenPreservation(list, annotList);
-    }, 50); // Debounce delay
-  }
-
-  /**
-   * Safe wrapper for _performProcessList that ensures hidden annotations are always preserved
-   */
-  private _processListWithHiddenPreservation(list: Array<IMarkup> = [], annotList: Array<IMarkup> = []): void {
-    // Always ensure hidden annotations are included in the processing
-    const allHiddenNumbers = new Set([...this.hiddenAnnotations, ...this.groupHiddenAnnotations]);
-    
-    if (allHiddenNumbers.size > 0) {
-      const completeMarkupList = this.rxCoreService.getGuiMarkupList() || [];
-      const hiddenMarkups = completeMarkupList.filter(markup => 
-        allHiddenNumbers.has(markup.markupnumber)
-      );
-      
-      // Ensure hidden annotations are included in the list being processed
-      const enhancedList = [...list];
-      hiddenMarkups.forEach(hiddenMarkup => {
-        if (!enhancedList.find(existing => existing.markupnumber === hiddenMarkup.markupnumber)) {
-          enhancedList.push(hiddenMarkup);
-        }
-      });
-      
-      this._performProcessList(enhancedList, annotList);
-    } else {
       this._performProcessList(list, annotList);
-    }
+    }, 50); // Debounce delay
   }
 
   private _performProcessList(list: Array<IMarkup> = [], annotList: Array<IMarkup> = []): void {
@@ -1268,50 +1245,97 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
 
       switch (this.sortByField) {
         case 'created':
-          this.list = query.reduce((list, item) => {
-            const date = dayjs(item.timestamp).fromNow();
-            if (!list[date]) {
-              list[date] = [item];
-            } else {
-              list[date].push(item);
-            }
-            return list;
-          }, {});
+          if (!this.isCreatedFlag) {
+            this.list = query.reduce((list, item) => {
+              const date = dayjs(item.timestamp).fromNow();
+              if (!list[date]) {
+                list[date] = [item];
+              } else {
+                list[date].push(item);
+              }
+              return list;
+            }, {});
+            this.isCreatedFlag = true;
+
+            // Reset other flags
+            this.isAuthorFlag = false;
+            this.isPagenumberFlag = false;
+            this.isAnnotationFlag = false;
+          }
           break;
+
         case 'author':
-          this.list = query.reduce((list, item) => {
-            if (!list[item.author]) {
-              list[item.author] = [item];
-            } else {
-              list[item.author].push(item);
-            }
-            return list;
-          }, {});
+          if (!this.isAuthorFlag) {
+            console.log("before switch case author this.list", this.list);
+            this.list = query.reduce((list, item) => {
+              const authorName = RXCore.getDisplayName(item.signature) || 'Unknown Author';
+              if (!list[authorName]) {
+                list[authorName] = [item];
+              } else {
+                list[authorName].push(item);
+              }
+              return list;
+            }, {});
+            this.isAuthorFlag = true;
+
+            // Reset other flags
+            this.isCreatedFlag = false;
+            this.isPagenumberFlag = false;
+            this.isAnnotationFlag = false;
+
+            console.log("after switch case author this.list", this.list);
+          }
           break;
+
         case 'annotation':
-          this.list = query.reduce((list, item) => {
-            const annotationLabel = this.getAnnotationTitle(item.type, item.subtype);
-            if (!list[annotationLabel]) {
-              list[annotationLabel] = [item];
-            } else {
-              list[annotationLabel].push(item);
-            }
-            return list;
-          }, {});
+          if (!this.isAnnotationFlag) {
+            this.list = query.reduce((list, item) => {
+              const annotationLabel = this.getAnnotationTitle(item.type, item.subtype);
+              if (!list[annotationLabel]) {
+                list[annotationLabel] = [item];
+              } else {
+                list[annotationLabel].push(item);
+              }
+              return list;
+            }, {});
+            this.isAnnotationFlag = true;
+
+            // Reset other flags
+            this.isCreatedFlag = false;
+            this.isAuthorFlag = false;
+            this.isPagenumberFlag = false;
+          }
           break;
+
         case 'pagenumber':
-          this.list = query.reduce((list, item) => {
-            if (!list[`Page ${item.pagenumber + 1}`]) {
-              list[`Page ${item.pagenumber + 1}`] = [item];
-            } else {
-              list[`Page ${item.pagenumber + 1}`].push(item);
-            }
-            return list;
-          }, {});
+          if (!this.isPagenumberFlag) {
+            this.list = query.reduce((list, item) => {
+              const pageLabel = `Page ${item.pagenumber + 1}`;
+              if (!list[pageLabel]) {
+                list[pageLabel] = [item];
+              } else {
+                list[pageLabel].push(item);
+              }
+              return list;
+            }, {});
+            this.isPagenumberFlag = true;
+
+            // Reset other flags
+            this.isCreatedFlag = false;
+            this.isAuthorFlag = false;
+            this.isAnnotationFlag = false;
+          }
           break;
+
         default:
-          this.list = {'': query};
+          this.list = { '': query };
+          this.isCreatedFlag = false;
+          this.isAuthorFlag = false;
+          this.isPagenumberFlag = false;
+          this.isAnnotationFlag = false;
+          break;
       }
+
     } finally {
       this.isProcessingList = false;
     }
@@ -1830,6 +1854,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
 
 
     this.rxCoreService.guiMarkupList$.subscribe((list = []) => {
+      console.log("6 guiMarkupList$", this.list, list);
       this.createdByFilter = new Set();
 
       /*if (list.length > 0){
@@ -1949,6 +1974,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     });
 
     this.rxCoreService.guiAnnotList$.subscribe((list = []) => {
+      console.log("8 guiAnnotList$", this.list, list);
       this._processList(this.rxCoreService.getGuiMarkupList(), list);
     });
 
@@ -2024,13 +2050,6 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
           this.SetActiveCommentSelect(markup);
         }
 
-        // Sync filters with canvas when markups are created or modified
-        // Only if switches are active
-        if ((this.showAnnotations || this.showMeasurements) && !this.showAll) {
-          setTimeout(() => {
-            this._syncFiltersWithVisibleMarkups();
-          }, 300);
-        }
       }
 
       if(operation.created){
@@ -2100,6 +2119,12 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     
     this.sortByField = event.value;
     this.selectedSortOption = event;
+    
+    // Reset all flags when changing sort field to ensure proper processing
+    this.isCreatedFlag = false;
+    this.isAuthorFlag = false;
+    this.isPagenumberFlag = false;
+    this.isAnnotationFlag = false;
     
     // Clear previous selections when changing sort field to ensure clean state
     this.selectedSortFilterValues = [];
@@ -2270,163 +2295,256 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     const previousValues = [...this.selectedSortFilterValues];
     this.selectedSortFilterValues = selectedValues;
     
-    // Special handling for page filtering
-    if (this.sortByField === 'pagenumber') {
-      // Get removed pages (pages that were in previous values but not in new values)
-      const removedPages = previousValues.filter(page => !selectedValues.includes(page));
-      
-      // Force refresh the comment list to remove annotations from unselected pages
-      if (removedPages.length > 0 || selectedValues.length === 0) {
         const markupList = this.rxCoreService.getGuiMarkupList();
-        if (markupList) {
-          // Clear individual visibility settings for annotations from removed pages
-          removedPages.forEach(removedPage => {
-            markupList.forEach(markup => {
-              const pageNumber = markup.pagenumber + 1;
-              if (pageNumber === removedPage) {
-                // Remove from individual hidden sets since the page is now filtered out
-                this.hiddenAnnotations.delete(markup.markupnumber);
-                this.groupHiddenAnnotations.delete(markup.markupnumber);
-                
-                // Also clear any group hidden states for this page
-                const groupKey = this._getGroupKeyForMarkup(markup);
-                if (groupKey) {
-                  // Check if all annotations in this group are from the removed page
-                  const groupItems = this._getGroupItems(groupKey);
-                  const allFromRemovedPage = groupItems.every(item => {
-                    const itemPageNumber = item.pagenumber + 1;
-                    return itemPageNumber === removedPage;
-                  });
-                  
-                  if (allFromRemovedPage) {
-                    this.hiddenGroups.delete(groupKey);
-                  }
-                }
-              }
-            });
-          });
-          
-          // First collapse any expanded cards that will be hidden
-          markupList.forEach(markup => {
-            const pageNumber = markup.pagenumber + 1;
-            if ((markup as any).isexpanded && (!selectedValues.includes(pageNumber) || selectedValues.length === 0)) {
-              (markup as any).isexpanded = false;
-            }
-          });
-          
-          // Then process the list to update visibility
-          this._processList(markupList);
-          
-          // Force canvas refresh to ensure annotations are hidden
-          this._forceCanvasRefresh();
-          
-          // Additional step: Ensure annotations from unselected pages are hidden on canvas
-          if (selectedValues.length > 0) {
-            markupList.forEach(markup => {
-              const pageNumber = markup.pagenumber + 1;
-              if (!selectedValues.includes(pageNumber)) {
-                // Hide annotations from unselected pages on canvas
-                markup.setdisplay(false);
-              }
-            });
-            RXCore.markUpRedraw();
-          }
-          
-          // Force change detection
-          this.cdr.detectChanges();
-        }
-      }
+    if (!markupList) return;
+
+    // Prevent any ongoing processing
+    this.isProcessingList = false;
+    this.isUpdatingLeaderLine = false;
+    
+    // Clear any pending timeouts
+    if (this.processListTimeout) {
+      clearTimeout(this.processListTimeout);
+      this.processListTimeout = null;
     }
-    
-    // Special handling for "all deselected" to "some selected" transitions
-    const previouslyEmpty = previousValues.length === 0;
-    const nowHasSelections = selectedValues.length > 0;
-    const isRecoveringFromEmpty = previouslyEmpty && nowHasSelections;
-    
-    if (isRecoveringFromEmpty) {
-      
-      // Step 1: Clear all stuck states and flags
-      this.isProcessingList = false;
-      this.isUpdatingLeaderLine = false;
-      
-      // Step 2: Force immediate observable updates
-      const markupList = this.rxCoreService.getGuiMarkupList();
-      if (markupList) {
-        // Force markup list observable to emit
-        this.rxCoreService.setGuiMarkupList(markupList);
-        
-        // Step 3: Reset filter states completely
-        this._updateCreatedByFilterOptions(markupList);
-        this._updateSortFilterOptions();
-        
-        // Step 4: Apply canvas filters with immediate redraw
-        this._applySortFilterToCanvas();
-        RXCore.markUpRedraw();
-        
-        // Step 5: Force aggressive change detection immediately
-        this.cdr.detectChanges();
-        this.cdr.markForCheck();
-        
-        // Step 6: Process comment list with multiple retries
-        setTimeout(() => {
-          this.isProcessingList = false; // Ensure not blocked
-          this._processList(markupList);
-          this.cdr.detectChanges();
-          
-          // Immediate retry with different approach
-          setTimeout(() => {
-            this.isProcessingList = false;
-            this._performProcessList(markupList, []);
-            this.cdr.detectChanges();
-            this.cdr.markForCheck();
-            
-                         // Final aggressive refresh
-             setTimeout(() => {
-               this.cdr.detectChanges();
-               
-               // Simulate the effect of clicking on a card by updating filter options again
-               this._updateCreatedByFilterOptions(markupList);
-               this.cdr.detectChanges();
-               
-               // Temporarily clear and restore the list to force re-render
-               const tempList = { ...this.list };
-               this.list = {};
-               this.cdr.detectChanges();
-               
-               setTimeout(() => {
-                 this.list = tempList;
-                 this.cdr.detectChanges();
-                 this.cdr.markForCheck();
-                 
-                 // Additional force update
-                 setTimeout(() => {
-                   this.cdr.detectChanges();
-                   
-                   // Force zone.js change detection cycle
-                   setTimeout(() => {
-                     this.cdr.detectChanges();
-                     this.cdr.markForCheck();
-                     
-                     // Verify the result
-                     setTimeout(() => {
-                       this._verifySynchronizationAndRetryIfNeeded(markupList);
-                     }, 100);
-                   }, 0);
-                 }, 10);
-               }, 10);
-             }, 50);
-          }, 100);
-        }, 150);
-      }
-    } else {
-      // Normal enhanced synchronization
-      this._enhancedSynchronizeCanvasAndCommentList();
+    if (this.leaderLineUpdateTimeout) {
+      clearTimeout(this.leaderLineUpdateTimeout);
+      this.leaderLineUpdateTimeout = null;
     }
 
-    // Wait for DOM to be ready and then update leader line position
-    setTimeout(() => {
-      this._waitForDOMAndUpdateLeaderLine();
-    }, 150);
+    // Handle different filter types
+    switch (this.sortByField) {
+      case 'pagenumber':
+        this._handlePageFilter(previousValues, selectedValues, markupList);
+        break;
+      case 'author':
+        this._handleAuthorFilter(previousValues, selectedValues, markupList);
+        break;
+      case 'annotation':
+        this._handleAnnotationTypeFilter(previousValues, selectedValues, markupList);
+        break;
+    }
+
+    // Update leader lines without delay if possible
+    const viewport = this._getDocumentViewport();
+    if (viewport) {
+      this._updateLeaderLinePosition();
+    }
+
+    // Single change detection cycle
+    this.cdr.detectChanges();
+  }
+
+  private _handlePageFilter(previousValues: Array<any>, selectedValues: Array<any>, markupList: Array<any>): void {
+    // Handle select all/unselect all first
+    if (selectedValues.length === 0 && previousValues.length > 0) {
+      // Unselect all case - hide everything at once
+            markupList.forEach(markup => {
+                markup.setdisplay(false);
+        this.hiddenAnnotations.add(markup.markupnumber);
+            });
+            RXCore.markUpRedraw();
+      return;
+    } else if (selectedValues.length > 0 && previousValues.length === 0) {
+      // First selection after unselect all - only show selected items
+      markupList.forEach(markup => {
+        markup.setdisplay(false);
+        this.hiddenAnnotations.add(markup.markupnumber);
+      });
+      
+      // Now show only the selected items
+      selectedValues.forEach(page => {
+        const pageItems = markupList.filter(markup => (markup.pagenumber + 1) === page);
+        pageItems.forEach(markup => {
+          markup.setdisplay(true);
+          this.hiddenAnnotations.delete(markup.markupnumber);
+        });
+      });
+      RXCore.markUpRedraw();
+      return;
+    }
+
+    // Handle individual changes
+    const removedPages = previousValues.filter(page => !selectedValues.includes(page));
+    removedPages.forEach(removedPage => {
+      const pageItems = markupList.filter(markup => (markup.pagenumber + 1) === removedPage);
+      if (pageItems.length > 0) {
+        // Hide items directly
+        pageItems.forEach(markup => {
+          markup.setdisplay(false);
+          this.hiddenAnnotations.add(markup.markupnumber);
+        });
+        const groupKey = `page_${removedPage}`;
+        this.hiddenGroups.add(groupKey);
+      }
+    });
+
+    const addedPages = selectedValues.filter(page => !previousValues.includes(page));
+    addedPages.forEach(addedPage => {
+      const pageItems = markupList.filter(markup => (markup.pagenumber + 1) === addedPage);
+      if (pageItems.length > 0) {
+        // Show items directly
+        pageItems.forEach(markup => {
+          markup.setdisplay(true);
+          this.hiddenAnnotations.delete(markup.markupnumber);
+        });
+        const groupKey = `page_${addedPage}`;
+        this.hiddenGroups.delete(groupKey);
+      }
+    });
+
+    // Force canvas update after all changes
+    RXCore.markUpRedraw();
+  }
+
+  private _handleAuthorFilter(previousValues: Array<any>, selectedValues: Array<any>, markupList: Array<any>): void {
+    // Handle select all/unselect all first
+    if (selectedValues.length === 0 && previousValues.length > 0) {
+      // Unselect all case - hide everything at once
+      markupList.forEach(markup => {
+        markup.setdisplay(false);
+        this.hiddenAnnotations.add(markup.markupnumber);
+      });
+      RXCore.markUpRedraw();
+      return;
+    } else if (selectedValues.length > 0 && previousValues.length === 0) {
+      // First selection after unselect all - only show selected items
+      markupList.forEach(markup => {
+        markup.setdisplay(false);
+        this.hiddenAnnotations.add(markup.markupnumber);
+      });
+      
+      // Now show only the selected items
+      selectedValues.forEach(author => {
+        const authorItems = markupList.filter(markup => RXCore.getDisplayName(markup.signature) === author);
+        authorItems.forEach(markup => {
+          markup.setdisplay(true);
+          this.hiddenAnnotations.delete(markup.markupnumber);
+        });
+      });
+      RXCore.markUpRedraw();
+      return;
+    }
+
+    // Handle individual changes
+    const removedAuthors = previousValues.filter(author => !selectedValues.includes(author));
+    removedAuthors.forEach(removedAuthor => {
+      const authorItems = markupList.filter(markup => RXCore.getDisplayName(markup.signature) === removedAuthor);
+      if (authorItems.length > 0) {
+        // Hide items directly
+        authorItems.forEach(markup => {
+          markup.setdisplay(false);
+          this.hiddenAnnotations.add(markup.markupnumber);
+        });
+        const groupKey = `author_${removedAuthor}`;
+        this.hiddenGroups.add(groupKey);
+      }
+    });
+
+    const addedAuthors = selectedValues.filter(author => !previousValues.includes(author));
+    addedAuthors.forEach(addedAuthor => {
+      const authorItems = markupList.filter(markup => RXCore.getDisplayName(markup.signature) === addedAuthor);
+      if (authorItems.length > 0) {
+        // Show items directly
+        authorItems.forEach(markup => {
+          markup.setdisplay(true);
+          this.hiddenAnnotations.delete(markup.markupnumber);
+        });
+        const groupKey = `author_${addedAuthor}`;
+        this.hiddenGroups.delete(groupKey);
+      }
+    });
+
+    // Force canvas update after all changes
+    RXCore.markUpRedraw();
+  }
+
+  private _handleAnnotationTypeFilter(previousValues: Array<any>, selectedValues: Array<any>, markupList: Array<any>): void {
+    // Handle select all/unselect all first
+    if (selectedValues.length === 0 && previousValues.length > 0) {
+      // Unselect all case - hide everything at once
+      markupList.forEach(markup => {
+        markup.setdisplay(false);
+        this.hiddenAnnotations.add(markup.markupnumber);
+      });
+        RXCore.markUpRedraw();
+      return;
+    } else if (selectedValues.length > 0 && previousValues.length === 0) {
+      // First selection after unselect all - only show selected items
+      markupList.forEach(markup => {
+        markup.setdisplay(false);
+        this.hiddenAnnotations.add(markup.markupnumber);
+      });
+      
+      // Now show only the selected items
+      selectedValues.forEach(type => {
+        const typeItems = markupList.filter(markup => markup.type === type);
+        typeItems.forEach(markup => {
+          markup.setdisplay(true);
+          this.hiddenAnnotations.delete(markup.markupnumber);
+        });
+      });
+      RXCore.markUpRedraw();
+      return;
+    }
+
+    // Handle individual changes
+    const removedTypes = previousValues.filter(type => !selectedValues.includes(type));
+    removedTypes.forEach(removedType => {
+      const typeItems = markupList.filter(markup => markup.type === removedType);
+      if (typeItems.length > 0) {
+        // Hide items directly
+        typeItems.forEach(markup => {
+          markup.setdisplay(false);
+          this.hiddenAnnotations.add(markup.markupnumber);
+        });
+        const groupKey = `type_${removedType}`;
+        this.hiddenGroups.add(groupKey);
+      }
+    });
+
+    const addedTypes = selectedValues.filter(type => !previousValues.includes(type));
+    addedTypes.forEach(addedType => {
+      const typeItems = markupList.filter(markup => markup.type === addedType);
+      if (typeItems.length > 0) {
+        // Show items directly
+        typeItems.forEach(markup => {
+          markup.setdisplay(true);
+          this.hiddenAnnotations.delete(markup.markupnumber);
+        });
+        const groupKey = `type_${addedType}`;
+        this.hiddenGroups.delete(groupKey);
+      }
+    });
+
+    // Force canvas update after all changes
+    RXCore.markUpRedraw();
+  }
+
+  private _processListWithVisibilityPreservation(markupList: Array<any> = []): void {
+    if (!markupList || markupList.length === 0) return;
+
+    // Store current visibility states
+    const currentHidden = new Set(this.hiddenAnnotations);
+    const currentGroupHidden = new Set(this.groupHiddenAnnotations);
+    const currentHiddenGroups = new Set(this.hiddenGroups);
+
+    // Process the list in a single operation
+    this._processList(markupList);
+
+    // Restore visibility states
+    this.hiddenAnnotations = currentHidden;
+    this.groupHiddenAnnotations = currentGroupHidden;
+    this.hiddenGroups = currentHiddenGroups;
+
+    // Update canvas display states in a single pass
+    markupList.forEach(markup => {
+      const shouldShow = this._shouldShowMarkupForCanvas(markup);
+      markup.setdisplay(shouldShow);
+    });
+
+    // Single canvas update
+    RXCore.markUpRedraw();
   }
 
   // Handle date picker selection for sort filter
@@ -2762,24 +2880,6 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     }, 100);
   }
 
-  /**
-   * Enhanced toggle filter visibility with automatic synchronization
-   */
-  toggleFilterVisibility(): void {
-    this.filterVisible = !this.filterVisible;
-    
-    if (this.filterVisible) {
-      // When modal opens, sync the current canvas state with filter selections
-      setTimeout(() => {
-        this._ensureFilterSynchronization();
-      }, 150);
-    }
-
-    // Wait for DOM to be ready and then update leader line position
-    setTimeout(() => {
-      this._waitForDOMAndUpdateLeaderLine();
-    }, 200);
-  }
 
   onClose(): void {
     this.visible = false;
@@ -3067,10 +3167,10 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       }
 
       // Ensure hidden annotations stay in the list and synchronize states
-      setTimeout(() => {
-        this._preserveHiddenAnnotationsInCommentList();
-        this._forceSynchronizeCanvasAndCommentList();
-      }, 150);
+      // setTimeout(() => {
+      //   this._preserveHiddenAnnotationsInCommentList();
+      //   this._forceSynchronizeCanvasAndCommentList();
+      // }, 150);
 
       // Force change detection to update the UI
       this.cdr.detectChanges();
@@ -4763,379 +4863,6 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     }
   }
 
-  /**
-   * Preserve existing filters and apply them to measurements when measurements switch is turned on
-   */
-  private _preserveFiltersAndApplyToMeasurements(): void {
-    
-    // Don't modify existing filter selections - they are already preserved by _updateSortFilterOptions()
-    // Just ensure that the canvas shows both annotations and measurements that match the existing filters
-    
-    // The existing selectedSortFilterValues and sortFilterDateRange should already contain the user's selections
-    // and _updateSortFilterOptions() has preserved them
-    
-    // Apply the existing filter criteria to canvas to show both annotations and measurements
-    this._applySortFilterToCanvas();
-    
-    // Update the filter options to include measurement types that match the existing filter criteria
-    // This ensures newly visible measurements are included in the available filter options
-    const markupList = this.rxCoreService.getGuiMarkupList();
-    if (markupList) {
-      // Add any new measurement authors/pages/types that weren't previously available
-      this._expandFilterOptionsForMeasurements(markupList);
-    }
-    
-    // Force a complete synchronization to ensure everything is consistent
-    setTimeout(() => {
-      this._forceSynchronizeCanvasAndCommentList();
-    }, 100);
-  }
-
-  /**
-   * Handle the case when a switch is turned back ON to ensure proper filter synchronization
-   */
-  private _handleSwitchTurnedOn(switchType: 'annotations' | 'measurements'): void {
-
-    // If we're currently on annotation type filter, we need to update the selections
-    if (this.sortByField === 'annotation') {
-      const markupList = this.rxCoreService.getGuiMarkupList();
-      if (!markupList) return;
-
-      // Get the types that should be available now
-      const availableTypes = new Set<string>();
-      
-      if (this.showAnnotations) {
-        const annotationMarkups = markupList.filter(markup => !(markup as any).ismeasure);
-        annotationMarkups.forEach(markup => {
-          availableTypes.add(this.getAnnotationTitle(markup.type, markup.subtype));
-        });
-      }
-      
-      if (this.showMeasurements) {
-        const measurementMarkups = markupList.filter(markup => (markup as any).ismeasure);
-        measurementMarkups.forEach(markup => {
-          availableTypes.add(this.getAnnotationTitle(markup.type, markup.subtype));
-        });
-      }
-
-
-      // Add new types to the filter options if they don't exist
-      const newTypes = Array.from(availableTypes).filter(type => 
-        !this.sortFilterOptions.some(option => option.value === type)
-      );
-
-      if (newTypes.length > 0) {
-        newTypes.forEach(type => {
-          this.sortFilterOptions.push({
-            value: type,
-            label: type,
-            selected: true
-          });
-          this.selectedSortFilterValues.push(type);
-        });
-      }
-
-      // Update the selected state of existing options
-      this.sortFilterOptions.forEach(option => {
-        if (availableTypes.has(option.value)) {
-          option.selected = true;
-          if (!this.selectedSortFilterValues.includes(option.value)) {
-            this.selectedSortFilterValues.push(option.value);
-          }
-        }
-      });
-
-    }
-  }
-
-  /**
-   * Preserve existing filters and apply them to annotations when annotations switch is turned on
-   */
-  private _preserveFiltersAndApplyToAnnotations(): void {
-    
-    // Don't modify existing filter selections - they are already preserved by _updateSortFilterOptions()
-    // Just ensure that the canvas shows both annotations and measurements that match the existing filters
-    
-    // The existing selectedSortFilterValues and sortFilterDateRange should already contain the user's selections
-    // and _updateSortFilterOptions() has preserved them
-    
-    // Apply the existing filter criteria to canvas to show both annotations and measurements
-    this._applySortFilterToCanvas();
-    
-    // Update the filter options to include annotation types that match the existing filter criteria
-    // This ensures newly visible annotations are included in the available filter options
-    const markupList = this.rxCoreService.getGuiMarkupList();
-    if (markupList) {
-      // Add any new annotation authors/pages/types that weren't previously available
-      this._expandFilterOptionsForAnnotations(markupList);
-    }
-    
-    // Force a complete synchronization to ensure everything is consistent
-    setTimeout(() => {
-      this._forceSynchronizeCanvasAndCommentList();
-    }, 100);
-  }
-
-  /**
-   * Expand filter options to include measurement types while preserving existing selections
-   */
-  private _expandFilterOptionsForMeasurements(markupList: any[]): void {
-    // Get measurement markups
-    const measurementMarkups = markupList.filter(markup => (markup as any).ismeasure);
-    
-    if (measurementMarkups.length === 0) {
-      return;
-    }
-
-
-    // For annotation type filter, add measurement types if not already present
-    if (this.sortByField === 'annotation') {
-      const existingTypeValues = new Set(this.sortFilterOptions.map(option => option.value));
-      const newMeasurementTypes = [...new Set(measurementMarkups.map(markup => this.getAnnotationTitle(markup.type, markup.subtype)))]
-        .filter(type => !existingTypeValues.has(type));
-      
-      
-      // Add new measurement types as selected (since user wants to see measurements)
-      newMeasurementTypes.forEach(type => {
-        this.sortFilterOptions.push({
-          value: type,
-          label: type,
-          selected: true
-        });
-        this.selectedSortFilterValues.push(type);
-      });
-      
-    }
-
-    // For author filter, add measurement authors if not already present
-    if (this.sortByField === 'author') {
-      const existingAuthorValues = new Set(this.sortFilterOptions.map(option => option.value));
-      const newMeasurementAuthors = [...new Set(measurementMarkups.map(markup => RXCore.getDisplayName(markup.signature)))]
-        .filter(author => !existingAuthorValues.has(author));
-      
-      // Add new measurement authors as selected (since user wants to see measurements)
-      newMeasurementAuthors.forEach(author => {
-        this.sortFilterOptions.push({
-          value: author,
-          label: author,
-          selected: true
-        });
-        this.selectedSortFilterValues.push(author);
-      });
-    }
-
-    // For page filter, add measurement pages if not already present
-    if (this.sortByField === 'pagenumber') {
-      const existingPageValues = new Set(this.sortFilterOptions.map(option => option.value));
-      const newMeasurementPages = [...new Set(measurementMarkups.map(markup => markup.pagenumber + 1))]
-        .filter(page => !existingPageValues.has(page));
-      
-      // Add new measurement pages as selected (since user wants to see measurements)
-      newMeasurementPages.forEach(page => {
-        this.sortFilterOptions.push({
-          value: page,
-          label: page.toString(),
-          selected: true
-        });
-        this.selectedSortFilterValues.push(page);
-      });
-      
-      // Sort pages numerically
-      this.sortFilterOptions.sort((a, b) => {
-        if (typeof a.value === 'number' && typeof b.value === 'number') {
-          return a.value - b.value;
-        }
-        return 0;
-      });
-    }
-  }
-
-  /**
-   * Expand filter options to include annotation types while preserving existing selections
-   */
-  private _expandFilterOptionsForAnnotations(markupList: any[]): void {
-    // Get annotation markups
-    const annotationMarkups = markupList.filter(markup => !(markup as any).ismeasure);
-    
-    if (annotationMarkups.length === 0) {
-      return;
-    }
-
-    // For annotation type filter, add annotation types if not already present
-    if (this.sortByField === 'annotation') {
-      const existingTypeValues = new Set(this.sortFilterOptions.map(option => option.value));
-      const newAnnotationTypes = [...new Set(annotationMarkups.map(markup => this.getAnnotationTitle(markup.type, markup.subtype)))]
-        .filter(type => !existingTypeValues.has(type));
-      
-      // Add new annotation types as selected (since user wants to see annotations)
-      newAnnotationTypes.forEach(type => {
-        this.sortFilterOptions.push({
-          value: type,
-          label: type,
-          selected: true
-        });
-        this.selectedSortFilterValues.push(type);
-      });
-    }
-
-    // For author filter, add annotation authors if not already present
-    if (this.sortByField === 'author') {
-      const existingAuthorValues = new Set(this.sortFilterOptions.map(option => option.value));
-      const newAnnotationAuthors = [...new Set(annotationMarkups.map(markup => RXCore.getDisplayName(markup.signature)))]
-        .filter(author => !existingAuthorValues.has(author));
-      
-      // Add new annotation authors as selected (since user wants to see annotations)
-      newAnnotationAuthors.forEach(author => {
-        this.sortFilterOptions.push({
-          value: author,
-          label: author,
-          selected: true
-        });
-        this.selectedSortFilterValues.push(author);
-      });
-    }
-
-    // For page filter, add annotation pages if not already present
-    if (this.sortByField === 'pagenumber') {
-      const existingPageValues = new Set(this.sortFilterOptions.map(option => option.value));
-      const newAnnotationPages = [...new Set(annotationMarkups.map(markup => markup.pagenumber + 1))]
-        .filter(page => !existingPageValues.has(page));
-      
-      // Add new annotation pages as selected (since user wants to see annotations)
-      newAnnotationPages.forEach(page => {
-        this.sortFilterOptions.push({
-          value: page,
-          label: page.toString(),
-          selected: true
-        });
-        this.selectedSortFilterValues.push(page);
-      });
-      
-      // Sort pages numerically
-      this.sortFilterOptions.sort((a, b) => {
-        if (typeof a.value === 'number' && typeof b.value === 'number') {
-          return a.value - b.value;
-        }
-        return 0;
-      });
-    }
-  }
-
-  /**
-   * Filter methods simplified - removed comment list filters dependency
-   */
-  private _selectAnnotationTypesInFilters(): void {
-    // Simplified - no filter component dependency
-  }
-
-  private _deselectAnnotationTypesInFilters(): void {
-    // Simplified - no filter component dependency
-  }
-
-  private _selectMeasurementTypesInFilters(): void {
-    // Simplified - no filter component dependency
-  }
-
-  private _deselectMeasurementTypesInFilters(): void {
-    // Simplified - no filter component dependency
-  }
-
-  private _clearAllFilterSelections(): void {
-    // Simplified - no filter component dependency
-  }
-
-  private _clearAuthorAndPageSelections(): void {
-    // Simplified - no filter component dependency
-  }
-
-  /**
-   * Ensure all measurement types are properly cleared - simplified without filter component
-   */
-  private _ensureMeasurementTypesCleared(): void {
-    // Simplified - no filter component dependency
-  }
-
-  /**
-   * Helper method to determine if a type is a measurement type
-   */
-  private _isMeasurementType(type: any): boolean {
-    // Check by label first (fallback method)
-    if (type.label) {
-      const label = type.label.toLowerCase();
-      if (label.includes('measure') || 
-          label.includes('area') || 
-          label.includes('length') || 
-          label.includes('distance') || 
-          label.includes('perimeter') ||
-          label.includes('count')) {
-        return true;
-      }
-    }
-    
-    // Use the same logic as the comment-list-filters component
-    const measurementTypes = [
-      { type: 7, subtype: undefined }, // MEASURE.LENGTH
-      { type: 8, subtype: 0 }, // MEASURE.AREA  
-      { type: 8, subtype: undefined }, // MEASURE.AREA (alternative)
-      { type: 1, subtype: 3 }, // MEASURE.PATH
-      { type: 3, subtype: 6 }, // MEASURE.RECTANGLE
-      { type: 1, subtype: 4 }, // MEASURE.ANGLECLOCKWISE
-      { type: 1, subtype: 5 }, // MEASURE.ANGLECCLOCKWISE
-      { type: 14, subtype: 0 }, // MEASURE.MEASUREARC
-      { type: 13, subtype: undefined } // COUNT
-    ];
-    
-    // Check if this type matches any measurement type
-    const typeNumber = parseInt(type.type) || type.type;
-    const subtypeNumber = type.subtype !== undefined && type.subtype !== '' ? parseInt(type.subtype) : type.subtype;
-    
-    const isMatch = measurementTypes.some(measureType => {
-      if (measureType.subtype !== undefined) {
-        const match = typeNumber === measureType.type && subtypeNumber === measureType.subtype;
-        return match;
-      } else {
-        const match = typeNumber === measureType.type;
-        return match;
-      }
-    });
-    
-        return isMatch;
-  }
-
-  /**
-   * Clear measurement types by label - simplified without filter component
-   */
-  private _clearMeasurementTypesByLabel(): void {
-    // Simplified - no filter component dependency
-  }
-
-   /**
-   * Force immediate clearing - simplified without filter component
-   */
-  private _forceImmediateClearAllMeasurementTypes(): void {
-    // Simplified - no filter component dependency
-  }
-
-  /**
-   * Select relevant authors and pages - simplified without filter component
-   */
-  private _selectRelevantAuthorsAndPages(annotationsEnabled: boolean, measurementsEnabled: boolean): void {
-    // Simplified - no filter component dependency
-  }
-
-  /**
-   * Synchronize filter selections - simplified without filter component
-   */
-  private _syncFiltersWithVisibleMarkups(): void {
-    // Simplified - no filter component dependency
-  }
-
-  /**
-   * Enhanced method to ensure proper synchronization - simplified without filter component
-   */
-  private _ensureFilterSynchronization(): void {
-    // Simplified - no filter component dependency
-  }
 
   private _handleShowMarkupType(type :any, event: any, typeCheck: (markup: any) => boolean) {
 
@@ -5316,13 +5043,6 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     );
 
 
-    // Sync the filter component selections to reflect the change
-    setTimeout(() => {
-      // Only sync if we're not already processing a filter change (prevent circular updates)
-      if (!this.isProcessingFilterChange) {
-        this._syncFilterSelectionsWithTypeState();
-      }
-    }, 50);
 
     // Wait for DOM to be ready and then update leader line position
     setTimeout(() => {
@@ -5330,33 +5050,6 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     }, 100);
   }
 
-  /**
-   * Enhanced method to handle individual filter type changes from the filter component
-   */
-  private _handleFilterTypeChange(typeValue: string, isSelected: boolean): void {
-    
-    // Find the corresponding type object in rxTypeFilterLoaded
-    const typeObj = this.rxTypeFilterLoaded.find(t => {
-      const value = t.value || t.typename || (t.subtype ? `${t.type}_${t.subtype}` : t.type);
-      return value === typeValue;
-    });
-
-    if (!typeObj) {
-      console.warn('❌ Could not find type object for value:', typeValue);
-      return;
-    }
-
-
-    // Create mock event for compatibility
-    const mockEvent = {
-      target: {
-        checked: isSelected
-      }
-    };
-
-    // Use the enhanced handler
-    this._handleShowMarkupTypeEnhanced(typeObj, mockEvent);
-  }
 
   onShowEllipse($event: any) {
     this._handleShowMarkup('showEllipse', $event,
@@ -5623,133 +5316,6 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     return [...new Set(markupList.map(markup => RXCore.getDisplayName(markup.signature)))];
   }
 
-  onAuthorFilterChange(author: string) {
-
-    let users :Array<any> = RXCore.getUsers();
-    let userindx = 0;
-
-    for(let ui = 0; ui < users.length; ui++){
-      if(users[ui].DisplayName === author){
-        userindx = ui;
-      }
-
-    }
-
-    // Check if the author being filtered is the author of the active markup
-    const markupList = this.rxCoreService.getGuiMarkupList();
-    const activeMarkup = markupList.find(markup => markup.markupnumber === this.activeMarkupNumber);
-    const isActiveAuthor = activeMarkup && RXCore.getDisplayName(activeMarkup.signature) === author;
-
-    if(this.authorFilter.has(author)) {
-      // Don't remove active author from filter if their markup is currently selected
-      if (!isActiveAuthor) {
-        this.authorFilter.delete(author);
-        //turn off display for this user
-        RXCore.SetUserMarkupdisplay(userindx, false);
-        
-        // Also update individual markups to respect switch states
-        this._updateAuthorMarksWithSwitchRespect(author, false);
-      }
-
-    } else {
-      this.authorFilter.add(author);
-
-      RXCore.SetUserMarkupdisplay(userindx, true);
-      //turn on display for this user
-      
-      // Also update individual markups to respect switch states
-      this._updateAuthorMarksWithSwitchRespect(author, true);
-
-    }
-
-    // Apply the complete filter including both switches and author selection
-    this._applySortFilterToCanvas();
-    
-    this._refreshAnnotationList();
-  }
-
-  // Removed comment card event handlers
-
-  // Handle filter count changes from the comments list filters component
-  onFilterCountChange(count: number): void {
-    this.activeFilterCount = count;
-  }
-
-    // Clear all filters
-  clearAllFilters(): void {
-    
-    // Reset date filter
-    this.dateFilter = {
-      startDate: undefined,
-      endDate: undefined
-    };
-    
-    // Reset page filter
-    this.pageNumber = -1;
-    
-    // Reset sort filter
-    this.selectedSortFilterValues = [...this.sortFilterOptions.map(option => option.value)];
-    this.sortFilterOptions.forEach(option => option.selected = true);
-    this.sortFilterDateRange = { startDate: undefined, endDate: undefined };
-    
-    // Apply the reset sort filter to canvas
-    this._applySortFilterToCanvas();
-    
-    // Reset canvas annotations to show based on switch states only
-    this._resetCanvasAnnotationsDateFilter();
-    
-    // If switches are active, apply them to ensure proper visibility
-    if(this.showAnnotations){
-      this.onToggleAnnotations(true);
-    }
-    
-    if(this.showMeasurements){
-      this.onToggleMeasurements(true);
-    }
-
-    // Reset author filters in note-panel
-    this.authorFilter = new Set(this.getUniqueAuthorList());
-    
-    // Reset individual annotation visibility (eye icon)
-    this.resetAllAnnotationVisibility();
-    
-    // Trigger author selection in comment-list-filter component
-    this.triggerAuthorSelection();
-    
-    // Reprocess the list to show all comment cards after clearing filters
-    this._processList(this.rxCoreService.getGuiMarkupList());
-    
-  }
-
-  /**
-   * Reset canvas annotations when date filter is cleared
-   */
-  private _resetCanvasAnnotationsDateFilter(): void {
-    const markupList = this.rxCoreService.getGuiMarkupList();
-    if (!markupList) return;
-
-
-    markupList.forEach((markup: any) => {
-      // Show annotation based on switch states only (no date filtering)
-      let shouldShow = true;
-      
-      if (markup.ismeasure) {
-        shouldShow = this.showMeasurements === true;
-      } else {
-        shouldShow = this.showAnnotations === true;
-      }
-      
-      markup.setdisplay(shouldShow);
-    });
-
-    // Redraw canvas to apply changes
-    RXCore.markUpRedraw();
-  }
-
-  // Method to trigger author selection - simplified without filter component
-  triggerAuthorSelection(): void {
-    // Simplified - no filter component dependency
-  }
 
   /**
    * Get annotation title based on type and subtype
@@ -5816,156 +5382,6 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     }
   }
 
-  /**
-   * Sync filter selections - simplified without filter component
-   */
-  private _syncFilterSelectionsWithTypeState(): void {
-    // Simplified - no filter component dependency
-  }
-
-  /**
-   * Handle author filtering - similar to type filtering but for authors
-   */
-  onShowAuthor($event: any, author: any) {
-
-
-    // Prevent circular event handling
-    if (this.isProcessingFilterChange) {
-      return;
-    }
-
-    // Check if this is coming from the filter component with enhanced data
-    if ($event.isSelected !== undefined && $event.action !== undefined) {
-      // This is a filter-driven change
-      
-
-      // Set flag to prevent circular processing
-      this.isProcessingFilterChange = true;
-
-      try {
-        // Handle author filtering by updating canvas and comment list
-        this._handleShowMarkupAuthor(author, {
-          target: {
-            checked: $event.isSelected
-          }
-        });
-        
-        // Refresh the list to apply the changes
-        this._refreshAnnotationList();
-      } finally {
-        // Always clear the flag, even if an error occurs
-        setTimeout(() => {
-          this.isProcessingFilterChange = false;
-        }, 100);
-      }
-      return;
-    }
-
-    // Check if this is a direct checkbox event (has target.checked property)
-    if ($event.target && $event.target.checked !== undefined) {
-      
-
-      // Set flag to prevent circular processing
-      this.isProcessingFilterChange = true;
-
-      try {
-        // Handle author filtering
-        this._handleShowMarkupAuthor(author, $event);
-      } finally {
-        // Always clear the flag, even if an error occurs
-        setTimeout(() => {
-          this.isProcessingFilterChange = false;
-        }, 100);
-      }
-      return;
-    }
-  }
-
-  /**
-   * Update individual author markups while respecting switch states
-   */
-  private _updateAuthorMarksWithSwitchRespect(authorName: string, isVisible: boolean): void {
-
-
-    const markupList = this.rxCoreService.getGuiMarkupList();
-    if (!markupList) return;
-
-    // Update markups on canvas based on author
-    for (const markup of markupList) {
-      // Check if this markup belongs to the author
-      const markupAuthor = RXCore.getDisplayName(markup.signature);
-      if (markupAuthor === authorName) {
-
-        
-        // Respect the annotation/measurement switch states
-        let shouldShow = isVisible;
-        
-        if (isVisible) {
-          // Only show if the switches allow it
-          if ((markup as any).ismeasure) {
-            // This is a measurement - only show if measurements switch is ON
-            shouldShow = this.showMeasurements === true;
-          } else {
-            // This is an annotation - only show if annotations switch is ON
-            shouldShow = this.showAnnotations === true;
-          }
-          
-
-        }
-        
-        // Update canvas display
-        markup.setdisplay(shouldShow);
-      }
-    }
-
-    // Redraw canvas
-    RXCore.markUpRedraw();    
-  }
-
-  /**
-   * Handle showing/hiding markups by author
-   */
-  private _handleShowMarkupAuthor(author: any, event: any): void {
-
-
-    const markupList = this.rxCoreService.getGuiMarkupList();
-    const isVisible = event.target.checked;
-
-    if (!markupList) return;
-
-    // Update markups on canvas based on author
-    for (const markup of markupList) {
-      // Check if this markup belongs to the author
-      if (markup.signature === author.value) {
-       
-        
-        // Respect the annotation/measurement switch states
-        let shouldShow = isVisible;
-        
-        if (isVisible) {
-          // Only show if the switches allow it
-          if ((markup as any).ismeasure) {
-            // This is a measurement - only show if measurements switch is ON
-            shouldShow = this.showMeasurements === true;
-          } else {
-            // This is an annotation - only show if annotations switch is ON
-            shouldShow = this.showAnnotations === true;
-          }
-        
-        }
-        
-        // Update canvas display
-        markup.setdisplay(shouldShow);
-      }
-    }
-
-    // Redraw canvas
-    RXCore.markUpRedraw();
-    
-    // Update comment list
-    this._processList(markupList);
-
-  }
 
   private _updateSwitchStates(): void {
     switch (this.currentMode) {

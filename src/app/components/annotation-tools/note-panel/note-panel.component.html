@@ -45,12 +45,15 @@
     </div>
 
     <div class="main-section" (scroll)="scrollHandler($event)">
-      <div *ngIf="!isEmpytyList; else emptyList" class="list">
+      <div [class.hidden]="!(showAnnotations || showMeasurements)" *ngIf="!isEmpytyList; else emptyList" class="list">
         <ng-container
           *ngFor="let group of list | keyvalue : sortOrder; trackBy: trackByFn"
         >
           <div class="list-item" [class.hidden]="hiddenGroupKeys.includes(group.key)">
-            <div class="group-header">
+            <div [class.hidden]="
+              (group.value[0].ismeasure && !showMeasurements) ||
+              (!group.value[0].ismeasure && !showAnnotations)
+            " class="group-header">
               <h4 class="date">{{ group.key }}</h4>
               <div class="group-eye-icon">
                 <div 
@@ -72,6 +75,10 @@
               [class.selected]="item.getselected()"
               [class.disabled]="isCommentCardDisabled(item.markupnumber)"
               [class.hidden-annotation]="!isAnnotationVisible(item.markupnumber)"
+              [class.hidden]="
+                (item.ismeasure && !showMeasurements) ||
+                (!item.ismeasure && !showAnnotations)
+              " 
               [ngClass]="{ 'is-active': item.IsExpanded }"
               (click)="SetActiveCommentThread($event, item.markupnumber, item)"
               [title]="!isAnnotationVisible(item.markupnumber) ? 'This annotation is hidden from canvas and cannot be expanded' : ''"

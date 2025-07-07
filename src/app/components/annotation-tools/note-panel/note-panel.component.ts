@@ -2325,7 +2325,9 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     if (selectedValues.length === 0 && previousValues.length > 0) {
       // Unselect all case - hide everything at once
             markupList.forEach(markup => {
-                markup.setdisplay(false);
+        // Use _shouldShowMarkupForCanvas instead of directly setting display
+        const shouldShow = this._shouldShowMarkupForCanvas(markup);
+        markup.setdisplay(shouldShow && false); // Force hide for unselected pages
         this.hiddenAnnotations.add(markup.markupnumber);
             });
             RXCore.markUpRedraw();
@@ -2333,17 +2335,20 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     } else if (selectedValues.length > 0 && previousValues.length === 0) {
       // First selection after unselect all - only show selected items
       markupList.forEach(markup => {
-        markup.setdisplay(false);
-        this.hiddenAnnotations.add(markup.markupnumber);
-      });
-      
-      // Now show only the selected items
-      selectedValues.forEach(page => {
-        const pageItems = markupList.filter(markup => (markup.pagenumber + 1) === page);
-        pageItems.forEach(markup => {
-          markup.setdisplay(true);
-          this.hiddenAnnotations.delete(markup.markupnumber);
-        });
+        const isInSelectedPages = selectedValues.includes(markup.pagenumber + 1);
+        if (isInSelectedPages) {
+          // Check if it should be shown considering switches
+          const shouldShow = this._shouldShowMarkupForCanvas(markup);
+          markup.setdisplay(shouldShow);
+          if (shouldShow) {
+            this.hiddenAnnotations.delete(markup.markupnumber);
+          } else {
+            this.hiddenAnnotations.add(markup.markupnumber);
+          }
+        } else {
+          markup.setdisplay(false);
+          this.hiddenAnnotations.add(markup.markupnumber);
+        }
       });
       RXCore.markUpRedraw();
       return;
@@ -2368,10 +2373,15 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     addedPages.forEach(addedPage => {
       const pageItems = markupList.filter(markup => (markup.pagenumber + 1) === addedPage);
       if (pageItems.length > 0) {
-        // Show items directly
+        // Show items only if switches allow it
         pageItems.forEach(markup => {
-          markup.setdisplay(true);
-          this.hiddenAnnotations.delete(markup.markupnumber);
+          const shouldShow = this._shouldShowMarkupForCanvas(markup);
+          markup.setdisplay(shouldShow);
+          if (shouldShow) {
+            this.hiddenAnnotations.delete(markup.markupnumber);
+          } else {
+            this.hiddenAnnotations.add(markup.markupnumber);
+          }
         });
         const groupKey = `page_${addedPage}`;
         this.hiddenGroups.delete(groupKey);
@@ -2395,17 +2405,20 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     } else if (selectedValues.length > 0 && previousValues.length === 0) {
       // First selection after unselect all - only show selected items
       markupList.forEach(markup => {
-        markup.setdisplay(false);
-        this.hiddenAnnotations.add(markup.markupnumber);
-      });
-      
-      // Now show only the selected items
-      selectedValues.forEach(author => {
-        const authorItems = markupList.filter(markup => RXCore.getDisplayName(markup.signature) === author);
-        authorItems.forEach(markup => {
-          markup.setdisplay(true);
-          this.hiddenAnnotations.delete(markup.markupnumber);
-        });
+        const isFromSelectedAuthor = selectedValues.includes(RXCore.getDisplayName(markup.signature));
+        if (isFromSelectedAuthor) {
+          // Check if it should be shown considering switches
+          const shouldShow = this._shouldShowMarkupForCanvas(markup);
+          markup.setdisplay(shouldShow);
+          if (shouldShow) {
+            this.hiddenAnnotations.delete(markup.markupnumber);
+          } else {
+            this.hiddenAnnotations.add(markup.markupnumber);
+          }
+        } else {
+          markup.setdisplay(false);
+          this.hiddenAnnotations.add(markup.markupnumber);
+        }
       });
       RXCore.markUpRedraw();
       return;
@@ -2430,10 +2443,15 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     addedAuthors.forEach(addedAuthor => {
       const authorItems = markupList.filter(markup => RXCore.getDisplayName(markup.signature) === addedAuthor);
       if (authorItems.length > 0) {
-        // Show items directly
+        // Show items only if switches allow it
         authorItems.forEach(markup => {
-          markup.setdisplay(true);
-          this.hiddenAnnotations.delete(markup.markupnumber);
+          const shouldShow = this._shouldShowMarkupForCanvas(markup);
+          markup.setdisplay(shouldShow);
+          if (shouldShow) {
+            this.hiddenAnnotations.delete(markup.markupnumber);
+          } else {
+            this.hiddenAnnotations.add(markup.markupnumber);
+          }
         });
         const groupKey = `author_${addedAuthor}`;
         this.hiddenGroups.delete(groupKey);
@@ -2457,17 +2475,20 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     } else if (selectedValues.length > 0 && previousValues.length === 0) {
       // First selection after unselect all - only show selected items
       markupList.forEach(markup => {
-        markup.setdisplay(false);
-        this.hiddenAnnotations.add(markup.markupnumber);
-      });
-      
-      // Now show only the selected items
-      selectedValues.forEach(type => {
-        const typeItems = markupList.filter(markup => markup.type === type);
-        typeItems.forEach(markup => {
-          markup.setdisplay(true);
-          this.hiddenAnnotations.delete(markup.markupnumber);
-        });
+        const isSelectedType = selectedValues.includes(markup.type);
+        if (isSelectedType) {
+          // Check if it should be shown considering switches
+          const shouldShow = this._shouldShowMarkupForCanvas(markup);
+          markup.setdisplay(shouldShow);
+          if (shouldShow) {
+            this.hiddenAnnotations.delete(markup.markupnumber);
+          } else {
+            this.hiddenAnnotations.add(markup.markupnumber);
+          }
+        } else {
+          markup.setdisplay(false);
+          this.hiddenAnnotations.add(markup.markupnumber);
+        }
       });
       RXCore.markUpRedraw();
       return;
@@ -2492,10 +2513,15 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     addedTypes.forEach(addedType => {
       const typeItems = markupList.filter(markup => markup.type === addedType);
       if (typeItems.length > 0) {
-        // Show items directly
+        // Show items only if switches allow it
         typeItems.forEach(markup => {
-          markup.setdisplay(true);
-          this.hiddenAnnotations.delete(markup.markupnumber);
+          const shouldShow = this._shouldShowMarkupForCanvas(markup);
+          markup.setdisplay(shouldShow);
+          if (shouldShow) {
+            this.hiddenAnnotations.delete(markup.markupnumber);
+          } else {
+            this.hiddenAnnotations.add(markup.markupnumber);
+          }
         });
         const groupKey = `type_${addedType}`;
         this.hiddenGroups.delete(groupKey);
@@ -2548,13 +2574,20 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       const markupDate = dayjs(markup.timestamp);
       const isInRange = this._isMarkupInDateRange(markupDate);
       
-      // Update canvas visibility
-      markup.setdisplay(isInRange);
-      
-      // Update hidden annotations tracking
       if (isInRange) {
-        this.hiddenAnnotations.delete(markup.markupnumber);
+        // Check if it should be shown considering switches
+        const shouldShow = this._shouldShowMarkupForCanvas(markup);
+        markup.setdisplay(shouldShow);
+        
+        // Update hidden annotations tracking
+        if (shouldShow) {
+          this.hiddenAnnotations.delete(markup.markupnumber);
+        } else {
+          this.hiddenAnnotations.add(markup.markupnumber);
+        }
       } else {
+        // Not in date range - hide regardless of switches
+        markup.setdisplay(false);
         this.hiddenAnnotations.add(markup.markupnumber);
       }
     });

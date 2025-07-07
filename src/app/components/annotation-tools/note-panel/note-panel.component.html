@@ -49,7 +49,7 @@
         <ng-container
           *ngFor="let group of list | keyvalue : sortOrder; trackBy: trackByFn"
         >
-          <div class="list-item">
+          <div class="list-item" [class.hidden]="hiddenGroupKeys.includes(group.key)">
             <div class="group-header">
               <h4 class="date">{{ group.key }}</h4>
               <div class="group-eye-icon">

@@ -77,8 +77,11 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
   // Flags to track which grouping is currently active
   isPagenumberFlag: boolean = false;
   isAnnotationFlag: boolean = false;
-  isCreatedFlag: boolean = true; // Default to true since sortByField defaults to 'created'
+  isCreatedFlag: boolean = false; // Default to true since sortByField defaults to 'created'
   isAuthorFlag: boolean = false;
+
+  // Flag array to track which groups should be hidden based on filter selection
+  hiddenGroupKeys: Array<string> = [];
 
   sortOptions = [
     { value: "created", label: "Created day", imgSrc: "calendar-ico.svg" },
@@ -93,6 +96,8 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
   selectedSortFilterValues: Array<any> = [];
   sortFilterLabel: string = '';
   
+  allGroupKeys: string[] = [];
+  originalHiddenGroupKeys: string[] = []; // Store original group keys for restoration  
   // Sort filter date range for 'created' sort option
   sortFilterDateRange: {
     startDate: dayjs.Dayjs | undefined,
@@ -1151,102 +1156,33 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       }
 
       const mergeList = [...list, ...annotList];
-      const query = mergeList.filter((i: any) => {
-        // Apply annotation/measurement filtering based on switches first
-        if (this.showAnnotations && !this.showMeasurements) {
-          // Show only annotations (non-measurements)
-          const isAnnotation = !i.ismeasure;
-          if (!isAnnotation) {
-            return false;
-          }
-        } else if (this.showMeasurements && !this.showAnnotations) {
-          // Show only measurements
-          const isMeasurement = i.ismeasure;
-          if (!isMeasurement) {
-            return false;
-          }
-        } else if (!this.showAnnotations && !this.showMeasurements) {
-          // Show nothing when both switches are off
-          return false;
-        }
-
-        // Always include hidden annotations in the list
-        if (this.hiddenAnnotations.has(i.markupnumber) || this.groupHiddenAnnotations.has(i.markupnumber)) {
-          return true;
-        }
-        
-        // Check if the markup should be shown based on all filters
-        // This includes author filters, sort filters (pages), etc.
-        const shouldShow = this._shouldShowMarkupInCommentList(i);
-        
-        return shouldShow;
-      })
-      .filter((i: any) => {
-        /*modified for comment list panel */
-        if (this.pageNumber > 0) {
-          return (
-            (this.dateFilter.startDate
-              ? dayjs(i.timestamp).isSameOrAfter(this.dateFilter.startDate)
-              : true) &&
-            (this.dateFilter.endDate
-              ? dayjs(i.timestamp).isSameOrBefore(
-                  this.dateFilter.endDate.endOf('day')
-                )
-              : true) &&
-            !i.bisTextArrow &&
-            i.pagenumber === this.pageNumber - 1
-          );
-        } else {
-          return (
-            (this.dateFilter.startDate
-              ? dayjs(i.timestamp).isSameOrAfter(this.dateFilter.startDate)
-              : true) &&
-            (this.dateFilter.endDate
-              ? dayjs(i.timestamp).isSameOrBefore(
-                  this.dateFilter.endDate.endOf('day')
-                )
-              : true) &&
-            !i.bisTextArrow
-          );
-        }
-      })
-      .filter((item: any) => {
-        // Check individual annotation visibility (eye icon) - only for comment list display
-        // Comment cards should remain in list even when annotation is hidden on canvas
-        return true; // Always show comment cards in list
-      })
-      .filter((item: any) => {
-        // Always show the active markup regardless of any filter
-        if (this.activeMarkupNumber > 0 && item.markupnumber === this.activeMarkupNumber) {
-          return true;
-        }
-        
-        // For all other items, the filtering is already handled in _shouldShowMarkupInCommentList
-        return true;
-      })
-      .map((item: any) => {
-        item.author = RXCore.getDisplayName(item.signature);
-        item.createdStr = dayjs(item.timestamp).format(this.guiConfig?.dateFormat?.dateTimeWithConditionalYear || 'MMM d, [yyyy] h:mm a');
-        item.IsExpanded = item?.IsExpanded;
-        return item;
-      })
-      .sort((a, b) => {
+      const query = mergeList.sort((a, b) => {
         switch(this.sortByField) {
           case 'created':
-            return b.timestamp - a.timestamp;
+            return Number(b.timestamp) - Number(a.timestamp);
           case 'author':
-            return a.author.localeCompare(b.author);
+            return RXCore.getDisplayName(a.signature).localeCompare(RXCore.getDisplayName(b.signature));
           case 'pagenumber':
             return a.pagenumber - b.pagenumber;
           case 'annotation':
             return this.getAnnotationTitle(a.type, a.subtype).localeCompare(this.getAnnotationTitle(b.type, b.subtype));
         }
-      });
+      }).map((item: any) => {
+        item.author = RXCore.getDisplayName(item.signature);
+        item.createdStr = dayjs(item.timestamp).format(this.guiConfig?.dateFormat?.dateTimeWithConditionalYear || 'MMM d, [yyyy] h:mm a');
+        item.IsExpanded = item?.IsExpanded;
+        return item;
+      })
+      ;
 
+      console.log("switch", this.sortByField, this.isCreatedFlag);
       switch (this.sortByField) {
         case 'created':
-          if (!this.isCreatedFlag) {
-            this.list = query.reduce((list, item) => {
+          console.log("query", query);
+          console.log("mergeList", mergeList);
+          if (query.length > 0 && !this.isCreatedFlag) {
+          console.log("before switch case created", this.list);
+            this.list = mergeList.reduce((list, item) => {
               const date = dayjs(item.timestamp).fromNow();
               if (!list[date]) {
                 list[date] = [item];
@@ -1255,6 +1191,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
               }
               return list;
             }, {});
+            console.log("after switch case created", this.list);
             this.isCreatedFlag = true;
 
             // Reset other flags
@@ -1267,7 +1204,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
         case 'author':
           if (!this.isAuthorFlag) {
             console.log("before switch case author this.list", this.list);
-            this.list = query.reduce((list, item) => {
+            this.list = mergeList.reduce((list, item) => {
               const authorName = RXCore.getDisplayName(item.signature) || 'Unknown Author';
               if (!list[authorName]) {
                 list[authorName] = [item];
@@ -1289,7 +1226,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
 
         case 'annotation':
           if (!this.isAnnotationFlag) {
-            this.list = query.reduce((list, item) => {
+            this.list = mergeList.reduce((list, item) => {
               const annotationLabel = this.getAnnotationTitle(item.type, item.subtype);
               if (!list[annotationLabel]) {
                 list[annotationLabel] = [item];
@@ -1309,7 +1246,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
 
         case 'pagenumber':
           if (!this.isPagenumberFlag) {
-            this.list = query.reduce((list, item) => {
+            this.list = mergeList.reduce((list, item) => {
               const pageLabel = `Page ${item.pagenumber + 1}`;
               if (!list[pageLabel]) {
                 list[pageLabel] = [item];
@@ -2295,7 +2232,55 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     const previousValues = [...this.selectedSortFilterValues];
     this.selectedSortFilterValues = selectedValues;
     
-        const markupList = this.rxCoreService.getGuiMarkupList();
+    // Update hiddenGroupKeys array based on selected values
+    this.hiddenGroupKeys = [];
+    
+    let allGroupKeys: Array<string> = [];
+    switch (this.sortByField) {
+      case 'author':
+        // Get all author names from the list
+        allGroupKeys = Object.keys(this.list || {});
+        break;
+      case 'pagenumber':
+        // Get all page numbers from the list
+        allGroupKeys = Object.keys(this.list || {});
+        break;
+      case 'annotation':
+        // Get all annotation types from the list
+        allGroupKeys = Object.keys(this.list || {});
+        break;
+      case 'created':
+        // Get all date groups from the list
+        allGroupKeys = Object.keys(this.list || {});
+        break;
+    }
+    
+    // Add group keys to hiddenGroupKeys if they are not in selectedValues
+    allGroupKeys.forEach(groupKey => {
+      let shouldHide = false;
+      
+      if (this.sortByField === 'pagenumber') {
+        // For page grouping, selectedValues are numbers [1, 2, 3, 4] but groupKey is "Page 1", "Page 2", etc.
+        // Extract page number from group key and check if it's in selectedValues
+        const pageNumberMatch = groupKey.match(/Page (\d+)/);
+        if (pageNumberMatch) {
+          const pageNumber = parseInt(pageNumberMatch[1]);
+          shouldHide = !selectedValues.includes(pageNumber);
+        } else {
+          shouldHide = true; // Hide if we can't parse the page number
+        }
+      } else {
+        // For other grouping types, direct comparison
+        shouldHide = !selectedValues.includes(groupKey);
+      }
+      
+      if (shouldHide) {
+        this.hiddenGroupKeys.push(groupKey);
+      }
+    });
+    
+    
+    const markupList = this.rxCoreService.getGuiMarkupList();
     if (!markupList) return;
 
     // Prevent any ongoing processing
@@ -2554,14 +2539,87 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       endDate: dateRange.endDate ? dayjs(dateRange.endDate) : undefined
     };
     
-    // Enhanced synchronization to fix comment list not updating issue
-    this._enhancedSynchronizeCanvasAndCommentList();
+    console.log("onSortFilterDateSelect", this.sortFilterDateRange);
+    const markupList = this.rxCoreService.getGuiMarkupList();
+    if (!markupList) return;
+
+    // Filter markups based on date range
+    markupList.forEach(markup => {
+      const markupDate = dayjs(markup.timestamp);
+      const isInRange = this._isMarkupInDateRange(markupDate);
+      
+      // Update canvas visibility
+      markup.setdisplay(isInRange);
+      
+      // Update hidden annotations tracking
+      if (isInRange) {
+        this.hiddenAnnotations.delete(markup.markupnumber);
+      } else {
+        this.hiddenAnnotations.add(markup.markupnumber);
+      }
+    });
+
+    // Update hiddenGroupKeys based on date filter while preserving original structure
+    this._updateHiddenGroupKeysForDateFilter();
     
-    // Wait for DOM to be ready and then update leader line position
-    setTimeout(() => {
-      this._waitForDOMAndUpdateLeaderLine();
-    }, 150);
+    // Force canvas redraw
+    RXCore.markUpRedraw();
+    
+    // Trigger change detection
+    this.cdr.detectChanges();
   }
+
+  private _updateHiddenGroupKeysForDateFilter(): void {
+    if (!this.list) return;
+    
+    // Get all group keys from the current list
+    const allGroupKeys = Object.keys(this.list);
+    
+    // Initialize hiddenGroupKeys array
+    this.hiddenGroupKeys = [];
+    
+    // Check each group to see if it has any items in the date range
+    allGroupKeys.forEach(groupKey => {
+      const groupItems = this.list[groupKey];
+      if (groupItems) {
+        const hasVisibleItems = groupItems.some(item => {
+          const markupDate = dayjs(item.timestamp);
+          return this._isMarkupInDateRange(markupDate);
+        });
+        
+        // Add group to hiddenGroupKeys if it has NO visible items (should be hidden)
+        if (!hasVisibleItems) {
+          this.hiddenGroupKeys.push(groupKey);
+        }
+      }
+    });
+    
+    console.log("Updated hiddenGroupKeys", this.hiddenGroupKeys);
+  }
+
+  private _isMarkupInDateRange(markupDate: dayjs.Dayjs): boolean {
+    const { startDate, endDate } = this.sortFilterDateRange;
+    
+    if (!startDate && !endDate) {
+      return true; // No date filter applied
+    }
+    
+    if (startDate && endDate) {
+      return markupDate.isSameOrAfter(startDate) && markupDate.isSameOrBefore(endDate.endOf('day'));
+    }
+    
+    if (startDate) {
+      return markupDate.isSameOrAfter(startDate);
+    }
+    
+    if (endDate) {
+      return markupDate.isSameOrBefore(endDate.endOf('day'));
+    }
+    
+    return true;
+  }
+
+  
 
   // Handle HTML date input changes for sort filter
   onSortDateChange(event: any, type: 'start' | 'end'): void {
@@ -2575,7 +2633,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     
     
     // Enhanced synchronization to fix comment list not updating issue
-    this._enhancedSynchronizeCanvasAndCommentList();
+    // this._enhancedSynchronizeCanvasAndCommentList();
     
     // Wait for DOM to be ready and then update leader line position
     setTimeout(() => {
@@ -2587,13 +2645,31 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
   clearSortDateFilter(): void {
     this.sortFilterDateRange = { startDate: undefined, endDate: undefined };
     
-    // Enhanced synchronization to fix comment list not updating issue
-    this._enhancedSynchronizeCanvasAndCommentList();
+    const markupList = this.rxCoreService.getGuiMarkupList();
+    if (!markupList) return;
+
+    // Show all markups when date filter is cleared
+    markupList.forEach(markup => {
+      // Only show if it meets other visibility criteria
+      const shouldShow = this._shouldShowMarkupForCanvas(markup);
+      markup.setdisplay(shouldShow);
+      
+      // Update hidden annotations tracking
+      if (shouldShow) {
+        this.hiddenAnnotations.delete(markup.markupnumber);
+      } else {
+        this.hiddenAnnotations.add(markup.markupnumber);
+      }
+    });
+
+    // Clear hiddenGroupKeys to show all groups in comment list
+    this.hiddenGroupKeys = [];
     
-    // Wait for DOM to be ready and then update leader line position
-    setTimeout(() => {
-      this._waitForDOMAndUpdateLeaderLine();
-    }, 150);
+    // Force canvas redraw
+    RXCore.markUpRedraw();
+    
+    // Trigger change detection
+    this.cdr.detectChanges();
   }
 
 

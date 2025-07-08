@@ -40,6 +40,7 @@ import { ConfirmationModalComponent } from './components/confirmation-modal/conf
 import { ThreedPartsComponent } from './components/side-nav-menu/threed-parts/threed-parts.component';
 import { TreeviewModule } from './components/common/treeview/treeview.module';
 import { NotePanelComponent } from './components/annotation-tools/note-panel/note-panel.component';
+import { GroupByFilterComponent } from './components/annotation-tools/group-by-filter/group-by-filter.component';
 import { NotePopoverComponent } from './components/annotation-tools/note-popover/note-popover.component';
 import { MultiSelectComponent } from './components/common/multi-select/multi-select.component';
 import { DatePickerComponent } from './components/common/date-picker/date-picker.component';
@@ -153,6 +154,7 @@ const dbConfig: DBConfig  = {
     ConfirmationModalComponent,
     ThreedPartsComponent,
     NotePanelComponent,
+    GroupByFilterComponent,
     SearchPanelComponent,
     NotePopoverComponent,
     MultiSelectComponent,

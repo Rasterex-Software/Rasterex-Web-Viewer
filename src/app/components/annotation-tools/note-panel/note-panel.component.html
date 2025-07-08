@@ -1,236 +1,98 @@
 <rx-panel
   *ngIf="visible"
-  [title]="panelTitle"
+  [title]="getPanelTitle()"
   (onClose)="onClose()"
   [draggable]="false"
 >
-<!-- <span *ngIf="showAnnotationsOnLoad" style="float: right;" >({{calcAllCount()}})</span> -->
   <div class="note-panel-container">
     <div class="header-section">
-      <!-- <div class="search">
-        <img src="/assets/images/search-ico.svg" />
-        <input
-          type="text"
-          placeholder="Search for comments..."
-          [(ngModel)]="search"
-          (keyup)="onSearch($event)"
-        />
-      </div> -->
-      <div class="switch-container" *ngIf="!showAnnotationsOnLoad" >
-        <!-- <h5>Show/Hide</h5> -->
+      <div class="switch-container" *ngIf="!showAnnotationsOnLoad">
         <div class="switch-group">
-          <div>
-            <rx-switch [checked]="showAnnotations" (change)="onShowAnnotations($event)"></rx-switch>
-            <span>Annotations ({{ calcAnnotationCount() }})</span>
+          <div [class.disabled]="isAnnotationSwitchDisabled">
+            <rx-switch
+              [checked]="showAnnotations"
+              [disabled]="isAnnotationSwitchDisabled"
+              (change)="onToggleAnnotations($event)"
+            ></rx-switch>
+            <span [class.disabled-text]="isAnnotationSwitchDisabled">Annotations ({{ calcAnnotationCount() }})</span>
           </div>
-          <div>
-            <rx-switch [checked]="showMeasurements" (change)="onShowMeasurements($event)"></rx-switch>
-            <span>Measurements ({{ calcMeasurementsCount() }})</span>
+          <div [class.disabled]="isMeasurementSwitchDisabled">
+            <rx-switch
+              [checked]="showMeasurements"
+              [disabled]="isMeasurementSwitchDisabled"
+              (change)="onToggleMeasurements($event)"
+            ></rx-switch>
+            <span [class.disabled-text]="isMeasurementSwitchDisabled">Measurements ({{ calcMeasurementsCount() }})</span>
           </div>
         </div>
       </div>
-      <div class="sort">
-        <span>Sort:</span>
-        <rx-dropdown
-          [options]="sortOptions"
-          [value]="sortOptions[0]"
-          (valueChange)="onSortFieldChanged($event)"
-        >
-        </rx-dropdown>
-        <img
-          src="/assets/images/filter-ico.svg"
-          role="button"
-          [class.active]="isFilterActive"
-          (click)="filterVisible = !filterVisible"
-        />
-      </div>
+      <rx-group-by-filter
+        *ngIf="showAnnotations || showMeasurements"
+        [guiConfig]="guiConfig"
+        [sortOptions]="sortOptions"
+        [selectedSortOption]="selectedSortOption"
+        [sortByField]="sortByField"
+        [sortFilterOptions]="sortFilterOptions"
+        [selectedSortFilterValues]="selectedSortFilterValues"
+        [sortFilterLabel]="sortFilterLabel"
+        [sortFilterDateRange]="sortFilterDateRange"
+        (sortFieldChanged)="onSortFieldChanged($event)"
+        (sortFilterChange)="onSortFilterChange($event)"
+        (sortFilterDateSelect)="onSortFilterDateSelect($event)"
+        (sortDateChange)="onSortDateChange($event.event, $event.type)"
+        (clearSortDateFilter)="clearSortDateFilter()"
+      ></rx-group-by-filter>
     </div>
 
     <div class="main-section" (scroll)="scrollHandler($event)">
-      <div *ngIf="filterVisible">
-        <div (onClose)="filterVisible = false">
-          <div class="filters-container">
-            <div class="filters-body">
-              <!-- <label>Created by</label>
-              <rx-multi-select
-                [options]="createdByFilterOptions"
-                [allSelected]="true"
-                (selectedChange)="onCreatedByFilterChange($event)"
-              >
-              </rx-multi-select> -->
-              <label>Date of notes creation</label>
-              <rx-date-picker
-                [dateFormat]="(guiConfig$ | async).dateFormat"
-                [startDate]="dateFilter.startDate"
-                [endDate]="dateFilter.endDate"
-                (onSelect)="onDateSelect($event)"
-              >
-              </rx-date-picker>
-              <label>Page Number</label>
-              <rx-dropdown
-                [options]="pageNumbers"
-                [value]="pageNumbers[0]"
-                [align]="'right'"
-                [transparent]="false"
-                (valueChange)="onPageChange($event)"
-              >
-              </rx-dropdown>
-              <label *ngIf="calcAllCount() > 0">Type</label>
-              <div class="filters-type">
-                
-                <!-- rxTypeFilter -->
-
-
-                
-
-                <div class="type-item" *ngFor="let markuptype of rxTypeFilterLoaded">
-                  
-                    <input type="checkbox" [checked]="showType(markuptype)" (change)="onShowType($event, markuptype)" />
-                    <span>{{markuptype.label}}</span>
-
-                </div>
-
-                <!-- *ngFor="let group of list | keyvalue : sortOrder; trackBy: trackByFn" -->
-                
-                <!-- <div class="type-item" *ngIf="calcTextCount() > 0">
-                  <input type="checkbox" [checked]="typeFilter.showText" (change)="onShowText($event)" />
-                  <span>Free Text</span>
-                </div>
-
-                <div class="type-item" *ngIf="calcCalloutCount() > 0">
-                  <input type="checkbox" [checked]="typeFilter.showCallout" (change)="onShowCallout($event)" />
-                  <span>Callout</span>
-                </div>
-
-                <div class="type-item" *ngIf="calcNoteCount() > 0">
-                  <input type="checkbox" [checked]="typeFilter.showNote" (change)="onShowNote($event)" />
-                  <span>Note</span>
-                </div>
-
-                <div class="type-item" *ngIf="calcRectangleCount() > 0">
-                  <input type="checkbox" [checked]="typeFilter.showRectangle" (change)="onShowRectangle($event)" />
-                  <span>Rectangle</span>
-                </div>
-
-                <div class="type-item" *ngIf="calcRoundedRectangleCount() > 0">
-                  <input type="checkbox" [checked]="typeFilter.showRoundedRectangle" (change)="onShowRoundedRectangle($event)" />
-                  <span>Rounded Rectangle</span>
-                </div>
-
-                <div class="type-item" *ngIf="calcEllipseCount() > 0">
-                  <input type="checkbox" [checked]="typeFilter.showEllipse" (change)="onShowEllipse($event)" />
-                  <span>Ellipse</span>
-                </div>
-
-                <div class="type-item" *ngIf="calcPolygonCount() > 0">
-                  <input type="checkbox" [checked]="typeFilter.showPolygon" (change)="onShowPolygon($event)" />
-                  <span>Polygon</span>
-                </div>
-
-                <div class="type-item" *ngIf="calcCloudCount() > 0">
-                  <input type="checkbox" [checked]="typeFilter.showCloud" (change)="onShowCloud($event)" />
-                  <span>Cloud</span>
-                </div>
-
-                <div class="type-item" *ngIf="calcSingleEndArrowCount() > 0">
-                  <input type="checkbox" [checked]="typeFilter.showSingleEndArrow" (change)="onShowSingleEndArrow($event)" />
-                  <span>Single End Arrow</span>
-                </div>
-
-                <div class="type-item" *ngIf="calcFilledSingleEndArrowCount() > 0">
-                  <input type="checkbox" [checked]="typeFilter.showFilledSingleEndArrow" (change)="onShowFilledSingleEndArrow($event)" />
-                  <span>Filled Single End Arrow</span>
-                </div>
-
-                <div class="type-item" *ngIf="calcBothEndsArrowCount() > 0">
-                  <input type="checkbox" [checked]="typeFilter.showBothEndsArrow" (change)="onShowBothEndsArrow($event)" />
-                  <span>Both Ends Arrow</span>
-                </div>
-
-                <div class="type-item" *ngIf="calcFilledBothEndsArrowCount() > 0">
-                  <input type="checkbox" [checked]="typeFilter.showFilledBothEndsArrow" (change)="onShowFilledBothEndsArrow($event)" />
-                  <span>Filled Both Ends Arrow</span>
-                </div>
-
-                <div class="type-item" *ngIf="calcHighlighterCount() > 0">
-                  <input type="checkbox" [checked]="typeFilter.showHighlighter" (change)="onShowHighlighter($event)" />
-                  <span>Highlighter</span>
-                </div>
-
-                <div class="type-item" *ngIf="calcFreehandCount() > 0">
-                  <input type="checkbox" [checked]="typeFilter.showFreehand" (change)="onShowFreehand($event)" />
-                  <span>Freehand</span>
-                </div>
-
-                <div class="type-item" *ngIf="calcPolylineCount() > 0">
-                  <input type="checkbox" [checked]="typeFilter.showPolyline" (change)="onShowPolyline($event)" />
-                  <span>Polyline</span>
-                </div>
-
-                <div class="type-item" *ngIf="calcStampCount() > 0">
-                  <input type="checkbox" [checked]="typeFilter.showStamp" (change)="onShowStamp($event)" />
-                  <span>Stamp</span>
-                </div>
-
-                <div class="type-item" *ngIf="calcMeasureLengthCount() > 0">
-                  <input type="checkbox" [checked]="typeFilter.showMeasureLength" (change)="onShowMeasureLength($event)" />
-                  <span>Measure Length</span>
-                </div>
-
-                <div class="type-item" *ngIf="calcMeasureAreaCount() > 0">
-                  <input type="checkbox" [checked]="typeFilter.showMeasureArea" (change)="onShowMeasureArea($event)" />
-                  <span>Measure Area</span>
-                </div>
-
-                <div class="type-item" *ngIf="calcMeasurePathCount() > 0">
-                  <input type="checkbox" [checked]="typeFilter.showMeasurePath" (change)="onShowMeasurePath($event)" />
-                  <span>Measure Path</span>
-                </div>
-
-                <div class="type-item" *ngIf="calcMeasureRectangleCount() > 0">
-                  <input type="checkbox" [checked]="typeFilter.showMeasureRectangle" (change)="onShowMeasureRectangle($event)" />
-                  <span>Measure Rectangle</span>
-                </div>
-
-                <div class="type-item" *ngIf="calcLinkCount() > 0">
-                  <input type="checkbox" [checked]="typeFilter.showLink" (change)="onShowLink($event)" />
-                  <span>Link</span>
-                </div> -->
-
-              </div>
-
-              <label *ngIf="getUniqueAuthorList().length > 0">Author</label>
-              <div class="filters-type">
-                <div class="type-item" *ngFor="let author of getUniqueAuthorList()">
-                  <input type="checkbox" [checked]="authorFilter.has(author)" (change)="onAuthorFilterChange(author)" />
-                  <span>{{ author }}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="filters-footer">
-            <button (click)="onFilterApply()" class="btn btn-primary">
-              Apply
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div *ngIf="!isEmpytyList; else emptyList" class="list">
+      <div [class.hidden]="!(showAnnotations || showMeasurements)" *ngIf="!isEmpytyList; else emptyList" class="list">
         <ng-container
           *ngFor="let group of list | keyvalue : sortOrder; trackBy: trackByFn"
         >
-          <div class="list-item">
-            <h4 class="date">{{ group.key }}</h4>
+          <div class="list-item" [class.hidden]="hiddenGroupKeys.includes(group.key) || !shouldShowGroup(group.value)">
+            <div class="group-header">
+              <h4 class="date">{{ group.key }}</h4>
+              <div class="group-eye-icon">
+                <div 
+                  class="eye-icon-container" 
+                  (click)="toggleGroupVisibility(group.key, group.value)"
+                  [class.eye-closed]="!isGroupVisible(group.key)"
+                  [title]="isGroupVisible(group.key) ? 'Hide all annotations in this group' : 'Show all annotations in this group'"
+                >
+                  <img 
+                    [src]="isGroupVisible(group.key) ? '/assets/images/show-on-ico.svg' : '/assets/images/show-off-ico.svg'" 
+                    alt="group visibility"
+                  />
+                </div>
+              </div>
+            </div>
             <div
               *ngFor="let item of group.value"
               class="note"
               [class.selected]="item.getselected()"
+              [class.disabled]="isCommentCardDisabled(item.markupnumber)"
+              [class.hidden-annotation]="!isAnnotationVisible(item.markupnumber)"
+              [class.hidden]="
+                (item.ismeasure && !showMeasurements) ||
+                (!item.ismeasure && !showAnnotations)
+              " 
               [ngClass]="{ 'is-active': item.IsExpanded }"
               (click)="SetActiveCommentThread($event, item.markupnumber, item)"
+              [title]="!isAnnotationVisible(item.markupnumber) ? 'This annotation is hidden from canvas and cannot be expanded' : ''"
+              [style.cursor]="isCommentCardClickable(item.markupnumber) ? 'pointer' : 'not-allowed'"
+              [style.display]="(item.ismeasure && !showMeasurements) || (!item.ismeasure && !showAnnotations) ? 'none' : 'block'"
             >
-              <!-- [ngClass]="{'is-active': item.markupnumber === activeMarkupNumber}" -->
-              <!-- (click)="SetActiveCommentThread($event, item.markupnumber, item)"> -->
+              <div 
+                class="eye-icon-container eye-icon-top-right" 
+                (click)="toggleAnnotationVisibility($event, item)"
+                [class.eye-closed]="!isAnnotationVisible(item.markupnumber)"
+                [title]="isAnnotationVisible(item.markupnumber) ? 'Hide annotation from canvas' : 'Show annotation on canvas'"
+              >
+                <img 
+                  [src]="isAnnotationVisible(item.markupnumber) ? '/assets/images/show-on-ico.svg' : '/assets/images/show-off-ico.svg'" 
+                  alt="visibility"
+                />
+              </div>
 
               <div [id]="'note-panel-' + item.markupnumber">
                 <div>
@@ -325,7 +187,6 @@
                             <div class="author">{{ itemNote.signature }}</div>
                             <div class="comments-date-count">
                               <div class="date-and-time">
-                                <!-- {{ item.createdStr }} -->
                                 {{ itemNote.timestamp | date: (guiConfig$ | async).dateFormat?.dateTimeWithoutYear }}
                               </div>
                               <div
@@ -406,13 +267,6 @@
         </ng-container>
       </div>
       <ng-template #emptyList>
-<!--         <div class="empty-list">
-          <p>
-            You don't have any notes yet. Click on the document to create a
-            note.
-          </p>
-        </div>
- -->      
       </ng-template>
     </div>
   </div>

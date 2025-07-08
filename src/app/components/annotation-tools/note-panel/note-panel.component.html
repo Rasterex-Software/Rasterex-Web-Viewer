@@ -49,9 +49,8 @@
         <ng-container
           *ngFor="let group of list | keyvalue : sortOrder; trackBy: trackByFn"
         >
-          <div class="list-item" [class.hidden]="hiddenGroupKeys.includes(group.key)">
-            <div [class.hidden]="!shouldShowGroup(group.value)"
-             class="group-header">
+          <div class="list-item" [class.hidden]="hiddenGroupKeys.includes(group.key) || !shouldShowGroup(group.value)">
+            <div class="group-header">
               <h4 class="date">{{ group.key }}</h4>
               <div class="group-eye-icon">
                 <div 
@@ -81,6 +80,7 @@
               (click)="SetActiveCommentThread($event, item.markupnumber, item)"
               [title]="!isAnnotationVisible(item.markupnumber) ? 'This annotation is hidden from canvas and cannot be expanded' : ''"
               [style.cursor]="isCommentCardClickable(item.markupnumber) ? 'pointer' : 'not-allowed'"
+              [style.display]="(item.ismeasure && !showMeasurements) || (!item.ismeasure && !showAnnotations) ? 'none' : 'block'"
             >
               <div 
                 class="eye-icon-container eye-icon-top-right" 

@@ -1030,9 +1030,32 @@
       box-sizing: border-box;
       margin-bottom: 12px;
       //overflow-y: scroll;
+      
+      // CRITICAL FIX: Remove gaps caused by hidden items
+      &:has(.list-item.hidden:only-child) {
+        gap: 0;
+        padding: 0;
+        margin-bottom: 0;
+      }
 
       .list-item {
         width: 100%;
+        
+        // CRITICAL FIX: Ensure hidden list-items don't create gaps
+        &.hidden {
+          margin: 0 !important;
+          padding: 0 !important;
+          height: 0 !important;
+          overflow: hidden !important;
+          
+          .group-header {
+            margin: 0 !important;
+            padding: 0 !important;
+            height: 0 !important;
+            overflow: hidden !important;
+          }
+        }
+        
         .note {
           position: relative; // Enable absolute positioning for child elements
           border-radius: 8px;

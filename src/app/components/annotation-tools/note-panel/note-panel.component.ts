@@ -1270,93 +1270,6 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     }
   }
 
-  /**
-   * Enhanced method to determine if a markup should be shown in the comment list
-   * This method checks switches, author filters, sort filters, and page filters
-   */
-  private _shouldShowMarkupInCommentList(markup: any): boolean {
-    // Check annotation/measurement switch states first
-    const isMeasurement = (markup as any).ismeasure === true;
-    const showAnnotationsState = this.showAnnotations === true;
-    const showMeasurementsState = this.showMeasurements === true;
-    
-    let switchAllowsDisplay = false;
-    if (isMeasurement) {
-      // This is a measurement - only show if measurements switch is on
-      switchAllowsDisplay = showMeasurementsState;
-    } else {
-      // This is an annotation - only show if annotations switch is on
-      switchAllowsDisplay = showAnnotationsState;
-    }
-    
-    if (!switchAllowsDisplay) {
-      return false;
-    }
-    
-    // Check author filter state
-    const authorFilterResult = this._shouldShowMarkupForAuthor(markup);
-    if (!authorFilterResult) {
-      return false;
-    }
-    
-    // Check sort filter values - this includes page filtering when sortByField is 'pagenumber'
-    const sortFilterResult = this._shouldShowMarkupForSortFilter(markup);
-    if (!sortFilterResult) {
-      return false;
-    }
-    
-    // Check if this annotation type is enabled in type filters
-    let typeAllowed = true;
-    const markuptype = RXCore.getMarkupType(markup.type, markup.subtype);
-    let typename = markuptype.type;
-    
-    if (Array.isArray(markuptype.type)) {
-      typename = markuptype.type[1];
-    }
-    
-    // Check type filter state
-    for (let mi = 0; mi < this.rxTypeFilter.length; mi++) {
-      if (this.rxTypeFilter[mi].typename === typename) {
-        typeAllowed = this.rxTypeFilter[mi].show;
-        break;
-      }
-    }
-    
-    // If no specific type filter is found, default to showing the annotation
-    if (typeAllowed === undefined) {
-      typeAllowed = true;
-    }
-    
-    // Always check page filter regardless of current sort field
-    // This ensures annotations are filtered by page even when sorting by other fields
-    if (this.selectedSortFilterValues.length > 0 && this.sortByField === 'pagenumber') {
-      const pageNumber = markup.pagenumber + 1;
-      if (!this.selectedSortFilterValues.includes(pageNumber)) {
-        return false;
-      }
-    }
-    
-    // If no pages are selected in page filter, show nothing
-    if (this.sortByField === 'pagenumber' && this.selectedSortFilterValues.length === 0) {
-      return false;
-    }
-    
-    // // Add debug logging for annotation type filtering
-    // if (this.sortByField === 'annotation') {
-    //   const annotationType = this.getAnnotationTitle(markup.type, markup.subtype);
-    //   console.log(`📋 Comment list check for ${isMeasurement ? 'measurement' : 'annotation'}:`, {
-    //     markupNumber: markup.markupnumber,
-    //     annotationType,
-    //     switchAllowsDisplay,
-    //     authorFilterResult,
-    //     sortFilterResult,
-    //     typeAllowed,
-    //     finalResult: typeAllowed
-    //   });
-    // }
-    
-    return typeAllowed;
-  }
 
   /**
    * Check if a markup should be shown based on author filtering
@@ -1407,6 +1320,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
   private _shouldShowMarkupForSortFilter(markup: any): boolean {
     // For date-based filtering, handle separately
     if (this.sortByField === 'created') {
+      // For date filters, don't check selectedSortFilterValues - rely on date range
       // Skip the general logic and go directly to date case
     } else {
       // If no sort filter options are available yet, show all (initial state)
@@ -1511,17 +1425,6 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
         let markupList = this.rxCoreService.getGuiMarkupList();
 
         if(markupList){
-          /* for(const markupItem of markupList) {
-            if(markupItem.type === MARKUP_TYPES.MEASURE.LENGTH.type ||
-              (markupItem.type === MARKUP_TYPES.MEASURE.AREA.type &&
-                markupItem.subtype === MARKUP_TYPES.MEASURE.AREA.subType) ||
-              (markupItem.type === MARKUP_TYPES.MEASURE.PATH.type &&
-                markupItem.subtype === MARKUP_TYPES.MEASURE.PATH.subType) ||
-              (markupItem.type === MARKUP_TYPES.MEASURE.RECTANGLE.type &&
-                markupItem.subtype === MARKUP_TYPES.MEASURE.RECTANGLE.subType))
-                markupItem.setdisplay(this.objectType === "measure");
-            else markupItem.setdisplay(this.objectType !== "measure");
-          } */
 
           this._processList(markupList);
           if (Object.values(this.list).length > 0) {
@@ -1562,24 +1465,6 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
 
       if (state?.objectType && state?.objectType !== this.objectType) {
         this.objectType = state?.objectType;
-
-        //let markupList = this.rxCoreService.getGuiMarkupList();
-
-        /*         if(this.annotlist){
-          for(const markupItem of this.annotlist) {
-            if(markupItem.type === MARKUP_TYPES.MEASURE.LENGTH.type ||
-              (markupItem.type === MARKUP_TYPES.MEASURE.AREA.type &&
-                markupItem.subtype === MARKUP_TYPES.MEASURE.AREA.subType) ||
-              (markupItem.type === MARKUP_TYPES.MEASURE.PATH.type &&
-                markupItem.subtype === MARKUP_TYPES.MEASURE.PATH.subType) ||
-              (markupItem.type === MARKUP_TYPES.MEASURE.RECTANGLE.type &&
-                markupItem.subtype === MARKUP_TYPES.MEASURE.RECTANGLE.subType))
-                markupItem.setdisplay(this.objectType === "measure");
-            else markupItem.setdisplay(this.objectType !== "measure");
-          }
-          this._processList(this.annotlist);
-        }
-       */
       }
 
 
@@ -1760,27 +1645,6 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
         }, 300); // Allow time for rotation to complete
       }
     });
-
-    /*this.rxCoreService.guiRotatePage$.subscribe((degree,  pageIndex) => {
-      //this.currentPage = state.currentpage;
-
-      if (degree != 0){
-        console.log(degree);
-      }
-
-      if (pageIndex == 0){
-
-      }
-      /*if (this.connectorLine) {
-        //RXCore.unSelectAllMarkup();
-        this.annotationToolsService.hideQuickActionsMenu();
-        this.connectorLine.hide();
-        this._hideLeaderLine();
-      }
-
-    });*/
-
-
 
     this.rxCoreService.guiMarkupList$.subscribe((list = []) => {
       this.createdByFilter = new Set();
@@ -2030,16 +1894,9 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
   }
 
   onNoteClick(markup: IMarkup): void {
-    //RXCore.unSelectAllMarkup();
     RXCore.selectMarkUpByIndex(markup.markupnumber);
     this.rxCoreService.setGuiMarkupIndex(markup, {});
-    //this._showLeaderLine(markup);
   }
-
-/*   onSearch(event): void {
-    this._processList(this.rxCoreService.getGuiMarkupList());
-  }
- */
 
 
   onSortFieldChanged(event): void {
@@ -2080,7 +1937,6 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
   private _updateSortFilterOptions(): void {
     const allMarkupList = this.rxCoreService.getGuiMarkupList();
   
-    
     // CRITICAL FIX: Always include hidden annotations in filter options
     const allHiddenNumbers = new Set([...this.hiddenAnnotations, ...this.groupHiddenAnnotations]);
     const hiddenMarkups = allMarkupList.filter(markup => allHiddenNumbers.has(markup.markupnumber));
@@ -2205,7 +2061,20 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
         this.sortFilterLabel = 'Date of notes creation';
         // For created date, we use a date picker instead of predefined ranges
         this.sortFilterOptions = [];
-        this.selectedSortFilterValues = [];
+        
+        // CRITICAL FIX: For date filters, preserve selectedSortFilterValues if there's an active date range
+        // This is needed to indicate that a filter is active, even though we use sortFilterDateRange for the actual filtering
+        const hasActiveDateFilter = this.sortFilterDateRange.startDate || this.sortFilterDateRange.endDate;
+        if (!hasActiveDateFilter) {
+          // Only reset selectedSortFilterValues if there's no active date filter
+          this.selectedSortFilterValues = [];
+        } else {
+          // Keep a placeholder value to indicate filter is active (prevents showing all items)
+          if (this.selectedSortFilterValues.length === 0) {
+            this.selectedSortFilterValues = ['date_filter_active'];
+          }
+        }
+        
         // Don't reset date range when switching between annotation/measurement switches
         // Only reset if there was no previous date range
         if (!this.sortFilterDateRange.startDate && !this.sortFilterDateRange.endDate && previousSelections.size === 0) {
@@ -2735,31 +2604,6 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     this._enhancedSynchronizeCanvasAndCommentList();
   }
 
-  private _processListWithVisibilityPreservation(markupList: Array<any> = []): void {
-    if (!markupList || markupList.length === 0) return;
-
-    // Store current visibility states
-    const currentHidden = new Set(this.hiddenAnnotations);
-    const currentGroupHidden = new Set(this.groupHiddenAnnotations);
-    const currentHiddenGroups = new Set(this.hiddenGroups);
-
-    // Process the list in a single operation
-    this._processList(markupList);
-
-    // Restore visibility states
-    this.hiddenAnnotations = currentHidden;
-    this.groupHiddenAnnotations = currentGroupHidden;
-    this.hiddenGroups = currentHiddenGroups;
-
-    // Update canvas display states in a single pass
-    markupList.forEach(markup => {
-      const shouldShow = this._shouldShowMarkupForCanvas(markup);
-      markup.setdisplay(shouldShow);
-    });
-
-    // Single canvas update
-    RXCore.markUpRedraw();
-  }
 
   // Handle date picker selection for sort filter
   onSortFilterDateSelect(dateRange: { startDate: dayjs.Dayjs, endDate: dayjs.Dayjs }): void {
@@ -2767,6 +2611,10 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       startDate: dateRange.startDate ? dayjs(dateRange.startDate) : undefined,
       endDate: dateRange.endDate ? dayjs(dateRange.endDate) : undefined
     };
+    
+    // CRITICAL FIX: Set selectedSortFilterValues to indicate that a date filter is active
+    // This prevents the filter logic from thinking no filters are applied
+    this.selectedSortFilterValues = ['date_filter_active'];
     
     const markupList = this.rxCoreService.getGuiMarkupList();
     if (!markupList) return;
@@ -2869,6 +2717,15 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       this.sortFilterDateRange.endDate = dateValue ? dayjs(dateValue) : undefined;
     }
     
+    // CRITICAL FIX: Set selectedSortFilterValues to indicate that a date filter is active
+    // Only set if at least one date is selected
+    const hasActiveDateFilter = this.sortFilterDateRange.startDate || this.sortFilterDateRange.endDate;
+    if (hasActiveDateFilter) {
+      this.selectedSortFilterValues = ['date_filter_active'];
+    } else {
+      this.selectedSortFilterValues = [];
+    }
+    
     // Clear all hidden states when date range is changed to enable all cards
     this._clearAllHiddenStatesOnDateSelection();
     
@@ -2883,7 +2740,14 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
 
   // Clear sort date filter
   clearSortDateFilter(): void {
+    if(this.sortByField !== 'created'){
+      return;
+    }
+
     this.sortFilterDateRange = { startDate: undefined, endDate: undefined };
+    
+    // CRITICAL FIX: Also clear selectedSortFilterValues when clearing date filter
+    this.selectedSortFilterValues = [];
     
     const markupList = this.rxCoreService.getGuiMarkupList();
     if (!markupList) return;
@@ -3453,11 +3317,6 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
         }
       }
 
-      // Ensure hidden annotations stay in the list and synchronize states
-      // setTimeout(() => {
-      //   this._preserveHiddenAnnotationsInCommentList();
-      //   this._forceSynchronizeCanvasAndCommentList();
-      // }, 150);
 
       // Force change detection to update the UI
       this.cdr.detectChanges();
@@ -3507,16 +3366,6 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       this._performProcessList(markupList, []);
     }
   }
-
-
-  /* SetActiveCommentThread(event, markupNo: number, markup: any): void {
-    if (markupNo) {
-      this.activeMarkupNumber = markupNo;
-      this.onSelectAnnotation(markup);
-      this._setPosition(markup);
-    }
-    event.preventDefault();
-  } */
 
 
   trackByFn(index, item) {
@@ -4158,29 +4007,6 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     
     this._processList(markupList);
   }
-
-
-  /* onShowAnnotations(onoff: boolean) {
-    const markupList = this.rxCoreService.getGuiMarkupList();
-    this.showAnnotations = onoff;
-    if(!markupList) return;
-    for (const markupItem of markupList) {
-      if (
-        !(
-          markupItem.type === MARKUP_TYPES.MEASURE.LENGTH.type ||
-          (markupItem.type === MARKUP_TYPES.MEASURE.AREA.type &&
-            markupItem.subtype === MARKUP_TYPES.MEASURE.AREA.subType) ||
-          (markupItem.type === MARKUP_TYPES.MEASURE.PATH.type &&
-            markupItem.subtype === MARKUP_TYPES.MEASURE.PATH.subType) ||
-          (markupItem.type === MARKUP_TYPES.MEASURE.RECTANGLE.type &&
-            markupItem.subtype === MARKUP_TYPES.MEASURE.RECTANGLE.subType) ||
-          markupItem.type === MARKUP_TYPES.SIGNATURE.type
-        )
-      )
-        markupItem.setdisplay(onoff);
-    }
-    this._processList(markupList);
-  } */
 
   onShowAnnotations(onoff: boolean) {
     const markupList = this.rxCoreService.getGuiMarkupList();
@@ -4926,30 +4752,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
   }
 
   /**
-   * Final synchronization check - if still mismatched, log detailed info for debugging
-   */
-  private _finalSynchronizationCheck(markupList: any[]): void {
-    let finalCanvasCount = 0;
-    let finalCommentCount = 0;
-    
-    // Count final states
-    for (const markup of markupList) {
-      if (this._shouldShowMarkupForCanvas(markup)) {
-        finalCanvasCount++;
-      }
-    }
-    
-    for (const groupKey in this.list) {
-      if (this.list[groupKey]) {
-        finalCommentCount += this.list[groupKey].length;
-      }
-    }
-    
-  }
-
-  /**
    * Helper method to check if markup should be visible on canvas based on current filters
-   * This uses the EXACT same logic as _shouldShowMarkupInCommentList to ensure synchronization
    */
   private _shouldShowMarkupForCanvas(markup: any): boolean {
     // Use the exact same logic as comment list filtering but without the final canvas display check
@@ -5390,49 +5193,16 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     return markupList.filter(typeCheck).length;
   }
 
-  private _calcCountType(typeCheck: (markup: any) => boolean): number {
-    const markupList = this.rxCoreService.getGuiMarkupList();
-    return markupList.filter(typeCheck).length;
-  }
-
-
   calcAnnotationCount() {
-
-
     return this._calcCount(markup => !(markup.ismeasure));
-
-        /*markup.type === MARKUP_TYPES.MEASURE.LENGTH.type ||
-        (markup.type === MARKUP_TYPES.MEASURE.AREA.type &&
-          markup.subtype === MARKUP_TYPES.MEASURE.AREA.subType) ||
-        (markup.type === MARKUP_TYPES.MEASURE.PATH.type &&
-          markup.subtype === MARKUP_TYPES.MEASURE.PATH.subType) ||
-        (markup.type === MARKUP_TYPES.MEASURE.RECTANGLE.type &&
-          markup.subtype === MARKUP_TYPES.MEASURE.RECTANGLE.subType) ||
-        markup.type === MARKUP_TYPES.SIGNATURE.type
-      )
-    );*/
-
   }
 
   calcMeasurementsCount() {
-
     return this._calcCount(markup => (markup.ismeasure));
-
-      /*markup.type === MARKUP_TYPES.MEASURE.LENGTH.type ||
-      (markup.type === MARKUP_TYPES.MEASURE.AREA.type &&
-        markup.subtype === MARKUP_TYPES.MEASURE.AREA.subType) ||
-      (markup.type === MARKUP_TYPES.MEASURE.PATH.type &&
-        markup.subtype === MARKUP_TYPES.MEASURE.PATH.subType) ||
-      (markup.type === MARKUP_TYPES.MEASURE.RECTANGLE.type &&
-        markup.subtype === MARKUP_TYPES.MEASURE.RECTANGLE.subType)
-    );*/
-
   }
 
   calcTypeCount(type : any){
-
     return this._calcCount(markup => markup.type === type.typename);
-
   }
 
 

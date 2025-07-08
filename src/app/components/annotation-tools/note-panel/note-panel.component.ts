@@ -2474,12 +2474,12 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
         markup.setdisplay(false);
         this.hiddenAnnotations.add(markup.markupnumber);
       });
-        RXCore.markUpRedraw();
+      RXCore.markUpRedraw();
       return;
     } else if (selectedValues.length > 0 && previousValues.length === 0) {
       // First selection after unselect all - only show selected items
       markupList.forEach(markup => {
-        const isSelectedType = selectedValues.includes(markup.type);
+        const isSelectedType = selectedValues.includes(this.getAnnotationTitle(markup.type, markup.subtype));
         if (isSelectedType) {
           // Check if it should be shown considering switches
           const shouldShow = this._shouldShowMarkupForCanvas(markup);
@@ -2503,7 +2503,9 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     // Handle individual changes
     const removedTypes = previousValues.filter(type => !selectedValues.includes(type));
     removedTypes.forEach(removedType => {
-      const typeItems = markupList.filter(markup => markup.type === removedType);
+      const typeItems = markupList.filter(markup => 
+        this.getAnnotationTitle(markup.type, markup.subtype) === removedType
+      );
       if (typeItems.length > 0) {
         // Hide items directly
         typeItems.forEach(markup => {
@@ -2517,7 +2519,9 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
 
     const addedTypes = selectedValues.filter(type => !previousValues.includes(type));
     addedTypes.forEach(addedType => {
-      const typeItems = markupList.filter(markup => markup.type === addedType);
+      const typeItems = markupList.filter(markup => 
+        this.getAnnotationTitle(markup.type, markup.subtype) === addedType
+      );
       if (typeItems.length > 0) {
         // Show items only if switches allow it
         typeItems.forEach(markup => {
@@ -4397,10 +4401,14 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     const markup = markupList.find(m => m.markupnumber === markupNumber);
     if (!markup) return true;
 
-    // Check if the group is hidden
+    // Check if the group is hidden, but allow individual overrides
     const groupKey = this._getGroupKeyForMarkup(markup);
     if (this.hiddenGroups.has(groupKey)) {
-      return false;
+      // Even if group is hidden, check if this specific annotation has an individual override
+      // An annotation has an individual override if it's not in hiddenAnnotations or groupHiddenAnnotations
+      const hasIndividualOverride = !this.hiddenAnnotations.has(markupNumber) && 
+                                   !this.groupHiddenAnnotations.has(markupNumber);
+      return hasIndividualOverride;
     }
 
     // If none of the above conditions are met, the annotation is visible
@@ -4490,9 +4498,11 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
         return;
       }
       
-      // Show the annotation individually
+      // Show the annotation individually - this will work even if the group is hidden
       this.hiddenAnnotations.delete(markup.markupnumber);
       this.groupHiddenAnnotations.delete(markup.markupnumber);
+      
+      // Force the annotation to be visible regardless of group state
       this._updateIndividualAnnotationVisibility(markup.markupnumber, true);
       
       // Force updates
@@ -4522,16 +4532,9 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       this.hiddenAnnotations.delete(markupNumber);
       this.groupHiddenAnnotations.delete(markupNumber);
       
-      // If this was the last hidden annotation in the group, remove the group from hidden groups
-      const groupItems = this._getGroupItems(groupKey);
-      const hasOtherHiddenAnnotations = groupItems.some(item => 
-        item.markupnumber !== markupNumber && 
-        (this.hiddenAnnotations.has(item.markupnumber) || this.groupHiddenAnnotations.has(item.markupnumber))
-      );
-      
-      if (!hasOtherHiddenAnnotations) {
-        this.hiddenGroups.delete(groupKey);
-      }
+      // Note: We don't automatically remove the group from hidden groups
+      // when showing an individual annotation, as this allows individual
+      // annotations to be visible even when the group is hidden
     } else {
       // Add to individual hidden set
       this.hiddenAnnotations.add(markupNumber);
@@ -4552,6 +4555,7 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     const shouldShowBasedOnFilters = this._shouldShowMarkupForCanvasIgnoringIndividualVisibility(markup);
     
     // Apply the individual visibility setting, but respect switch states
+    // Individual visibility should override group visibility
     const finalVisibility = shouldShow && shouldShowBasedOnFilters;
     
     // Set the display state
@@ -4618,12 +4622,16 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       const isGroupHidden = this.hiddenGroups.has(groupKey);
       const isIndividuallyHidden = this.hiddenAnnotations.has(markupNumber);
       const isHiddenByGroup = this.groupHiddenAnnotations.has(markupNumber);
-      const isVisibleByIndividualToggle = !isIndividuallyHidden && !isHiddenByGroup && !isGroupHidden;
+      
+      // Individual visibility should override group visibility
+      // An annotation is visible if it's not individually hidden AND not hidden by group
+      const isVisibleByIndividualToggle = !isIndividuallyHidden && !isHiddenByGroup;
       
       // Check if passes other filters (author, sort, type, etc.)
       const passesOtherFilters = this._shouldShowMarkupForCanvasIgnoringIndividualVisibility(markup);
       
-      // Final visibility is the combination of all conditions
+      // Final visibility is the combination of individual visibility and other filters
+      // Group visibility is not considered here as individual annotations can override it
       const finalVisibility = isVisibleByIndividualToggle && passesOtherFilters;
       
       markup.setdisplay(finalVisibility);

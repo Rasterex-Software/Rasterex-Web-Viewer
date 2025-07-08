@@ -1175,13 +1175,9 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       })
       ;
 
-      console.log("switch", this.sortByField, this.isCreatedFlag);
       switch (this.sortByField) {
         case 'created':
-          console.log("query", query);
-          console.log("mergeList", mergeList);
           if (query.length > 0 && !this.isCreatedFlag) {
-          console.log("before switch case created", this.list);
             this.list = mergeList.reduce((list, item) => {
               const date = dayjs(item.timestamp).fromNow();
               if (!list[date]) {
@@ -1191,7 +1187,6 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
               }
               return list;
             }, {});
-            console.log("after switch case created", this.list);
             this.isCreatedFlag = true;
 
             // Reset other flags
@@ -1203,7 +1198,6 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
 
         case 'author':
           if (!this.isAuthorFlag) {
-            console.log("before switch case author this.list", this.list);
             this.list = mergeList.reduce((list, item) => {
               const authorName = RXCore.getDisplayName(item.signature) || 'Unknown Author';
               if (!list[authorName]) {
@@ -1219,8 +1213,6 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
             this.isCreatedFlag = false;
             this.isPagenumberFlag = false;
             this.isAnnotationFlag = false;
-
-            console.log("after switch case author this.list", this.list);
           }
           break;
 
@@ -1791,7 +1783,6 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
 
 
     this.rxCoreService.guiMarkupList$.subscribe((list = []) => {
-      console.log("6 guiMarkupList$", this.list, list);
       this.createdByFilter = new Set();
 
       /*if (list.length > 0){
@@ -1911,7 +1902,6 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     });
 
     this.rxCoreService.guiAnnotList$.subscribe((list = []) => {
-      console.log("8 guiAnnotList$", this.list, list);
       this._processList(this.rxCoreService.getGuiMarkupList(), list);
     });
 
@@ -2065,6 +2055,9 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     
     // Clear previous selections when changing sort field to ensure clean state
     this.selectedSortFilterValues = [];
+    
+    // Clear all hidden states when group by field changes to enable all cards
+    this._clearAllHiddenStatesOnSortFieldChange();
     
     this._updateSortFilterOptions();
     
@@ -2310,6 +2303,9 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
         break;
     }
 
+    // Ensure selected values are visible on canvas and comment cards are enabled
+    this._ensureSelectedValuesAreEnabled(selectedValues, markupList);
+
     // Update leader lines without delay if possible
     const viewport = this._getDocumentViewport();
     if (viewport) {
@@ -2341,7 +2337,9 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
           const shouldShow = this._shouldShowMarkupForCanvas(markup);
           markup.setdisplay(shouldShow);
           if (shouldShow) {
+            // Clear hidden states to ensure comment cards are clickable
             this.hiddenAnnotations.delete(markup.markupnumber);
+            this.groupHiddenAnnotations.delete(markup.markupnumber);
           } else {
             this.hiddenAnnotations.add(markup.markupnumber);
           }
@@ -2378,7 +2376,9 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
           const shouldShow = this._shouldShowMarkupForCanvas(markup);
           markup.setdisplay(shouldShow);
           if (shouldShow) {
+            // Clear hidden states to ensure comment cards are clickable
             this.hiddenAnnotations.delete(markup.markupnumber);
+            this.groupHiddenAnnotations.delete(markup.markupnumber);
           } else {
             this.hiddenAnnotations.add(markup.markupnumber);
           }
@@ -2411,7 +2411,9 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
           const shouldShow = this._shouldShowMarkupForCanvas(markup);
           markup.setdisplay(shouldShow);
           if (shouldShow) {
+            // Clear hidden states to ensure comment cards are clickable
             this.hiddenAnnotations.delete(markup.markupnumber);
+            this.groupHiddenAnnotations.delete(markup.markupnumber);
           } else {
             this.hiddenAnnotations.add(markup.markupnumber);
           }
@@ -2448,7 +2450,9 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
           const shouldShow = this._shouldShowMarkupForCanvas(markup);
           markup.setdisplay(shouldShow);
           if (shouldShow) {
+            // Clear hidden states to ensure comment cards are clickable
             this.hiddenAnnotations.delete(markup.markupnumber);
+            this.groupHiddenAnnotations.delete(markup.markupnumber);
           } else {
             this.hiddenAnnotations.add(markup.markupnumber);
           }
@@ -2481,7 +2485,9 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
           const shouldShow = this._shouldShowMarkupForCanvas(markup);
           markup.setdisplay(shouldShow);
           if (shouldShow) {
+            // Clear hidden states to ensure comment cards are clickable
             this.hiddenAnnotations.delete(markup.markupnumber);
+            this.groupHiddenAnnotations.delete(markup.markupnumber);
           } else {
             this.hiddenAnnotations.add(markup.markupnumber);
           }
@@ -2518,7 +2524,9 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
           const shouldShow = this._shouldShowMarkupForCanvas(markup);
           markup.setdisplay(shouldShow);
           if (shouldShow) {
+            // Clear hidden states to ensure comment cards are clickable
             this.hiddenAnnotations.delete(markup.markupnumber);
+            this.groupHiddenAnnotations.delete(markup.markupnumber);
           } else {
             this.hiddenAnnotations.add(markup.markupnumber);
           }
@@ -2530,6 +2538,197 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
 
     // Force canvas update after all changes
     RXCore.markUpRedraw();
+  }
+
+  /**
+   * Ensure that selected values are visible on canvas and their comment cards are enabled
+   * This method clears any hidden states for selected values to ensure they are clickable
+   */
+  private _ensureSelectedValuesAreEnabled(selectedValues: Array<any>, markupList: Array<any>): void {
+    if (!markupList || selectedValues.length === 0) return;
+
+    // Get all markups that match the selected values
+    const selectedMarkups: Array<any> = [];
+    
+    switch (this.sortByField) {
+      case 'author':
+        // Find markups by author name
+        selectedMarkups.push(...markupList.filter(markup => 
+          selectedValues.includes(RXCore.getDisplayName(markup.signature))
+        ));
+        break;
+        
+      case 'pagenumber':
+        // Find markups by page number
+        selectedMarkups.push(...markupList.filter(markup => 
+          selectedValues.includes(markup.pagenumber + 1)
+        ));
+        break;
+        
+      case 'annotation':
+        // Find markups by annotation type
+        selectedMarkups.push(...markupList.filter(markup => 
+          selectedValues.includes(this.getAnnotationTitle(markup.type, markup.subtype))
+        ));
+        break;
+        
+      case 'created':
+        // For date filtering, we need to check if the markup falls within the selected date range
+        if (this.sortFilterDateRange.startDate || this.sortFilterDateRange.endDate) {
+          selectedMarkups.push(...markupList.filter(markup => {
+            const markupDate = dayjs(markup.timestamp);
+            return this._isMarkupInDateRange(markupDate);
+          }));
+        }
+        break;
+    }
+
+    // Ensure all selected markups are visible and enabled
+    selectedMarkups.forEach(markup => {
+      const markupNumber = markup.markupnumber;
+      
+      // Remove from hidden annotations to ensure comment cards are clickable
+      this.hiddenAnnotations.delete(markupNumber);
+      this.groupHiddenAnnotations.delete(markupNumber);
+      
+      // Check if the markup should be shown based on switch states
+      const isMeasurement = (markup as any).ismeasure === true;
+      const switchAllowsDisplay = isMeasurement ? this.showMeasurements === true : this.showAnnotations === true;
+      
+      if (switchAllowsDisplay) {
+        // Ensure the markup is visible on canvas
+        markup.setdisplay(true);
+        
+        // Remove from hidden groups if it was there
+        const groupKey = this._getGroupKeyForMarkup(markup);
+        this.hiddenGroups.delete(groupKey);
+      }
+    });
+
+    // Force canvas redraw to reflect changes
+    RXCore.markUpRedraw();
+  }
+
+  /**
+   * Clear all hidden states when sort field changes to enable all comment cards
+   * This ensures that when the group by field changes, all cards become clickable
+   */
+  private _clearAllHiddenStatesOnSortFieldChange(): void {
+    const markupList = this.rxCoreService.getGuiMarkupList();
+    if (!markupList) return;
+
+    // Clear all hidden states
+    this.hiddenAnnotations.clear();
+    this.groupHiddenAnnotations.clear();
+    this.hiddenGroups.clear();
+    this.hiddenGroupKeys = [];
+
+    // Clear date filter when changing sort field
+    this.sortFilterDateRange = { startDate: undefined, endDate: undefined };
+
+    // Ensure all markups are visible on canvas based on switch states
+    markupList.forEach(markup => {
+      const markupNumber = markup.markupnumber;
+      
+      // Check if the markup should be shown based on switch states
+      const isMeasurement = (markup as any).ismeasure === true;
+      const switchAllowsDisplay = isMeasurement ? this.showMeasurements === true : this.showAnnotations === true;
+      
+      if (switchAllowsDisplay) {
+        // Ensure the markup is visible on canvas
+        markup.setdisplay(true);
+      } else {
+        // If switch is OFF, hide the markup
+        markup.setdisplay(false);
+      }
+    });
+
+    // Force canvas redraw to reflect all changes
+    RXCore.markUpRedraw();
+  }
+
+  /**
+   * Clear all hidden states when date range is selected to enable all comment cards
+   * This ensures that when a date range is selected, all cards become clickable
+   */
+  private _clearAllHiddenStatesOnDateSelection(): void {
+    const markupList = this.rxCoreService.getGuiMarkupList();
+    if (!markupList) return;
+
+    // Clear all hidden states to enable all comment cards
+    this.hiddenAnnotations.clear();
+    this.groupHiddenAnnotations.clear();
+    this.hiddenGroups.clear();
+    this.hiddenGroupKeys = [];
+
+    // Ensure all markups in the selected date range are visible on canvas based on switch states
+    markupList.forEach(markup => {
+      const markupNumber = markup.markupnumber;
+      const markupDate = dayjs(markup.timestamp);
+      const isInDateRange = this._isMarkupInDateRange(markupDate);
+      
+      if (isInDateRange) {
+        // Check if the markup should be shown based on switch states
+        const isMeasurement = (markup as any).ismeasure === true;
+        const switchAllowsDisplay = isMeasurement ? this.showMeasurements === true : this.showAnnotations === true;
+        
+        if (switchAllowsDisplay) {
+          // Ensure the markup is visible on canvas
+          markup.setdisplay(true);
+          
+          // Remove from hidden states to ensure comment cards are clickable
+          this.hiddenAnnotations.delete(markupNumber);
+          this.groupHiddenAnnotations.delete(markupNumber);
+        } else {
+          // If switch is OFF, hide the markup
+          markup.setdisplay(false);
+          this.hiddenAnnotations.add(markupNumber);
+        }
+      } else {
+        // Not in date range - hide regardless of switches
+        markup.setdisplay(false);
+        this.hiddenAnnotations.add(markupNumber);
+      }
+    });
+
+    // Force canvas redraw to reflect all changes
+    RXCore.markUpRedraw();
+  }
+
+  /**
+   * Restore the previous state when date filter is cleared
+   * This ensures all annotations and comment cards are properly re-enabled
+   */
+  private _restoreStateAfterDateFilterClear(): void {
+    const markupList = this.rxCoreService.getGuiMarkupList();
+    if (!markupList) return;
+
+    // Clear all hidden states to restore previous visibility
+    this.hiddenAnnotations.clear();
+    this.groupHiddenAnnotations.clear();
+    this.hiddenGroups.clear();
+    this.hiddenGroupKeys = [];
+
+    // Process all markups to restore their proper visibility state
+    markupList.forEach(markup => {
+      // Determine if markup should be shown based on current switch states and other filters
+      const shouldShow = this._shouldShowMarkupForCanvas(markup);
+      
+      // Update canvas visibility
+      markup.setdisplay(shouldShow);
+      
+      // Ensure comment cards are clickable by clearing hidden states
+      if (shouldShow) {
+        this.hiddenAnnotations.delete(markup.markupnumber);
+        this.groupHiddenAnnotations.delete(markup.markupnumber);
+      }
+    });
+
+    // Re-process the list to ensure comment list is properly updated
+    this._processList(markupList);
+    
+    // Force synchronization between canvas and comment list
+    this._enhancedSynchronizeCanvasAndCommentList();
   }
 
   private _processListWithVisibilityPreservation(markupList: Array<any> = []): void {
@@ -2565,9 +2764,11 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       endDate: dateRange.endDate ? dayjs(dateRange.endDate) : undefined
     };
     
-    console.log("onSortFilterDateSelect", this.sortFilterDateRange);
     const markupList = this.rxCoreService.getGuiMarkupList();
     if (!markupList) return;
+
+    // Clear all hidden states when date range is selected to enable all cards
+    this._clearAllHiddenStatesOnDateSelection();
 
     // Filter markups based on date range
     markupList.forEach(markup => {
@@ -2581,7 +2782,9 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
         
         // Update hidden annotations tracking
         if (shouldShow) {
+          // Clear hidden states to ensure comment cards are clickable
           this.hiddenAnnotations.delete(markup.markupnumber);
+          this.groupHiddenAnnotations.delete(markup.markupnumber);
         } else {
           this.hiddenAnnotations.add(markup.markupnumber);
         }
@@ -2626,8 +2829,6 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
         }
       }
     });
-    
-    console.log("Updated hiddenGroupKeys", this.hiddenGroupKeys);
   }
 
   private _isMarkupInDateRange(markupDate: dayjs.Dayjs): boolean {
@@ -2664,6 +2865,8 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
       this.sortFilterDateRange.endDate = dateValue ? dayjs(dateValue) : undefined;
     }
     
+    // Clear all hidden states when date range is changed to enable all cards
+    this._clearAllHiddenStatesOnDateSelection();
     
     // Enhanced synchronization to fix comment list not updating issue
     // this._enhancedSynchronizeCanvasAndCommentList();
@@ -2681,23 +2884,9 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     const markupList = this.rxCoreService.getGuiMarkupList();
     if (!markupList) return;
 
-    // Show all markups when date filter is cleared
-    markupList.forEach(markup => {
-      // Only show if it meets other visibility criteria
-      const shouldShow = this._shouldShowMarkupForCanvas(markup);
-      markup.setdisplay(shouldShow);
-      
-      // Update hidden annotations tracking
-      if (shouldShow) {
-        this.hiddenAnnotations.delete(markup.markupnumber);
-      } else {
-        this.hiddenAnnotations.add(markup.markupnumber);
-      }
-    });
+    // Clear all hidden states when date filter is cleared to restore previous state
+    this._restoreStateAfterDateFilterClear();
 
-    // Clear hiddenGroupKeys to show all groups in comment list
-    this.hiddenGroupKeys = [];
-    
     // Force canvas redraw
     RXCore.markUpRedraw();
     
@@ -2793,21 +2982,6 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     }
   }
 
-  // Helper method to get the filter value for a markup based on current sort field
-  private _getSortFilterValueForMarkup(markup: any): any {
-    switch (this.sortByField) {
-      case 'author':
-        return RXCore.getDisplayName(markup.signature);
-      case 'pagenumber':
-        return markup.pagenumber + 1;
-      case 'annotation':
-        return this.getAnnotationTitle(markup.type, markup.subtype);
-      case 'created':
-        return dayjs(markup.timestamp).format('YYYY-MM-DD');
-      default:
-        return null;
-    }
-  }
 
   onCreatedByFilterChange(values): void {
     this.createdByFilter = new Set(values);
@@ -4201,98 +4375,6 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     this.cdr.detectChanges();
   }
 
-  /**
-   * Verify that canvas and comment list are properly synchronized
-   * If not, attempt to fix the synchronization
-   */
-  private _verifySynchronizationAndRetryIfNeeded(markupList: any[]): void {
-    if (!markupList) return;
-    
-    // Skip verification if there are hidden annotations to prevent removing them
-    if (this.hiddenAnnotations.size > 0) {
-      return;
-    }
-    
-    let canvasVisibleCount = 0;
-    let commentListCount = 0;
-    let canvasVisibleMarkups: any[] = [];
-    let commentListMarkups: any[] = [];
-    
-    // Count visible markups on canvas and collect them for debugging
-    for (const markup of markupList) {
-      const shouldShowOnCanvas = this._shouldShowMarkupForCanvas(markup);
-      if (shouldShowOnCanvas) {
-        canvasVisibleCount++;
-        canvasVisibleMarkups.push({
-          id: markup.markupnumber,
-          page: markup.pagenumber + 1,
-          type: this.getAnnotationTitle(markup.type, markup.subtype),
-          isMeasurement: !!(markup as any).ismeasure
-        });
-      }
-    }
-    
-    // Count visible markups in comment list and collect them
-    for (const groupKey in this.list) {
-      if (this.list[groupKey]) {
-        commentListCount += this.list[groupKey].length;
-        for (const markup of this.list[groupKey]) {
-          commentListMarkups.push({
-            id: markup.markupnumber,
-            page: markup.pagenumber + 1,
-            type: this.getAnnotationTitle(markup.type, markup.subtype),
-            isMeasurement: !!(markup as any).ismeasure
-          });
-        }
-      }
-    }
-    
-
-    // If counts don't match, we have a synchronization issue - retry with more aggressive approach
-    if (canvasVisibleCount !== commentListCount) {
-      
-      // Find the missing markups
-      const canvasIds = new Set(canvasVisibleMarkups.map(m => m.id));
-      const commentIds = new Set(commentListMarkups.map(m => m.id));
-      const missingFromComments = canvasVisibleMarkups.filter(m => !commentIds.has(m.id));
-      const extraInComments = commentListMarkups.filter(m => !canvasIds.has(m.id));
-      
-      
-      // Enhanced retry with forced canvas update first
-      setTimeout(() => {
-        this._applySortFilterToCanvas();
-        RXCore.markUpRedraw();
-        
-                 // Then wait and update comment list
-         setTimeout(() => {
-           
-           // Clear processing flags and update list
-           this.isProcessingList = false;
-           // Skip comment list processing if there are hidden annotations
-           if (this.hiddenAnnotations.size === 0) {
-             this._processList(markupList);
-           }
-           
-           // Aggressive change detection for retry
-           this.cdr.detectChanges();
-           this.cdr.markForCheck();
-           
-           setTimeout(() => {
-             this.cdr.detectChanges();
-             
-             setTimeout(() => {
-               this.cdr.detectChanges();
-               
-               // Final verification
-               setTimeout(() => {
-                 this._finalSynchronizationCheck(markupList);
-               }, 100);
-             }, 10);
-           }, 10);
-         }, 150);
-      }, 100);
-    } 
-  }
 
   /**
    * Check if a specific annotation is visible (not hidden by eye icon or group toggle)
@@ -4583,6 +4665,27 @@ export class NotePanelComponent implements OnInit, AfterViewInit {
     );
     
     return hasVisibleAnnotation;
+  }
+
+  /**
+   * Check if a group should be displayed based on the current switch states
+   * This handles groups that may contain both annotation and measurement values
+   */
+  shouldShowGroup(groupItems: Array<any>): boolean {
+    if (!groupItems || groupItems.length === 0) {
+      return false;
+    }
+
+    // Check if the group contains any annotations (non-measurements)
+    const hasAnnotations = groupItems.some(item => !(item as any).ismeasure);
+    
+    // Check if the group contains any measurements
+    const hasMeasurements = groupItems.some(item => (item as any).ismeasure === true);
+
+    // Group should be visible if:
+    // 1. It has annotations AND annotations switch is ON, OR
+    // 2. It has measurements AND measurements switch is ON
+    return (hasAnnotations && this.showAnnotations === true) || (hasMeasurements && this.showMeasurements === true);
   }
 
   /**

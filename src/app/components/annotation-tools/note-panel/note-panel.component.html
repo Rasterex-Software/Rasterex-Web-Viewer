@@ -50,10 +50,8 @@
           *ngFor="let group of list | keyvalue : sortOrder; trackBy: trackByFn"
         >
           <div class="list-item" [class.hidden]="hiddenGroupKeys.includes(group.key)">
-            <div [class.hidden]="
-              (group.value[0].ismeasure && !showMeasurements) ||
-              (!group.value[0].ismeasure && !showAnnotations)
-            " class="group-header">
+            <div [class.hidden]="!shouldShowGroup(group.value)"
+             class="group-header">
               <h4 class="date">{{ group.key }}</h4>
               <div class="group-eye-icon">
                 <div 

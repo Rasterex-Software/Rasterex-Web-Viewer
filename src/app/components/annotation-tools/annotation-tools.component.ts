@@ -353,6 +353,8 @@ export class AnnotationToolsComponent implements OnInit {
         //this.annotationToolsService.setMeasurePanelState({ visible: true }); 
         //this.service.setPropertiesPanelState({ visible: this.isActionSelected[actionName], markup: MARKUP_TYPES.MEASURE.LENGTH,  readonly: false });
         RXCore.markUpDimension(this.isActionSelected[actionName], 0);
+        RXCore.useFixedScale(!this.isActionSelected[actionName]);
+
         break;
 
       case 'MEASURE_AREA':
@@ -439,7 +441,6 @@ export class AnnotationToolsComponent implements OnInit {
       RXCore.importFDF(null, null);
     else
       {
-        debugger
         const input = document.querySelector<HTMLInputElement>('input[type="file"][accept=".xfdf"]');
         input?.addEventListener('change', this.onXFDFFileSelected.bind(this));
         input?.click();
@@ -447,7 +448,6 @@ export class AnnotationToolsComponent implements OnInit {
   }
 
   onXFDFFileSelected(event: Event) {
-    debugger
     const input = event.target as HTMLInputElement;
     if (input.files?.length) {
         const file = input.files[0];

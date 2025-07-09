@@ -744,6 +744,25 @@ export class AppComponent implements AfterViewInit {
 
     });
 
+    let timeoutId: any = null;
+
+    RXCore.onGuiPageScale((fileindex, pagenumber, scaleobject) => {
+      console.log('RxCore onGuiPageScale:', fileindex, pagenumber, scaleobject);
+      if (!this.isCollaborate() || !this.collabService.needMeasureScaleSync()) {
+        return;
+      }
+      // Avoid triggering frequently.
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        this.collabService.sendChatMessage(this.getRoomId(), {
+          text: 'MeasurementScale',
+          data: scaleobject,
+        });
+      }, 1000);
+     
+    });
+
+
     /*RXCore.onGuiUpload((upload :any) =>{
       
       this.isUploadFile = true;
@@ -775,7 +794,7 @@ export class AppComponent implements AfterViewInit {
     //   // });
     // });
 
-    this.collabService.chatMessageChange$.subscribe((message) => {
+    /*this.collabService.chatMessageChange$.subscribe((message) => {
       if (!message) {
         return;
       }
@@ -806,7 +825,7 @@ export class AppComponent implements AfterViewInit {
         RXCore.markUpRedraw();
       }
 
-    });
+    });*/
   }
 
   ngOnDestroy() {

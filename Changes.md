@@ -1,3 +1,22 @@
+July 9, 2025
+
+### 1. Support to sync scaling/calibration change for different users.
+### 2. Fix IsCollaboration() in rxcore.service.
+
+
+Updated and new files
+
+RxCore version is now 35.93
+src\assets\scripts\rxcorefunctions.js
+
+src\app\app.component.ts
+src\app\components\annotation-tools\measure-panel\measure-panel.component.ts
+src\app\services\collab.service.ts
+src\app\components\collab\room-panel.component.html
+src\app\components\top-nav-menu\top-nav-menu.component.ts
+src\app\services\rxcore.service.ts
+src\rxcore\index.ts
+
 July 1, 2025
 
 ### 1. Added XFDF import/export
@@ -9,8 +28,6 @@ src\assets\scripts\rxcorefunctions.js
 src\assets\scripts\iframefoxit.js
 src\app\components\annotation-tools\annotation-tools.component.ts
 src\app\components\annotation-tools\annotation-tools.component.html
-
-
 
 
 June 30, 2025

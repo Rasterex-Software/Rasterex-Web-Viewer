@@ -611,9 +611,19 @@ export class RXCore {
         RxCore.copyMarkUp();
     }
 
+    public static cutMarkUp(): void {
+        RxCore.cutMarkUp();
+    }
+
+
     public static pasteMarkUp(): void {
         RxCore.pasteMarkUp()
     }
+
+    public static useOrtho(onoff: boolean, degree: number): void {
+        RxCore.useOrtho(onoff, degree);
+    }
+
 
     public static markUpHighlight(onoff: boolean): void {
         RxCore.markUpHighlight(onoff);
@@ -1196,6 +1206,10 @@ export class RXCore {
 
     public static onGuiMarkupChanged(callback: Function): void {
         RxCore.GUI_MarkupChanged.connect(callback);
+    }
+
+    public static onGuiPageScale(callback: Function): void {
+        RxCore.GUI_pageScale.connect(callback);
     }
 
     public static onGuiPutSignatureComplete(callback: (username: string) => void): void {

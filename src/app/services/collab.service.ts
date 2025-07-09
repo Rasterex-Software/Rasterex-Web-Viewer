@@ -64,6 +64,7 @@ export class CollabService {
 
   private roomId: string = ''; // Current room id, used to send messages to the current room
   private triggerSync = true; // setUniqueMarkupfromJSON will trigger sync if this is true, otherwise it won't sync the markup to the server
+  private triggerMeasureScaleSync = true; // setMeasureScale will trigger sync if this is true, otherwise it won't sync the measure scale to the server
 
   private socket: Socket;
   private username: string;
@@ -240,6 +241,15 @@ export class CollabService {
   needSync() {
     return this.triggerSync;
   }
+
+  needMeasureScaleSync() {
+    return this.triggerMeasureScaleSync;
+  }
+
+  setTriggerMeasureScaleSync(value: boolean) {
+    this.triggerMeasureScaleSync = value;
+  }
+
 
   private async sendMessage(msg: CollabMessage): Promise<void> {
     if (!this.socket || !this.socket.connected) {
@@ -495,9 +505,14 @@ export class CollabService {
     return Promise.resolve(true);
   }
 
-  private sendChatMessage(roomId: string, text: string) {
+  /*private sendChatMessage(roomId: string, text: string) {
     this.sendMessage({ id: MessageId.ChatMessage, roomId, body: { text }});
+  }*/
+
+  public sendChatMessage(roomId: string, body: any) {
+    this.sendMessage({ id: MessageId.ChatMessage, roomId, body});
   }
+
 
   public sendMarkupMessage(roomId: string, annotation: any, operation: any) {
     let id = '';

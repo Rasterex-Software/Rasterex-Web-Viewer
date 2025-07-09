@@ -350,7 +350,8 @@ export class RxCoreService {
   }
 
   IsCollaboration(): boolean {
-    return window.location.pathname === '/collaboration';
+    //return window.location.pathname === '/collaboration';
+    return window.location.pathname.includes('/collaboration');
   }
   
   IsDocumentCollaboration(): boolean {

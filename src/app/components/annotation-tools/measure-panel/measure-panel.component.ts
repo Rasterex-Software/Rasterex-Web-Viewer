@@ -8,6 +8,7 @@ import { RxCoreService } from 'src/app/services/rxcore.service';
 
 import { ToastrService } from 'ngx-toastr';
 import { MeasurePanelService } from './measure-panel.service';
+import { CollabService } from 'src/app/services/collab.service';
 
 @Component({
   selector: 'rx-measure-panel',
@@ -131,7 +132,8 @@ export class MeasurePanelComponent implements OnInit, OnDestroy {
     private readonly annotationToolsService: AnnotationToolsService,
     private readonly colorHelper: ColorHelper,
     private readonly service: MeasurePanelService,
-    private toastr: ToastrService) {}
+    private toastr: ToastrService,
+    private readonly collabService: CollabService) {}
 
   ngOnInit(): void {
     this._setDefaults();
@@ -193,7 +195,57 @@ export class MeasurePanelComponent implements OnInit, OnDestroy {
       
     });
 
+    this.collabService.chatMessageChange$.subscribe((message) => {
+      if (!message) {
+        return;
+      }
 
+      if (message.text === 'MeasurementScale') {
+         if (!message.data) {
+          return;
+         }
+
+        this.collabService.setTriggerMeasureScaleSync(false);
+
+        const data = message.data;
+
+        const scaleObj = this.scalesOptions.find(item => item.label === data.scaleLabel);
+        if(scaleObj) {
+          this.selectedScale = scaleObj;
+          this.applyScale(this.selectedScale);
+          this.collabService.setTriggerMeasureScaleSync(true);
+          return;
+        }
+
+        const newScaleObj = {
+          value: data.scaleValue, 
+          label: data.scaleLabel,
+          metric: data.Unitofmeasure,
+          metricUnit: data.unitname,
+          dimPrecision: data.ndimprecision,
+          isSelected: true
+         };
+         this.scalesOptions.push(newScaleObj);
+         this.selectedScale = newScaleObj;
+         this.applyScale(this.selectedScale);
+         
+         this.currentScale = this.selectedScale.label;
+         
+         this.service.setMeasureScaleState({visible: true, value: this.currentScale});
+         
+         this.service.setScaleState({ created: true, scaleLabel: this.selectedScale.label });
+         
+         //set to default value
+         this.customPageScaleValue = 1;
+         this.customDisplayScaleValue = 1;
+         this.selectedMetricUnitForPage = this.metricUnitsOptionsForPage[0];
+         this.selectedMetricUnitForDisplay = this.metricUnitsOptionsForDisplay[0];
+         this.selectedScalePrecision = this.precisionOptions[2];
+
+         this.collabService.setTriggerMeasureScaleSync(true);
+      }
+
+    });
 
     this.rxCoreService.guiCalibrateFinished$.subscribe(state => {
       this.calibrateLength = parseFloat(state.data || "0").toFixed(this.countDecimals(this.selectedScalePrecision?.value));

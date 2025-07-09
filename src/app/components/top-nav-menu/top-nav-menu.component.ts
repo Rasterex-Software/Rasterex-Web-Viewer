@@ -245,15 +245,17 @@ export class TopNavMenuComponent implements OnInit {
   // - the user is logged in
   // - the user is on https://<site>/collaboration/ page
   // - the user is not on https://<site>/document-collaboration.html page
+  
+  
   shouldShowToggleCollabPanelButton(): boolean {
     // If user is on https://<site>/document-collaboration.html, it includes two iFrames,
     // iFrame will get src in format of https://<site>/collaboration?roomId=document_collaboration_room_wB4Oe4Qv
-    const parameters = new URLSearchParams(window.location.search);
-    const isOnDocumentCollaborationPage = parameters.get('roomId');
+    //const parameters = new URLSearchParams(window.location.search);
+    //const isOnDocumentCollaborationPage = parameters.get('roomId');
 
-    return window.location.pathname === '/collaboration' &&
-      !!this.userService.getCurrentUser() &&
-      !isOnDocumentCollaborationPage;
+    return this.rxCoreService.IsCollaboration() && !!this.userService.getCurrentUser() && !this.rxCoreService.IsDocumentCollaboration();
+
+    
   }
 
 

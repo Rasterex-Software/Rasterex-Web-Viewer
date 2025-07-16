@@ -1,3 +1,13 @@
+July 17, 2025
+
+### 1. Fixed annotation position shift during zoom and pan actions.
+### 2. Updated logic to handle scaling and positioning more accurately.
+
+
+Updated and new files
+
+src\assets\scripts\iframefoxit.js
+
 July 9, 2025
 
 ### 1. Support to sync scaling/calibration change for different users.

@@ -39,7 +39,7 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
     var foxview = this;
     var PixelToPoint = 72 / 96; //0.75
     var PointToPixel = 96 / 72; //1.3333
-
+    this.zoomfit = false;
     //window.onscroll = this.onScroll;
 
     var RxCore = undefined;
@@ -1434,7 +1434,7 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
     };    
 
     this.zoomdirect = function (pagenum, factor, scrolldata) {
-
+        foxview.zoomfit = true;
         return new Promise(async (resolve, reject) => {
 
 
@@ -3566,8 +3566,10 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
                 foxview.pagestates[pgindex].rotation = pageRender.page.getRotationAngle();
 
 
-                foxview.setmarkupPositionScale(pgindex);
-
+                //foxview.setmarkupPositionScale(pgindex);
+                if((foxview.zoomfit) || (!foxview.vBarOn && !foxview.hBarOn) || (foxview.vBarOn && foxview.hBarOn)) {
+                    return;
+                }
 
                 var foxitpageEx = {width: pagewidth, height : pageheight, pagescale : pgscale, docindex: foxview.rxindex, pageindex : pgindex, pagepos : undefined};
 
@@ -3698,9 +3700,9 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
 
                 RxCore.setfoxitPageSize(foxitpage);
 
-                if (foxview.curpage == pgindex) {
-                    foxview.setmarkupPosition(foxview.curpage);
-                }
+                // if (foxview.curpage == pgindex) {
+                //     foxview.setmarkupPosition(foxview.curpage);
+                // }
 
                 //console.log('render success called');
 

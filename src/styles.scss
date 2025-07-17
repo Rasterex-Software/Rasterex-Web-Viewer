@@ -47,10 +47,25 @@ html {
     display: flex;
     flex-direction: row;
     align-items: flex-start;
-    flex-wrap: wrap;
-    gap: 20px;
+    // flex-wrap: wrap;
+    // gap: 20px;
+     flex-wrap: nowrap;
+    white-space: nowrap;
+    // overflow-x: auto; 
+    gap: 15px;
+    scrollbar-width: thin;
 
+     &::-webkit-scrollbar-button {
+        display: none; 
+        width: 0;
+        height: 0; 
+    }
+
+    &::-webkit-scrollbar-corner {
+        background-color: transparent; 
+    }
     .tabbed-menu-item {
+         flex-shrink: 0;
         position: relative;
         display: flex;
         flex-direction: row;

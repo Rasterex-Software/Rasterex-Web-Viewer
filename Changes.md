@@ -1,3 +1,24 @@
+July 17, 2025
+### 1. Updated the FileGallery component to dynamically load demo files into the gallery.
+### 2. Refined the FileCategoryService to correctly assign file categories.
+### 3. Created the FileManageService to fetch files and their corresponding thumbnails from the server.
+### 4. Updated the FileCategory enum to accurately define file category values.
+### 4. Implemented a ThumbnailCacheService to cache thumbnails locally and reduce repeated API calls.
+
+updated files
+D:\Projects\Techbit\Rasterex\RasterexProject\Rasterex-Web-Viewer\src\app\components\file-galery\file-galery.component.ts
+D:\Projects\Techbit\Rasterex\RasterexProject\Rasterex-Web-Viewer\src\app\components\file-galery\file-galery.component.html
+D:\Projects\Techbit\Rasterex\RasterexProject\Rasterex-Web-Viewer\src\app\components\file-galery\file-galery.component.scss
+D:\Projects\Techbit\Rasterex\New Rasterex admin app\src\app\app.component.scss
+D:\Projects\Techbit\Rasterex\New Rasterex admin app\src\styles.scss
+D:\Projects\Techbit\Rasterex\New Rasterex admin app\src\app\shared\enums\file-category.ts
+
+New Files
+D:\Projects\Techbit\Rasterex\New Rasterex admin app\src\app\services\file-manage.service.ts
+D:\Projects\Techbit\Rasterex\New Rasterex admin app\src\app\services\thumbnail-cache.service.ts
+
+
+
 July 4, 2025
 ### 1. Enhanced the UploadFile method in the File Gallery component to support preselection of layers and      blocks for CAD files.
 ### 2. Modified the FileSelected method to properly handle CAD file preselection on file selection.

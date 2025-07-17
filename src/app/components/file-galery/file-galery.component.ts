@@ -8,6 +8,7 @@ import { FileMetadataService } from 'src/app/services/file-metadata.service';
 import { FileMetadataModalComponent } from '../file-metadata-modal/file-metadata-modal.component';
 import { MatDialog } from '@angular/material/dialog';
 import { FilePreselectionService } from 'src/app/services/file-preselection.service';
+import { DemoFileGroup, FileManageService } from 'src/app/services/file-manage.service';
 @Component({
   selector: 'rx-file-galery',
   templateUrl: './file-galery.component.html',
@@ -24,7 +25,7 @@ export class FileGaleryComponent implements OnInit {
 
   
 
-  groups : any = RXCore.ViewUIConfig.demofiles;
+  // groups : any = RXCore.ViewUIConfig.demofiles;
 
   /*groups = [
     {
@@ -104,9 +105,9 @@ export class FileGaleryComponent implements OnInit {
 
   guiConfig: IGuiConfig | undefined;
   canCollaborate : boolean | undefined = false;
-
-  
-  selected = this.groups[0];
+  groups: DemoFileGroup[] = [];
+  selected: DemoFileGroup | undefined;
+  // selected = this.groups[0];
   leftTabActiveIndex: number = 0;
   selectedFileName: string;
   fileSize: number = 0;
@@ -114,19 +115,21 @@ export class FileGaleryComponent implements OnInit {
   file: any;
   isUploadFile: boolean = false;
   fileType: string;
-
+  isLoading: boolean = true;
   constructor(
     private readonly fileGaleryService: FileGaleryService,
     private readonly rxCoreService: RxCoreService,
     private readonly fileMetadataService:FileMetadataService,
     private readonly dialog: MatDialog,
     private filePreselectionService: FilePreselectionService,
+    private demoFileService: FileManageService 
   ) { }
 
 
   //constructor(private readonly fileGaleryService: FileGaleryService) { }
 
   ngOnInit() {
+    this.loadDemoFiles();
     this.fileGaleryService.getStatusActiveDocument().subscribe(status => {
       if (status === 'awaitingSetActiveDocument' && this.progressBar) this.progressBar.nativeElement.value = 100;
       else {
@@ -172,6 +175,19 @@ export class FileGaleryComponent implements OnInit {
   //   this.onSelect.emit(item);
   // }
 
+  async loadDemoFiles() {
+  this.isLoading = true;
+  try {
+    this.groups = await this.demoFileService.fetchDemoFiles();
+    if (this.groups.length > 0) {
+      this.selected = this.groups[0];
+    }
+  } catch (error) {
+    console.error('Error loading demo files:', error);
+  } finally {
+    this.isLoading = false;
+  }
+}
 
   handleFileSelect(item: any): void {
     this.uploadFile(item);

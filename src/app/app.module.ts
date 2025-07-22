@@ -107,6 +107,8 @@ import { NumericRangeDirective } from "./directives/numeric-range.directive";
 import { ResizableDirective } from './directives/resizable.directive';
 import {IsPinnedPipe} from "./components/top-nav-menu/opened-files-tabs/is-pinned.pipe";
 import { FileMetadataModalComponent } from './components/file-metadata-modal/file-metadata-modal.component';
+import { InsunitDisplayPipe } from './shared/pipe/insunit-display.pipe';
+import { FileSizePipe } from './shared/pipe/file-size.pipe';
 
 const storeSchema = [
   { name: 'name', keypath: 'name', options: { unique: false } },
@@ -213,7 +215,9 @@ const dbConfig: DBConfig  = {
     RoomPanelComponent,
     ResizableDirective,
     LoginModalComponent,
-    FileMetadataModalComponent
+    FileMetadataModalComponent,
+    InsunitDisplayPipe,
+    FileSizePipe
   ],
   imports: [
     BrowserModule,

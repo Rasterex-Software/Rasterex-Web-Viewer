@@ -1,3 +1,21 @@
+July 22, 2025
+### 1. Updated the FileMetadataComponent model to display INSUNITS for DWG files.
+### 2. Created a constant (INSUNIT_MAPPING) to accurately map INSUNITS values to their corresponding units.
+### 3. Implemented a custom pipe insunit-display to transform INSUNITS values using the defined mapping.
+### 4. Added a file-size pipe to format and display file sizes clearly in FileMetadataComponent.
+### 5. Updated the AppModule to declare and register both insunit-display and file-size pipes.
+
+updated files
+src\app\app.module.ts.component.ts
+src\app\components\file-metadata-modal\file-metadata-modal.component.html
+src\app\components\file-metadata-modal\file-metadata-modal.component.scss
+
+New Files
+src\app\shared\pipe\insunit-display.pipe.ts
+src\app\shared\pipe\file-size.pipe.ts
+src\app\models\insunit-mapping.ts
+
+
 July 17, 2025
 ### 1. Updated the FileGallery component to dynamically load demo files into the gallery.
 ### 2. Refined the FileCategoryService to correctly assign file categories.
@@ -6,16 +24,16 @@ July 17, 2025
 ### 4. Implemented a ThumbnailCacheService to cache thumbnails locally and reduce repeated API calls.
 
 updated files
-D:\Projects\Techbit\Rasterex\RasterexProject\Rasterex-Web-Viewer\src\app\components\file-galery\file-galery.component.ts
-D:\Projects\Techbit\Rasterex\RasterexProject\Rasterex-Web-Viewer\src\app\components\file-galery\file-galery.component.html
-D:\Projects\Techbit\Rasterex\RasterexProject\Rasterex-Web-Viewer\src\app\components\file-galery\file-galery.component.scss
-D:\Projects\Techbit\Rasterex\New Rasterex admin app\src\app\app.component.scss
-D:\Projects\Techbit\Rasterex\New Rasterex admin app\src\styles.scss
-D:\Projects\Techbit\Rasterex\New Rasterex admin app\src\app\shared\enums\file-category.ts
+src\app\components\file-galery\file-galery.component.ts
+src\app\components\file-galery\file-galery.component.html
+src\app\components\file-galery\file-galery.component.scss
+src\app\app.component.scss
+src\styles.scss
+src\app\shared\enums\file-category.ts
 
 New Files
-D:\Projects\Techbit\Rasterex\New Rasterex admin app\src\app\services\file-manage.service.ts
-D:\Projects\Techbit\Rasterex\New Rasterex admin app\src\app\services\thumbnail-cache.service.ts
+src\app\services\file-manage.service.ts
+src\app\services\thumbnail-cache.service.ts
 
 
 

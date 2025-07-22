@@ -23,9 +23,12 @@
 
         </div>
         <div class="file-details">
-          <h3>{{ metadata.filename }}</h3>
-          <p><strong>Format:</strong> {{ metadata.format }}</p>
-          <p><strong>Size:</strong> {{ metadata.filesize }} bytes</p>
+           <h3>{{ metadata.filename }}</h3>
+           <p><span class="label">Format: </span> <span class="value">{{ metadata.format }}</span></p>
+          <p><span class="label">Size: </span> <span class="value">{{ metadata.filesize | fileSize }}</span></p>
+          <p *ngIf="metadata.filename?.toLowerCase().endsWith('.dwg')">
+            <span class="label">Drawing Units: </span> <span class="value">{{ metadata.INSUNIT | insunitDisplay }}</span>
+          </p>
         </div>
       </div>
 

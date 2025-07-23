@@ -13,6 +13,7 @@ import {Subject, Subscription} from 'rxjs';
 import { SideNavMenuService } from '../side-nav-menu/side-nav-menu.service';
 import { MeasurePanelService } from '../annotation-tools/measure-panel/measure-panel.service';
 import { ActionType } from './type';
+import { CollabService } from 'src/app/services/collab.service';
 
 
 @Component({
@@ -70,7 +71,8 @@ export class TopNavMenuComponent implements OnInit {
     private readonly service: TopNavMenuService,
     private readonly sideNavMenuService: SideNavMenuService,
     private readonly measurePanelService: MeasurePanelService,
-    private readonly userService: UserService
+    private readonly userService: UserService,
+    private readonly collabService: CollabService
     ) {
   }
 
@@ -124,6 +126,10 @@ export class TopNavMenuComponent implements OnInit {
       const value = this.options.find(option => option.value == mode);
       if (value) {
         this.onModeChange(value, false);
+
+        if (this.rxCoreService.IsCollaboration() && this.collabService.needSync()) {
+          this.collabService.sendGuiModeChange(this.collabService.getRoomId() , { guiMode: mode });
+        }
       }
     });
 

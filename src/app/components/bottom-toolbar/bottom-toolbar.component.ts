@@ -110,15 +110,12 @@ export class BottomToolbarComponent implements OnInit, AfterViewInit {
       this.searchCurrentMatch = this.searchNumMatches > 0 ? 1 : 0;
     });
 
-    RXCore.onGuiZoomUpdate((zoomparams, type) => {
-
-      if(type == 2){
+    this.rxCoreService.guiZoomUpdated$.subscribe(({params, zoomtype}) => {
+      if (zoomtype == 2) {
         this.state.isActionSelected["ZOOM_WINDOW"] = false;
         RXCore.restoreDefault();
       }
-
     });
-
 
   }
 

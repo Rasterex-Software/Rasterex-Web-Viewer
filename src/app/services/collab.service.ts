@@ -5,6 +5,7 @@ import { io, Socket } from 'socket.io-client';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { TooltipService } from 'src/app/components/tooltip/tooltip.service';
 import { AnnotationStorageService } from './annotation-storage.service';
+import { RxCoreService } from './rxcore.service';
 
 const MessageId = {
   JoinRoom: "JoinRoom",
@@ -14,6 +15,8 @@ const MessageId = {
   GetAllRooms: "GetAllRooms",
   GetRoomsByDocId: "GetRoomsByDocId",
   GetRoomParticipants: "GetRoomParticipants",
+  SetRoomPresenter: "SetRoomPresenter",
+  RemoveRoomPresenter: "RemoveRoomPresenter",
   ChatMessage: "ChatMessage",
   HasMarkupForRoom: "HasMarkupForRoom",
   DeleteMarkupsForRoom: "DeleteMarkupsForRoom",
@@ -22,6 +25,20 @@ const MessageId = {
   DeleteMarkup: "DeleteMarkup",
   // Markup added by non-collaboration users
   NotifyAddingMarkup: "NotifyAddingMarkup",
+  GuiModeChange: "GuiModeChange", // view, annotation, measure, etc.
+  
+  // Operation relative messages
+  PanChange: "PanChange",
+  PageRectChange: "PageRectChange",
+  ZoomChange: "ZoomChange",
+  RotationChange: "RotationChange",
+  BackgroundColorChange: "BackgroundColorChange",
+  PageChange: "PageChange",
+  MonoChromeChange: "MonoChromeChange",
+  VectorLayersVisibilityChange: "VectorLayersVisibilityChange",
+  VectorBlocksVisibilityChange: "VectorBlocksVisibilityChange",
+  VectorBlockSelectChange: "VectorBlockSelectChange",
+  UnselectAllVectorBlocks: "UnselectAllVectorBlocks",
 };
 
 export interface CollabMessage {
@@ -47,11 +64,19 @@ export interface Participant {
   socketId: string;
   username: string;
   displayName: string;
+  isPresenter?: boolean; // Indicates if the participant is a presenter of the room
 }
 
 export interface RoomParticipants {
   roomId?: string;
   participants?: Participant[];
+}
+
+export interface RoomInfo {
+  docId: string;
+  roomId: string;
+  joinedRoom: boolean;
+  participants: Participant[];
 }
 
 @Injectable({
@@ -69,6 +94,10 @@ export class CollabService {
   private socket: Socket;
   private username: string;
   private displayName: string;
+  // Each document may have multiple rooms. A user can only join one room for each document.
+  // A user can only join one room at a time for all documents.
+  // We need to save the room info for current document.
+  private roomInfoArray: Array<RoomInfo> = [];
 
   // used to avoid re-entry
   private initPromise: Promise<boolean> | undefined = undefined;
@@ -91,7 +120,8 @@ export class CollabService {
   public chatMessageChange$: Observable<any> = this._chatMessageChange.asObservable();
 
   constructor(private readonly tooltipService: TooltipService,
-              private readonly annotationStorageService: AnnotationStorageService
+              private readonly annotationStorageService: AnnotationStorageService,
+              private readonly rxCoreService: RxCoreService
   ) {
   }
 
@@ -158,6 +188,14 @@ export class CollabService {
     return this.roomId;
   }
 
+  getRoomInfoArray(): Array<RoomInfo> {
+    return this.roomInfoArray;
+  }
+
+  setRoomInfoArray(roomInfoArray: Array<RoomInfo>) {
+    this.roomInfoArray = roomInfoArray;
+  }
+
   resetRoomId() {
     this.roomId = '';
   }
@@ -169,6 +207,23 @@ export class CollabService {
 
   getDefaultRoomId(docId: string): string {
     return `${docId}_default_room`;
+  }
+
+  /**
+   * If current user the room presenter of the room he/she is in.
+   */
+  isCurrentUserRoomPresenter(): boolean {
+    if (!this.socketId || !this.roomInfoArray) {
+      return false;
+    }
+
+    const roomInfo = this.roomInfoArray.find(info => info.joinedRoom);
+    if (!roomInfo || !roomInfo.participants) {
+      return false;
+    }
+
+    const participant = roomInfo.participants.find(p => p.socketId === this.socketId);
+    return !!(participant && participant.isPresenter);
   }
 
   async getAnnotationsFromDb(roomId?:string) {
@@ -309,6 +364,10 @@ export class CollabService {
         participants: msgBody.participants,
       }
       this._roomParticipantsChange.next(roomParticipants);
+    } else if (msgId === MessageId.SetRoomPresenter) {
+      // do nothing
+    } else if (msgId === MessageId.RemoveRoomPresenter) {
+      // do nothing
     } else if (msgId === MessageId.ChatMessage) {
       console.log(`[Collab] ChatMessage: ${msgBody}`);
       this._chatMessageChange.next(msgBody);
@@ -355,6 +414,71 @@ export class CollabService {
           RXCore.setUniqueMarkupfromJSON(data.data, null);
         }
         this.triggerSync = true;
+    } else if (msgId === MessageId.GuiModeChange) {
+        const data = msgBody.data;
+        if (!data) {
+          return;
+        }
+        this.triggerSync = false;
+        this.rxCoreService.setGuiMode(data.guiMode);
+        this.triggerSync = true;
+    } else {
+      // Handle operation messages like pan, zoom, rotation, etc.
+      this.handleOperationMessage(message);
+    }
+  }
+
+  private handleOperationMessage(message: CollabMessage) {
+    const msgId = message.id;
+    const msgBody = message.body;
+    if (msgId === MessageId.PanChange) {
+      // Handle pan change
+      const data = msgBody.data;
+      RXCore.panPage(data.sx, data.sy);
+    } else if (msgId === MessageId.PageRectChange) {
+      // Handle zoom before change
+      const data = msgBody.data;
+      RXCore.setPageRect(data.zoomparams.rect);
+    }
+    else if (msgId === MessageId.ZoomChange) {
+      // Handle zoom change
+      const data = msgBody.data;
+      RXCore.zoomPageUpdate(data.zoomparams, data.type);
+    } else if (msgId === MessageId.RotationChange) {
+      // Handle rotation change
+      const data = msgBody.data;
+      RXCore.rotatePage(data.pageIndex, data.degree);
+    } else if (msgId === MessageId.BackgroundColorChange) {
+      const data = msgBody.data;
+      RXCore.setBackgroundCustomColor(data.color);
+    } else if (msgId === MessageId.PageChange) {
+      const data = msgBody.data;
+      RXCore.gotoPage(data.currentpage);
+    } else if (msgId === MessageId.MonoChromeChange) {
+      const data = msgBody.data;
+      RXCore.setMonoChrome(data.onOff);
+    } else if (msgId === MessageId.VectorLayersVisibilityChange) {
+      const data = msgBody.data;
+      if (Array.isArray(data.layers)) {
+        for (let i = 0; data.layers && i < data.layers.length; i++) {
+          const layer = data.layers[i];
+          RXCore.changeVectorLayerVisibility(layer.index, layer.state);
+        }
+      }
+    } else if (msgId === MessageId.VectorBlocksVisibilityChange) {
+      const data = msgBody.data;
+      if (Array.isArray(data.blocks)) {
+        for (let i = 0; data.blocks && i < data.blocks.length; i++) {
+          const block = data.blocks[i];
+          RXCore.changeVectorBlockVisibility(block.index, block.state);
+        }
+      }
+    } else if (msgId === MessageId.VectorBlockSelectChange) {
+      const data = msgBody.data;
+      RXCore.selectVectorBlockInsert(data.block.index, data.block.selected);
+      RXCore.markUpRedraw();
+    } else if (msgId === MessageId.UnselectAllVectorBlocks) {
+      RXCore.unselectAllBlocks();
     }
   }
 
@@ -505,6 +629,34 @@ export class CollabService {
     return Promise.resolve(true);
   }
 
+  /**
+   * Sets current user to be a room presenter
+   */
+  public async setRoomPresenter(roomId: string): Promise<boolean> {
+    if (!this.socket || !this.socket.connected) {
+      const result = await this.init();
+      if (!result) {
+        return Promise.resolve(false);
+      }
+    }
+    this.sendMessage({ id: MessageId.SetRoomPresenter, roomId, body: { }});
+    return Promise.resolve(true);
+  }
+
+  /**
+   * Sets current user to be a non-presenter
+   */
+  public async removeRoomPresenter(roomId: string): Promise<boolean> {
+    if (!this.socket || !this.socket.connected) {
+      const result = await this.init();
+      if (!result) {
+        return Promise.resolve(false);
+      }
+    }
+    this.sendMessage({ id: MessageId.RemoveRoomPresenter, roomId, body: { }});
+    return Promise.resolve(true);
+  }
+
   /*private sendChatMessage(roomId: string, text: string) {
     this.sendMessage({ id: MessageId.ChatMessage, roomId, body: { text }});
   }*/
@@ -528,4 +680,53 @@ export class CollabService {
     }
     this.sendMessage({ id, roomId, body: { annotation, operation }});
   }
+
+  public sendGuiModeChange(roomId: string, data: any) {
+    this.sendMessage({ id: MessageId.GuiModeChange, roomId, body: { data }});
+  }
+
+  public sendPanChange(roomId: string, data: any) {
+    this.sendMessage({ id: MessageId.PanChange, roomId, body: { data }});
+  }
+
+  public sendPageRectChange(roomId: string, data: any) {
+    this.sendMessage({ id: MessageId.PageRectChange, roomId, body: { data }});
+  }
+
+  public sendZoomChange(roomId: string, data: any) {
+    this.sendMessage({ id: MessageId.ZoomChange, roomId, body: { data }});
+  }
+
+  public sendRotationChange(roomId: string, data: any) {
+    this.sendMessage({ id: MessageId.RotationChange, roomId, body: { data }});
+  }
+
+  public sendBackgroundColorChange(roomId: string, data: any) {
+    this.sendMessage({ id: MessageId.BackgroundColorChange, roomId, body: { data }});
+  }
+
+  public sendPageChange(roomId: string, data: any) {
+    this.sendMessage({ id: MessageId.PageChange, roomId, body: { data }});
+  }
+
+  public sendMonoChromeChange(roomId: string, data: any) {
+    this.sendMessage({ id: MessageId.MonoChromeChange, roomId, body: { data }});
+  }
+
+  public sendVectorLayersVisibilityChange(roomId: string, data: any) {
+    this.sendMessage({ id: MessageId.VectorLayersVisibilityChange, roomId, body: { data }});
+  }
+
+  public sendVectorBlocksVisibilityChange(roomId: string, data: any) {
+    this.sendMessage({ id: MessageId.VectorBlocksVisibilityChange, roomId, body: { data }});
+  }
+
+  public sendVectorBlockSelectChange(roomId: string, data: any) {
+    this.sendMessage({ id: MessageId.VectorBlockSelectChange, roomId, body: { data }});
+  }
+
+  public sendUnselectAllVectorBlocks(roomId: string) {
+    this.sendMessage({ id: MessageId.UnselectAllVectorBlocks, roomId, body: { }});
+  }
+
 }

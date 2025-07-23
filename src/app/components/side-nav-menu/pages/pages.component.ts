@@ -484,12 +484,12 @@ export class PagesComponent implements OnInit {
       case 'rotate-r':
 
 
-        RXCore.rotatePage(fullrange, true);
+        RXCore.rotatePageClockwise(fullrange, true);
         break;
       case 'rotate-l':
 
 
-        RXCore.rotatePage(fullrange, false);
+        RXCore.rotatePageClockwise(fullrange, false);
         break;
       case 'page-size':
         this.sideNavMenuService.toggleSizeModal(true);

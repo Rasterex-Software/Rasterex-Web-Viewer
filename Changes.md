@@ -1,3 +1,13 @@
+July 29, 2025
+
+### 1. Annotation and measurement options are now hidden when 3D or BIM files are opened, using an is3D flag check in the _setOptions() method.
+### 2. Introduced visibleOptionsCount getter to control visibility of toolbar elements.
+### 2. UI elements like comment icon, scale display, and mode dropdown are conditionally rendered based on available options.
+
+Updated Files
+src\app\components\top-nav-menu\top-nav-menu.component.html
+src\app\components\top-nav-menu\top-nav-menu.component.ts
+
 July 9, 2025
 
 ### 1. Support to sync scaling/calibration change for different users.

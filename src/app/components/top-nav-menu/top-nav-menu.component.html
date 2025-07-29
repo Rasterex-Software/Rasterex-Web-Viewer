@@ -610,11 +610,11 @@
     <button (click)="onRemoveWatermarkClick()">Remove Watermark</button>
   </div>
 
-  <div class="top-nav-item current-scale">
+  <div *ngIf="visibleOptionsCount > 1" class="top-nav-item current-scale">
     <span>{{ currentScaleValue }}</span>
   </div>
 
-  <div class="top-nav-item dropdown" *ngIf="fileLength > 0">
+  <div class="top-nav-item dropdown" *ngIf="fileLength > 0 && visibleOptionsCount > 1">
     <rx-dropdown
       [options]="options"
       [value]="selectedValue"
@@ -647,7 +647,7 @@
     <span class="tooltip-text tooltip-bottom">Search</span>
   </div>
   <div
-    *ngIf="fileLength > 0"
+    *ngIf="fileLength > 0 && visibleOptionsCount > 1"
     [ngClass]="{ selected: isActionSelected && actionType === 'Comment' }"
     class="tooltip Comments-icon"
     (click)="onCommentPanelSelect()"

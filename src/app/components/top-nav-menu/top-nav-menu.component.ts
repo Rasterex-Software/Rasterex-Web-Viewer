@@ -80,10 +80,11 @@ export class TopNavMenuComponent implements OnInit {
 
 
   private _setOptions(option: any = undefined): void {
+    const is3D = this.guiState?.is3D;
     this.options = [
       { value: GuiMode.View, label: "View" },
-      { value: GuiMode.Annotate, label: "Annotate", hidden: !this.guiConfig.canAnnotate },
-      { value: GuiMode.Measure, label: "Measure", hidden: !this.guiConfig.canAnnotate },
+      { value: GuiMode.Annotate, label: "Annotate", hidden: is3D ||  !this.guiConfig.canAnnotate },
+      { value: GuiMode.Measure, label: "Measure", hidden: is3D ||  !this.guiConfig.canAnnotate },
       { value: GuiMode.Signature, label: "Signature", hidden: !(this.guiConfig.canSignature && this.canChangeSign) },
       { value: GuiMode.Compare, label: "Revision", hidden: !this.guiConfig.canCompare || !this.compareService.isComparisonActive }
     ];
@@ -91,6 +92,9 @@ export class TopNavMenuComponent implements OnInit {
     this.selectedValue = option ? option : this.options[0];
     this.annotationToolsService.setSelectedOption(this.selectedValue);
   }
+   get visibleOptionsCount(): number {
+  return this.options.filter(option => !option.hidden).length;
+}
 
   ngOnInit(): void {
     this.handleIconRotation();

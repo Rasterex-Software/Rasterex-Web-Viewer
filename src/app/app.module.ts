@@ -106,6 +106,8 @@ import { LoginModalComponent } from './components/user/login-modal/login-modal.c
 import { NumericRangeDirective } from "./directives/numeric-range.directive";
 import { ResizableDirective } from './directives/resizable.directive';
 import {IsPinnedPipe} from "./components/top-nav-menu/opened-files-tabs/is-pinned.pipe";
+import { ExportDialogComponent } from './components/export-dialog/export-dialog.component';
+
 
 const storeSchema = [
   { name: 'name', keypath: 'name', options: { unique: false } },
@@ -212,6 +214,7 @@ const dbConfig: DBConfig  = {
     RoomPanelComponent,
     ResizableDirective,
     LoginModalComponent,
+    ExportDialogComponent,
   ],
   imports: [
     BrowserModule,

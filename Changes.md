@@ -1,3 +1,22 @@
+August 1, 2025
+### 1. Introduced a new export dialog to allow users to configure export options before initiating a file export.
+### 2. Updated the onExportClick method in the TopNavComponent to open the export dialog prior to performing the export operation.
+### 3. Added a dedicated service to handle all export-related logic and operations.
+### 4. Introduced ExportFormat and PaperSize interfaces to model supported export configurations cleanly and consistently.
+### 5. Created a new method exportWithOptions() to receive user-selected parameters from the dialog and forward them to the exportFile() function to initiate the export.
+
+Updated Files
+src\app\components\top-nav-menu\top-nav-menu.component.html
+src\app\components\top-nav-menu\top-nav-menu.component.ts
+src\app\app.module.ts
+src\rxcore\index.ts
+
+New Files
+src\app\components\export-dialog\export-dialog.component.html
+src\app\components\export-dialog\export-dialog.component.ts
+src\app\components\export-dialog\export-dialog.component.scss
+src\app\services\export.service.ts
+
 July 9, 2025
 
 ### 1. Support to sync scaling/calibration change for different users.

@@ -13,6 +13,7 @@ import {Subject, Subscription} from 'rxjs';
 import { SideNavMenuService } from '../side-nav-menu/side-nav-menu.service';
 import { MeasurePanelService } from '../annotation-tools/measure-panel/measure-panel.service';
 import { ActionType } from './type';
+import { ExportService } from 'src/app/services/export.service';
 
 
 @Component({
@@ -70,7 +71,8 @@ export class TopNavMenuComponent implements OnInit {
     private readonly service: TopNavMenuService,
     private readonly sideNavMenuService: SideNavMenuService,
     private readonly measurePanelService: MeasurePanelService,
-    private readonly userService: UserService
+    private readonly userService: UserService,
+    private readonly exportService: ExportService
     ) {
   }
 
@@ -457,13 +459,21 @@ export class TopNavMenuComponent implements OnInit {
     this.burgerOpened = false;
   }
 
-  onExportClick(): void {
-    if (this.state?.activefile) {
-      this.burgerOpened = false;
-      RXCore.exportPDF();
-    }
-  }
+  // onExportClick(): void {
+  //   if (this.state?.activefile) {
+  //     this.burgerOpened = false;
+  //     RXCore.exportPDF();
+  //   }
+  // }
 
+  onExportClick(): void {
+  this.burgerOpened = false;
+  let fileType = 'unknown';
+  if (this.state.isPDF) fileType = 'pdf';
+  else if (this.state.is3D) fileType = '3d';
+  else if (this.state.is2D) fileType = '2d';
+  this.exportService.openExportDialog(fileType);
+}
   //uploadPDF
 
   onPDFUploadClick(): void {

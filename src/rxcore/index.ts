@@ -224,6 +224,11 @@ export class RXCore {
         RxCore.toggleBackground();
     }
 
+    public static setBackgroundCustomColor(color: string): void {
+        RxCore.backgroundCustomColor(color);
+    }
+
+
     public static setMonoChrome(onoff: boolean): void {
         RxCore.setMonoChrome(onoff);
     }
@@ -234,6 +239,10 @@ export class RXCore {
 
     public static selectVectorBlock(blockid: number): void {
         RxCore.selectVectorBlock(blockid);
+    }
+
+    public static selectVectorBlockInsert(blockid: number, bSelected: boolean): void {
+        RxCore.selectVectorBlockInsert(blockid, bSelected);
     }
     
     public static unselectAllBlocks(): void {
@@ -416,11 +425,13 @@ export class RXCore {
 
     //rotateClockwise
 
-    public static rotatePage(pageRange: number[], clockwise: boolean) {
-        //RxCore.rotatePage(pageRange, clockwise)
-        RxCore.rotateClockwise(pageRange, clockwise)
+    public static rotatePageClockwise(pageRange: number[], clockwise: boolean) {
+        RxCore.rotateClockwise(pageRange, clockwise);
     }
 
+    public static rotatePage(pageNum: number, degree: number) {
+        RxCore.rotatePage(pageNum, degree);
+    }
 
     public static copyPage(pageRange: number[][]): void {
         RxCore.copyPage(pageRange)
@@ -488,6 +499,11 @@ export class RXCore {
         RxCore.vectorLayersAll(onoff);
     }
 
+    public static getVectorLayerList(): Array<IVectorLayer> | undefined {
+        return RxCore.getlayerlist();
+    }
+
+
     public static changePDFLayer(index: number, visible : boolean): void {
 
 
@@ -498,6 +514,10 @@ export class RXCore {
         RxCore.changeVectorLayer(index);
     }
 
+    public static changeVectorLayerVisibility(index: number, visible : boolean): void {
+        RxCore.changeVectorLayerVisibility(index, visible);
+    }
+
 
     public static vectorBlocksAll(onoff: boolean): void {
         RxCore.vectorBlocksAll(onoff);
@@ -505,6 +525,14 @@ export class RXCore {
 
     public static changeVectorBlock(index: number): void {
         RxCore.changeVectorBlock(index);
+    }
+
+    public static changeVectorBlockVisibility(index: number, visible : boolean): void {
+        RxCore.changeVectorBlockVisibility(index, visible);
+    }
+
+    public static get2DVectorBlocks(): Array<IVectorLayer>{
+        return RxCore.get2DVectorBlocks();
     }
 
     public static markUpShape(onoff: boolean, type: 0 | 1 | 2 | 3, subtype: 0 | 1 = 0): void {
@@ -688,6 +716,11 @@ export class RXCore {
     public static markupSymbol(onoff: boolean): void {
         RxCore.markupSymbol(onoff);
     }
+
+    public static addMovableSignature(onoff: boolean): void {
+        RxCore.addMovableSignature(onoff);
+    }
+
 
     public static markupImageStamp(onoff: boolean): void {
         RxCore.markupImageStamp(onoff);
@@ -1024,7 +1057,13 @@ export class RXCore {
         RxCore.GUI_ZoomUpdated.connect(callback)
     }
 
-    
+    public static onBackgroundColorChanged(callback: Function): void {
+        RxCore.GUI_BackgroundColorChanged.connect(callback);
+    }
+
+    public static onViewModeChanged(callback: Function): void {
+        RxCore.GUI_ViewModeChanged.connect(callback);
+    }
 
     public static onGui2DEntityInfoScreen(callback: Function) {
         RxCore.GUI_2DEntityInfoScreen.connect(callback);
@@ -1037,6 +1076,15 @@ export class RXCore {
     public static onGui2DBlock(callback: Function) {
         RxCore.GUI_2DBlock.connect(callback);
     }
+
+    public static onGui2DBlockUnselectAll(callback: Function) {
+        RxCore.GUI_2DBlockUnselectAll.connect(callback);
+    }
+
+    public static onGui2DBlockID(callback: Function) {
+        RxCore.GUI_2DBlockID.connect(callback);
+    }
+
 
     public static onGui2DBlockHover(callback: Function) {
         RxCore.GUI_2DBlockHover.connect(callback);
@@ -1131,9 +1179,18 @@ export class RXCore {
         RxCore.GUI_VectorLayers.connect(callback);
     }
 
-    public static onGuiVectorBlocks(callback: (layers: Array<IVectorBlock>) => void): void {
+    public static onGuiVectorLayerVisibilityChange(callback: (layer: IVectorLayer) => void): void {
+        RxCore.GUI_VectorLayerVisibilityChange.connect(callback);
+    }
+
+    public static onGuiVectorBlocks(callback: (blocks: Array<IVectorBlock>) => void): void {
         RxCore.GUI_VectorBlocks.connect(callback);
     }
+
+    public static onGuiVectorBlockVisibilityChange(callback: (block: IVectorBlock) => void): void {
+        RxCore.GUI_VectorBlockVisibilityChange.connect(callback);
+    }
+
 
     public static onGui3DParts(callback: (parts: Array<IBlock3D>) => void): void {
         RxCore.GUI_3DParts.connect(callback);
@@ -1212,6 +1269,10 @@ export class RXCore {
         RxCore.GUI_pageScale.connect(callback);
     }
 
+    public static onGuiPageLoadComplete(callback: Function): void {
+        RxCore.GUI_pageLoadComplete.connect(callback);
+    }
+
     public static onGuiPutSignatureComplete(callback: (username: string) => void): void {
         RxCore.GUI_putsignatureComplete.connect(callback);
     }
@@ -1231,6 +1292,19 @@ export class RXCore {
     public static onGuiMarkupMeasureRealTimeData(callback: Function): void {
         RxCore.GUI_MarkupMeasureRealTimeData.connect(callback);
     }
+
+    public static zoomPageUpdate(zoomparams : any, type : number): void {
+        RxCore.zoomPageUpdate(zoomparams, type);
+    }
+
+    public static setPageRect(pageRect: any): void {
+        RxCore.setPageRect(pageRect);
+    }
+
+    public static panPage(sx: number, sy: number): void {
+        RxCore.panPage(sx, sy);
+    }
+
     
     public static setUnit(unit: number): void {
         RxCore.setUnit(unit);

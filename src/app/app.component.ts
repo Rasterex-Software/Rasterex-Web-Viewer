@@ -16,6 +16,7 @@ import { TooltipService } from './components/tooltip/tooltip.service';
 import { LoginService } from './services/login.service';
 import { MeasurePanelService } from './components/annotation-tools/measure-panel/measure-panel.service';
 import { RouterModule } from '@angular/router';
+import { IVectorLayer } from 'src/rxcore/models/IVectorLayer';
 
 
 
@@ -191,34 +192,41 @@ export class AppComponent implements AfterViewInit {
 
     RXCore.onGui2DBlock((block: IVectorBlock) => {
 
-      console.log('onGui2DBlock');
+
       RXCore.unselectAllBlocks();
       let lastBlock = this.rxCoreService.getSelectedVectorBlock();
+
       if (lastBlock) {
           // if select the same block, then unselect it
           if (block && block.index === lastBlock.index) {
-            // @ts-ignore
-            lastBlock.selected = false;
             RXCore.markUpRedraw();
             this.rxCoreService.setSelectedVectorBlock(undefined);
             return;
           }
-          // @ts-ignore
-          lastBlock.selected = false;
-      }
 
-      if (block) {
-        // @ts-ignore
-        block.selected = true;     
-        //RXCore.selectVectorBlock(block.index);
+
       }
       RXCore.markUpRedraw();
       this.rxCoreService.setSelectedVectorBlock(block);
 
+      if (!this.isCollaborate() || !this.collabService.isCurrentUserRoomPresenter()) {
+        return;
+      }
 
-      
+      this.collabService.sendVectorBlockSelectChange(this.getRoomId(), { block });
+
     });
 
+    RXCore.onGui2DBlockUnselectAll(() => {
+      //console.log('onGui2DBlockUnselectAll');
+      this.rxCoreService.setSelectedVectorBlock(undefined);
+      if (!this.isCollaborate() || !this.collabService.isCurrentUserRoomPresenter()) {
+        return;
+      }
+      this.collabService.sendUnselectAllVectorBlocks(this.getRoomId());
+    });
+
+    
     RXCore.onGui2DBlockHoverEvent((result, mouse) => {
 
       
@@ -259,7 +267,7 @@ export class AppComponent implements AfterViewInit {
         this.tooltipService.closeTooltip();
 
       }
-    })
+    });
 
     
     RXCore.onGui2DEntityInfo((vectorinfo : any, screenmouse :any, pathindex : any) => {
@@ -408,7 +416,6 @@ export class AppComponent implements AfterViewInit {
     RXCore.onGuiReady((initialDoc: any) => {
 
       this.bguireadycalled = true;
-      //this.bfoxitreadycalled = true;
 
       console.log('RxCore GUI_Ready.');
       console.log(`Read Only Mode - ${RXCore.getReadOnly()}.`);
@@ -417,37 +424,23 @@ export class AppComponent implements AfterViewInit {
       RXCore.setLayout(0, 0, false);
       RXCore.doResize(false,0, 0);/*added to set correct canvas size on startup */
 
-
       RXCore.setdisplayBackground(document.documentElement.style.getPropertyValue("--background") || '#D6DADC');
       RXCore.setrxprintdiv(document.getElementById('printdiv'));
 
       this.openInitFile(initialDoc);  
-      
-
-      /*if(this.bguireadycalled){
-        return;
-      }*/
-
-            
 
     });
 
 
     RXCore.onGuiFoxitReady((initialDoc: any) => {
 
-
       this.bfoxitreadycalled = true;
-
       
       if(this.bguireadycalled){
         this.openInitFile(initialDoc);
       }
 
-
-
       this.rxCoreService.guiFoxitReady.next();
-
-
 
     });
 
@@ -478,6 +471,13 @@ export class AppComponent implements AfterViewInit {
 
     RXCore.onGuiPage((state) => {
      this.rxCoreService.guiPage.next(state);
+
+     if (!this.isCollaborate() || !this.collabService.isCurrentUserRoomPresenter()) {
+      return;
+    }
+    this.collabService.sendPageChange(this.getRoomId(), state);
+
+
     });
 
     RXCore.onGuiFileLoadComplete(() => {
@@ -507,7 +507,7 @@ export class AppComponent implements AfterViewInit {
 
       if(this.guiConfig?.watermarkdemo){
 
-        RXCore.addWatermarkToAllPages('Rasterex', {
+        RXCore.addWatermarkToAllPages('έγγραφο', {
           position: 'Center',
           offsetX: 0,
           offsetY: 0,
@@ -626,7 +626,7 @@ export class AppComponent implements AfterViewInit {
     
 
     RXCore.onGuiMarkupList(list => {
-      console.log('RxCore onGuiMarkupList:', list);
+      //console.log('RxCore onGuiMarkupList:', list);
       if (list){
         this.rxCoreService.setGuiMarkupList(list);
         this.lists = list?.filter(markup => markup.type != MARKUP_TYPES.SIGNATURE.type && markup.subtype != MARKUP_TYPES.SIGNATURE.subType);
@@ -677,11 +677,66 @@ export class AppComponent implements AfterViewInit {
 
     RXCore.onGuiVectorLayers((layers) => {
       this.rxCoreService.setGuiVectorLayers(layers);
+
+      if (!this.isCollaborate() || !this.collabService.isCurrentUserRoomPresenter()) {
+        return;
+      }
+
+      this.collabService.sendVectorLayersVisibilityChange(this.getRoomId(), { layers });
+
     });
+    RXCore.onGuiVectorLayerVisibilityChange((layer) => {
+
+      const vectorLayerList = RXCore.getVectorLayerList();
+      if (vectorLayerList) {
+        this.rxCoreService.setGuiVectorLayers(vectorLayerList);
+      }
+
+      if (!this.isCollaborate() || !this.collabService.isCurrentUserRoomPresenter()) {
+        return;
+      }
+
+      this.collabService.sendVectorLayersVisibilityChange(this.getRoomId(), { layers: [layer] });
+    });
+
 
     RXCore.onGuiVectorBlocks((blocks) => {
       this.rxCoreService.setGuiVectorBlocks(blocks);
+
+      if (!this.isCollaborate() || !this.collabService.isCurrentUserRoomPresenter()) {
+        return;
+      }
+
+      this.collabService.sendVectorBlocksVisibilityChange(this.getRoomId(), { blocks });
+
+
     });
+
+    // There is performance issue if we send block visibility change message one by one,
+    // so we'll combine messages within a certain period (50ms) together.
+    let vectorBlockVisibilityChangeTimeout: any = null;
+    let visibilityChangedBlocks: IVectorBlock[] = [];
+    RXCore.onGuiVectorBlockVisibilityChange((block) => {
+      //console.log('RxCore onGuiVectorBlockVisibilityChange:', block);
+      const blocks = RXCore.get2DVectorBlocks();
+      if (blocks) {
+        this.rxCoreService.setGuiVectorLayers(blocks);
+      }
+
+      if (!this.isCollaborate() || !this.collabService.isCurrentUserRoomPresenter()) {
+        return;
+      }
+
+      visibilityChangedBlocks.push(block);
+      if (!vectorBlockVisibilityChangeTimeout) {
+        vectorBlockVisibilityChangeTimeout = setTimeout(() => {
+          this.collabService.sendVectorBlocksVisibilityChange(this.getRoomId(), { blocks: visibilityChangedBlocks });
+          vectorBlockVisibilityChangeTimeout = null;
+          visibilityChangedBlocks = [];
+        }, 50);
+      }
+    });
+
 
     RXCore.onGui3DParts((parts) => {
       this.rxCoreService.setGui3DParts(parts);
@@ -720,7 +775,7 @@ export class AppComponent implements AfterViewInit {
     });
 
     RXCore.onGuiMarkupChanged((annotation, operation) => {
-      console.log('RxCore onGuiMarkupChanged:', annotation, operation);
+      //console.log('RxCore onGuiMarkupChanged:', annotation, operation);
       this.rxCoreService.guiOnMarkupChanged.next({annotation, operation});
       //if (operation.modified) {
       this.updateMarkup(annotation);
@@ -733,6 +788,17 @@ export class AppComponent implements AfterViewInit {
 
     RXCore.onGuiZoomUpdate((zoomparams, type) => { 
       this.rxCoreService.guiOnZoomUpdate.next({zoomparams, type});
+
+      if (!this.isCollaborate() || !this.collabService.isCurrentUserRoomPresenter()) {
+        return;
+      }
+      if (type !== 2) {
+        return;
+      }
+
+      this.collabService.sendPageRectChange(this.getRoomId(), { zoomparams, type });
+
+
     });
 
     RXCore.onGui3DCameraSave((camera, fileActive) => {
@@ -762,6 +828,71 @@ export class AppComponent implements AfterViewInit {
      
     });
 
+    // There is performance issue if we send pan update message too frequently,
+    // so we'll combine messages within a certain period (20ms) together.
+    let panUpdateTimeout: any = null;
+    let panUpdateData: any = null;
+    RXCore.onGuiPanUpdated((sx, sy, pagerect) => {
+      //console.log('RxCore onGuiPanUpdated:', sx, sy, pagerect);
+      this.rxCoreService.guiOnPanUpdated.next({sx, sy, pagerect});
+      if (!this.isCollaborate() || !this.collabService.isCurrentUserRoomPresenter()) {
+        return;
+      }
+
+      if (panUpdateTimeout) {
+        panUpdateData.sx += sx;
+        panUpdateData.sy += sy;
+        panUpdateData.pagerect = pagerect;
+      } else {
+        panUpdateData = { sx: 0, sy: 0, pagerect: null };
+        panUpdateTimeout = setTimeout(() => {
+          // if both sx and sy are 0, then do not send pan change message
+          if (panUpdateData.sx !== 0 || panUpdateData.sy !== 0) {
+            this.collabService.sendPanChange(this.getRoomId(), panUpdateData);
+          }
+          panUpdateTimeout = null;
+          panUpdateData = { sx: 0, sy: 0, pagerect: null };
+        }, 20);
+      }
+    });
+
+    RXCore.onZoomUpdated((zoomparams:any, type : number) => {
+      console.log('RxCore onZoomUpdated:', zoomparams, type);
+      this.rxCoreService.setGuiZoomUpdated(zoomparams, type);
+      if (!this.isCollaborate() || !this.collabService.isCurrentUserRoomPresenter()) {
+        return;
+      }
+      this.collabService.sendZoomChange(this.getRoomId(), { zoomparams, type });
+    });
+
+    RXCore.onRotateDocument((degree: number) => {
+      this.rxCoreService.setGuiRotateDocument(degree);
+    });
+
+    RXCore.onRotatePage((degree: number, pageIndex: number) => {
+      console.log('RxCore onRotatePage:', degree, pageIndex);
+      this.rxCoreService.setGuiRotatePage(degree, pageIndex);
+      if (!this.isCollaborate() || !this.collabService.isCurrentUserRoomPresenter()) {
+        return;
+      }
+      this.collabService.sendRotationChange(this.getRoomId(), { degree, pageIndex });
+    });
+
+    RXCore.onBackgroundColorChanged((color: string) => {
+      console.log('RxCore onBackgroundColorChanged:', color);
+      if (!this.isCollaborate() || !this.collabService.isCurrentUserRoomPresenter()) {
+        return;
+      }
+      this.collabService.sendBackgroundColorChange(this.getRoomId(), { color });
+    });
+
+    RXCore.onViewModeChanged((onOff: boolean) => {
+      console.log('RxCore onViewModeChanged:', onOff);
+      if (!this.isCollaborate() || !this.collabService.isCurrentUserRoomPresenter()) {
+        return;
+      }
+      this.collabService.sendMonoChromeChange(this.getRoomId(), { onOff });
+    });    
 
     /*RXCore.onGuiUpload((upload :any) =>{
       
@@ -1049,11 +1180,10 @@ export class AppComponent implements AfterViewInit {
 
       if(initialDoc.open && !this.binitfileopened){
 
-
         if(initialDoc.openfileobj != null){
             this.binitfileopened = true;
-          RXCore.openFile(initialDoc.openfileobj);
-          }
+            RXCore.openFile(initialDoc.openfileobj);
+        }
       }
     }
   }

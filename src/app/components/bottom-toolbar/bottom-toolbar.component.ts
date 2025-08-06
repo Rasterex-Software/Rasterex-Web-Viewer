@@ -10,6 +10,7 @@ import { TooltipService } from '../tooltip/tooltip.service';
   templateUrl: './bottom-toolbar.component.html',
   styleUrls: ['./bottom-toolbar.component.scss']
 })
+
 export class BottomToolbarComponent implements OnInit, AfterViewInit {
   @ViewChild('birdseyeImage', { static: false }) birdseyeImage : ElementRef;
   @ViewChild('birdseyeIndicator', { static: false }) birdseyeIndicator : ElementRef;
@@ -25,6 +26,8 @@ export class BottomToolbarComponent implements OnInit, AfterViewInit {
 
   guiConfig$ = this.rxCoreService.guiConfig$;
   guiState$ = this.rxCoreService.guiState$;
+   
+
   guiMode$ = this.rxCoreService.guiMode$;
 
   currentpage: number = 1;
@@ -110,14 +113,23 @@ export class BottomToolbarComponent implements OnInit, AfterViewInit {
       this.searchCurrentMatch = this.searchNumMatches > 0 ? 1 : 0;
     });
 
-    RXCore.onGuiZoomUpdate((zoomparams, type) => {
+    this.rxCoreService.guiZoomUpdated$.subscribe(({params, zoomtype}) => {
+      if (zoomtype == 2) {
+
+        this.state.isActionSelected["ZOOM_WINDOW"] = false;
+        RXCore.restoreDefault();
+      }
+
+    });
+
+    /*RXCore.onGuiZoomUpdate((zoomparams, type) => {
 
       if(type == 2){
         this.state.isActionSelected["ZOOM_WINDOW"] = false;
         RXCore.restoreDefault();
       }
 
-    });
+    });*/
 
 
   }

@@ -1,3 +1,32 @@
+August 6, 2025
+
+### 1. Implemented room presenter, a room perticipaint can apply to be a room presenter.
+### 2. Presenter's rotation, zoom, pan needs to affect the watchers
+### 3. Presenter's scrolling, paging etc. must affect the watchers
+### 4. Presenter's modification of scale, background color, layers/blocks/view states must affect the watchers 
+### 5. Annotation context menu for holes should no longer be shown
+
+
+Updated and new files
+
+RxCore version is now 35.96
+src\assets\scripts\rxcorefunctions.js 
+
+src\app\app.component.ts 
+src\app\components\bottom-toolbar\bottom-toolbar.component.ts 
+src\app\components\collab\room-panel.component.html 
+src\app\components\collab\room-panel.component.scss 
+src\app\components\collab\room-panel.component.ts 
+src\app\components\side-nav-menu\blocks\blocks.component.ts 
+src\app\components\side-nav-menu\pages\pages.component.ts 
+src\app\components\top-nav-menu\top-nav-menu.component.ts 
+src\app\components\annotation-tools\quick-actions-menu\quick-actions-menu.component.ts
+src\app\services\collab.service.ts 
+src\assets\images\presenter.svg 
+src\assets\images\presenter_off.svg 
+src\rxcore\index.ts
+
+
 July 9, 2025
 
 ### 1. Support to sync scaling/calibration change for different users.

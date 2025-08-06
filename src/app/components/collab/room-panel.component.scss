@@ -55,8 +55,16 @@
       .list {
         li {
           cursor: default;
-          span {
-            width: 180px;;
+          span-name {
+            max-width: 180px;
+            min-width: 100px;
+          }
+          .span-you {
+            width: 60px;
+          }
+          .span-presenter {
+            width: 120px;
+            margin-right: 15px;
           }
           .button-group {
             position: absolute;

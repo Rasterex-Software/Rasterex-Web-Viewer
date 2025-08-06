@@ -3,15 +3,8 @@ import { RXCore } from 'src/rxcore';
 import { RxCoreService } from 'src/app/services/rxcore.service';
 import { IGuiConfig } from 'src/rxcore/models/IGuiConfig';
 import { User, UserService } from '../user/user.service';
-import { CollabService, Participant, RoomParticipants } from 'src/app/services/collab.service';
+import { CollabService, Participant, RoomInfo, RoomParticipants } from 'src/app/services/collab.service';
 import { TopNavMenuService } from '../top-nav-menu/top-nav-menu.service';
-
-interface RoomInfo {
-  docId: string;
-  roomId: string;
-  joinedRoom: boolean;
-  participants: Participant[];
-}
 
 @Component({
   selector: 'rx-room-panel',
@@ -25,11 +18,8 @@ export class RoomPanelComponent implements OnInit {
   @Output() visibleChange = new EventEmitter<boolean>();
   guiConfig$ = this.rxCoreService.guiConfig$;
   guiConfig: IGuiConfig | undefined;
+  presenterConfirmDialogOpen: boolean = false;
 
-  // Each document may have multiple rooms. A user can only join one room for each document.
-  // A user can only join one room at a time for all documents.
-  // We need to save the room info for current document.
-  roomInfoArray: Array<RoomInfo> = [];
   user: User | null = null;
 
   constructor(
@@ -262,6 +252,14 @@ export class RoomPanelComponent implements OnInit {
     return roomInfo?.roomId || '';
   }
 
+  get roomInfoArray(): Array<RoomInfo> {
+    return this.collabService.getRoomInfoArray();
+  }
+
+  set roomInfoArray(roomInfoArray: Array<RoomInfo>) {
+    this.collabService.setRoomInfoArray(roomInfoArray);
+  }
+
   isActiveRoom(roomId: string): boolean {
     return this.activeRoomId === roomId;
   }
@@ -320,6 +318,26 @@ export class RoomPanelComponent implements OnInit {
       return;
     }
     this.collabService.getRoomParticipants(roomId);
+  }
+
+  async setRoomPresenter(roomId: string) {
+    if (!roomId) {
+      return;
+    }
+    await this.collabService.setRoomPresenter(roomId);
+    this.updateParticipants(roomId);
+  }
+
+  async removeRoomPresenter(roomId: string) {
+    if (!roomId) {
+      return;
+    }
+    await this.collabService.removeRoomPresenter(roomId);
+    this.updateParticipants(roomId);
+  }
+
+  openPresenterConfirmDialog() {
+    this.presenterConfirmDialogOpen = true;
   }
 
   public isAdmin() {

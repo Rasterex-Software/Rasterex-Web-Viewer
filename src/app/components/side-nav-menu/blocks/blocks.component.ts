@@ -80,7 +80,8 @@ export class BlocksComponent implements OnInit, OnDestroy {
     });
 
     this.rxCoreService.guiSelectedVectorBlock$.subscribe((block)=>{
-      if (!block) {
+      // @ts-ignore
+      if (!block || !block.selected) {
         return;
       }
 
@@ -186,30 +187,25 @@ export class BlocksComponent implements OnInit, OnDestroy {
 
   onSelectBlock(block: IVectorBlock) {
     RXCore.unselectAllBlocks();   
-    let lastBlock = this.rxCoreService.getSelectedVectorBlock();
-    if (lastBlock) {
+
+    if (this.lastSelectBlock) {
         // if select the same block, then unselect it
-        if (block && block.index === lastBlock.index) {
+        if (block && block.index === this.lastSelectBlock.index) {
           this.lastSelectBlock = undefined;
-          // @ts-ignore
-          lastBlock.selected = false;
-          RXCore.markUpRedraw();
           this.rxCoreService.setSelectedVectorBlock(undefined);
           return;
         }
-        // @ts-ignore
-        lastBlock.selected = false;
-
+        this.lastSelectBlock = undefined;
     }
+
     if (block) {
       this.lastSelectBlock = block;
-      // @ts-ignore
-      block.selected = true;
-      RXCore.selectVectorBlock(block.index);
+      RXCore.selectVectorBlockInsert(block.index, true);
+
     }
 
     RXCore.markUpRedraw();
-    this.rxCoreService.setSelectedVectorBlock(block);
+    
   }
 
 
@@ -260,7 +256,8 @@ export class BlocksComponent implements OnInit, OnDestroy {
   }
 
   onVectorBlockDbClick(block: IVectorBlock): void {
-    RXCore.zoomToBlockInsert(block.index);
+    RXCore.zoomToBlock(block.index);
+
   }
 
   onSearchTextChange() {

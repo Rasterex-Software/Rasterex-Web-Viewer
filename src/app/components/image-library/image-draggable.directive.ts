@@ -14,6 +14,7 @@ export class ImageDragDropDirective {
       console.log(event.dataTransfer.effectAllowed);
   
       RXCore.markupSymbol(true);
+      //RXCore.addMovableSignature(true);
       event.dataTransfer.effectAllowed = "move";
   
       
@@ -24,5 +25,7 @@ export class ImageDragDropDirective {
   @HostListener('dragend', ['$event'])
   onDragEnd(event: DragEvent): void {
     RXCore.markupSymbol(false);
+
+    //RXCore.addMovableSignature(false);
   }
 }

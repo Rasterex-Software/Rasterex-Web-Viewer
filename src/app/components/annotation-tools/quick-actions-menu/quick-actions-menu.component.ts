@@ -834,6 +834,7 @@ export class QuickActionsMenuComponent implements OnInit, OnDestroy {
         || markup.type == MARKUP_TYPES.CALLOUT.type && markup.subtype == MARKUP_TYPES.CALLOUT.subType
         || markup.type == MARKUP_TYPES.SIGNATURE.type && markup.subtype == MARKUP_TYPES.SIGNATURE.subType
         || markup.GetAttribute("Signature")?.value
+        || markup.type == MARKUP_TYPES.MEASURE.AREA.type && markup.subtype == 2
         ) return;
 
       this._setButtons();        

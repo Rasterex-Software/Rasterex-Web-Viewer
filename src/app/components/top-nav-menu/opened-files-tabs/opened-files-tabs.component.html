@@ -131,7 +131,7 @@
     </div>
 </ng-template>
 
-<rx-modal-dialog *ngIf="(guiConfig$ | async).localStoreAnnotation" [opened]="closeDocumentModal">
+<rx-modal-dialog *ngIf="(guiConfig$ | async)?.localStoreAnnotation" [opened]="closeDocumentModal">
     <div class="confirm-modal-container close-document-modal">
         <div class="rx-modal-dialog-header">
             <img (click)="closeDocumentModal = false;" class="close" src="/assets/images/close-modal-ico.svg" />

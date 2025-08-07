@@ -85,7 +85,8 @@ export class CompareService {
   }
 
   private _createCompareModalOpened: BehaviorSubject<{opened: boolean, payload?: any}> = new BehaviorSubject<{opened: boolean, payload?: any}>({opened: false});
-  public createCompareModalOpened$: Observable<{opened: boolean}> = this._createCompareModalOpened.asObservable();
+    public createCompareModalOpened$: Observable<{opened: boolean, payload?: any}> = this._createCompareModalOpened.asObservable();
+  
   public showCreateCompareModal(payload: any = undefined): void {
     this._createCompareModalOpened.next({ opened: true, payload });
   }

@@ -6,9 +6,11 @@ import { TreeviewConfig } from '../../common/treeview/models/treeview-config';
 import { TreeviewItem } from '../../common/treeview/models/treeview-item';
 import { SideNavMenuService } from '../side-nav-menu.service';
 import { TopNavMenuService } from '../../top-nav-menu/top-nav-menu.service';
-import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
+import { CdkDragDrop } from '@angular/cdk/drag-drop';
 
-type Action = 'move-top' | 'move-bottom' | 'move-up' | 'move-down' | 'rotate-r' | 'rotate-l' | 'page-insert' | 'page-replace' | 'page-copy' | 'page-paste' | 'page-extract' | 'page-delete' | 'page-size'
+
+export type Action = 'move-top' | 'move-bottom' | 'move-up' | 'move-down' | 'rotate-r' | 'rotate-l' | 'page-insert' | 'page-replace' | 'page-copy' | 'page-paste' | 'page-extract' | 'page-delete' | 'page-size'
+
 
 @Component({
   selector: 'rx-pages',

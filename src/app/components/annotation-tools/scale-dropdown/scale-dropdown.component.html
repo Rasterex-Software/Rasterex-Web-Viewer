@@ -1,41 +1,58 @@
 <div class="dropdown-container">
   <div
-      class="dropdown-wrapper"
-      [class.focused]="opened || value"
-      [class.disabled]="disabled"
-      [class.opened]="opened"
-      [class.transparent]="transparent"
-      (click)="handleDropdown()">
-          <span *ngIf="value; else placeholderTemplate" class="value" [innerHTML]="(value || {})[displayField]"></span>
-          <ng-template #placeholderTemplate><span class="value placeholder">{{placeholder}}</span></ng-template>
-          <img src="/assets/images/arrow-down.svg" class="btn-dropdown" />
+    *ngIf="options.length > 0"
+    class="dropdown-wrapper"
+    [class.focused]="opened || selectedScale"
+    [class.opened]="opened"
+    [class.transparent]="true"
+    (click)="opened = !opened"
+  >
+    <span class="value">{{ selectedScaleLabel }}</span>
+    <img src="/assets/images/arrow-down.svg" class="btn-dropdown" />
   </div>
   <div *ngIf="opened" class="options-container">
-      <div
-          class="options-wrapper"
-          [class.drop-position-top]="dropPosition == 'top'"
-          [class.align-right]="align == 'right'">
-          <ng-content></ng-content>
-          <ul class="options" role="listbox" aria-expanded="false">
-              <li
-                  *ngFor="let item of options"
-                  role="option"
-                  tabindex="0"
-                  [class.hidden]="item.hidden"
-                  [class.selected]="item.value && item.value == value?.value"
-                  (click)="handleSelect(item)">
-                      <span *ngIf="item.value && item.value == value?.value" class="selected"></span>
-                      <span [innerHTML]="item?.label"></span>
-                      <span *ngIf="showDelete" (click)="onDeleteClick($event, item)"
-                       class="delete-item">
-                        <img src="/assets/images/trash-ico.svg" height="22" /></span>
-              </li>
-          </ul>
-          <!-- <div *ngIf="!options.length"
-                class="unscaled">Unscaled</div> -->
-          <div *ngIf="showAddNew" 
-            (click)="showScaleSettings()"
-            class="show-addnew">Add New</div>
+    <div class="options-wrapper">
+      <div class="options" role="listbox" aria-expanded="false">
+        <div
+          *ngFor="let item of options"
+          role="option"
+          tabindex="0"
+          class="option"
+          [class.hidden]="item.hidden"
+          [class.selected]="isScaleSelected(item)"
+          (click)="handleSelect(item)"
+        >
+          <span [innerHTML]="getScaleLabel(item)"></span>
+          <span
+            *ngIf="showDelete"
+            (click)="onDeleteClick($event, item)"
+            class="delete-item"
+          >
+            <img
+              src="/assets/images/trash-ico.svg"
+              height="22"
+              class="trash-icon"
+            />
+          </span>
+        </div>
+        <div class="option-container">
+            <div *ngIf="selectedScale" class="option" (click)="onEditScale()">
+                <div class="edit-scale-trigger" title="Edit scale">
+                  <div class="edit-scale-icon">
+                    <img src="/assets/images/edit-ico.svg" /> Edit Selected
+                  </div>
+                </div>
+              </div>
+              <div class="option" (click)="showScaleSettings()">
+                <div class="add-scale-trigger" title="Add new scale">
+                  <div class="add-scale-icon">
+                    <img src="/assets/images/tree-unfold.svg" /> Add New
+                  </div>
+                </div>
+              </div>
+        </div>
+  
       </div>
+    </div>
   </div>
 </div>

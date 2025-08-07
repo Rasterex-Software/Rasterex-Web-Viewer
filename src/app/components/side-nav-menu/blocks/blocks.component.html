@@ -16,26 +16,28 @@
         <ul class="tree">
             <li *ngFor="let subBlocks of vectorBlocks" class="tree-item">
                 <div class="block-name" (click)="foldSubList($event, subBlocks)">
-                    <img *ngIf="subBlocks[0]?.fold == 0" src="/assets/images/tree-unfold.svg"/>
-                    <img *ngIf="subBlocks[0]?.fold == 1" src="/assets/images/tree-fold.svg"/>
-                    <span [title]="subBlocks[0]?.name + '(' + subBlocks?.length + ')'">{{subBlocks[0]?.name}} ({{subBlocks?.length}})</span>
+                    <img *ngIf="subBlocks[0].fold === 0" src="/assets/images/tree-unfold.svg"/>
+                    <img *ngIf="subBlocks[0].fold === 1" src="/assets/images/tree-fold.svg"/>
+                    <span [title]="subBlocks[0].name + '(' + subBlocks.length + ')'">{{subBlocks[0].name}} ({{subBlocks.length}})</span>
+                    
                 </div>
                 <div class="tree-operation">
                     <img *ngIf="areAllBlocksChecked(subBlocks)" src="/assets/images/show-on-ico.svg" (click)="setBlocksVisible($event, subBlocks, false)"/>
                     <img *ngIf="!areAllBlocksChecked(subBlocks)" src="/assets/images/show-off-ico.svg" (click)="setBlocksVisible($event, subBlocks, true)"/>
                     <!-- <rx-switch [checked]="areAllBlocksChecked(subBlocks)" (click)="setBlocksVisible($event, subBlocks, !areAllBlocksChecked(subBlocks))"></rx-switch> -->
                 </div>
-                <ul class="tree" *ngIf="subBlocks[0]?.fold == 1" >
+                <ul class="tree" *ngIf="subBlocks[0]?.fold === 1" >
                     <li class="tree-item" *ngFor="let block of subBlocks" [attr.data-index]="block.index" [class.select-item]="block.selected" (click)="onSelectBlock(block)" (dblclick)="onVectorBlockDbClick(block)">
                         <div class="block-name">
                             <span [title]="block?.name">{{block?.name}}</span>
                         </div>
                         <div class="tree-operation">
                             <!-- <rx-switch [checked]="block.state == 1" (click)="onVectorBlockClick(block)"></rx-switch> -->
-                            <img *ngIf="block?.state == 1" src="/assets/images/show-on-ico.svg" (click)="onVectorBlockClick(block)"/>
-                            <img *ngIf="block?.state == 0" src="/assets/images/show-off-ico.svg" (click)="onVectorBlockClick(block)" />
 
-                            <img *ngIf="block?.hasAttribute == true" src="/assets/images/info-ico.svg" (click)="onVectorBlockInfoClick($event, block)" (dblclick)="onVectorBlockInfoDbClick($event)"/>
+                            <img *ngIf="block.state === 1" src="/assets/images/show-on-ico.svg" (click)="onVectorBlockClick(block)"/>
+                            <img *ngIf="block.state === 0" src="/assets/images/show-off-ico.svg" (click)="onVectorBlockClick(block)" />
+                            <img *ngIf="block.hasAttribute" src="/assets/images/info-ico.svg" (click)="onVectorBlockInfoClick($event, block)" (dblclick)="onVectorBlockInfoDbClick($event)"/>
+
                         </div>
                     </li>
                 </ul>

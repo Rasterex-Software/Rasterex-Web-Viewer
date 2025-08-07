@@ -502,3 +502,8 @@
   padding: 16px 12px;
   border-bottom: 1px solid #edf1f2;
 }
+
+img.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

@@ -10,7 +10,7 @@
       <div
         [class.expanded]="expanded.has(i)"
         [@contentExpansion]="expanded.has(i) ? 'expanded':'collapsed'">
-        <ng-container *ngTemplateOutlet="item?.content?.templateRef"></ng-container>
+        <ng-container *ngTemplateOutlet="item?.content?.templateRef ?? null"></ng-container>
       </div>
     </div>
 </div>

@@ -552,7 +552,7 @@ export class AppComponent implements AfterViewInit {
 
     
     RXCore.onGuiMarkup((annotation: any, operation: any) => {
-      console.log('RxCore GUI_Markup:', annotation, operation);
+      //console.log('RxCore GUI_Markup:', annotation, operation);
       if (annotation !== -1 || this.rxCoreService.lastGuiMarkup.markup !== -1) {
         
         if (annotation !== -1 && (this.isCollaborate() || this.isStorageAnnotation())) {

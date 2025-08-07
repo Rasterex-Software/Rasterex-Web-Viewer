@@ -1,0 +1,48 @@
+<div class="page-range-input-container">
+  <div class="input-group">
+    <input 
+      type="text" 
+      [value]="value"
+      [placeholder]="placeholder"
+      [disabled]="disabled"
+      (input)="onInputChange($event)"
+      (blur)="onBlur()"
+      class="page-range-input"
+      [class.error]="errorMessage"
+    />
+    
+    <div class="input-actions">
+      <button 
+        type="button" 
+        class="action-button"
+        [disabled]="disabled || totalPages === 0"
+        (click)="setAllPages()"
+        title="Select all pages">
+        All Pages
+      </button>
+      <button 
+        type="button" 
+        class="action-button"
+        [disabled]="disabled"
+        (click)="setCurrentPage()"
+        title="Select current page">
+        Set Current Page
+      </button>
+    </div>
+  </div>
+
+  <div class="range-info">
+    <span class="range-description">{{ getRangeDescription() }}</span>
+    <span *ngIf="totalPages > 0" class="total-pages">of {{ totalPages }} total</span>
+  </div>
+
+  <div *ngIf="errorMessage" class="error-message">
+    {{ errorMessage }}
+  </div>
+
+  <div class="help-text">
+    <small>
+      Format: Use commas to separate ranges (e.g., "1-5, 7, 9-12")
+    </small>
+  </div>
+</div> 

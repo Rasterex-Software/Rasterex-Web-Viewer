@@ -60,7 +60,7 @@
               </rx-multi-select> -->
               <label>Date of notes creation</label>
               <rx-date-picker
-                [dateFormat]="(guiConfig$ | async).dateFormat"
+                [dateFormat]="(guiConfig$ | async)?.dateFormat"
                 [startDate]="dateFilter.startDate"
                 [endDate]="dateFilter.endDate"
                 (onSelect)="onDateSelect($event)"
@@ -250,7 +250,7 @@
                             <div class="author">{{ item.author }}</div>
                             <div class="comments-date-count">
                               <div class="date-and-time">
-                                {{ item.timestamp | date: (guiConfig$ | async).dateFormat.dateTimeWithoutYear }}
+                                {{ item.timestamp | date: (guiConfig$ | async)?.dateFormat?.dateTimeWithoutYear }}
                               </div>
                               <div class="comments-count">
                                 <img src="/assets/images/comment-ico.svg" />{{
@@ -262,7 +262,7 @@
                             <p *ngIf="item.dimtext">{{ item.dimtext }}</p>
                           </div>
                           <div style="flex: 1"></div>
-                          <div *ngIf="(guiConfig$ | async).showmarkupZoom" (click)="zoomTo(item)">
+                          <div *ngIf="(guiConfig$ | async)?.showmarkupZoom" (click)="zoomTo(item)">                            
                             <img src="/assets/images/zoom-window-ico.svg" />
                           </div>
                           <div style="flex: 1"></div>
@@ -326,7 +326,7 @@
                             <div class="comments-date-count">
                               <div class="date-and-time">
                                 <!-- {{ item.createdStr }} -->
-                                {{ itemNote.timestamp | date: (guiConfig$ | async).dateFormat?.dateTimeWithoutYear }}
+                                {{ itemNote.timestamp | date: (guiConfig$ | async)?.dateFormat?.dateTimeWithoutYear }}
                               </div>
                               <div
                                 class="comments-count"
@@ -395,8 +395,8 @@
                     <img
                       src="/assets/images/redo-ico.svg"
                       role="button"
-                      [disabled]="!note[item.markupnumber]"
-                      (click)="onAddNote(item)"
+                      [class.disabled]="!note[item.markupnumber]"
+                      (click)="note[item.markupnumber] && onAddNote(item)"
                     />
                   </div>
                 </div>

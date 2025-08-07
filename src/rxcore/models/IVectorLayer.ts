@@ -3,4 +3,5 @@ export interface IVectorLayer {
     name: string;
     state: boolean;
     color: string;
+    visible: boolean;
 }

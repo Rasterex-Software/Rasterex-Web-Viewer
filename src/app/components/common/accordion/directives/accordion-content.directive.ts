@@ -4,5 +4,5 @@ import { Directive, TemplateRef } from "@angular/core";
   selector: "[accordionContent]"
 })
 export class AccordionContent {
-  constructor(public templateRef: TemplateRef<any>) {}
+  constructor(public templateRef: TemplateRef<any | unknown>) {}
 }

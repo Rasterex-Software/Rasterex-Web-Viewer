@@ -2,7 +2,7 @@
     <div *ngIf="!isUpdateComparison; else progressTemplate" class="rx-modal-container" style="min-width: 504px;">
         <div class="rx-modal-header">
             <img (click)="onCancelClick()" class="close" src="/assets/images/close-modal-ico.svg" />
-            <span class="title">Edit "{{comparison?.name}}"</span>
+            <span class="title">Edit "{{comparison.name}}"</span>
         </div>
         <div class="rx-modal-body">
             <div class="grid">
@@ -10,22 +10,22 @@
                     <div class="header">Files:</div><div class="header">State:</div><div class="header">Color:</div>
                 </ng-container>
                 <ng-container>
-                    <div class="cell color-main"><span style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">{{comparison?.activeFile?.name}}</span></div>
-                    <div class="cell color-secondary">{{comparison?.activeSetAs?.title}}</div>
+                    <div class="cell color-main"><span style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">{{comparison.activeFile?.name}}</span></div>
+                    <div class="cell color-secondary">{{comparison.activeSetAs?.title}}</div>
                     <rx-dropdown
                         [placeholder]="'Select color...'"
                         [options]="colorOptions"
-                        [value]="comparison?.activeColor"
+                        [value]="comparison.activeColor"
                         (valueChange)="onActiveColorSelect($event)">
                     </rx-dropdown>
                 </ng-container>
                 <ng-container>
-                    <div class="cell color-main"><span style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">{{comparison?.otherFile?.name}}</span></div>
-                    <div class="cell color-secondary">{{comparison?.otherSetAs?.title}}</div>
+                    <div class="cell color-main"><span style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">{{comparison.otherFile?.name}}</span></div>
+                    <div class="cell color-secondary">{{comparison.otherSetAs?.title}}</div>
                     <rx-dropdown
                         [placeholder]="'Select color...'"
                         [options]="colorOptions"
-                        [value]="comparison?.otherColor"
+                        [value]="comparison.otherColor"
                         (valueChange)="onOtherColorSelect($event)">
                     </rx-dropdown>
                 </ng-container>

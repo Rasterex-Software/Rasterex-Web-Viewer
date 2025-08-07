@@ -56,11 +56,6 @@
             justify-content: center;
             align-items: center;
             font-size: 12px;
-
-            .scale-dropdown-section {
-                width: 200px;
-                padding-left: 5px;
-            }
         }
 
         .measure-detail-section {
@@ -82,10 +77,9 @@
             &::before {
                 content: '';
                 display: block;
-                width: calc(100% + 24px);
+                width: 100%;
                 border-top: 1px solid #EDF1F2;
                 position: absolute;
-                left: -12px;
                 top: 0;
             }
     
@@ -157,7 +151,34 @@
     
         }
     }
-    
-
-    
 }
+
+.d-block {
+    display: block;
+}
+
+.d-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 220px;
+}
+
+.scale-not-set {
+    height: 1.75rem;
+    font-size: 12px;
+    border-radius: 0.5rem;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+    position: relative;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    transition: background-color 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+    .btn-dropdown{
+        margin-left: 5px;
+    }
+    &:hover {
+        background-color: rgba(245, 245, 247, 0.5);
+    }
+} 

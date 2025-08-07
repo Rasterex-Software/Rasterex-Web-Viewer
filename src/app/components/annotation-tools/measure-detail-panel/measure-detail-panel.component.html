@@ -5,7 +5,7 @@
     class="rx-measure-detail-panel-container panel-container">
     <div #panelHeader class="panel-header">
         <span class="title">{{panelHeading}}</span>
-        <!-- <span class="btn-close" (click)="onCloseClick()">&times;</span> -->
+        <span class="btn-close" (click)="onCloseClick()">&times;</span>
     </div>
     <div class="panel-body" [ngStyle]="{'max-height.px': maxHeight, 'overflow-y': 'auto'}">
           
@@ -15,29 +15,17 @@
                   measureData.type === MARKUP_TYPES.MEASURE.AREA.type ||
                   measureData.type === MARKUP_TYPES.MEASURE.PATH.type ||
                   showScaleDropdownOnStartDrawing === true">
-              <div>
-                  Scale
-              </div>
-              
-              <div class="scale-dropdown-section">
-                
+              <div class="scale-dropdown-section" [ngClass]="{'d-block': scalesOptions.length > 0, 'd-flex': scalesOptions.length === 0}">
+                <span *ngIf="scalesOptions !== undefined && scalesOptions.length === 0" (click)="onScaleChanged(null)" class="scale-not-set">Scale Not Set <img src="/assets/images/arrow-down.svg" class="btn-dropdown" /></span>
+
                 <rx-scale-dropdown
                   class="select-scale"
-                  [placeholder]="scalesOptions.length?'Select scale...':'Unscaled'"
                   [options]="scalesOptions"
-                  [value]="selectedScale ? selectedScale : null"
-                  [showAddNew] = "true"                  
-                  (valueChange)="onScaleChanged($event)"
-                  (valueDelete)="onScaleDeleted($event)">
+                  [selectedScale]="selectedScale ? selectedScale : null"        
+                  (valueChange)="onScaleChanged($event)">
                 </rx-scale-dropdown>
-                  <!-- <rx-dropdown
-                      class="select-scale"
-                      [placeholder]="'Select scale...'"
-                      [options]="scalesOptions"
-                      [value]="selectedScale"
-                      (valueChange)="onScaleChanged($event)">
-                  </rx-dropdown> -->
               </div>
+              
           </div>  
           
           <div class="measure-detail-section">           

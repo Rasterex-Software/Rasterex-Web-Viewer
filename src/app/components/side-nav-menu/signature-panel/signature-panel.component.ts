@@ -22,11 +22,13 @@ export class SignaturePanelComponent implements OnInit {
     this.signatureService.adoptSignatureOpened.next({ opened: true, mode: 'create' });
   }
 
-  onEditClick(item: ISignatureData): void {
+  onEditClick(item: ISignatureData | undefined): void {
+    if (!item) return;
     this.signatureService.adoptSignatureOpened.next({ opened: true, mode: item.initials ? 'editInitials' : 'editSignature' });
   }
 
-  onUseIanAllBlocksClick(item: ISignatureData): void {
+  onUseIanAllBlocksClick(item: ISignatureData | undefined): void {
+    if (!item) return;
     this.signatureService.applySignatureInAllBlocks.next(item);
   }
 }

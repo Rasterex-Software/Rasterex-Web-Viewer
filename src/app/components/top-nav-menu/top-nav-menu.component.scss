@@ -258,3 +258,21 @@ svg {
     }
 
 }
+.scale-not-set {
+    height: 1.75rem;
+    font-size: 12px;
+    border-radius: 0.5rem;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+    position: relative;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    transition: background-color 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+    .btn-dropdown{
+        margin-left: 5px;
+    }
+    &:hover {
+        background-color: rgba(245, 245, 247, 0.5);
+    }
+}

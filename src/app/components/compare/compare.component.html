@@ -1,7 +1,7 @@
 <rx-create-comparison
-    *ngIf="(createComparisonModalOpened$ | async).opened"
-    [otherFileIndex]="(createComparisonModalOpened$ | async).payload?.otherFileIndex"
-    [autoConfirm]="(createComparisonModalOpened$ | async).payload?.autoConfirm"
+    *ngIf="(createComparisonModalOpened$ | async)?.opened"
+    [otherFileIndex]="(createComparisonModalOpened$ | async)?.payload?.otherFileIndex"
+    [autoConfirm]="(createComparisonModalOpened$ | async)?.payload?.autoConfirm"
     (onComplete)="onCreateComparisonComplete($event)"
     (onCancel)="onCreateComparisonCancel()">
 </rx-create-comparison>

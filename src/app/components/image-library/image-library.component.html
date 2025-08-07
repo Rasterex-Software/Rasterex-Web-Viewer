@@ -7,7 +7,7 @@
         <div *ngFor="let template of images; let i = index" style="display: flex; align-items: center;" class="image-container">
           <img
           [imageTemplate]="template"
-          [src]="template.src"
+          [src]="$any(template).src"
           [ngStyle]="{ 'width.px': template.width, 'height.px': template.height }" />
           <button (click)="deleteImage(i)" style="border: none; background: none; cursor: pointer; padding: 0; margin-left: 8px;">
             <img src="/assets/images/trash-ico.svg" />

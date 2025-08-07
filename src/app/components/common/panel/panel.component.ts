@@ -11,7 +11,8 @@ export class PanelComponent {
   @Input() draggable: boolean = true;
   @Output() onClose: EventEmitter<void> = new EventEmitter<void>();
 
-  bounds: HTMLElement | null = document.getElementById("mainContent");
+  
+  bounds: HTMLElement = document.getElementById("mainContent") as HTMLElement;
 
   onCloseClick(): void {
     this.onClose.emit();

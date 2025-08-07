@@ -1,0 +1,249 @@
+<rx-modal-dialog *ngIf="isOpen">
+  <div class="export-dialog-container">
+    <div class="export-dialog-header">
+      <h2>Export Document</h2>
+      <button class="close-btn" (click)="onCancel()">×</button>
+    </div>
+
+    <div class="export-dialog-content">
+      <!-- Basic Options Section -->
+      <div class="section">
+        <h3>Export Format</h3>
+        <div class="format-selection">
+          <select
+            [(ngModel)]="exportOptions.format"
+            class="format-select"
+            (change)="onFormatChange($event.target.value)"
+          >
+            <option
+              *ngFor="let format of availableFormats"
+              [value]="format.value"
+            >
+              {{ format.label }}
+            </option>
+          </select>
+          <div
+            class="format-description mt-2"
+            *ngIf="selectedFormat?.description"
+          >
+            {{ selectedFormat.description }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Annotations Section -->
+      <div class="section">
+        <div class="annotation-selection">
+          <label for="annotationMode">Annotation Mode:</label>
+          <select
+            class="annotation-select"
+            id="annotationMode"
+            [(ngModel)]="exportOptions.includeAnnotations"
+            (change)="
+              onIncludeAnnotationsChange(exportOptions.includeAnnotations)
+            "
+          >
+            <!-- <option [ngValue]="undefined">Do not include annotations</option> -->
+            <option [ngValue]="0">Flatten Rasterex annotations</option>
+            <option [ngValue]="1">Add Rx annotations as PDF comments</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Paper Size Section (only for non-PDF files) -->
+      <div class="section" *ngIf="shouldShowPaperSize">
+        <h3>Paper Size</h3>
+        <div class="paper-size-selection">
+          <select
+            [value]="exportOptions.paperSize"
+            (change)="onPaperSizeChange($event.target.value)"
+            class="paper-size-select"
+          >
+            <option *ngFor="let size of paperSizes" [value]="size.value">
+              {{ size.label }}
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Advanced Options Toggle -->
+      <!-- <div class="section">
+        <button 
+          class="advanced-toggle"
+          (click)="onToggleAdvancedOptions()"
+          [class.expanded]="showAdvancedOptions"
+        >
+          <span>Advanced Options</span>
+          <svg class="toggle-icon" viewBox="0 0 24 24">
+            <path d="M7 10l5 5 5-5z"/>
+          </svg>
+        </button>
+      </div> -->
+
+      <!-- Advanced Options Section -->
+      <!-- <div class="advanced-options" *ngIf="showAdvancedOptions"> -->
+        <!-- Password Protection -->
+        <!-- <div class="section" *ngIf="shouldShowPasswordOption">
+          <h3>Password Protection</h3>
+          <div class="option-row">
+            <label class="checkbox-label">
+              <input 
+                type="checkbox" 
+                [checked]="showPasswordField"
+                (change)="onTogglePasswordField()"
+              />
+              <span class="checkmark"></span>
+              Add password protection
+            </label>
+          </div>
+          
+          <div class="password-field" *ngIf="showPasswordField">
+            <input 
+              type="password" 
+              placeholder="Enter password (minimum 6 characters)"
+              [value]="exportOptions.password || ''"
+              (input)="onPasswordChange($event.target.value)"
+              class="password-input"
+            />
+            <div class="field-hint">Password must be at least 6 characters long</div>
+          </div>
+        </div> -->
+
+        <!-- Digital Signature -->
+        <!-- <div class="section" *ngIf="shouldShowDigitalSignatureOption">
+          <h3>Digital Signature</h3>
+          <div class="option-row">
+            <label class="checkbox-label">
+              <input 
+                type="checkbox" 
+                [checked]="showDigitalSignatureField"
+                (change)="onToggleDigitalSignatureField()"
+              />
+              <span class="checkmark"></span>
+              Add digital signature (requires server certificate)
+            </label>
+          </div>
+          
+          <div class="signature-field" *ngIf="showDigitalSignatureField">
+            <div class="field-hint">Digital signature will be applied using the server's certificate</div>
+          </div>
+        </div> -->
+
+        <!-- CTB File (for CAD files) -->
+        <!-- <div class="section" *ngIf="shouldShowCtbFileOption">
+          <h3>Pen Table (CTB File)</h3>
+          <div class="option-row">
+            <label class="checkbox-label">
+              <input 
+                type="checkbox" 
+                [checked]="!!exportOptions.ctbFile"
+                (change)="onCtbFileChange($event.target.checked ? 'default.ctb' : '')"
+              />
+              <span class="checkmark"></span>
+              Use CTB file for pen settings
+            </label>
+          </div>
+          
+          <div class="ctb-field" *ngIf="exportOptions.ctbFile">
+            <input 
+              type="text" 
+              placeholder="CTB file name (e.g., default.ctb)"
+              [value]="exportOptions.ctbFile"
+              (input)="onCtbFileChange($event.target.value)"
+              class="ctb-input"
+            />
+          </div>
+        </div> -->
+
+        <!-- Monochrome Conversion -->
+        <!-- <div class="section" *ngIf="shouldShowMonochromeOption">
+          <h3>Color Settings</h3>
+          <div class="option-row">
+            <label class="checkbox-label">
+              <input 
+                type="checkbox" 
+                [checked]="exportOptions.monochrome"
+                (change)="onMonochromeChange($event.target.checked)"
+              />
+              <span class="checkmark"></span>
+              Convert to monochrome
+            </label>
+          </div>
+        </div> -->
+
+        <!-- Page Selection -->
+        <!-- <div class="section" *ngIf="shouldShowPageSelection">
+        <h3>Page Selection</h3>
+        <div class="option-row">
+          <label class="checkbox-label">
+            <input 
+              type="checkbox" 
+              [checked]="exportOptions.selectedPages !== undefined"
+              (change)="onSelectedPagesToggle($event.target.checked)"
+            />
+            <span class="checkmark"></span>
+            Export specific pages only
+          </label>
+        </div>
+        
+        <div class="page-selection" *ngIf="exportOptions.selectedPages !== undefined">
+          <input 
+            type="text" 
+            placeholder="Page numbers (e.g., 1,3,5-7)"
+            class="page-input"
+            [(ngModel)]="pageInputString"
+            (input)="onPageInputChange(pageInputString)"
+          />
+          <div class="field-hint">Enter page numbers separated by commas, use dash for ranges</div>
+        </div>
+      </div> -->
+
+        <!-- Layout Selection (for CAD files) -->
+        <!-- layout code -->
+        <!-- <div class="section" *ngIf="shouldShowLayoutSelection">
+       <h3>Layout Selection</h3>
+        <div class="option-row">
+          <label class="checkbox-label">
+            <input 
+              type="checkbox" 
+              [checked]="!!exportOptions.selectedLayouts"
+              (change)="onSelectedLayoutsToggle($event.target.checked)"
+            />
+            <span class="checkmark"></span>
+            Export specific layouts only
+          </label>
+        </div>
+
+ 
+      <div class="layout-selection" *ngIf="exportOptions.selectedLayouts !== undefined">
+        <input 
+          type="text" 
+          placeholder="Layout names (e.g., Model, Layout1)"
+          class="layout-input"
+          [(ngModel)]="layoutInputString"
+          (input)="onLayoutInputChange(layoutInputString)"
+        />
+        <div class="field-hint">Enter layout names separated by commas</div>
+      </div>
+    </div> -->
+      <!-- </div> -->
+
+      <!-- Validation Error -->
+      <div class="validation-error" *ngIf="!isValid">
+        <p>{{ validationMessage }}</p>
+      </div>
+    </div>
+
+    <!-- Dialog Actions -->
+    <div class="export-dialog-actions">
+      <button class="btn btn-light" (click)="onCancel()">Cancel</button>
+      <button
+        class="btn btn-primary"
+        (click)="onExport()"
+        [disabled]="!isValid"
+      >
+        Export
+      </button>
+    </div>
+  </div>
+</rx-modal-dialog>

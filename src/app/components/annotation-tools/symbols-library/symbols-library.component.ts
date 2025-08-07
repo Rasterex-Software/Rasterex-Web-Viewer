@@ -62,9 +62,11 @@ export class SymbolsLibraryComponent implements OnInit {
   }
 
   // Folder Management Methods
-  selectFolder(folderId: string): void {
+  selectFolder(folderId: string | null): void {
     this.selectedFolderId = folderId;
-    this.fetchSymbols(folderId);
+    if (folderId) {
+      this.fetchSymbols(folderId);
+    }
   }
 
   toggleFolder(folderId: string): void {

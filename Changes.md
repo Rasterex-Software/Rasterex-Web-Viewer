@@ -1,3 +1,86 @@
+August 7, 2025
+
+### 1. Implemented new scale and calibration dialog and system.
+
+
+### 2. Introduced a new export dialog to allow users to configure export options before initiating a file export.
+### 3. Updated the onExportClick method in the TopNavComponent to open the export dialog prior to performing the export operation.
+### 4. Added a dedicated service to handle all export-related logic and operations.
+### 5. Introduced ExportFormat and PaperSize interfaces to model supported export configurations cleanly and consistently.
+### 6. Created a new method exportWithOptions() to receive user-selected parameters from the dialog and forward them to the exportFile() function to initiate the export.
+
+
+Updated and new files
+
+RxCore version is now 35.97
+src\assets\scripts\rxcorefunctions.js 
+
+
+src\app\components\export-dialog\export-dialog.component.html
+src\app\components\export-dialog\export-dialog.component.ts
+src\app\components\export-dialog\export-dialog.component.scss
+src\app\services\export.service.ts
+
+src\app\app.module.ts
+src\app\app.component.ts
+src\app\shared\measure-options.ts
+src\app\services\scale-management.service.ts
+src\app\services\user-scale-storage.service.ts
+src\app\directives\rx-number-format.directive.ts
+src\app\domain\enums\index.ts
+src\app\domain\enums\metric-unit-type.ts
+src\app\components\top-nav-menu\top-nav-menu.component.ts
+src\app\components\top-nav-menu\top-nav-menu.component.scss
+src\app\components\top-nav-menu\top-nav-menu.component.html
+src\app\components\top-nav-menu\opened-files-tabs\opened-files-tabs.component.html
+src\app\components\size-modal\size-modal.component.html
+src\app\components\signature\signature.component.ts
+src\app\components\signature\signature.component.html
+src\app\components\side-nav-menu\threed-part-info\threed-part-info.component.ts
+src\app\components\side-nav-menu\signature-panel\signature-panel.component.ts
+src\app\components\side-nav-menu\signature-panel\signature-panel.component.html
+src\app\components\side-nav-menu\pages\pages.component.ts
+src\app\components\side-nav-menu\pages\pages.component.html
+src\app\components\side-nav-menu\insert-modal\insert-modal.component.html
+src\app\components\side-nav-menu\context-menu\context-menu.component.ts
+src\app\components\side-nav-menu\blocks\blocks.component.html
+src\app\components\scale-management\scale-management.component.ts
+src\app\components\scale-management\scale-management.component.scss
+src\app\components\scale-management\scale-management.component.html
+src\app\components\image-library\image-library.component.html
+src\app\components\file-info\file-info.component.html
+src\app\components\file-galery\file-galery.component.html
+src\app\components\compare\compare.component.html
+src\app\components\common\panel\panel.component.ts
+src\app\components\common\page-range-input\page-range-input.component.ts
+src\app\components\common\page-range-input\page-range-input.component.scss
+src\app\components\common\page-range-input\page-range-input.component.html
+src\app\components\common\dropdown\dropdown.component.ts
+src\app\components\common\date-picker\date-picker.component.ts
+src\app\components\common\accordion\accordion.component.ts
+src\app\components\common\accordion\accordion.component.html
+src\app\components\common\accordion\directives\accordion-content.directive.ts
+src\app\components\bottom-toolbar\bottom-toolbar.component.html
+src\app\components\annotation-tools\annotation-tools.component.html
+src\app\components\annotation-tools\scale-dropdown\scale-dropdown.component.ts
+src\app\components\annotation-tools\scale-dropdown\scale-dropdown.component.scss
+src\app\components\annotation-tools\scale-dropdown\scale-dropdown.component.html
+src\app\components\annotation-tools\note-panel\note-panel.component.scss
+src\app\components\annotation-tools\note-panel\note-panel.component.html
+src\app\components\annotation-tools\measure-panel\measure-panel.service.ts
+src\app\components\annotation-tools\measure-panel\measure-panel.component.ts
+src\app\components\annotation-tools\measure-panel\measure-panel.component.scss
+src\app\components\annotation-tools\measure-panel\measure-panel.component.html
+src\app\components\annotation-tools\measure-detail-panel\measure-detail-panel.component.ts
+src\app\components\annotation-tools\measure-detail-panel\measure-detail-panel.component.scss
+src\app\components\annotation-tools\measure-detail-panel\measure-detail-panel.component.html
+src\rxcore\index.ts
+src\rxcore\models\IMarkup.ts
+src\rxcore\models\IVectorBlock.ts
+src\rxcore\models\IVectorLayer.ts
+
+
+
 August 6, 2025
 
 ### 1. Implemented room presenter, a room perticipaint can apply to be a room presenter.

@@ -896,6 +896,22 @@ export class RXCore {
         RxCore.exportFile(false, "PDF", "0", paperSize, "1");
     }
 
+    public static exportWithOptions(options: {
+        format?: string;
+        includeAnnotations?: number;
+        paperSize?: string;
+    }): void {
+        const format = options.format || "PDF";
+        // const markupFlag = options.includeAnnotations !== false ? "1" : "0";
+        const markupFlag = options.includeAnnotations !== undefined ? options.includeAnnotations.toString() : "1";
+        const paperSize = options.paperSize || "A4";
+        // For now, use the existing export function
+        // TODO: Extend the backend to support additional parameters
+        RxCore.exportFile(false, format, "0", paperSize, markupFlag);
+    
+    }
+
+
     public static setDefultExportparams(paperSize: string = "A4"): void {
         RxCore.setDefultExportparams(false, "PDF", "0", paperSize, "1");
     }
@@ -1357,6 +1373,10 @@ export class RXCore {
     public static onGuiCalibratediag(callback: Function): void {
         // RxCore.GUI_MarkupIndex.connect(callback);
         RxCore.GUI_Calibratediag.connect(callback);
+    }
+
+    public static getPageScaleObject(pageindex: number): any {
+        return RxCore.getPageScaleObject(pageindex);
     }
 
     public static getCalibrateGUI(): any {        

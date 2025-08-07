@@ -26,14 +26,14 @@
             </ng-container>
             <ng-container *ngIf="selected.name === 'Fonts'">
               <div class="header">Font</div><div class="header">Found</div>
-              <ng-container *ngFor="let item of fileInfo.Fonts">
+              <ng-container *ngFor="let item of fileInfo['Fonts']">
                   <div class="row-header">{{ item.path }}</div>
                   <div class="attribute-value">{{ item.found ? 'yes' : 'no' }}</div>
               </ng-container>
             </ng-container>
             <ng-container *ngIf="selected.name === 'Xrefs'">
-              <div class="header" *ngIf="fileInfo.XRefs.length > 0" >XRef</div><div class="header" *ngIf="fileInfo.XRefs.length > 0" >Found</div>
-              <ng-container *ngFor="let item of fileInfo.XRefs">
+              <div class="header" *ngIf="fileInfo['XRefs'].length > 0" >XRef</div><div class="header" *ngIf="fileInfo['XRefs'].length > 0" >Found</div>
+              <ng-container *ngFor="let item of fileInfo['XRefs']">
                 <div class="row-header">{{ item.path }}</div>
                 <div class="attribute-value">{{ item.found ? 'yes' : 'no' }}</div>
               </ng-container>

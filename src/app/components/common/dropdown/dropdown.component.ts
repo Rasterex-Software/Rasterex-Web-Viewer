@@ -18,6 +18,7 @@ export class DropdownComponent implements OnInit {
   @Input() transparent: boolean = true;
   @Input() displayField: 'value' | 'label' = 'label';
   @Input() placeholder: string = "Select...";
+  @Input() type: 'default' | 'three-dots' = 'default';
   @Output('valueChange') onValueChange = new EventEmitter<any>();
 
   public opened: boolean = false;

@@ -8,10 +8,11 @@
             <div class="grid">
                 <ng-container>
                     <div class="header">Files:</div><div class="header">State:</div><div class="header">Color:</div>
+                    
                 </ng-container>
                 <ng-container>
                     <div class="cell color-main"><span style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">{{activeFile?.name}}</span></div>
-                    <div class="cell color-secondary">{{selectedOption?.title}}</div>
+                    <div class="cell color-secondary">{{selectedOption.title}}</div>
                     <rx-dropdown
                         class="select-color"
                         [placeholder]="'Select color...'"
@@ -35,7 +36,7 @@
                             </svg>
                         </div>
                     </rx-dropdown>
-                    <div class="cell color-secondary">{{selectedOption?.value == 'overlay' ? 'Bacground' : 'Overlay'}}</div>
+                    <div class="cell color-secondary">{{selectedOption.value == 'overlay' ? 'Bacground' : 'Overlay'}}</div>
                     <rx-dropdown
                         class="select-color"
                         [placeholder]="'Select color...'"

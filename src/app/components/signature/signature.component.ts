@@ -22,7 +22,7 @@ export class SignatureComponent implements OnInit {
   visible: boolean = false;
   dropdownPanelOpened: boolean = false;
   adoptSignatureOpened: boolean = false;
-  adoptSignatureMode: string = 'create';
+  adoptSignatureMode: 'create' | 'editSignature' | 'editInitials' = 'create';
   applyPanelOpened: boolean = false;
   quickActionsOpened: boolean = false;
   confirmDeleteOpened: boolean = false;
@@ -257,7 +257,8 @@ export class SignatureComponent implements OnInit {
     this.confirmDeleteOpened = false;
   }
 
-  onSignatureSelect(signature: ISignatureData): void {
+  onSignatureSelect(signature: ISignatureData | undefined): void {
+    if (!signature) return;
     this.dropdownPanelOpened = false;
     if (this.currentBlock.subtype != 3) {
       RXCore.markUpSubType(3);

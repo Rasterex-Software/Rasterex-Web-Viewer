@@ -610,8 +610,19 @@
     <button (click)="onRemoveWatermarkClick()">Remove Watermark</button>
   </div>
 
-  <div class="top-nav-item current-scale">
-    <span>{{ currentScaleValue }}</span>
+  <div class="top-nav-item current-scale" *ngIf="fileLength > 0">
+    <span *ngIf="scalesOptions !== undefined && scalesOptions.length === 0" (click)="onScaleChanged(null)" class="scale-not-set">Scale Not Set <img src="/assets/images/arrow-down.svg" class="btn-dropdown" /></span>
+
+    <div class="scale-dropdown-section" *ngIf="scalesOptions?.length">
+      <rx-scale-dropdown
+          class="select-scale"
+          [options]="scalesOptions"
+          [selectedScale]="selectedScale"
+          [showDelete]="true"
+          (valueChange)="onScaleChanged($event)"
+          (valueDelete)="onScaleDeleted($event)">
+      </rx-scale-dropdown>
+    </div>
   </div>
 
   <div class="top-nav-item dropdown" *ngIf="fileLength > 0">
@@ -744,3 +755,4 @@
 </rx-modal-dialog>
 
 <print *ngIf="isPrint" (closed)="isPrint = false"> </print>
+<app-export-dialog></app-export-dialog>

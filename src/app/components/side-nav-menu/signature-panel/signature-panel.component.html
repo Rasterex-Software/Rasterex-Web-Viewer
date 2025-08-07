@@ -9,7 +9,7 @@
         <div class="signature-item" style="margin-bottom: 12px;">
             <div class="signature-item-container">
                 <span>Initials:</span>
-                <img *ngIf="signatures?.initials?.src" [src]="signatures?.initials.src" />
+                <img *ngIf="signatures?.initials?.src" [src]="signatures?.initials?.src" />
             </div>
             <rx-dropdown-menu>
                 <li (click)="onUseIanAllBlocksClick(signatures?.initials)">
@@ -29,7 +29,7 @@
         <div class="signature-item">
             <div class="signature-item-container">
                 <span>Signature:</span>
-                <img *ngIf="signatures?.signature?.src" [src]="signatures?.signature.src" />
+                <img *ngIf="signatures?.signature?.src" [src]="signatures?.signature?.src" />
             </div>
             <rx-dropdown-menu>
                 <li (click)="onUseIanAllBlocksClick(signatures?.signature)">

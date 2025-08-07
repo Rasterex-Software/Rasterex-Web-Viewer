@@ -6,7 +6,9 @@ import {
   ContentChildren,
   Input,
   OnInit,
-  QueryList
+  QueryList,
+  EventEmitter,
+  Output
 } from "@angular/core";
 import { AccordionItem } from "./directives/accordion-item.directive";
 import { memoize } from 'lodash-es';
@@ -30,11 +32,19 @@ export class AccordionComponent implements  AfterContentInit {
   @Input() expandAll = false;
   @Input() collapsing = true;
   @Input() isBottom = false;
+  @Input() expandFirst = false;
+  @Input() expandedIndex: number | null = null;
+  @Output() expandedIndexChange = new EventEmitter<number | null>();  
   @ContentChildren(AccordionItem) items: QueryList<AccordionItem>;
 
   ngAfterContentInit() {
+
     if (this.expandAll) {
       this.items?.forEach((item, index) => this.expanded.add(index));
+    } else if (this.expandFirst && this.items?.length > 0) {
+      this.expanded.add(0);
+    } else if (this.expandedIndex !== null && this.items?.length > this.expandedIndex) {
+      this.expanded.add(this.expandedIndex);
     }
   }
 
@@ -45,12 +55,15 @@ export class AccordionComponent implements  AfterContentInit {
   toggleState = (index: number) => {
     if (this.expanded.has(index)) {
       this.expanded.delete(index);
+      this.expandedIndex = null;
     } else {
       if (this.collapsing) {
         this.expanded.clear();
       }
       this.expanded.add(index);
+      this.expandedIndex = index;
     }
+    this.expandedIndexChange.emit(this.expandedIndex);
   };
 
   isExpanded = (index: number): boolean => {

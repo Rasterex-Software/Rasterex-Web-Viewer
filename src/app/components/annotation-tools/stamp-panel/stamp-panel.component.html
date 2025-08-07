@@ -174,8 +174,11 @@
         <rx-accordion-item [title]="'Text Style'">
 
           <ng-template accordionContent>
-            <rx-text-style-select [value]="font" (valueChange)="onTextStyleSelect($event)"
+<!--             <rx-text-style-select [value]="font" (valueChange)="onTextStyleSelect($event)"
               [showFontSize]="true"></rx-text-style-select>
+ -->
+            <rx-text-style-select [value]="font" (valueChange)="onTextStyleSelect($event)"></rx-text-style-select>
+
           </ng-template>
         </rx-accordion-item>
         <rx-accordion-item [title]="'Colors'">

@@ -18,4 +18,12 @@ export class MeasurePanelService {
   public setScaleState(any): void {
     this._scaleState.next(any);
   }  
+
+  private _measurePanelEditState: BehaviorSubject<any> = new BehaviorSubject<any>({});
+  public measurePanelEditState$: Observable<any> = this._measurePanelEditState.asObservable();
+  public setMeasurePanelEditState(editState: any): void {
+    this._measurePanelEditState.next(editState);
+  }
+
+
 }

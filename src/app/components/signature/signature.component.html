@@ -13,9 +13,9 @@
                 <div class="sign-saved-signatures-container">
                     <h4>Saved signature</h4>
                     <div *ngIf="signatures?.signature && signatures?.initials; else noSavedSighaturesTemplate" class="signature-list">
-                        <img class="signature-image" [src]="signatures?.signature.src" (click)="onSignatureSelect(signatures?.signature)" />
+                        <img class="signature-image" [src]="signatures?.signature?.src" (click)="onSignatureSelect(signatures?.signature)" />
                         <div class="separator"></div>
-                        <img class="signature-image" [src]="signatures?.initials.src" (click)="onSignatureSelect(signatures?.initials)" />
+                        <img class="signature-image" [src]="signatures?.initials?.src" (click)="onSignatureSelect(signatures?.initials)" />
                     </div>
                     <ng-template #noSavedSighaturesTemplate>
                         <span class="no-saved-signatures">There are no saved signatures yet.</span>

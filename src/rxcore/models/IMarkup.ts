@@ -29,6 +29,12 @@ export interface IMarkup {
     rotatedrect: any;
     selected: boolean;
     timestamp: string;
+    status: string;
+    author: string;
+    pdfannotproxy: boolean;
+    pdfannotproxyType: string;
+    IsExpanded: boolean;
+    dimtext: string;
     AddAttribute: (name: string, value: any) => void;
     GetAttribute: (name: string) => any;
     updateAttribute: (name: string, value: any) => void;

@@ -75,7 +75,7 @@
                         </div>
                         <div class="btn-file-gallery">
                             <button *ngIf="!isUploadFile" class="btn btn-light" (click)="clearData()">CANCEL</button>
-                            <button class="btn btn-primary" (click)="uploadFile()" [disabled]="isUploadFile">UPLOAD</button>
+                            <button class="btn btn-primary" (click)="uploadFile($event)" [disabled]="isUploadFile">UPLOAD</button>
                         </div>
                     </div>
                 </ng-template>

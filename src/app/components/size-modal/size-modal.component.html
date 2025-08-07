@@ -11,13 +11,14 @@
                     <div class="group">
                         <div class="input">
                             <span>Presets</span>
-                            <rx-select [options]="presetsOptions" [(selectedValue)]="selectedPresets"
+                            <rx-select [options]="presetsOptions" [selectedValue]="selectedPresets"
+                            
                                 (selectionChange)="onPresetsSelectionChange($event)"></rx-select>
                         </div>
                         <div *ngIf="selectedPresets != '6'" class="input"></div>
                         <div *ngIf="selectedPresets === '6'" class="input">
                             <span>Units</span>
-                            <rx-select [options]="unitsOptions" [(selectedValue)]="selectedUnits"
+                            <rx-select [options]="unitsOptions" [selectedValue]="selectedUnits"
                                 (selectionChange)="onUnitsSelectionChange($event)">
                             </rx-select>
                         </div>

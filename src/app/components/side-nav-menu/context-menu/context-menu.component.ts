@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Input, Output } from "@angular/core";
+import { Action } from "../pages/pages.component";
 
 @Component({
     selector: 'rx-context-menu',
@@ -9,9 +10,9 @@ export class ContextMenuComponent {
     @Input() x: number;
     @Input() y: number;
     @Input() show: boolean;
-   @Output('onAction') onAction = new EventEmitter<string>();
+   @Output('onAction') onAction = new EventEmitter<Action>();
 
-    setAction(action: string) {
+   setAction(action: Action) {
         this.onAction.emit(action)
     }
 }

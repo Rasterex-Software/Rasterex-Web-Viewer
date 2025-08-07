@@ -43,7 +43,7 @@
                             </div>
                             <div class="btn-file-gallery">
                                 <button *ngIf="!isUploadFile" class="btn btn-light" (click)="clearData()">CANCEL</button>
-                                <button class="btn btn-primary" (click)="uploadFile()" [disabled]="isUploadFile">PROCESS</button>
+                                <button class="btn btn-primary" (click)="uploadFile($event)" [disabled]="isUploadFile">PROCESS</button>
                             </div>
                         </div>
                     </ng-template>
@@ -63,11 +63,16 @@
                                 </div>
                                 <div class="input">
                                     <span>Number of Pages to be inserted</span>
-                                    <input type="number" min="0" [(ngModel)]="numberPages" autocomplete="off" (change)="validate()" />
+                                    <input 
+                                    rxNumberFormat 
+                                    [allowNegative]="false" 
+                                    type="text" 
+                                    [(ngModel)]="numberPages" 
+                                    autocomplete="off" (change)="validate()" />
                                 </div>
                             </div>
                             <span>Total {{numpages}} Pages</span>
-                            <rx-radio-button [options]="radioOptions" class="radio-group" [(selectedValue)]="selectedRadioValue"
+                            <rx-radio-button [options]="radioOptions" class="radio-group" [selectedValue]="selectedRadioValue"
                                 (selectionChange)="onRadioSelectionChange($event)">
                             </rx-radio-button>
                         </div>
@@ -76,13 +81,13 @@
                             <div class="group">
                                 <div class="input">
                                     <span>Presets</span>
-                                    <rx-select [options]="presetsOptions" [(selectedValue)]="selectedPresets"
+                                    <rx-select [options]="presetsOptions" [selectedValue]="selectedPresets"
                                         (selectionChange)="onPresetsSelectionChange($event)"></rx-select>
                                 </div>
                                 <div *ngIf="selectedPresets != '6'" class="input"></div>
                                 <div *ngIf="selectedPresets === '6'" class="input">
                                     <span>Units</span>
-                                    <rx-select [options]="unitsOptions" [(selectedValue)]="selectedUnits"
+                                    <rx-select [options]="unitsOptions" [selectedValue]="selectedUnits"
                                         (selectionChange)="onUnitsSelectionChange($event)">
                                     </rx-select>
                                 </div>
@@ -90,11 +95,19 @@
                             <div class="group" *ngIf="selectedPresets === '6'" style="margin-top: 8px;">
                                 <div class="input">
                                     <span>Width</span>
-                                    <input type="number" [(ngModel)]="customWidth" autocomplete="off" (change)="validate()" />
+                                    <input 
+                                    rxNumberFormat 
+                                    [allowNegative]="false" 
+                                    type="number" 
+                                    [(ngModel)]="customWidth" autocomplete="off" (change)="validate()" />
                                 </div>
                                 <div class="input">
                                     <span>Height</span>
-                                    <input type="number" [(ngModel)]="customHeight" autocomplete="off" (change)="validate()" />
+                                    <input 
+                                        rxNumberFormat 
+                                        [allowNegative]="false" 
+                                        type="number" 
+                                        [(ngModel)]="customHeight" autocomplete="off" (change)="validate()" />
                                 </div>
                             </div>
                         </div>
@@ -124,14 +137,19 @@
             <div class="group" *ngIf="visible ===  'INSERT'">
                 <div class="input" style="width: 50%;">
                     <span>Page Placement</span>
-                    <rx-radio-button [options]="radioOptions" [class]="''" [(selectedValue)]="selectedRadioValue"
+                    <rx-radio-button [options]="radioOptions" [class]="''" [selectedValue]="selectedRadioValue"
                         (selectionChange)="onRadioSelectionChange($event)">
                     </rx-radio-button>
                 </div>
                 <div class="input">
                     <span>Current Page</span>
-                    <input type="number" max="{{numpages}}" min="0" [(ngModel)]="currentPage" autocomplete="off"
-                        (change)="validate()" />
+                    <input 
+                    rxNumberFormat 
+                    [allowNegative]="false" 
+                    type="number" 
+                    max="{{numpages}}" 
+                    [(ngModel)]="currentPage" autocomplete="off"
+                    (change)="validate()" />
                 </div>
             </div>
             <div class="group-replace" *ngIf="visible === 'REPLACE'">

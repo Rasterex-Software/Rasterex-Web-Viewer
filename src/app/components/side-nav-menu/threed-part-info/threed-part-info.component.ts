@@ -28,7 +28,8 @@ export class ThreedPartInfoComponent implements OnInit {
     });
   }
 
-  copyText(value: string) {
+  copyText(value: string | unknown) {
+    if (typeof value !== 'string') return;
     navigator.clipboard.writeText(value)
       .then(() => { this.notificationService.notification({message: 'Attribute successfully copied.', type: 'info'}); })
       .catch((err) => { this.notificationService.notification({message: 'Something went wrong.', type: 'error'}); });

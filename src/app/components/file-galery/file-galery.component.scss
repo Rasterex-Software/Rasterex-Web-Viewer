@@ -52,12 +52,13 @@
         font-size: 11px;
         line-height: 16px;
         text-align: center;
+        margin-top: 15px;
     }
 
     .main-content {
         padding: 10px 20px;
         width: 462px;
-        height: 494px;
+        height: 520px;
 
         .dnd-content {
             display: flex;
@@ -197,7 +198,7 @@
             display: flex;
             flex-direction: column;
             width: 130px;
-            height: 188px;
+            height: 200px;
             border-radius: 4px;
             border: 1px solid #EBEBEB;
             cursor: pointer;
@@ -217,9 +218,12 @@
                 border-radius: 4px 4px 0 0;
             }
             .title {
-                padding: 16px 10px;
+                padding: 8px 10px;
                 font-size: 11px;
                 color: $main;
+                word-wrap: break-word; 
+                line-height: 1.4; 
+
             }
         }
     }

@@ -58,6 +58,7 @@ var RxConfig = (function() {
 
     //meta data
     var SampleFileMetadata= baseURLBin+ "RxCSISAPI.dll?SampleFileMetadata";
+    var UploadedFileMetadata = baseURLBin + "RxCSISAPI.dll?GetMetadata"; 
     
     /* config */
 
@@ -125,7 +126,8 @@ var RxConfig = (function() {
         SampleFileList:SampleFileList,
         SampleFileThumbnail:SampleFileThumbnail,
         SampleFileDelete:SampleFileDelete,
-        SampleFileMetadata : SampleFileMetadata        
+        SampleFileMetadata : SampleFileMetadata,
+        UploadedFileMetadata:UploadedFileMetadata        
     };
 
 })();

@@ -894,6 +894,12 @@ export class AppComponent implements AfterViewInit {
       this.collabService.sendMonoChromeChange(this.getRoomId(), { onOff });
     });    
 
+    RXCore.onGuiUploadComplete((openfile :any) =>{
+
+      RXCore.openFile(`${RXCore.Config.baseFileURL}${openfile}`);
+
+    });
+
     /*RXCore.onGuiUpload((upload :any) =>{
       
       this.isUploadFile = true;

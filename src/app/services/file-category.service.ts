@@ -6,17 +6,22 @@ import { FileCategory } from '../shared/enums/file-category';
 })
 export class FileCategoryService {
   private extensionMap: { [key: string]: FileCategory } = {
-     // 2D CAD
+      // 2D CAD
   '.dwg': FileCategory.TwoD,
   '.dgn': FileCategory.TwoD,
   '.idw': FileCategory.TwoD,
-  '.plt': FileCategory.TwoD,
-  '.gbr': FileCategory.TwoD,
-  '.tif': FileCategory.TwoD,
   '.tiff': FileCategory.TwoD,
-  '.jpg': FileCategory.TwoD,
-  '.jpeg': FileCategory.TwoD,
-  '.png': FileCategory.TwoD,
+  // '.dwf': FileCategory.TwoD,
+
+  //plotter Files
+  '.plt': FileCategory.Plotter,
+  '.gbr': FileCategory.Plotter,
+
+  //Image Files
+  '.jpg': FileCategory.ImageFile,
+  '.jpeg': FileCategory.ImageFile,
+  '.png': FileCategory.ImageFile,
+   '.tif': FileCategory.ImageFile,
 
   // 3D Models
   '.stp': FileCategory.ThreeD,
@@ -25,21 +30,19 @@ export class FileCategoryService {
   '.igs': FileCategory.ThreeD,
   '.ipt': FileCategory.ThreeD,
 
-  // PDF
-  '.pdf': FileCategory.PDF,
-
   // Office
   '.doc': FileCategory.Office,
   '.docx': FileCategory.Office,
   '.xlsx': FileCategory.Office,
   '.xls': FileCategory.Office,
   '.ppt': FileCategory.Office,
-  '.pptx': FileCategory.Office
+  '.pptx': FileCategory.Office,
+  '.pdf': FileCategory.Office,
   };
 
   getCategory(fileName: string):  FileCategory {
     const extension = this.getFileExtension(fileName);
-    return this.extensionMap[extension] || 'Unknown';
+    return this.extensionMap[extension] || 'Other';
   }
 
 getCategories(

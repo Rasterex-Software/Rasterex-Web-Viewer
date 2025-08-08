@@ -4,6 +4,10 @@ import { RXCore } from 'src/rxcore';
 import { FileGaleryService } from './file-galery.service';
 import { random } from 'lodash-es';
 import { IGuiConfig } from 'src/rxcore/models/IGuiConfig';
+import { FileMetadataService } from 'src/app/services/file-metadata.service';
+import { FilePreselectionService } from 'src/app/services/file-preselection.service';
+import { DemoFileGroup, FileManageService } from 'src/app/services/file-manage.service';
+
 
 @Component({
   selector: 'rx-file-galery',
@@ -20,8 +24,7 @@ export class FileGaleryComponent implements OnInit {
   cacheUrl = RXCore.Config.xmlurlrel + '/cache/';
 
   
-
-  groups : any = RXCore.ViewUIConfig.demofiles;
+  //groups : any = RXCore.ViewUIConfig.demofiles;
 
   /*groups = [
     {
@@ -101,9 +104,9 @@ export class FileGaleryComponent implements OnInit {
 
   guiConfig: IGuiConfig | undefined;
   canCollaborate : boolean | undefined = false;
-
-  
-  selected = this.groups[0];
+  groups: DemoFileGroup[] = [];
+  selected: DemoFileGroup | undefined;
+  //selected = this.groups[0];
   leftTabActiveIndex: number = 0;
   selectedFileName: string;
   fileSize: number = 0;
@@ -111,16 +114,21 @@ export class FileGaleryComponent implements OnInit {
   file: any;
   isUploadFile: boolean = false;
   fileType: string;
+  isLoading: boolean = true;
 
   constructor(
     private readonly fileGaleryService: FileGaleryService,
-    private readonly rxCoreService: RxCoreService
+    private readonly rxCoreService: RxCoreService,
+    private readonly fileMetadataService:FileMetadataService,
+    private filePreselectionService: FilePreselectionService,
+    private demoFileService: FileManageService
   ) { }
 
 
   //constructor(private readonly fileGaleryService: FileGaleryService) { }
 
   ngOnInit() {
+    this.loadDemoFiles();
     this.fileGaleryService.getStatusActiveDocument().subscribe(status => {
       if (status === 'awaitingSetActiveDocument' && this.progressBar) this.progressBar.nativeElement.value = 100;
       else {
@@ -169,6 +177,20 @@ export class FileGaleryComponent implements OnInit {
     this.uploadFile(item);
     this.fileType = item.type;
     this.onSelect.emit(item);
+  }
+
+  async loadDemoFiles() {
+    this.isLoading = true;
+    try {
+      this.groups = await this.demoFileService.fetchDemoFiles();
+      if (this.groups.length > 0) {
+        this.selected = this.groups[0];
+      }
+    } catch (error) {
+      console.error('Error loading demo files:', error);
+    } finally {
+      this.isLoading = false;
+    }
   }
 
   handleFileUpload(event) {
@@ -221,21 +243,23 @@ export class FileGaleryComponent implements OnInit {
       reader.onload = () => {
         currentChunk++;
         
-        const progressBar = this.progressBar.nativeElement;
-        const increment = 1; 
-        const intervalDelay = 20; 
-        const finalValue = (currentChunk / totalChunks) * 95; 
-
-        let currentValue = 0;
-
-        const interval = setInterval(() => {
-          currentValue += increment;
-          progressBar.value = currentValue;
-          
-          if (currentValue >= finalValue) {
-            clearInterval(interval); 
-          }
-        }, intervalDelay);
+        if (this.progressBar?.nativeElement) {
+          const progressBar = this.progressBar.nativeElement;
+          const increment = 1; 
+          const intervalDelay = 20; 
+          const finalValue = (currentChunk / totalChunks) * 95; 
+  
+          let currentValue = 0;
+  
+          const interval = setInterval(() => {
+            currentValue += increment;
+            progressBar.value = currentValue;
+            
+            if (currentValue >= finalValue) {
+              clearInterval(interval); 
+            }
+          }, intervalDelay);
+        }
 
         if (currentChunk < totalChunks) loadNextChunk();
       };
@@ -263,6 +287,7 @@ export class FileGaleryComponent implements OnInit {
 
   handleCloseModalFileGalery() {
     this.fileGaleryService.closeModal();
+    this.filePreselectionService.resetContext();
     if (this.selectedFileName) this.clearData();
   }
 

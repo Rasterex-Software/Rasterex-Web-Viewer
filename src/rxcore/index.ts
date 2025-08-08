@@ -1170,6 +1170,11 @@ export class RXCore {
         RxCore.GUI_Upload.connect(callback);
     }
 
+    public static onGuiUploadComplete(callback: (upload: any) => void): void {
+        RxCore.GUI_UploadComplete.connect(callback);
+    }
+
+    
 
     public static onGuiMarkupHover(callback: (markup: IMarkup, x: number, y: number) => void): void {
         RxCore.GUI_MarkupHover.connect(callback);

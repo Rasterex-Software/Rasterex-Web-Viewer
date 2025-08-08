@@ -1,5 +1,35 @@
 August 8, 2025
 
+### 1. New file gallery dialog.
+### 2. Upload no longer opens the uploaded file automatically use new callback RxCore_GUI_UploadComplete
+
+    RXCore.onGuiUploadComplete((openfile :any) =>{
+      RXCore.openFile(`${RXCore.Config.baseFileURL}${openfile}`);
+    });
+
+
+Updated and new files
+
+RxCore version is now 35.97
+src\assets\scripts\rxcorefunctions.js 
+src\assets\scripts\rxconfig.js
+
+src\rxcore\index.ts
+src\app\app.component.ts
+src\app\services\thumbnail-cache.service.ts
+src\app\shared\enums\file-category.ts
+src\app\services\file-preselection.service.ts
+src\app\services\file-metadata.service.ts
+src\app\services\file-manage.service.ts
+src\app\services\file-category.service.ts
+src\app\components\file-galery\file-galery.component.ts
+src\app\components\file-galery\file-galery.component.scss
+src\app\components\file-galery\file-galery.component.html
+
+
+
+August 8, 2025
+
 ### 1. UI changes for 3D to not show non-functioning options.
 
 Updated and new files

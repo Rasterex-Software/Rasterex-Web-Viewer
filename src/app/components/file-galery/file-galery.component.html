@@ -20,20 +20,29 @@
                             <span>{{group.name}}</span>
                     </div>
                 </div>
-                <div class="file-galery-items">
-                    <div
+                <div class="file-galery-items"> 
+                    <ng-container *ngIf="selected?.items">
+                        <div
                         *ngFor="let item of selected.items;"
                         class="tile"
                         (click)="handleFileSelect(item)">
                             <!-- <div class="thumbnail"><img src="{{item.thumbnail}}" /></div> -->
                             <div class="thumbnail">
-                                <img height="85%" width="85%" [src]="item.thumbnail" />
+                                <!-- <img height="85%" width="85%" [src]="item.thumbnail" /> -->
+                                <img height="75%" width="75%" [src]="item.thumbnail" />
                             </div>
                             <div class="title">{{item.name}}</div>
+                        </div>
+                    </ng-container>
+<!--                     <br>
+                    <br>
+ -->
+                    <div *ngIf="!selected?.items" class="loading-state">
+                        Loading files...
                     </div>
-                    <br>
-                    <br>
-                    <p class="copyright">PDF Reader powered by Foxit. Copyright (c) 2003-2024 by Foxit Software Incorporated</p>
+    
+
+                    <!-- <p class="copyright">PDF Reader powered by Foxit. Copyright (c) 2003-2024 by Foxit Software Incorporated</p> -->
                 </div>
             </div>
             <div *ngSwitchCase="1">
@@ -83,9 +92,9 @@
             <div *ngSwitchCase="2">
                 <rx-recent-files (select)="onSelectRecentFile($event)"></rx-recent-files>
             </div>
-
+            <p class="copyright">PDF Reader powered by Foxit. Copyright (c) 2003-2025 by Foxit Software Incorporated</p>
         </div>
-        <p class="copyright">PDF Reader powered by Foxit. Copyright (c) 2003-2025 by Foxit Software Incorporated</p>
+        
     </div>
 
 </div>

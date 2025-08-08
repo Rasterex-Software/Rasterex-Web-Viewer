@@ -1,3 +1,13 @@
+August 8, 2025
+
+### 1. UI changes for 3D to not show non-functioning options.
+
+Updated and new files
+
+src\app\components\top-nav-menu\top-nav-menu.component.ts
+src\app\components\top-nav-menu\top-nav-menu.component.html
+
+
 August 7, 2025
 
 ### 1. Implemented new scale and calibration dialog and system.

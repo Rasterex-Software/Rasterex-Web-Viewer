@@ -609,8 +609,8 @@
     <button (click)="onWatermarkClick()">Add Watermark</button>
     <button (click)="onRemoveWatermarkClick()">Remove Watermark</button>
   </div>
-
-  <div class="top-nav-item current-scale" *ngIf="fileLength > 0">
+  
+  <div class="top-nav-item current-scale" *ngIf="fileLength > 0 && visibleOptionsCount > 1">
     <span *ngIf="scalesOptions !== undefined && scalesOptions.length === 0" (click)="onScaleChanged(null)" class="scale-not-set">Scale Not Set <img src="/assets/images/arrow-down.svg" class="btn-dropdown" /></span>
 
     <div class="scale-dropdown-section" *ngIf="scalesOptions?.length">
@@ -624,8 +624,8 @@
       </rx-scale-dropdown>
     </div>
   </div>
-
-  <div class="top-nav-item dropdown" *ngIf="fileLength > 0">
+  
+  <div class="top-nav-item dropdown" *ngIf="fileLength > 0 && visibleOptionsCount > 1">
     <rx-dropdown
       [options]="options"
       [value]="selectedValue"
@@ -658,7 +658,7 @@
     <span class="tooltip-text tooltip-bottom">Search</span>
   </div>
   <div
-    *ngIf="fileLength > 0"
+    *ngIf="fileLength > 0 && visibleOptionsCount > 1"
     [ngClass]="{ selected: isActionSelected && actionType === 'Comment' }"
     class="tooltip Comments-icon"
     (click)="onCommentPanelSelect()"

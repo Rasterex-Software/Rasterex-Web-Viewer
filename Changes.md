@@ -1,3 +1,24 @@
+August 22, 2025
+
+### 1. Updated File Gallery dialog with improved thumbnails.
+### 2. Automatic file open on upload is now default but can be turned off using new method RxCore.autoUpload(false)
+### 3. Sample file folder reference added to rxconfig.js
+
+
+Updated and new files
+
+
+RxCore version is now 35.98
+src\assets\scripts\rxcorefunctions.js 
+src\assets\scripts\rxconfig.js
+
+src\rxcore\index.ts
+src\app\services\file-manage.service.ts
+src\app\services\file-category.service.ts
+src\app\components\file-galery\file-galery.component.html
+
+
+
 August 8, 2025
 
 ### 1. New file gallery dialog.
@@ -22,6 +43,7 @@ src\app\services\file-preselection.service.ts
 src\app\services\file-metadata.service.ts
 src\app\services\file-manage.service.ts
 src\app\services\file-category.service.ts
+
 src\app\components\file-galery\file-galery.component.ts
 src\app\components\file-galery\file-galery.component.scss
 src\app\components\file-galery\file-galery.component.html

@@ -10,7 +10,11 @@ export class FileCategoryService {
   '.dwg': FileCategory.TwoD,
   '.dgn': FileCategory.TwoD,
   '.idw': FileCategory.TwoD,
-  '.tiff': FileCategory.TwoD,
+  '.dwf': FileCategory.TwoD,
+  '.dwfx': FileCategory.TwoD,
+  '.cgm': FileCategory.TwoD,
+  '.mi': FileCategory.TwoD,
+  
   // '.dwf': FileCategory.TwoD,
 
   //plotter Files
@@ -21,7 +25,22 @@ export class FileCategoryService {
   '.jpg': FileCategory.ImageFile,
   '.jpeg': FileCategory.ImageFile,
   '.png': FileCategory.ImageFile,
-   '.tif': FileCategory.ImageFile,
+  '.tif': FileCategory.ImageFile,
+  '.avif': FileCategory.ImageFile,
+  '.bmp': FileCategory.ImageFile,
+  '.cal': FileCategory.ImageFile,
+  '.cg4': FileCategory.ImageFile,
+  '.cit': FileCategory.ImageFile,
+  '.gif': FileCategory.ImageFile,
+  '.heic': FileCategory.ImageFile,
+  '.pcx': FileCategory.ImageFile,
+  '.psd': FileCategory.ImageFile,
+  '.rlc': FileCategory.ImageFile,
+  '.tga': FileCategory.ImageFile,
+  '.tiff': FileCategory.ImageFile,
+  '.tg4': FileCategory.ImageFile,
+  '.webp': FileCategory.ImageFile,
+
 
   // 3D Models
   '.stp': FileCategory.ThreeD,
@@ -29,6 +48,8 @@ export class FileCategoryService {
   '.ifc': FileCategory.ThreeD,
   '.igs': FileCategory.ThreeD,
   '.ipt': FileCategory.ThreeD,
+  '.iges': FileCategory.ThreeD,
+  '.stl': FileCategory.ThreeD,
 
   // Office
   '.doc': FileCategory.Office,

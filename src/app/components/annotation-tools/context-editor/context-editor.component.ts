@@ -242,11 +242,16 @@ export class ContextEditorComponent implements OnInit {
     });
   }
 
-  /*adjustTextareaHeight(event: Event): void {
+  adjustTextareaHeight(event: Event): void {
     const textarea = event.target as HTMLTextAreaElement;
     textarea.style.height = 'auto';
     textarea.style.height = `${textarea.scrollHeight}px`;
-  }*/
+
+    var ratio = (this.rectangle.h / this.rectangle.w).toFixed(6);
+    RXCore.adjustTextAnnotationHeight(textarea.offsetWidth, textarea.scrollHeight, ratio);
+
+
+  }
 
   showContextEditor(right, left, bottom, top, isArrow: boolean = false) {
 

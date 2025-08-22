@@ -34,7 +34,7 @@ export class AppComponent implements AfterViewInit {
   guiConfig: IGuiConfig | undefined;
   title: string = 'rasterex-viewer';
 
-  uiversion : string = '12.1.0.5'
+  uiversion : string = '12.2.0.0'
   numOpenFiles$ = this.rxCoreService.numOpenedFiles$;
   annotation: any;
   rectangle: any;
@@ -164,6 +164,7 @@ export class AppComponent implements AfterViewInit {
     RXCore.forceUniqueMarkup(true);
     RXCore.scaleOnResize(false);
     RXCore.restrictPan(false);
+    RXCore.autoUpload(false);
     RXCore.overrideLinewidth(true, 1.0);
 
 
@@ -507,7 +508,7 @@ export class AppComponent implements AfterViewInit {
 
       if(this.guiConfig?.watermarkdemo){
 
-        RXCore.addWatermarkToAllPages('έγγραφο', {
+        RXCore.addWatermarkToAllPages('Rasterex', {
           position: 'Center',
           offsetX: 0,
           offsetY: 0,
@@ -585,7 +586,7 @@ export class AppComponent implements AfterViewInit {
 
 
     RXCore.onGuiMarkupIndex((annotation: any, operation: any) => {
-      console.log('RxCore GUI_Markup index:', annotation, operation);
+      //console.log('RxCore GUI_Markup index:', annotation, operation);
       if (annotation !== -1 || this.rxCoreService.lastGuiMarkup.markup !== -1) {
         this.rxCoreService.setGuiMarkupIndex(annotation, operation);
         //this.rxCoreService.setGuiMarkupMeasureRealTimeData(annotation);
@@ -652,7 +653,7 @@ export class AppComponent implements AfterViewInit {
 
     RXCore.onGuiTextInput((rectangle: any, operation: any) => {
       this.rxCoreService.setGuiTextInput(rectangle, operation);
-      console.log('onGuiTextInput:', rectangle, operation);
+      //console.log('onGuiTextInput:', rectangle, operation);
       if(operation.start && operation.markup){
         this.addTextMarkup(operation.markup);
         
@@ -813,7 +814,7 @@ export class AppComponent implements AfterViewInit {
     let timeoutId: any = null;
 
     RXCore.onGuiPageScale((fileindex, pagenumber, scaleobject) => {
-      console.log('RxCore onGuiPageScale:', fileindex, pagenumber, scaleobject);
+      //console.log('RxCore onGuiPageScale:', fileindex, pagenumber, scaleobject);
       if (!this.isCollaborate() || !this.collabService.needMeasureScaleSync()) {
         return;
       }
@@ -857,7 +858,7 @@ export class AppComponent implements AfterViewInit {
     });
 
     RXCore.onZoomUpdated((zoomparams:any, type : number) => {
-      console.log('RxCore onZoomUpdated:', zoomparams, type);
+      //console.log('RxCore onZoomUpdated:', zoomparams, type);
       this.rxCoreService.setGuiZoomUpdated(zoomparams, type);
       if (!this.isCollaborate() || !this.collabService.isCurrentUserRoomPresenter()) {
         return;
@@ -870,7 +871,7 @@ export class AppComponent implements AfterViewInit {
     });
 
     RXCore.onRotatePage((degree: number, pageIndex: number) => {
-      console.log('RxCore onRotatePage:', degree, pageIndex);
+      //console.log('RxCore onRotatePage:', degree, pageIndex);
       this.rxCoreService.setGuiRotatePage(degree, pageIndex);
       if (!this.isCollaborate() || !this.collabService.isCurrentUserRoomPresenter()) {
         return;
@@ -879,7 +880,7 @@ export class AppComponent implements AfterViewInit {
     });
 
     RXCore.onBackgroundColorChanged((color: string) => {
-      console.log('RxCore onBackgroundColorChanged:', color);
+      //console.log('RxCore onBackgroundColorChanged:', color);
       if (!this.isCollaborate() || !this.collabService.isCurrentUserRoomPresenter()) {
         return;
       }
@@ -887,7 +888,7 @@ export class AppComponent implements AfterViewInit {
     });
 
     RXCore.onViewModeChanged((onOff: boolean) => {
-      console.log('RxCore onViewModeChanged:', onOff);
+      //console.log('RxCore onViewModeChanged:', onOff);
       if (!this.isCollaborate() || !this.collabService.isCurrentUserRoomPresenter()) {
         return;
       }
@@ -1189,6 +1190,7 @@ export class AppComponent implements AfterViewInit {
         if(initialDoc.openfileobj != null){
             this.binitfileopened = true;
             RXCore.openFile(initialDoc.openfileobj);
+
         }
       }
     }

@@ -23,6 +23,10 @@ export class RXCore {
         RxCore.measureArc(onoff);
     }
 
+    public static adjustTextAnnotationHeight(w: number, h: number, ratio: string): void{
+        RxCore.adjustTextAnnotationHeight(w, h, ratio);
+    }
+
     public static birdseyetool(): void {
         RxCore.birdseyetool();
     }
@@ -1451,9 +1455,25 @@ export class RXCore {
         RxCore.addWatermarkToAllPages(text, settings);
     }
 
+    public static addWatermarkToPage(pagenumber: number, text: string, settings: any): void {
+        RxCore.addWatermarkToPage(pagenumber, text, settings);
+    }
+
+    public static autoUpload(onoff: boolean): void {
+        RxCore.autoUpload(onoff);
+    }
+
+    
+
     public static removeWatermarkFromAllPages(): void {
         RxCore.removeWatermarkFromAllPages();
     }
+
+    /*public static addWatermarkRender(text: string, settings: any): void {
+        RxCore.addWatermarkRender(text, settings);
+    }*/
+
+    
 
     public static importFDF(url : any, blob : any): void {
         RxCore.importFDF(url, blob);

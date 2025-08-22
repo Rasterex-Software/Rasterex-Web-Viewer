@@ -46,6 +46,8 @@ var RxConfig = (function() {
     var PDFcmap = baseURLWeb + "pdfjs/web/cmaps/";
 
     var baseFileURL = "E:\\\\Rasterex\\\\Upload\\\\";
+    var sampleFileURL = "E:\\\\Rasterex\\\\Samples\\\\";
+
 
     var PDFLib = baseURLWeb + "pdfjs/build/pdf.js";
     var PDFWorker = baseURLWeb + "pdfjs/build/pdf.worker.js";
@@ -123,6 +125,7 @@ var RxConfig = (function() {
         putInitial : putInitial,
         getInitial : getInitial,
         SampleFileUploadURL:SampleFileUploadURL,
+        sampleFileURL : sampleFileURL,
         SampleFileList:SampleFileList,
         SampleFileThumbnail:SampleFileThumbnail,
         SampleFileDelete:SampleFileDelete,

@@ -74,6 +74,8 @@ export class TopNavMenuComponent implements OnInit {
   fileLength: number = 0;
   collabPanelOpened: boolean = false;
   private sidebarPanelActive: boolean = false;
+  private fontloaded: boolean = false;
+
   scalesOptions: any = [];
   private rxCoreReady: boolean = false;
 
@@ -129,6 +131,8 @@ export class TopNavMenuComponent implements OnInit {
   ngOnInit(): void {
     this.handleIconRotation();
     this._setOptions();
+    //this.addFont();
+
     // Subscribe to user changes and reload user-specific scales
     this.userService.currentUser$.subscribe(user => {
       if (user) {
@@ -348,6 +352,41 @@ export class TopNavMenuComponent implements OnInit {
     })
   }
 
+  addFont():void{
+
+    if (this.fontloaded){
+      return;
+    }
+
+    let newFont = new FontFace('Noto Sans', 'url(./assets/fonts/NotoSans-VariableFont.ttf)', 
+      {
+          style: 'normal',
+          weight: 'normal',
+          unicodeRange: 'U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116' 
+      }
+    );
+
+    
+    newFont.load().then((font) => this.setFontLoaded(font)).catch((err) => {
+      console.error('Font load failed:', err);
+    });
+    
+
+  }
+
+  setFontLoaded(font: FontFace): void {
+    
+    (document.fonts as any).add(font);
+    this.fontloaded = true;
+
+    /*if ('add' in document.fonts) {
+      //(document.fonts as FontFaceSet).add(font);
+    } else {
+      console.warn('FontFaceSet.add is not supported in this environment.');
+    }*/
+  }
+
+  
 
   handlePrint(event: KeyboardEvent) {
     event.preventDefault();
@@ -365,7 +404,7 @@ export class TopNavMenuComponent implements OnInit {
   }
 
   handleFileSelect(item: any) {
-    RXCore.openFile(`${RXCore.Config.baseFileURL}${item.file}`);
+    RXCore.openFile(`${RXCore.Config.sampleFileURL}${item.file}`);
   }
 
   handleOnFileUpload() {
@@ -789,14 +828,30 @@ export class TopNavMenuComponent implements OnInit {
     this.sidebarPanelActive = false;
   }
 
+  //КОНФИДЕНЦИАЛЬНО
+
   onWatermarkClick(): void {
+
+    
+    /*RXCore.addWatermarkRender('КОНФИДЕНЦИАЛЬНО', {
+      position: 'Center',
+      offsetX: 0,
+      offsetY: 0,
+      scale: 0.5,
+      opacity: 50,
+      font: 'OpenSans',
+      fontSize: 48,
+      rotation: 45,
+      flags : 2
+    });*/        
+
     RXCore.addWatermarkToAllPages('Rasterex', {
       position: 'Center',
       offsetX: 0,
       offsetY: 0,
-      scale: 1,
+      scale: 0.25,
       opacity: 50,
-      font: 4,
+      font: 'OpenSans',
       rotation: 45,
       flags : 2
     });

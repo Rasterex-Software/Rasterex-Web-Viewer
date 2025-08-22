@@ -29,7 +29,7 @@
                             <!-- <div class="thumbnail"><img src="{{item.thumbnail}}" /></div> -->
                             <div class="thumbnail">
                                 <!-- <img height="85%" width="85%" [src]="item.thumbnail" /> -->
-                                <img height="75%" width="75%" [src]="item.thumbnail" />
+                                <img width="90%" [src]="item.thumbnail" />
                             </div>
                             <div class="title">{{item.name}}</div>
                         </div>
@@ -57,18 +57,20 @@
                             (change)="handleFileUpload($event)" />
                         <img src="/assets/images/files-img.svg" />
                         <p class="dnd-text">Drag & drop a file here or</p>
-                        <span class="dnd-choose">CHOOSE ON COMPUTER</span>
+                        <span class="dnd-choose">CHOOSE FILE</span>
                     </div>
                 </rx-dnd-zone>
                 <div *ngIf="!selectedFileName; else fileUploadProgress" class="acceptable-formats">
-                    <h4>Acceptable formats</h4>
+                    <h4>Acceptable file formats</h4>
                     <ul>
                         <li>PDF</li>
-                        <li>Microsoft Office (doc, docx, xlsl, pptx)</li>
-                        <li>Images (jpg, png, tif, bmp)</li>
-                        <li>Other text formats like </li>
+                        <li>CAD Drawings (dwg, dgn, idw)</li>
+                        <li>Office Documents (doc, docx, xls, xlsx)</li>
+                        <li>Images (jpg, png, tif, bmp, cals)</li>
+                        <li>3D Models (ifc, step, ipt, stl)</li>
+                        <li>The maximum file size for upload is limited to 25MB in this demo</li>
                     </ul>
-
+                    <br>
                     <!-- <p class="copyright">PDF Reader powered by Foxit. Copyright (c) 2003-2024 by Foxit Software Incorporated</p> -->
 
                 </div>

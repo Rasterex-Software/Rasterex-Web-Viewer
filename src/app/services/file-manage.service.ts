@@ -109,7 +109,9 @@ export class FileManageService {
       });
     });
   }
-  async getFileThumbnail(fileName: string, width: number = 300, height: number = 300): Promise<string> {
+  //async getFileThumbnail(fileName: string, width: number = 300, height: number = 300): Promise<string> {
+
+  async getFileThumbnail(fileName: string, width: number = 260, height: number = 338): Promise<string> {
     // First try to get from cache
     const cachedThumbnail = await this.thumbnailCacheService.getCachedThumbnail(fileName);
     if (cachedThumbnail) {

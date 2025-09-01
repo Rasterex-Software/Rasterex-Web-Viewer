@@ -1368,10 +1368,21 @@ export class NotePanelComponent implements OnInit {
       const xscaled = (markup.xscaled || markup.x) / window.devicePixelRatio;
       const yscaled = (markup.yscaled || markup.y) / window.devicePixelRatio;
 
+      const wscaledus = (markup.wscaled || markup.w);
+      const hscaledus = (markup.hscaled || markup.h);
+      const xscaledus = (markup.xscaled || markup.x);
+      const yscaledus = (markup.yscaled || markup.y);
+  
+
 
       let rely = yscaled + (hscaled  * 0.5);
       let absy = yscaled + ((hscaled - yscaled) * 0.5);
       let absx = xscaled + ((wscaled - xscaled) * 0.5);
+
+      let absyus = yscaledus + ((hscaledus - yscaledus) * 0.5);
+      let absxus = xscaledus + ((wscaledus - xscaledus) * 0.5);
+
+
 
       let sidepointabsright = {
         x : wscaled,
@@ -1430,24 +1441,24 @@ export class NotePanelComponent implements OnInit {
 
 
           if(this.pageRotation != 0){
-            let rotpoint1 = markup.getrotatedPoint(xscaled, yscaled);
-            let rotpoint2 = markup.getrotatedPoint(absx, hscaled);
-            let rotpoint3 = markup.getrotatedPoint(absx, yscaled);
-            let rotpoint4 = markup.getrotatedPoint(xscaled, absy);
+            let rotpoint1 = markup.getrotatedPoint(xscaledus, yscaledus);
+            let rotpoint2 = markup.getrotatedPoint(absxus, hscaledus);
+            let rotpoint3 = markup.getrotatedPoint(absxus, yscaledus);
+            let rotpoint4 = markup.getrotatedPoint(xscaledus, absyus);
   
             if (this.pageRotation == 90){
-              xval = rotpoint3.x;
-              yval = rotpoint3.y;
+              xval = rotpoint3.x / window.devicePixelRatio;
+              yval = rotpoint3.y / window.devicePixelRatio;
             }
   
             if (this.pageRotation == 180){
-              xval = rotpoint4.x;
-              yval = rotpoint4.y;
+              xval = rotpoint4.x / window.devicePixelRatio;
+              yval = rotpoint4.y / window.devicePixelRatio;
             }
 
             if (this.pageRotation == 270){
-              xval = rotpoint2.x;
-              yval = rotpoint2.y;
+              xval = rotpoint2.x / window.devicePixelRatio;
+              yval = rotpoint2.y / window.devicePixelRatio;
             }
        
   
@@ -1487,24 +1498,24 @@ export class NotePanelComponent implements OnInit {
     
 
           if(this.pageRotation != 0){
-            let rotpoint1 = markup.getrotatedPoint(xscaled, yscaled);
-            let rotpoint2 = markup.getrotatedPoint(xscaled + (wscaled * 0.5), yscaled + hscaled);
-            let rotpoint3 = markup.getrotatedPoint(xscaled + (wscaled * 0.5), yscaled);
-            let rotpoint4 = markup.getrotatedPoint(xscaled, yscaled + (hscaled * 0.5));
+            let rotpoint1 = markup.getrotatedPoint(xscaledus, yscaledus);
+            let rotpoint2 = markup.getrotatedPoint(xscaledus + (wscaledus * 0.5), Math.max(yscaledus + hscaledus, yscaledus));
+            let rotpoint3 = markup.getrotatedPoint(xscaledus + (wscaledus * 0.5), Math.min(yscaledus + hscaledus, yscaledus));
+            let rotpoint4 = markup.getrotatedPoint(xscaledus, yscaledus + (hscaledus * 0.5));
   
             if (this.pageRotation == 90){
-              xval = rotpoint3.x;
-              yval = rotpoint3.y;
+              xval = rotpoint3.x / window.devicePixelRatio;
+              yval = rotpoint3.y / window.devicePixelRatio;
             }
   
             if (this.pageRotation == 180){
-              xval = rotpoint4.x;
-              yval = rotpoint4.y;
+              xval = rotpoint4.x / window.devicePixelRatio;
+              yval = rotpoint4.y / window.devicePixelRatio;
             }
 
             if (this.pageRotation == 270){
-              xval = rotpoint2.x;
-              yval = rotpoint2.y;
+              xval = rotpoint2.x / window.devicePixelRatio;
+              yval = rotpoint2.y / window.devicePixelRatio;
             }
        
   
@@ -1541,17 +1552,17 @@ export class NotePanelComponent implements OnInit {
           }
 
           if(this.pageRotation != 0){
-            let rotpoint1 = markup.getrotatedPoint(xscaled, yscaled);
-            let rotpoint2 = markup.getrotatedPoint(wscaled, hscaled);
+            let rotpoint1 = markup.getrotatedPoint(xscaledus, yscaledus);
+            let rotpoint2 = markup.getrotatedPoint(wscaledus, hscaledus);
   
     
             if (this.pageRotation == 90){
               if(rotpoint1.x > rotpoint2.x){
-                xright = rotpoint1.x;
-                yright = rotpoint1.y;
+                xright = rotpoint1.x / window.devicePixelRatio;
+                yright = rotpoint1.y / window.devicePixelRatio;
               }else{
-                xright = rotpoint2.x;
-                yright = rotpoint2.y;
+                xright = rotpoint2.x / window.devicePixelRatio;
+                yright = rotpoint2.y / window.devicePixelRatio;
       
               }
             }
@@ -1559,11 +1570,11 @@ export class NotePanelComponent implements OnInit {
             if (this.pageRotation == 180){
               
               if(rotpoint1.x > rotpoint2.x){
-                xright = rotpoint1.x;
-                yright = rotpoint1.y;
+                xright = rotpoint1.x / window.devicePixelRatio;
+                yright = rotpoint1.y / window.devicePixelRatio;
               }else{
-                xright = rotpoint2.x;
-                yright = rotpoint2.y;
+                xright = rotpoint2.x / window.devicePixelRatio;
+                yright = rotpoint2.y / window.devicePixelRatio;
       
               }
   
@@ -1572,11 +1583,11 @@ export class NotePanelComponent implements OnInit {
   
             if (this.pageRotation == 270){
               if(rotpoint1.x > rotpoint2.x){
-                xright = rotpoint1.x;
-                yright = rotpoint1.y;
+                xright = rotpoint1.x / window.devicePixelRatio;
+                yright = rotpoint1.y / window.devicePixelRatio;
               }else{
-                xright = rotpoint2.x;
-                yright = rotpoint2.y;
+                xright = rotpoint2.x / window.devicePixelRatio;
+                yright = rotpoint2.y / window.devicePixelRatio;
       
               }
             }
@@ -1606,17 +1617,17 @@ export class NotePanelComponent implements OnInit {
 
 
         if(this.pageRotation != 0){
-          let rotpoint1 = markup.getrotatedPoint(xscaled, yscaled);
-          let rotpoint2 = markup.getrotatedPoint(wscaled, hscaled);
+          let rotpoint1 = markup.getrotatedPoint(xscaledus, yscaledus);
+          let rotpoint2 = markup.getrotatedPoint(wscaledus, hscaledus);
 
   
           if (this.pageRotation == 90){
             if(rotpoint1.x > rotpoint2.x){
-              xright = rotpoint1.x;
-              yright = rotpoint1.y;
+              xright = rotpoint1.x / window.devicePixelRatio;
+              yright = rotpoint1.y / window.devicePixelRatio;
             }else{
-              xright = rotpoint2.x;
-              yright = rotpoint2.y;
+              xright = rotpoint2.x / window.devicePixelRatio;
+              yright = rotpoint2.y / window.devicePixelRatio;
     
             }
           }
@@ -1624,11 +1635,11 @@ export class NotePanelComponent implements OnInit {
           if (this.pageRotation == 180){
             
             if(rotpoint1.x > rotpoint2.x){
-              xright = rotpoint1.x;
-              yright = rotpoint1.y;
+              xright = rotpoint1.x / window.devicePixelRatio;
+              yright = rotpoint1.y / window.devicePixelRatio;
             }else{
-              xright = rotpoint2.x;
-              yright = rotpoint2.y;
+              xright = rotpoint2.x / window.devicePixelRatio;
+              yright = rotpoint2.y / window.devicePixelRatio;
     
             }
 
@@ -1637,11 +1648,11 @@ export class NotePanelComponent implements OnInit {
 
           if (this.pageRotation == 270){
             if(rotpoint1.x > rotpoint2.x){
-              xright = rotpoint1.x;
-              yright = rotpoint1.y;
+              xright = rotpoint1.x / window.devicePixelRatio;
+              yright = rotpoint1.y / window.devicePixelRatio;
             }else{
-              xright = rotpoint2.x;
-              yright = rotpoint2.y;
+              xright = rotpoint2.x / window.devicePixelRatio;
+              yright = rotpoint2.y / window.devicePixelRatio;
     
             }
           }
@@ -1671,24 +1682,24 @@ export class NotePanelComponent implements OnInit {
 
 
           if(this.pageRotation != 0){
-            let rotpoint1 = markup.getrotatedPoint(xscaled, yscaled);
-            let rotpoint2 = markup.getrotatedPoint(xscaled + (wscaled * 0.5), yscaled + hscaled);
-            let rotpoint3 = markup.getrotatedPoint(xscaled + (wscaled * 0.5), yscaled);
-            let rotpoint4 = markup.getrotatedPoint(xscaled, yscaled + (hscaled * 0.5));
+            let rotpoint1 = markup.getrotatedPoint(xscaledus, yscaledus);
+            let rotpoint2 = markup.getrotatedPoint(xscaledus + (wscaledus * 0.5), Math.max(yscaledus + hscaledus, yscaledus));
+            let rotpoint3 = markup.getrotatedPoint(xscaledus + (wscaledus * 0.5), Math.min(yscaledus + hscaledus, yscaledus));
+            let rotpoint4 = markup.getrotatedPoint(xscaledus, yscaledus + (hscaledus * 0.5));
   
             if (this.pageRotation == 90){
-              xval = rotpoint3.x;
-              yval = rotpoint3.y;
+              xval = rotpoint3.x / window.devicePixelRatio;
+              yval = rotpoint3.y / window.devicePixelRatio;
             }
   
             if (this.pageRotation == 180){
-              xval = rotpoint4.x;
-              yval = rotpoint4.y;
+              xval = rotpoint4.x / window.devicePixelRatio;
+              yval = rotpoint4.y / window.devicePixelRatio;
             }
 
             if (this.pageRotation == 270){
-              xval = rotpoint2.x;
-              yval = rotpoint2.y;
+              xval = rotpoint2.x / window.devicePixelRatio;
+              yval = rotpoint2.y / window.devicePixelRatio;
             }
        
   

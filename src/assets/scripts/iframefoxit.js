@@ -3388,13 +3388,13 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
                     foxview.snapinprogress = true;
                     page.getSnappedPoint(pointrd, mode).then(function(fxsnapPoint) {
                         if (fxsnapPoint) {
-                            console.log("Found snap point in PDF coordinates:", fxsnapPoint);
+                            //console.log("Found snap point in PDF coordinates:", fxsnapPoint);
                             if (fxsnapPoint.x != pointrd.x || fxsnapPoint.y != pointrd.y) {
                                 // Convert PDF coordinates to device coordinates
                                 var pointarray = [fxsnapPoint.x, fxsnapPoint.y];
                                 var dvcpoint = page.getDevicePoint(pointarray, scale, rotation);
                                 var clientPoint = {x : dvcpoint[0], y : dvcpoint[1]};
-                                console.log("Final client coordinates:", clientPoint);
+                                //console.log("Final client coordinates:", clientPoint);
                                 callback({ found: true, x: clientPoint.x, y: clientPoint.y, type: 1, scale: scale, pageIndex: actualPageIndex});
 
                             } else {

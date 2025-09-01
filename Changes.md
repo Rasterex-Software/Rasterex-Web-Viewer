@@ -1,3 +1,18 @@
+August 29, 2025
+
+### 1. Fixed pointer line from comment list from rotated PDF page.
+### 2. Added some error checking to functions for setting scale.
+### 3. Correction for area holes drawing and area calculation.
+
+Updated and new files
+
+RxCore version is now 35.991
+src\assets\scripts\rxcorefunctions.js 
+
+src\app\components\annotation-tools\measure-detail-panel\measure-detail-panel.component.ts
+src\app\components\annotation-tools\note-panel\note-panel.component.ts
+
+
 August 22, 2025
 
 ### 1. Updated File Gallery dialog with improved thumbnails.

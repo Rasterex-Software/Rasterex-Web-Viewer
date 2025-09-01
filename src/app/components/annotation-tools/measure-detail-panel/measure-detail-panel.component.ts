@@ -411,13 +411,17 @@ export class MeasureDetailPanelComponent implements OnInit, OnDestroy {
   };
 
   applyScale(selectedScaleObj: any) {    
-    this.updateMetric(selectedScaleObj.metric);
-    this.updateMetricUnit(selectedScaleObj.metric, selectedScaleObj.metricUnit);
 
-    RXCore.setElementDimPrecision(selectedScaleObj.dimPrecision);
-
-    RXCore.elementScale(selectedScaleObj.value);
-    RXCore.setElementScaleLabel(selectedScaleObj.label);
+    if(selectedScaleObj != null){
+      this.updateMetric(selectedScaleObj.metric);
+      this.updateMetricUnit(selectedScaleObj.metric, selectedScaleObj.metricUnit);
+  
+      RXCore.setElementDimPrecision(selectedScaleObj.dimPrecision);
+  
+      RXCore.elementScale(selectedScaleObj.value);
+      RXCore.setElementScaleLabel(selectedScaleObj.label);
+        
+    }
 
     RXCore.markUpRedraw();
     this.manageRealTimeBox(this.measureData);

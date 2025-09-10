@@ -7,7 +7,7 @@ September 10, 2025
 ### 4. Newly created rooms do not have annotations.
 ### 5. Fixed printing for PDF pages.
 ### 6. Reintroduced quick menu for holes.
-
+### 7. Fixed various problems with scaling.
 
 
 Updated and new files

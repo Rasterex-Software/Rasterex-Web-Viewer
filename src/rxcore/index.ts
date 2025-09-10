@@ -146,6 +146,10 @@ export class RXCore {
         RxCore.hideTextInput();
     }
 
+    public static setCollabBlock(onoff: boolean): void {
+        RxCore.setcollabBlock(onoff);
+    }
+
     public static zoomIn(): void {
         RxCore.zoomIn();
     }

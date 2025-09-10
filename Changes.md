@@ -1,3 +1,20 @@
+September 10, 2025
+
+### 1. Fix the problem of inconsistent viewport synchronization.
+### 2. The presenter mode only be available in custom-made rooms.
+### 3. Non-presenter users in the room are prohibited from operations such as zooming and panning.
+### 4. Newly created rooms do not have annotations.
+
+Updated and new files
+
+src\assets\scripts\rxcorefunctions.js 
+
+src\rxcore\index.ts
+src\app\app.component.ts
+src\app\components\collab\room-panel.component.html
+src\app\components\collab\room-panel.component.ts
+src\app\services\collab.service.ts
+
 August 29, 2025
 
 ### 1. Fixed pointer line from comment list from rotated PDF page.

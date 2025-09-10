@@ -64,6 +64,7 @@ export class RoomPanelComponent implements OnInit {
         return;
       }
 
+      let bBlockOperation = false;
       // if the change is for active room, then handle it. Otherwise, ignore it.
       const roomInfo = this.roomInfoArray.find(info => info.joinedRoom);
       if (roomInfo) {
@@ -72,8 +73,19 @@ export class RoomPanelComponent implements OnInit {
           roomInfo.participants.sort((a, b) => {
             return a.displayName.toLowerCase() >= b.displayName.toLowerCase() ? 1: -1
           });
+              // This indicates that the presenter already exists.
+          if (roomInfo.participants.find(p => p.isPresenter)) {
+            bBlockOperation = true;
+          }
+
+          if (this.collabService.isCurrentUserRoomPresenter()) {
+            bBlockOperation = false;
+          }
         }
+
       }
+
+      RXCore.setCollabBlock(bBlockOperation);
     })
 
     this.topNavMenuService.activeFile$.subscribe((file) => {
@@ -195,7 +207,7 @@ export class RoomPanelComponent implements OnInit {
     // Firstly, leave the current room if any
     let roomInfo = this.roomInfoArray.find(info => info.joinedRoom);
     if (roomInfo) {
-      this.leaveRoom();
+      await this.leaveRoom();
     }
 
     // Then, find or create the room info for the new room
@@ -220,8 +232,10 @@ export class RoomPanelComponent implements OnInit {
     if (!roomInfo) {
       return;
     }
+    // After leaving the room, the corresponding messages cannot be received.
     const ret = await this.collabService.leaveRoom(roomInfo.roomId);
-    if (ret) {
+    if (ret) { 
+      RXCore.setCollabBlock(false);
       roomInfo.joinedRoom = false;
       roomInfo.participants = [];
       this.updateParticipants(roomInfo.roomId);
@@ -345,6 +359,6 @@ export class RoomPanelComponent implements OnInit {
   }
 
   public isDefaultRoom(roomId: string): boolean {
-    return roomId.endsWith("default_room");
+    return this.collabService.isDefaultRoom(roomId);
   }
 }

@@ -783,19 +783,20 @@ export class AppComponent implements AfterViewInit {
       //}
     });    
 
-    RXCore.onGuiPanUpdated((sx, sy, pagerect) => { 
-      this.rxCoreService.guiOnPanUpdated.next({sx, sy, pagerect});
-    });
+    // RXCore.onGuiPanUpdated((sx, sy, pagerect) => { 
+    //   this.rxCoreService.guiOnPanUpdated.next({sx, sy, pagerect});
+    // });
 
-    RXCore.onGuiZoomUpdate((zoomparams, type) => { 
+    RXCore.onGuiZoomUpdate((zoomparams, type) => {
+      //console.log('RxCore onGuiZoomUpdate:', zoomparams, type);
       this.rxCoreService.guiOnZoomUpdate.next({zoomparams, type});
 
       if (!this.isCollaborate() || !this.collabService.isCurrentUserRoomPresenter()) {
         return;
       }
-      if (type !== 2) {
-        return;
-      }
+      // if (type !== 2) {
+      //   return;
+      // }
 
       this.collabService.sendPageRectChange(this.getRoomId(), { zoomparams, type });
 

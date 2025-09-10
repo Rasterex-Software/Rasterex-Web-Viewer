@@ -51,7 +51,8 @@
             <span *ngIf="socketId && participant.socketId == socketId" class="span-you" title="This is yourself"> (You)</span>
             <span *ngIf="socketId && participant.isPresenter && participant.socketId == socketId" class="span-presenter" title="You are the room presenter"> (Presenter)</span>
             <span *ngIf="socketId && participant.isPresenter && participant.socketId != socketId" class="span-presenter" title="{{participant.displayName}} is the room presenter"> (Presenter)</span>
-            <div *ngIf="socketId && participant.socketId == socketId" class="button-group">
+            <!-- In a non-default room, a participant can become a presenter -->
+            <div *ngIf="socketId && participant.socketId == socketId && !isDefaultRoom(activeRoomId)" class="button-group">
               <button *ngIf="!participant.isPresenter" (click)="openPresenterConfirmDialog()" class="btn" title="Start presenting">
                 <img src="/assets/images/presenter.svg" alt="Presenter on" srcset="">
               </button>

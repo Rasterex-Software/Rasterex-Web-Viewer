@@ -4,6 +4,9 @@ import { MeasurePanelService } from '../measure-panel/measure-panel.service';
 import { metricUnitsOptions, imperialUnitsOptions } from 'src/app/shared/measure-options';
 import { MetricUnitType } from 'src/app/domain/enums';
 import { RxCoreService } from 'src/app/services/rxcore.service';
+import { FileScaleStorageService } from 'src/app/services/file-scale-storage.service';
+import { ScaleManagementService } from 'src/app/services/scale-management.service';
+import { RXCore } from 'src/rxcore';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -33,17 +36,39 @@ export class ScaleDropdownComponent implements OnInit, OnDestroy {
   public opened: boolean = false;
   private currentIndex = -1;
   private subscription: Subscription;
+  private currentFile: any = null;
 
   constructor(
     private readonly cdr: ChangeDetectorRef,
     private elem: ElementRef,
     private readonly annotationToolsService: AnnotationToolsService,
     private readonly measurePanelService: MeasurePanelService,
-    private readonly rxCoreService: RxCoreService) { }
+    private readonly rxCoreService: RxCoreService,
+    private readonly fileScaleStorage: FileScaleStorageService,
+    private readonly scaleManagementService: ScaleManagementService
+    ) { }
 
   ngOnInit(): void {
     this.subscription = this.rxCoreService.guiPage$.subscribe(() => {
       this.cdr.markForCheck();
+    });
+    // Track file changes to update scale options
+    this.rxCoreService.guiState$.subscribe(state => {
+      const file = RXCore.getOpenFilesList().find(file => file.isActive);
+      
+      if (file && (!this.currentFile || this.currentFile.index !== file.index)) {
+        this.currentFile = file;
+        this.updateScaleOptionsFromFile();
+        // Force apply the selected scale for the new file
+        this.forceApplySelectedScaleForFile();
+      }
+    });
+
+    // Listen for scale changes to refresh options
+    this.scaleManagementService.scales$.subscribe(scales => {
+      if (this.currentFile) {
+        this.updateScaleOptionsFromFile();
+      }
     });
   }
 
@@ -53,6 +78,10 @@ export class ScaleDropdownComponent implements OnInit, OnDestroy {
 
   handleSelect(item: any) {
     this.selectedScale = item;
+
+    if (this.currentFile) {
+      this.fileScaleStorage.setSelectedScaleForFile(this.currentFile, item);
+    }
     this.onValueChange.emit(this.selectedScale);
     this.opened = false;
     this.cdr.markForCheck();
@@ -61,6 +90,9 @@ export class ScaleDropdownComponent implements OnInit, OnDestroy {
   handleClear(): void {
     if (this.selectedScale) {
       this.selectedScale = undefined;
+      if (this.currentFile) {
+        this.fileScaleStorage.setSelectedScaleForFile(this.currentFile, null);
+      }
       this.onValueChange.emit(this.selectedScale);
       this.cdr.markForCheck();
     }
@@ -120,6 +152,10 @@ export class ScaleDropdownComponent implements OnInit, OnDestroy {
   onDeleteClick(event, item: any): void {
     event.stopPropagation();
 
+    if (this.currentFile) {
+      this.fileScaleStorage.deleteScaleFromFile(this.currentFile, item.label);
+    }
+
     this.onValueDelete.emit(item);
     this.cdr.markForCheck();
   }
@@ -138,12 +174,21 @@ export class ScaleDropdownComponent implements OnInit, OnDestroy {
     this.annotationToolsService.setMeasurePanelState({ visible: true });
     
     if (this.selectedScale) {
+
+      let displayScaleValue = this.selectedScale.value ? this.selectedScale.value.split(':')[1] : 1;
+      
+      // Convert feet back from inches for editing
+      if (this.selectedScale.metricUnit === 'Feet') {
+        const feetValue = parseFloat(displayScaleValue) / 12;
+        displayScaleValue = Math.round(feetValue * 10000) / 10000;
+      }
+
       this.measurePanelService.setMeasurePanelEditState({
         metricType: this.selectedScale.metric,
         metricUnit: this.selectedScale.metricUnit,
         precision: this.selectedScale.dimPrecision,
         pageScaleValue: this.selectedScale.value ? this.selectedScale.value.split(':')[0] : 1,
-        displayScaleValue: this.selectedScale.value ? this.selectedScale.value.split(':')[1] : 1,
+        displayScaleValue: displayScaleValue,
         originalLabel: this.selectedScale.label
       });
     }
@@ -154,6 +199,7 @@ export class ScaleDropdownComponent implements OnInit, OnDestroy {
   get selectedScaleLabel(): string {
     if (!this.selectedScale) return '';
     const metric = this.selectedScale.metric;
+    const precision = this.selectedScale.dimPrecision;
     let separator = metric === '1' ? ' = ' : ' : ';
     let left: string;
     let right: string;
@@ -164,12 +210,16 @@ export class ScaleDropdownComponent implements OnInit, OnDestroy {
       const denominator = this.selectedScale.imperialDenominator || 1;
       left = `${numerator}/${denominator}`;
       right = this.selectedScale.value && this.selectedScale.value.includes(':') ? this.selectedScale.value.split(':')[1] : (this.selectedScale.customScaleValue || '');
-      if (this.selectedScale.metricUnit === 'Feet' && right.toString() === '12') {
-        right = '1';
-      }
+      if (this.selectedScale.metricUnit === 'Feet') {
+        const feetValue = parseFloat(right) / 12;
+        right = this.formatWithPrecision(feetValue.toString(), precision);
+      } else {
+        right = this.formatWithPrecision(right, precision);
+      }      
     } else {
       left = this.selectedScale.value && this.selectedScale.value.includes(':') ? this.selectedScale.value.split(':')[0] : (this.selectedScale.pageScaleValue || '');
       right = this.selectedScale.value && this.selectedScale.value.includes(':') ? this.selectedScale.value.split(':')[1] : (this.selectedScale.customScaleValue || '');
+      right = this.formatWithPrecision(right, precision);
     }
 
     const unitShortLabel = this.getUnitShortLabel(this.selectedScale.metric, this.selectedScale.metricUnit);
@@ -179,6 +229,7 @@ export class ScaleDropdownComponent implements OnInit, OnDestroy {
   getScaleLabel(item: any): string {
     if (!item) return '';
     const metric = item.metric;
+    const precision = item.dimPrecision;
     let separator = metric === '1' ? ' = ' : ' : ';
     let left: string;
     let right: string;
@@ -189,13 +240,16 @@ export class ScaleDropdownComponent implements OnInit, OnDestroy {
       const denominator = item.imperialDenominator || 1;
       left = `${numerator}/${denominator}`;
       right = item.value && item.value.includes(':') ? item.value.split(':')[1] : (item.customScaleValue || '');
-      
-      if (item.metricUnit === 'Feet' && right.toString() === '12') {
-        right = '1';
+      if (item.metricUnit === 'Feet') {
+        const feetValue = parseFloat(right) / 12;
+        right = this.formatWithPrecision(feetValue.toString(), precision);
+      } else {
+        right = this.formatWithPrecision(right, precision);
       }
     } else {
       left = item.value && item.value.includes(':') ? item.value.split(':')[0] : (item.pageScaleValue || '');
       right = item.value && item.value.includes(':') ? item.value.split(':')[1] : (item.customScaleValue || '');
+      right = this.formatWithPrecision(right, precision);
     }
 
     const unitShortLabel = this.getUnitShortLabel(item.metric, item.metricUnit);
@@ -225,4 +279,100 @@ export class ScaleDropdownComponent implements OnInit, OnDestroy {
     const unitOption = unitOptions.find(option => option.label === metricUnit);
     return unitOption?.shortLabel || metricUnit; 
   }
+
+  private formatWithPrecision(value: string, precision: number): string {
+    const numValue = parseFloat(value);
+    if (isNaN(numValue)) return value;
+    
+    // Handle special case for "Rounded" precision (precision = 0 means round to whole numbers)
+    if (precision === 0) {
+      return Math.round(numValue).toString();
+    }
+    
+    return numValue.toFixed(precision);
+  }
+
+  private updateScaleOptionsFromFile(): void {
+    if (!this.currentFile) {
+      this.options = [];
+      this.selectedScale = null;
+      this.cdr.markForCheck();
+      return;
+    }
+
+    const fileScales = this.fileScaleStorage.getScalesForFile(this.currentFile);
+    const selectedFileScale = this.fileScaleStorage.getSelectedScaleForFile(this.currentFile);
+
+    // Update options and selected scale
+    this.options = fileScales;
+    this.selectedScale = selectedFileScale;
+
+    if (this.selectedScale) {
+      this.applyScaleToRXCore(this.selectedScale);
+    } else if (fileScales.length === 0) {
+      this.resetToDefaultScale();
+    }
+
+    this.cdr.markForCheck();
+  }
+  private applyScaleToRXCore(scale: any): void {
+    try {
+      // Update metric type
+      if (scale.metric === MetricUnitType.METRIC) {
+        RXCore.setUnit(1);
+      } else if (scale.metric === MetricUnitType.IMPERIAL) {
+        RXCore.setUnit(2);
+      }
+
+      // Update metric unit
+      if (scale.metric === MetricUnitType.METRIC) {
+        RXCore.metricUnit(scale.metricUnit);
+      } else if (scale.metric === MetricUnitType.IMPERIAL) {
+        RXCore.imperialUnit(scale.metricUnit);
+      }
+
+      RXCore.scale(scale.value);
+      RXCore.setScaleLabel(scale.label);
+      
+      const precision = scale.dimPrecision !== undefined && scale.dimPrecision !== null ? scale.dimPrecision : 2;
+      RXCore.setDimPrecisionForPage(precision);
+      
+    } catch (error) {
+      console.error('ScaleDropdown: Error applying scale to RXCore:', error);
+    }
+  }
+  private resetToDefaultScale(): void {
+    try {
+      RXCore.scale('1:1');
+      RXCore.setScaleLabel('Unscaled');
+      RXCore.setUnit(1); // Set to metric
+      RXCore.metricUnit('Millimeter');
+      // Use the current selected precision instead of hardcoded 2
+      const currentPrecision = this.selectedScale?.dimPrecision !== undefined && this.selectedScale?.dimPrecision !== null 
+        ? this.selectedScale.dimPrecision 
+        : 2;
+      RXCore.setDimPrecisionForPage(currentPrecision);
+    } catch (error) {
+      console.error('ScaleDropdown: Error resetting to default scale:', error);
+    }
+  }
+  private forceApplySelectedScaleForFile(): void {
+    if (!this.currentFile) {
+      return;
+    }
+
+    const selectedFileScale = this.fileScaleStorage.getSelectedScaleForFile(this.currentFile);
+    
+    if (selectedFileScale) {
+      this.selectedScale = selectedFileScale;
+      this.applyScaleToRXCore(selectedFileScale);
+    } else {
+      this.selectedScale = null;
+      this.resetToDefaultScale();
+    }
+    
+    this.cdr.markForCheck();
+  }
+
+
 }

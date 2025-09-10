@@ -271,9 +271,17 @@ export class MeasureDetailPanelComponent implements OnInit, OnDestroy {
   }*/
 
   updateScaleList() {
-    if(RXCore.getDocScales() != undefined && RXCore.getDocScales().length ){
-      this.scalesOptions = RXCore.getDocScales();
+
+
+    // Always update scales from RXCore to get the latest scales
+    const rxCoreScales = RXCore.getDocScales();
+    if (rxCoreScales != undefined && rxCoreScales.length) {
+      this.scalesOptions = rxCoreScales;
     }
+
+    /*if(RXCore.getDocScales() != undefined && RXCore.getDocScales().length ){
+      this.scalesOptions = RXCore.getDocScales();
+    }*/
     //if(this.docObj && this.docObj.scalesOptions && this.docObj.scalesOptions.length)
     //this.scalesOptions = this.docObj.scalesOptions;   
   }
@@ -407,7 +415,21 @@ export class MeasureDetailPanelComponent implements OnInit, OnDestroy {
   };
 
   countDecimals(value) {
-    return value % 1?value.toString().split(".")[1].length:0;     
+
+    if (value === 1) {
+      return 0; // Rounded means 0 decimal places (whole numbers)
+    }
+    
+    // For other precision values (0.1, 0.01, 0.001, etc.), 
+    // calculate the number of decimal places
+    if (value < 1) {
+      return value.toString().split(".")[1].length;
+    }
+    
+    return 0;
+
+
+    //return value % 1?value.toString().split(".")[1].length:0;     
   };
 
   applyScale(selectedScaleObj: any) {    
@@ -417,8 +439,15 @@ export class MeasureDetailPanelComponent implements OnInit, OnDestroy {
       this.updateMetricUnit(selectedScaleObj.metric, selectedScaleObj.metricUnit);
   
       RXCore.setElementDimPrecision(selectedScaleObj.dimPrecision);
-  
-      RXCore.elementScale(selectedScaleObj.value);
+
+      // Use precise value if available, otherwise fall back to display value
+      const scaleValue = selectedScaleObj.preciseValue !== undefined 
+      ? `1:${selectedScaleObj.preciseValue}` 
+      : selectedScaleObj.value;
+          
+      RXCore.elementScale(scaleValue);
+      
+      //RXCore.elementScale(selectedScaleObj.value);
       RXCore.setElementScaleLabel(selectedScaleObj.label);
         
     }

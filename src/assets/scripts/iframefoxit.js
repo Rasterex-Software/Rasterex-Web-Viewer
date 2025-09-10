@@ -746,7 +746,81 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
             });
         }
 
-    };    
+    };
+    
+    this.getBitmapPrint = function(pagnenum, callback){
+
+
+        //foxitpage.pdfwidth = page.info.width;
+        //foxitpage.pdfheight = page.info.height;
+
+        //foxitpage.width = page.getWidth();
+        //foxitpage.height = page.getHeight();
+
+
+        /*setPaperSize: function (width, height) {
+            this.paperwidth = width;
+            this.paperheight = height;
+            this.paperimage.width = (width / this.inchtomm) * this.DPI;
+            this.paperimage.height = (height / this.inchtomm) * this.DPI;
+        },
+        setDocSize: function (width, height) {
+            this.docwidth = width;
+            this.docheight = height;
+        },
+        setScale: function () {
+            var xscale = this.paperimage.width / this.docwidth; //thispage.MainImageWidth;
+            var yscale = this.paperimage.height / this.docheight; // thispage.MainImageHeight;
+            this.pscale = Math.min(xscale, yscale);
+            this.pdx = (this.paperimage.width - (this.docwidth * this.pscale)) / 2;
+            this.pdy = (this.paperimage.height - (this.docheight * this.pscale)) / 2;
+            this.scaleSet = true;
+        },*/
+
+
+        if (foxview.pdfViewer) {
+            foxview.pdfViewer.getCurrentPDFDoc().getPageByIndex(pagenum).then(function (page) {
+                var pgindex = page.info.index;
+
+                //var scale = birdseye.scale;
+                //var scale = 0.12;
+                var pagescale = scale * PixelToPoint;
+                var rotate = 0;
+
+
+                var pwwidth = Math.round(foxview.pagestates[pgindex].width * scale);
+                var pheight = Math.round(foxview.pagestates[pgindex].height * scale);
+
+                var area = { x: 0, y: 0, width : pwwidth, height : pheight };
+
+                //var area = { x: 0, y: 0, width: foxview.pagestates[pgindex].width * scale, height: foxview.pagestates[pgindex].height * scale };
+
+                var contentsFlags = ["page", "annot"];
+                var usage = 'print';
+
+
+                //foxview.pagestates[0].width = pwidth;
+                //foxview.pagestates[0].height = pheight;
+
+
+                page.render(pagescale, rotate, area, contentsFlags, usage).then(function (bitmap) {
+                    pgindex = page.info.index;
+                    //RxCore.setBirdsEyeFoxit(bitmap, pgindex);
+                    //RxCore.setPageBitmap(bitmap, pgindex);
+                    callback(bitmap, pgindex);
+
+                    //foxview.pagestates[pagenum].thumbadded = true;
+                }).catch(function (error) {
+                    //console.log(error);
+                    callback(error);
+                    console.log(error);
+                });
+            });
+        }
+
+
+    }
+
     this.getBitmap = function (pagenum, scale, callback) {
         if (foxview.pdfViewer) {
             foxview.pdfViewer.getCurrentPDFDoc().getPageByIndex(pagenum).then(function (page) {
@@ -777,7 +851,7 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
                     pgindex = page.info.index;
                     //RxCore.setBirdsEyeFoxit(bitmap, pgindex);
                     //RxCore.setPageBitmap(bitmap, pgindex);
-                    callback(bitmap);
+                    callback(bitmap, pgindex);
 
                     //foxview.pagestates[pagenum].thumbadded = true;
                 }).catch(function (error) {
@@ -1972,12 +2046,9 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
         window.print();
     };
 
-    //foxview.onPageChange(foxview.pdfViewer, PDFViewCtrl.Events):
+    
     this.onPageChange = function (pdfViewer, ViewerEvents){
         if (pdfViewer) {
-
-            
-        
 
             pdfViewer.eventEmitter.on(ViewerEvents.pageNumberChange, function (newPageNumber) {
                 
@@ -2007,17 +2078,6 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
                         }
     
                         window.scrollTo(0,ypos);
-    
-    
-                        //pagecorrect = newPageNumber - (foxview.curpage + 1);
-    
-                        //foxview.setCurPage(newPageNumber - 1);
-    
-                        //console.log(pagecorrect);  
-    
-                        /*if(foxview.curpage - pagecorrect > 0){
-                            foxview.pdfViewer.goToPage(foxview.curpage - pagecorrect);
-                        }*/
                         
                     }else{
                         foxview.setCurPage(newPageNumber - 1);
@@ -2038,10 +2098,6 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
                     
                 }
 
-                //console.log(newPageNumber);
-
-                //RxCore.foxitPageEvt(newPageNumber);
-                // newPageNumber = pageIndex + 1
            });
         }
     };
@@ -3340,7 +3396,7 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
 
         //getPageBox(0)
         //getDeviceRect()
-    }
+    };
 
     this.getSnapPointRotate = function(npagenum, x, y, callback) {
 
@@ -3628,6 +3684,8 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
 
                 }*/
 
+
+
                 if (foxview.pagestates[pgindex].rendered && !foxview.redraw) {
                     
                     
@@ -3724,7 +3782,12 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
                     foxview.pagestates[pgindex].scrollTop = foxitpage.pagepos.top;
                 }
 
+                //add RxCore method to use with page event handling for print here.
+
                 RxCore.setfoxitPageSize(foxitpage);
+
+                RxCore.foxitPageRenderEvt(pgindex);
+
 
                 if (foxview.curpage == pgindex) {
                     foxview.setmarkupPosition(foxview.curpage);

@@ -1,3 +1,50 @@
+September 10, 2025
+
+
+### 1. Fix the problem of inconsistent viewport synchronization.
+### 2. The presenter mode only be available in custom-made rooms.
+### 3. Non-presenter users in the room are prohibited from operations such as zooming and panning.
+### 4. Newly created rooms do not have annotations.
+### 5. Fixed printing for PDF pages.
+### 6. Reintroduced quick menu for holes.
+
+
+
+Updated and new files
+RxCore version is now 37.11
+src\assets\scripts\rxcorefunctions.js 
+src\assets\scripts\iframefoxit.js
+src\rxcore\index.ts
+src\app\app.component.ts
+src\app\components\annotation-tools\measure-detail-panel\measure-detail-panel.component.ts
+src\app\components\annotation-tools\measure-panel\measure-panel.component.ts
+src\app\components\annotation-tools\quick-actions-menu\quick-actions-menu.component.ts
+src\app\components\collab\room-panel.component.html
+src\app\components\collab\room-panel.component.ts
+src\app\services\collab.service.ts
+
+src\app\services\file-scale-storage.service.ts
+src\app\services\scale-management.service.ts
+
+src\app\components\top-nav-menu\top-nav-menu.component.ts
+src\app\components\scale-management\scale-management.component.ts
+
+src\app\components\common\dropdown\dropdown.component.scss
+src\app\components\bottom-toolbar\text-selection-highlight\text-selection-highlight.component.ts
+
+src\app\components\annotation-tools\scale-dropdown\scale-dropdown.component.ts
+src\app\components\annotation-tools\scale-dropdown\scale-dropdown.component.scss
+src\app\components\annotation-tools\scale-dropdown\scale-dropdown.component.html
+
+src\app\components\annotation-tools\measure-panel\measure-panel.component.ts
+src\app\components\annotation-tools\measure-panel\measure-panel.component.scss
+src\app\components\annotation-tools\measure-panel\measure-panel.component.html
+
+src\app\components\annotation-tools\measure-detail-panel\measure-detail-panel.component.ts
+src\app\components\annotation-tools\measure-detail-panel\measure-detail-panel.component.scss
+
+
+
 August 29, 2025
 
 ### 1. Fixed pointer line from comment list from rotated PDF page.

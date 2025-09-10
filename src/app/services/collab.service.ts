@@ -210,8 +210,19 @@ export class CollabService {
   }
 
   /**
+   * For now, we check if a room is default room by its name.
+   */
+
+  isDefaultRoom(roomId: string): boolean {
+    return !!(roomId && roomId.endsWith("default_room"));
+  }
+
+  /**
    * If current user the room presenter of the room he/she is in.
    */
+
+
+
   isCurrentUserRoomPresenter(): boolean {
     if (!this.socketId || !this.roomInfoArray) {
       return false;
@@ -376,8 +387,12 @@ export class CollabService {
     } else if (msgId === MessageId.DeleteMarkupsForRoom) {
       // Fistly, clear all annotations (including ones doesn't belong to any room and ones beong to active room)
       RXCore.clearMarkup();
+
+      if (message.roomId && this.isDefaultRoom(message.roomId)) {
       // Add back annotations doesn't belong to any room
-      this.addAnnotationsToViewport("");
+        this.addAnnotationsToViewport("");
+      }
+      
     } else if (
       msgId === MessageId.AddMarkup ||
       msgId === MessageId.UpdateMarkup ||
@@ -406,7 +421,9 @@ export class CollabService {
       }
     } else if (msgId === MessageId.NotifyAddingMarkup) {
         const data = msgBody.data;
-        if (!data || data.room_id != '') { // Ignore if room_id is not empty
+
+        // Ignore if room_id is not empty or roomId is not default_room
+        if (!data || data.room_id != '' || !this.isDefaultRoom(this.roomId)) {
           return;
         }
         this.triggerSync = false;
@@ -434,29 +451,44 @@ export class CollabService {
     if (msgId === MessageId.PanChange) {
       // Handle pan change
       const data = msgBody.data;
+      RXCore.setCollabBlock(false);
+      RXCore.setPageRect(data.pagerect);
       RXCore.panPage(data.sx, data.sy);
+      RXCore.setCollabBlock(true);
     } else if (msgId === MessageId.PageRectChange) {
       // Handle zoom before change
       const data = msgBody.data;
+      RXCore.setCollabBlock(false);
       RXCore.setPageRect(data.zoomparams.rect);
+      RXCore.setCollabBlock(true);
     }
     else if (msgId === MessageId.ZoomChange) {
       // Handle zoom change
       const data = msgBody.data;
+      RXCore.setCollabBlock(false);
       RXCore.zoomPageUpdate(data.zoomparams, data.type);
+      RXCore.setCollabBlock(true);
     } else if (msgId === MessageId.RotationChange) {
       // Handle rotation change
       const data = msgBody.data;
+      RXCore.setCollabBlock(false);
       RXCore.rotatePage(data.pageIndex, data.degree);
+      RXCore.setCollabBlock(true);  
     } else if (msgId === MessageId.BackgroundColorChange) {
       const data = msgBody.data;
+      RXCore.setCollabBlock(false);
       RXCore.setBackgroundCustomColor(data.color);
+      RXCore.setCollabBlock(true);
     } else if (msgId === MessageId.PageChange) {
       const data = msgBody.data;
+      RXCore.setCollabBlock(false);
       RXCore.gotoPage(data.currentpage);
+      RXCore.setCollabBlock(true);
     } else if (msgId === MessageId.MonoChromeChange) {
       const data = msgBody.data;
+      RXCore.setCollabBlock(false);
       RXCore.setMonoChrome(data.onOff);
+      RXCore.setCollabBlock(true);
     } else if (msgId === MessageId.VectorLayersVisibilityChange) {
       const data = msgBody.data;
       if (Array.isArray(data.layers)) {
@@ -503,13 +535,18 @@ export class CollabService {
       }
     }
 
-    if (this.roomId) {
-      await this.removeAnnotationsFromViewport(this.roomId);
-    }
+    //if (this.roomId) {
+    //  await this.removeAnnotationsFromViewport(this.roomId);
+    //}
 
+    RXCore.clearMarkup();
     if (roomId) {
       await this.addAnnotationsToViewport(roomId);
     }
+    if (roomId && this.isDefaultRoom(roomId)) {
+      await this.addAnnotationsToViewport("");
+    }
+
     this.roomId = roomId;
 
     this.sendMessage({ id: MessageId.JoinRoom, roomId, body: { }});
@@ -528,10 +565,15 @@ export class CollabService {
       }
     }
 
-    if (this.roomId) {
-      await this.removeAnnotationsFromViewport(this.roomId);
-    }
+    //if (this.roomId) {
+    //  await this.removeAnnotationsFromViewport(this.roomId);
+    //}
+
+    RXCore.clearMarkup();
     this.roomId = "";
+
+    // show annotations doesn't belong to any room
+    await this.addAnnotationsToViewport("");
 
     this.sendMessage({ id: MessageId.LeaveRoom, roomId, body: { }});
     return Promise.resolve(true);

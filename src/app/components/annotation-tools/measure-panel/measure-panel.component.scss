@@ -930,3 +930,32 @@
       padding: 8px;
   }
 }
+
+.scale-settings__input-container--border-radius-right input {
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+}
+
+.scale-settings__input-container--border-radius-left {
+  border-top-left-radius: 30px !important;
+  border-bottom-left-radius: 30px !important;
+}
+
+.scale-settings__input-container {
+  .scale-settings__input-label {
+    font-size: 12px;
+    color: rgba(0, 0, 0, 0.54);
+    display: flex;
+    margin-right: 10px;
+  }
+  .scale-settings__input-unit-container {
+    border-left: 1px solid var(--accent) !important;
+    width: 50px !important;
+  }
+}
+
+.scale-settings__input-container {
+  .border-left-none {
+    border-left: none !important;
+  }
+}

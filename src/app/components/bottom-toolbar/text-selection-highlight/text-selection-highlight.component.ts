@@ -87,7 +87,7 @@ export class TextSelectionHighlightComponent implements OnInit {
   handleKeyboardEvents($event: KeyboardEvent) {
     if (!this.visible) return;
     
-    $event.preventDefault();
+    //$event.preventDefault();
     if ($event.code === 'Escape') {
       this.visible = false;
     }

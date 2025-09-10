@@ -492,6 +492,7 @@ export class AppComponent implements AfterViewInit {
 
       this.recentfilesService.addRecentFile(FileInfo);
 
+      RXCore.zoomFit();
             
       this.rxCoreService.guiFileLoadComplete.next();
 
@@ -783,9 +784,9 @@ export class AppComponent implements AfterViewInit {
       //}
     });    
 
-    RXCore.onGuiPanUpdated((sx, sy, pagerect) => { 
-      this.rxCoreService.guiOnPanUpdated.next({sx, sy, pagerect});
-    });
+    //RXCore.onGuiPanUpdated((sx, sy, pagerect) => { 
+    //  this.rxCoreService.guiOnPanUpdated.next({sx, sy, pagerect});
+    //});
 
     RXCore.onGuiZoomUpdate((zoomparams, type) => { 
       this.rxCoreService.guiOnZoomUpdate.next({zoomparams, type});
@@ -793,9 +794,10 @@ export class AppComponent implements AfterViewInit {
       if (!this.isCollaborate() || !this.collabService.isCurrentUserRoomPresenter()) {
         return;
       }
-      if (type !== 2) {
-        return;
-      }
+      
+      //if (type !== 2) {
+      //  return;
+      //}
 
       this.collabService.sendPageRectChange(this.getRoomId(), { zoomparams, type });
 
@@ -955,8 +957,16 @@ export class AppComponent implements AfterViewInit {
           RXCore.setElementUnit(2);  
           RXCore.elementImperialUnit(scaleObject.metricUnit);
         } 
+
         RXCore.setElementDimPrecision(scaleObject.dimPrecision);
-        RXCore.elementScale(scaleObject.value);
+
+        // Use precise value if available, otherwise fall back to display value
+        const scaleValue = scaleObject.preciseValue !== undefined 
+          ? `1:${scaleObject.preciseValue}` 
+          : scaleObject.value;
+        
+        RXCore.elementScale(scaleValue);
+        
         RXCore.setElementScaleLabel(scaleObject.label);
 
         RXCore.unSelectAllMarkup();

@@ -43,7 +43,8 @@ export class ScaleManagementComponent implements OnInit, OnDestroy {
       const userScales = this.userScaleStorage.getScales(user.id);
       if (userScales && userScales.length > 0) {
         // Overwrite the observable with user-specific scales
-        this.scaleManagementService["scalesSubject"].next(userScales);
+        //this.scaleManagementService["scalesSubject"].next(userScales);
+        this.scaleManagementService.setScales(userScales);
       }
     }
     this.subscriptions.push(
@@ -112,14 +113,23 @@ export class ScaleManagementComponent implements OnInit, OnDestroy {
   }
 
   deleteScale(scale: ScaleWithPageRange): void {
+
+
+
     if (confirm(`Are you sure you want to delete the scale "${scale.label}"?`)) {
       this.scaleManagementService.deleteScale(scale.label);
-      this.toastr.success('Scale deleted successfully');
+
+      // Update the local scales array
+      this.scales = this.scales.filter(s => s.label !== scale.label);
+
+      
       // Save to localStorage for the current user
       const user = this.userService.getCurrentUser();
       if (user) {
         this.userScaleStorage.saveScales(user.id, this.scales);
       }
+
+      this.toastr.success('Scale deleted successfully');
     }
   }
 
@@ -136,8 +146,16 @@ export class ScaleManagementComponent implements OnInit, OnDestroy {
       return;
     }
 
+    // For Imperial scales with feet, convert the display value back to inches for storage
+    let storageValue = this.scaleValue;
+    if (this.selectedMetricType === '1' && this.selectedMetricUnit === 'Feet' && this.scaleValue.includes(':')) {
+      const parts = this.scaleValue.split(':');
+      const inchesValue = parseFloat(parts[1]) * 12;
+      storageValue = `${parts[0]}:${inchesValue}`;
+    }
+
     const scale: ScaleWithPageRange = {
-      value: this.scaleValue,
+      value: storageValue,
       label: this.scaleLabel,
       metric: this.selectedMetricType,
       metricUnit: this.selectedMetricUnit,
@@ -197,7 +215,17 @@ export class ScaleManagementComponent implements OnInit, OnDestroy {
 
   private populateForm(scale: ScaleWithPageRange): void {
     this.scaleLabel = scale.label;
-    this.scaleValue = scale.value;
+
+
+    // For Imperial scales with feet, convert the display value back from inches
+    let displayValue = scale.value;
+    if (scale.metric === '1' && scale.metricUnit === 'Feet' && scale.value.includes(':')) {
+      const parts = scale.value.split(':');
+      const feetValue = parseFloat(parts[1]) / 12;
+      displayValue = `${parts[0]}:${feetValue}`;
+    }
+    this.scaleValue = displayValue;
+    //this.scaleValue = scale.value;
     this.selectedMetricType = scale.metric;
     this.selectedMetricUnit = scale.metricUnit;
     this.selectedPrecision = scale.dimPrecision;

@@ -96,14 +96,18 @@ export class QuickActionsMenuComponent implements OnInit, OnDestroy {
     let numbuttons = 0;
   
 
+
     //new method to set which button should be visible on menu
     //move logic from html template here and set the button state
     //in html template use the button state only.
     //calculate number of buttons here also.
 
+
+    let bhole = this.annotation.type === 8 && this.annotation.subtype === 2;
+    
     //*ngIf="(annotation.type != 11 && annotation.type != 20) && (canUpdateAnnotation | async)"
 
-    if((this.annotation.type != 11 && this.annotation.type != 20) && this.canUpdateAnnotation){
+    if((this.annotation.type != 11 && this.annotation.type != 20) && this.canUpdateAnnotation && !bhole){
       this.editButton = true;
       numbuttons += 1;
     }
@@ -117,7 +121,7 @@ export class QuickActionsMenuComponent implements OnInit, OnDestroy {
     //<li *ngIf="(annotation.type != 20) && (canUpdateAnnotation | async)">
     //this.copyMarkupButton = true;
 
-    if(this.annotation.type != 20 && this.canUpdateAnnotation){
+    if(this.annotation.type != 20 && this.canUpdateAnnotation && !bhole){
       this.copyMarkupButton = true;
       numbuttons += 1;
     }
@@ -125,7 +129,7 @@ export class QuickActionsMenuComponent implements OnInit, OnDestroy {
     //*ngIf="(annotation.bCanHaveLink && !annotation.bhaveLink) && (canUpdateAnnotation | async)"
     //(click)="addLink = true;"
 
-    if(this.annotation.bCanHaveLink && this.annotation.bhaveLink && this.canUpdateAnnotation){
+    if(this.annotation.bCanHaveLink && this.annotation.bhaveLink && this.canUpdateAnnotation && !bhole){
      this.linkButton = true;
      numbuttons += 1;
     }
@@ -142,7 +146,7 @@ export class QuickActionsMenuComponent implements OnInit, OnDestroy {
     //*ngIf="annotation.bhaveLink && (canUpdateAnnotation | async)"
     //(click)="addLink = true; message = 'Edit link'">
 
-    if(this.annotation.bhaveLink && this.canUpdateAnnotation){
+    if(this.annotation.bhaveLink && this.canUpdateAnnotation && !bhole){
       this.editlinkButton = true;
       numbuttons += 1;
     }
@@ -185,7 +189,7 @@ export class QuickActionsMenuComponent implements OnInit, OnDestroy {
     //(click)="onHoleClick()">
 
 
-    if((this.annotation.type === 8 || (this.annotation.type === 3 && this.annotation.subtype === 6)) && this.annotation.parentmarkupnumber === 0){
+    if((this.annotation.type === 8 || (this.annotation.type === 3 && this.annotation.subtype === 6)) && this.annotation.parentmarkupnumber === 0 && !bhole){
       this.addHoleButton = true;
       numbuttons += 1;
     }
@@ -193,7 +197,7 @@ export class QuickActionsMenuComponent implements OnInit, OnDestroy {
     //*ngIf="(guiMode$ | async) == 'measure' && ((annotation.type === 1 && annotation.subtype === 3) || (annotation.type === 3 && annotation.subtype === 6) || annotation.type === 7 || annotation.type === 8)"
     //(click)="onShowHideLabelClick()">
 
-    if(((this.annotation.type === 1 && this.annotation.subtype === 3) || (this.annotation.type === 3 && this.annotation.subtype === 6) || this.annotation.type === 7 || this.annotation.type === 8)){
+    if(((this.annotation.type === 1 && this.annotation.subtype === 3) || (this.annotation.type === 3 && this.annotation.subtype === 6) || this.annotation.type === 7 || this.annotation.type === 8) && !bhole){
       this.hideLabelButton = true;
       numbuttons += 1;
     }
@@ -201,15 +205,17 @@ export class QuickActionsMenuComponent implements OnInit, OnDestroy {
     //<li *ngIf="(guiMode$ | async) == 'measure' && ((annotation.type === 8))"
     //(click)="onMoveLabelClick()">
 
-    if(this.annotation.type === 8){
+    if(this.annotation.type === 8 && !bhole){
       this.moveLabelButton = true;
       numbuttons += 1;
     }
 
-    this.movetoFrontButton = true;
-    this.movetoBackButton = true;
-    numbuttons += 1;
-    numbuttons += 1;
+    if(!bhole) {
+      this.movetoFrontButton = true;
+      this.movetoBackButton = true;
+      numbuttons += 1;
+      numbuttons += 1;
+    }
 
     this.numbuttons = numbuttons;
 
@@ -223,9 +229,115 @@ export class QuickActionsMenuComponent implements OnInit, OnDestroy {
 
   
 
-  }  
+  }
+  
+  private _getwscaled(bhole, bus, markup) : number {
+
+    const pmarkup = markup.parent;
+    if(bhole){
+      if(bus){
+        return (pmarkup.wscaled || pmarkup.w);
+      }else{
+        return (pmarkup.wscaled || pmarkup.w) / window.devicePixelRatio;
+      }
+      
+    }else{
+      if(bus){
+        return (markup.wscaled || markup.w);
+      }else{
+        return (markup.wscaled || markup.w) / window.devicePixelRatio;
+      }
+      
+    }
+
+
+    
+
+
+  }
+
+  private _gethscaled(bhole, bus,  markup) : number {
+
+    const pmarkup = markup.parent;
+    if(bhole){
+
+      if(bus){
+        return (pmarkup.hscaled || pmarkup.h);
+      }else{
+        return (pmarkup.hscaled || pmarkup.h) / window.devicePixelRatio;
+      }
+
+      
+    }else{
+
+      if(bus){
+        return (markup.hscaled || markup.h);
+      }else{
+        return (markup.hscaled || markup.h) / window.devicePixelRatio;
+      }
+
+      
+    }
+
+    //const hscaledus = (markup.hscaled || markup.h);
+
+  }
+
+  private _getxscaled(bhole,bus, markup) : number {
+
+    const pmarkup = markup.parent;
+    if(bhole){
+
+      if(bus){
+        return (pmarkup.xscaled || pmarkup.x);
+      }else{
+        return (pmarkup.xscaled || pmarkup.x) / window.devicePixelRatio;
+      }
+
+      
+    }else{
+      if(bus){
+        return (markup.xscaled || markup.x);
+      }else{
+        return (markup.xscaled || markup.x) / window.devicePixelRatio;
+      }
+      
+    }
+
+    //const xscaledus = (markup.xscaled || markup.x);
+    
+
+
+  }
+
+  private _getyscaled(bhole, bus, markup) : number {
+
+    const pmarkup = markup.parent;
+    if(bhole){
+
+      if(bus){
+        return (pmarkup.yscaled || pmarkup.y);
+      }else{
+        return (pmarkup.yscaled || pmarkup.y) / window.devicePixelRatio;
+      }
+
+      
+    }else{
+      if(bus){
+        return (markup.yscaled || markup.y);
+      }else{
+        return (markup.yscaled || markup.y) / window.devicePixelRatio;
+      }
+
+      
+    }
+
+      //const yscaledus = (markup.yscaled || markup.y);
+  }
+  
   private _setPosition(): void {
     const markup = this.annotation;
+    
 
     if (markup == -1){
       return;
@@ -235,17 +347,29 @@ export class QuickActionsMenuComponent implements OnInit, OnDestroy {
     const rotoffset = -30;
     const offsetTop = 40;
 
+    let bhole = (markup.type === 8 && markup.subtype === 2);
 
-    const wscaled = (markup.wscaled || markup.w) / window.devicePixelRatio;
-    const hscaled = (markup.hscaled || markup.h) / window.devicePixelRatio;
-    const xscaled = (markup.xscaled || markup.x) / window.devicePixelRatio;
-    const yscaled = (markup.yscaled || markup.y) / window.devicePixelRatio;
+    const wscaled = this._getwscaled(bhole,false,  markup);
+    const hscaled = this._gethscaled(bhole, false,  markup);
+    const xscaled = this._getxscaled(bhole, false,  markup);
+    const yscaled = this._getyscaled(bhole, false, markup);
 
-    const wscaledus = (markup.wscaled || markup.w);
-    const hscaledus = (markup.hscaled || markup.h);
-    const xscaledus = (markup.xscaled || markup.x);
-    const yscaledus = (markup.yscaled || markup.y);
+    //const wscaled = (markup.wscaled || markup.w) / window.devicePixelRatio;
+    //const hscaled = (markup.hscaled || markup.h) / window.devicePixelRatio;
+    
+    //const xscaled = (markup.xscaled || markup.x) / window.devicePixelRatio;
+    //const yscaled = (markup.yscaled || markup.y) / window.devicePixelRatio;
 
+    //const wscaledus = (markup.wscaled || markup.w);
+    //const hscaledus = (markup.hscaled || markup.h);
+    //const xscaledus = (markup.xscaled || markup.x);
+    //const yscaledus = (markup.yscaled || markup.y);
+
+    const wscaledus = this._getwscaled(bhole,true,  markup);
+    const hscaledus = this._gethscaled(bhole, true,  markup);
+    const xscaledus = this._getxscaled(bhole, true,  markup);
+    const yscaledus = this._getyscaled(bhole, true, markup);
+    
 
     
     let absy = yscaled + ((hscaled - yscaled) * 0.5);
@@ -834,7 +958,7 @@ export class QuickActionsMenuComponent implements OnInit, OnDestroy {
         || markup.type == MARKUP_TYPES.CALLOUT.type && markup.subtype == MARKUP_TYPES.CALLOUT.subType
         || markup.type == MARKUP_TYPES.SIGNATURE.type && markup.subtype == MARKUP_TYPES.SIGNATURE.subType
         || markup.GetAttribute("Signature")?.value
-        || markup.type == MARKUP_TYPES.MEASURE.AREA.type && markup.subtype == 2
+        //|| markup.type == MARKUP_TYPES.MEASURE.AREA.type && markup.subtype == 2
         ) return;
 
       this._setButtons();        

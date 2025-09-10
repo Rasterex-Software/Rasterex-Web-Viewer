@@ -20,3 +20,4 @@ export class UserScaleStorageService {
     localStorage.setItem(key, JSON.stringify(scales));
   }
 } 
+

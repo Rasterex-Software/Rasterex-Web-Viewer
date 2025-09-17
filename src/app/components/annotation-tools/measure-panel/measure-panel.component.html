@@ -213,6 +213,14 @@
                                 
                             </div>
                         </div>
+
+                        <div class="panel-footer">
+                            <button (click)="onCloseClick()" [disabled]="expandedIndex !== 0" class="measure-panel-button measure-panel-button__cancel">Cancel</button>
+                            <button (click)="addNewScale()" [disabled]="expandedIndex !== 0" class="measure-panel-button measure-panel-button__create">
+                                {{ isEditingScale ? 'Edit Scale' : 'Add New Scale' }}
+                            </button>
+                        </div>
+                    
                     </ng-template>
                 </rx-accordion-item>
 
@@ -251,12 +259,6 @@
         </div>
     </div>
 
-    <div class="panel-footer">
-        <button (click)="onCloseClick()" [disabled]="expandedIndex !== 0" class="measure-panel-button measure-panel-button__cancel">Cancel</button>
-        <button (click)="addNewScale()" [disabled]="expandedIndex !== 0" class="measure-panel-button measure-panel-button__create">
-            {{ isEditingScale ? 'Edit Scale' : 'Add New Scale' }}
-        </button>
-    </div>
     
     <rx-accordion [collapsing]="false" [expandAll]="true" style="display: none;">
         <rx-accordion-item *ngIf="type == MARKUP_TYPES.MEASURE.LENGTH.type" [title]="'Measure type'">

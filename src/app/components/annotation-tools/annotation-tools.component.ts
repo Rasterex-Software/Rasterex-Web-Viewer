@@ -352,21 +352,31 @@ export class AnnotationToolsComponent implements OnInit {
         this.service.setMeasurePanelDetailState({ visible: this.isActionSelected[actionName], type: MARKUP_TYPES.MEASURE.LENGTH.type, created: true });
         //this.annotationToolsService.setMeasurePanelState({ visible: true }); 
         //this.service.setPropertiesPanelState({ visible: this.isActionSelected[actionName], markup: MARKUP_TYPES.MEASURE.LENGTH,  readonly: false });
+
+        this.isActionSelected['SNAP'] = true;
+
         RXCore.markUpDimension(this.isActionSelected[actionName], 0);
         RXCore.useFixedScale(!this.isActionSelected[actionName]);
+        RXCore.changeSnapState(this.isActionSelected['SNAP']);
+
+        //this.onActionSelect('SNAP');
 
         break;
 
       case 'MEASURE_AREA':
         this.service.setMeasurePanelDetailState({ visible: this.isActionSelected[actionName], type: MARKUP_TYPES.MEASURE.AREA.type, created: true });
         //this.service.setPropertiesPanelState({ visible: this.isActionSelected[actionName], markup: MARKUP_TYPES.MEASURE.AREA, readonly: false });
+        this.isActionSelected['SNAP'] = true;
         RXCore.markUpArea(this.isActionSelected[actionName]);
+        RXCore.changeSnapState(this.isActionSelected['SNAP']);
         break;
 
       case 'MEASURE_PATH':
         this.service.setMeasurePanelDetailState({ visible: this.isActionSelected[actionName], type:  MARKUP_TYPES.MEASURE.PATH.type, created: true });
         //this.service.setPropertiesPanelState({ visible: this.isActionSelected[actionName], markup:  MARKUP_TYPES.MEASURE.PATH, readonly: false });
+        this.isActionSelected['SNAP'] = true;
         RXCore.markupMeasurePath(this.isActionSelected[actionName]);
+        RXCore.changeSnapState(this.isActionSelected['SNAP']);
         //RXCore.changeSnapState(this.isActionSelected[actionName]); //turn snap on here,.
         
         break;

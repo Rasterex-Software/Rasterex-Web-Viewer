@@ -1,3 +1,19 @@
+
+September 17, 2025
+
+### 1. Fix for various scaling and measurement inconsistencies.
+
+
+Updated and new files
+
+src\app\services\scale-management.service.ts
+src\app\services\file-scale-storage.service.ts
+src\app\components\top-nav-menu\top-nav-menu.component.ts
+src\app\components\annotation-tools\scale-dropdown\scale-dropdown.component.ts
+src\app\components\annotation-tools\measure-panel\measure-panel.component.ts
+src\app\components\annotation-tools\measure-detail-panel\measure-detail-panel.component.ts
+
+
 September 11, 2025
 
 

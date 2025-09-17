@@ -61,6 +61,15 @@ export class ScaleDropdownComponent implements OnInit, OnDestroy {
         this.updateScaleOptionsFromFile();
         // Force apply the selected scale for the new file
         this.forceApplySelectedScaleForFile();
+      }else if (!file && this.currentFile) {
+        // All files are closed, clear scales and reset to default
+        this.currentFile = null;
+        this.options = [];
+        this.selectedScale = null;
+        this.resetToDefaultScale();
+        // Clear all stored scales when no files are active
+        this.fileScaleStorage.clearAllScales();
+        this.cdr.markForCheck();
       }
     });
 
@@ -331,11 +340,20 @@ export class ScaleDropdownComponent implements OnInit, OnDestroy {
         RXCore.imperialUnit(scale.metricUnit);
       }
 
-      RXCore.scale(scale.value);
+      // Use precise value if available, otherwise fall back to display value
+      const scaleValue = scale.preciseValue !== undefined 
+        ? `1:${scale.preciseValue}` 
+        : scale.value;
+      
+      RXCore.scale(scaleValue);
       RXCore.setScaleLabel(scale.label);
       
       const precision = scale.dimPrecision !== undefined && scale.dimPrecision !== null ? scale.dimPrecision : 2;
       RXCore.setDimPrecisionForPage(precision);
+
+      // Redraw measurements to reflect the new scale
+      RXCore.markUpRedraw();
+
       
     } catch (error) {
       console.error('ScaleDropdown: Error applying scale to RXCore:', error);

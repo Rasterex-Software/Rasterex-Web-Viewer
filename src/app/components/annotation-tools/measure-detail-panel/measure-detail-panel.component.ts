@@ -148,6 +148,9 @@ export class MeasureDetailPanelComponent implements OnInit, OnDestroy {
           this.applyScale(this.selectedScale); 
       }
 
+      
+
+
       if(operation.modified) {
         this.manageRealTimeBox(markup);
       }
@@ -265,25 +268,24 @@ export class MeasureDetailPanelComponent implements OnInit, OnDestroy {
       }
   }
 
-  /*calculateArea(markup: any) {
-    this.measureData = markup;
-    this.setDistanceOnArea(this.measureData); 
-  }*/
-
   updateScaleList() {
 
+    // Only update scales from RXCore if there's an active file
+    const activeFile = RXCore.getOpenFilesList().find(file => file.isActive);
 
-    // Always update scales from RXCore to get the latest scales
-    const rxCoreScales = RXCore.getDocScales();
-    if (rxCoreScales != undefined && rxCoreScales.length) {
-      this.scalesOptions = rxCoreScales;
+    if (activeFile) {
+      // Update scales from RXCore to get the latest scales
+      const rxCoreScales = RXCore.getDocScales();
+      if (rxCoreScales != undefined && rxCoreScales.length) {
+        this.scalesOptions = rxCoreScales;
+      }
+
+    }else{
+      // No active file, clear scales
+      this.scalesOptions = [];
+
     }
 
-    /*if(RXCore.getDocScales() != undefined && RXCore.getDocScales().length ){
-      this.scalesOptions = RXCore.getDocScales();
-    }*/
-    //if(this.docObj && this.docObj.scalesOptions && this.docObj.scalesOptions.length)
-    //this.scalesOptions = this.docObj.scalesOptions;   
   }
 
   selectCurrentScale(markup?) {
@@ -416,6 +418,8 @@ export class MeasureDetailPanelComponent implements OnInit, OnDestroy {
 
   countDecimals(value) {
 
+    // Handle special case for "Rounded" precision (value = 1)
+
     if (value === 1) {
       return 0; // Rounded means 0 decimal places (whole numbers)
     }
@@ -427,9 +431,7 @@ export class MeasureDetailPanelComponent implements OnInit, OnDestroy {
     }
     
     return 0;
-
-
-    //return value % 1?value.toString().split(".")[1].length:0;     
+    
   };
 
   applyScale(selectedScaleObj: any) {    
@@ -441,13 +443,10 @@ export class MeasureDetailPanelComponent implements OnInit, OnDestroy {
       RXCore.setElementDimPrecision(selectedScaleObj.dimPrecision);
 
       // Use precise value if available, otherwise fall back to display value
-      const scaleValue = selectedScaleObj.preciseValue !== undefined 
-      ? `1:${selectedScaleObj.preciseValue}` 
-      : selectedScaleObj.value;
+      const scaleValue = selectedScaleObj.preciseValue !== undefined ? `1:${selectedScaleObj.preciseValue}` : selectedScaleObj.value;
           
       RXCore.elementScale(scaleValue);
       
-      //RXCore.elementScale(selectedScaleObj.value);
       RXCore.setElementScaleLabel(selectedScaleObj.label);
         
     }

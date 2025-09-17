@@ -67,6 +67,13 @@ export class ScaleManagementService {
         this.loadScalesForCurrentFile();
         // Force apply the selected scale for the new file
         this.forceApplySelectedScaleForFile();
+      }else if (!file && this.currentFile) {
+        // All files are closed, clear scales and reset to default
+        this.currentFile = null;
+        this.scalesSubject.next([]);
+        this.resetToDefaultScale();
+        // Clear all stored scales when no files are active
+        this.fileScaleStorage.clearAllScales();
       }
     });
 
@@ -91,9 +98,19 @@ export class ScaleManagementService {
   private applyScaleToCurrentPageInternal(scale: ScaleWithPageRange): void {
     this.updateMetric(scale.metric as MetricUnitType);
     this.updateMetricUnit(scale.metric as MetricUnitType, scale.metricUnit);
-    RXCore.scale(scale.value);
+
+    // Use precise value if available, otherwise fall back to display value
+    const scaleValue = scale.preciseValue !== undefined 
+      ? `1:${scale.preciseValue}` 
+      : scale.value;
+    
+    RXCore.scale(scaleValue);
+
     RXCore.setScaleLabel(scale.label);
     RXCore.setDimPrecisionForPage(scale.dimPrecision);
+
+    // Redraw measurements to reflect the new scale
+    RXCore.markUpRedraw();
     
     const currentPage = this.getCurrentPage();
     
@@ -167,9 +184,9 @@ export class ScaleManagementService {
     return this.currentPageSubject.value;
   }
 
-  getTotalPages(): number {
+  /*getTotalPages(): number {
     return this.totalPagesSubject.value;
-  }
+  }*/
 
   addScale(scale: ScaleWithPageRange): void {
     const currentScales = this.getScales();
@@ -259,7 +276,7 @@ export class ScaleManagementService {
     // First, look for page-specific scales
     let pageSpecificScale: ScaleWithPageRange | null = null;
   
-    //let bestMatch: ScaleWithPageRange | null = null;
+
     for (const scale of scales) {
 
       if (this.isScaleApplicableToPage(scale, pageNumber) && scale.pageRanges && scale.pageRanges.length > 0) {
@@ -267,13 +284,6 @@ export class ScaleManagementService {
         break; // Take the first page-specific scale found
       }
 
-      /*if (this.isScaleApplicableToPage(scale, pageNumber)) {
-        if (!bestMatch || 
-            (scale.pageRanges && scale.pageRanges.length > 0 && 
-             (!bestMatch.pageRanges || bestMatch.pageRanges.length === 0))) {
-          bestMatch = scale;
-        }
-      }*/
     }
     return pageSpecificScale;
   }
@@ -307,27 +317,6 @@ export class ScaleManagementService {
     return result;
   }
 
-  /*applyScaleToPageRange(scale: ScaleWithPageRange, pageRanges: number[][]): void {  
-    const updatedScale = {
-      ...scale,
-      pageRanges: pageRanges,
-      isGlobal: pageRanges.length === 0 || 
-                (pageRanges.length === 1 && 
-                 pageRanges[0][0] === 1 && 
-                 pageRanges[0][1] === this.getTotalPages())
-    };
-
-    this.addScale(updatedScale);
-  }*/
-
-  /*applyScaleToAllPages(scale: ScaleWithPageRange): void {
-    this.applyScaleToPageRange(scale, []);
-  }*/
-
-  /*applyScaleToCurrentPage(scale: ScaleWithPageRange): void {
-    const currentPage = this.getCurrentPage();
-    this.applyScaleToPageRange(scale, [[currentPage + 1, currentPage + 1]]);
-  }*/
 
   getScalesForPage(pageNumber: number): ScaleWithPageRange[] {
     const scales = this.getScales();

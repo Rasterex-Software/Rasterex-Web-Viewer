@@ -15,10 +15,13 @@ export class FileScaleStorageService {
   constructor() {}
 
   private getFileId(file: any): string {
-    // Use file index as unique identifier, fallback to name if index not available
-    return file.index !== undefined
-      ? `file_${file.index}`
-      : `file_${file.name}`;
+
+    // Use file name as primary identifier since index is not unique per file
+    // Add a hash of the file path/name to ensure uniqueness
+    const fileName = file.name || 'unknown';
+    const filePath = file.path || '';
+    const fileId = `file_${fileName}_${filePath}`.replace(/[^a-zA-Z0-9_]/g, '_');
+    return fileId;
   }
 
   getScalesForFile(file: any): ScaleWithPageRange[] {
@@ -143,4 +146,9 @@ export class FileScaleStorageService {
       }
     }
   }
+
+  clearAllScales(): void {
+    this.fileScalesMap.clear();
+  }
+  
 }

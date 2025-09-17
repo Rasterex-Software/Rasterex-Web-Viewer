@@ -304,7 +304,9 @@ export class MeasurePanelComponent implements OnInit, OnDestroy {
   }
 
   loadAndSetPageScale(): void {
-    if (RXCore.getDocScales()) {
+    // Only load scales from RXCore if there's an active file
+    const activeFile = RXCore.getOpenFilesList().find(file => file.isActive);
+    if (activeFile && RXCore.getDocScales()) {
       // Only load scales from RXCore if we don't have user scales loaded
       if (!this.scalesOptions || this.scalesOptions.length === 0) {
         this.loadScaleList();
@@ -555,6 +557,9 @@ export class MeasurePanelComponent implements OnInit, OnDestroy {
     RXCore.scale(scaleValue);
     RXCore.setScaleLabel(selectedScaleObj.label);
 
+    // Redraw measurements to reflect the new scale
+    RXCore.markUpRedraw();
+
     // Use the service to properly manage scale selection
     this.scaleManagementService.setSelectedScale(selectedScaleObj.label);
     this.scalesOptions = this.scaleManagementService.getScales();
@@ -629,9 +634,16 @@ export class MeasurePanelComponent implements OnInit, OnDestroy {
       );
 
       if (existingScaleIndex !== -1) {
+
+
+
         // Extract precise value from the calculated scale string
         const scaleParts = scale.split(':');
-        const preciseValue = scaleParts.length > 1 ? parseFloat(scaleParts[1]) : 1;
+
+        const pageScaleValue = scaleParts.length > 1 ? parseFloat(scaleParts[0]) : 1;
+        const displayScaleValue = scaleParts.length > 1 ? parseFloat(scaleParts[1]) : 1;
+        // For RXCore, we need the ratio of display to page scale
+        const preciseValue = displayScaleValue / pageScaleValue;
 
         const updatedScale: ScaleWithPageRange = {
           value: scale,
@@ -710,7 +722,12 @@ export class MeasurePanelComponent implements OnInit, OnDestroy {
 
     // Extract precise value from the calculated scale string
     const scaleParts = scale.split(':');
-    const preciseValue = scaleParts.length > 1 ? parseFloat(scaleParts[1]) : 1;
+
+    const pageScaleValue = scaleParts.length > 1 ? parseFloat(scaleParts[0]) : 1;
+    const displayScaleValue = scaleParts.length > 1 ? parseFloat(scaleParts[1]) : 1;
+    // For RXCore, we need the ratio of display to page scale
+    const preciseValue = displayScaleValue / pageScaleValue;
+    
 
     let obj: ScaleWithPageRange = {
       value: scale,
@@ -811,7 +828,11 @@ export class MeasurePanelComponent implements OnInit, OnDestroy {
     let displayMeasureScale = preciseMeasureScale.toFixed(2);
     displayMeasureScale = parseFloat(displayMeasureScale);
 
-    const scaleVaue = `1:${displayMeasureScale}`;
+    // Calculate the actual scale ratio (page units to real units)
+
+
+    //const scaleVaue = `1:${displayMeasureScale}`;
+
     const pageScaleLebel = this.selectedMetricType === MetricUnitType.METRIC ? this.currentPageMetricUnitCalibrate : 'Inch';
     const convertedMeasureScale =
       this.selectedMetricType === MetricUnitType.METRIC
@@ -822,23 +843,41 @@ export class MeasurePanelComponent implements OnInit, OnDestroy {
             displayMeasureScale / this.convertToInch(this.selectedMetricUnit.label)
           ).toFixed(2);
 
-    // For imperial scales, use fraction format in the label
+    // For imperial scales, determine the proper fraction representation
+
     let scaleLabel: string;
+    let scaleValue: string;
+
+
     if (this.selectedMetricType === MetricUnitType.IMPERIAL) {
-      scaleLabel = `1/1 = ${convertedMeasureScale} ${this.selectedMetricUnit.label}`;
+      // For imperial, we need to determine if this should be a fraction scale
+      const realValue = parseFloat(convertedMeasureScale);
+      
+      // If the real value is less than 1, it should be a fraction scale (e.g., 1/2 = 0.5 feet)
+      if (realValue < 1) {
+        const denominator = Math.round(1 / realValue);
+        scaleLabel = `1/${denominator} = ${convertedMeasureScale} ${this.selectedMetricUnit.label}`;
+        scaleValue = `1:${displayMeasureScale}`;
+      } else {
+        // If the real value is 1 or greater, use 1/1 format
+        scaleLabel = `1/1 = ${convertedMeasureScale} ${this.selectedMetricUnit.label}`;
+        scaleValue = `1:${displayMeasureScale}`;
+      }
     } else {
       scaleLabel = `1 ${pageScaleLebel} : ${convertedMeasureScale} ${this.selectedMetricUnit.label}`;
+      scaleValue = `1:${displayMeasureScale}`;
     }
+
     RXCore.setScaleLabel(scaleLabel);
 
     RXCore.calibrate(false);
 
     this.isSelectedCalibrate = false;
-    RXCore.scale(scaleVaue);
+    RXCore.scale(scaleValue);
     this.measuredCalibrateLength = '0';
     
     let obj = {
-      value: scaleVaue,
+      value: scaleValue,
       preciseValue: preciseMeasureScale, // Store the precise value for accurate scaling
       label: scaleLabel,
       metric: this.selectedMetricType,
@@ -880,13 +919,27 @@ export class MeasurePanelComponent implements OnInit, OnDestroy {
 
   loadScaleList(): void {
     if (!this.scalesOptions || this.scalesOptions.length === 0) {
-      const scales: any = RXCore.getDocScales();
 
-      if (scales && scales.length) {
-        this.scalesOptions = this.ensureImperialScaleProperties(scales);
-      } else {
-        this.insertUnscaled();
+      // Only load scales from RXCore if there's an active file
+      const activeFile = RXCore.getOpenFilesList().find(file => file.isActive);
+
+      if (activeFile) {
+        const scales: any = RXCore.getDocScales();
+
+        if (scales && scales.length) {
+          this.scalesOptions = this.ensureImperialScaleProperties(scales);
+        } else {
+          this.insertUnscaled();
+        }
+  
+      }else{
+        this.scalesOptions = [];
+        this.selectedScale = null;
+        this.applyScaleToDefault();
       }
+
+      
+
     }
   }
 
@@ -1139,7 +1192,12 @@ export class MeasurePanelComponent implements OnInit, OnDestroy {
       if (updatedScale.preciseValue === undefined && updatedScale.value) {
         const scaleParts = updatedScale.value.split(':');
         if (scaleParts.length > 1) {
-          updatedScale.preciseValue = parseFloat(scaleParts[1]);
+
+          const pageScaleValue = parseFloat(scaleParts[0]);
+          const displayScaleValue = parseFloat(scaleParts[1]);
+          // For RXCore, we need the ratio of display to page scale
+          updatedScale.preciseValue = displayScaleValue / pageScaleValue;
+
         }
       }
       
@@ -1161,6 +1219,14 @@ export class MeasurePanelComponent implements OnInit, OnDestroy {
         
         // Fix any inconsistencies in selected scales
         this.fileScaleStorage.fixSelectedScaleConsistency();
+      }else if (!file && this.currentFile) {
+        // All files are closed, clear scales and reset to default
+        this.currentFile = null;
+        this.scalesOptions = [];
+        this.selectedScale = null;
+        this.applyScaleToDefault();
+        // Clear all stored scales when no files are active
+        this.fileScaleStorage.clearAllScales();
       }
     });
   }

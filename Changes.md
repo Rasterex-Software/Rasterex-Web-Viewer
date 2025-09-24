@@ -1,4 +1,16 @@
 
+September 24, 2025
+
+### 1. Enable to rename an RTC room
+
+Updated files
+
+src\app\components\collab\room-panel.component.html
+src\app\components\collab\room-panel.component.scss
+src\app\components\collab\room-panel.component.ts  
+src\app\services\collab.service.ts                 
+
+
 September 17, 2025
 
 ### 1. Fix for various scaling and measurement inconsistencies.

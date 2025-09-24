@@ -22,7 +22,20 @@
       
       <ul *ngIf="user" class="list">
         <li *ngFor="let room of roomInfoArray" [class]="{'active': isActiveRoom(room.roomId)}">
-          <span title="{{getDisplayRoomId(room.roomId)}}">{{getDisplayRoomId(room.roomId) + (isActiveRoom(room.roomId) ? " (Active)" : "")}}</span>
+          <!-- Room name display/edit -->
+          <span *ngIf="!isEditingRoom(room.roomId)"
+                (dblclick)="startEditingRoomName(room.roomId)"
+                [title]="getRoomNameTooltip(room.roomId)"
+                [class]="getRoomNameCssClass(room.roomId)">
+            {{getRoomName(room.roomId) + (isActiveRoom(room.roomId) ? " (Active)" : "")}}
+          </span>
+          <input *ngIf="isEditingRoom(room.roomId)"
+                 [(ngModel)]="editingRoomName"
+                 (keydown)="onRoomNameKeyDown($event)"
+                 (blur)="saveRoomName()"
+                 class="room-name-input"
+                 type="text"
+                 maxlength="50">
           <div class="button-group">
             <button *ngIf="user && !isActiveRoom(room.roomId)" (click)="joinRoom(room.roomId)" class="btn" title="Join room">
               <img src="/assets/images/join-room.svg" alt="Join" srcset="">
@@ -41,7 +54,7 @@
       </ul>
       <div *ngIf="user">
         <p>
-          <span title="{{activeRoomId ? getDisplayRoomId(activeRoomId) : 'Need to join a room to see participants'}}">
+          <span title="{{activeRoomId ? getRoomName(activeRoomId) : 'Need to join a room to see participants'}}">
             Participants ({{ participants.length }})
           </span>
         </p>

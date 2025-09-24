@@ -49,6 +49,54 @@
         text-overflow: ellipsis;
         width: 130px;
       }
+
+      .room-name-display {
+        user-select: none;
+
+        &.editable {
+          cursor: pointer;
+
+          &:hover {
+            background-color: rgba(0, 123, 255, 0.1);
+            border-radius: 2px;
+          }
+        }
+
+        &.non-editable {
+          cursor: default;
+          opacity: 0.6;
+
+          &:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+            border-radius: 2px;
+          }
+        }
+
+        &.default-room {
+          cursor: default;
+          opacity: 0.7;
+
+          &:hover {
+            background-color: transparent;
+          }
+        }
+      }
+
+      .room-name-input {
+        width: 130px;
+        padding: 2px 4px;
+        border: 1px solid var(--accent);
+        border-radius: 2px;
+        font-size: inherit;
+        font-family: inherit;
+        background-color: white;
+        outline: none;
+
+        &:focus {
+          border-color: var(--accent);
+          box-shadow: 0 0 3px rgba(0, 123, 255, 0.3);
+        }
+      }
     }
 
     .main-section {

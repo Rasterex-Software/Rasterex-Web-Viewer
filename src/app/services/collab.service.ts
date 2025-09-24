@@ -12,6 +12,7 @@ const MessageId = {
   LeaveRoom: "LeaveRoom",
   CreateRoom: "CreateRoom",
   DeleteRoom: "DeleteRoom",
+  UpdateRoomName: "UpdateRoomName",
   GetAllRooms: "GetAllRooms",
   GetRoomsByDocId: "GetRoomsByDocId",
   GetRoomParticipants: "GetRoomParticipants",
@@ -47,6 +48,7 @@ export interface CollabMessage {
   docId?: string;
   // Used by room relative message, LeaveRoom, GetRoomParticipants, etc.
   roomId?: string;
+  roomName?: string;
   body: {
     result?:boolean;
     senderSocketId?: string;
@@ -75,8 +77,14 @@ export interface RoomParticipants {
 export interface RoomInfo {
   docId: string;
   roomId: string;
+  roomName?: string;
   joinedRoom: boolean;
   participants: Participant[];
+}
+
+export interface RoomIdNamePair {
+  roomId: string;
+  roomName: string;
 }
 
 @Injectable({
@@ -109,6 +117,9 @@ export class CollabService {
 
   private _roomDelete: BehaviorSubject<string> = new BehaviorSubject<string>('');
   public roomDelete$: Observable<string> = this._roomDelete.asObservable();
+
+  private _roomNameUpdate: BehaviorSubject<RoomIdNamePair> = new BehaviorSubject<RoomIdNamePair>({roomId: '', roomName: ''});
+  public roomNameUpdate$: Observable<RoomIdNamePair> = this._roomNameUpdate.asObservable();
 
   private _documentRoomsChange: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
   public documentRoomsChange$: Observable<string[]> = this._documentRoomsChange.asObservable();
@@ -348,6 +359,7 @@ export class CollabService {
     if (msgId === MessageId.JoinRoom) {
       const roomParticipants = {
         roomId: message.roomId,
+        roomName: message.roomName,
         participants: msgBody.participants,
       }
       this._roomParticipantsChange.next(roomParticipants);
@@ -362,6 +374,11 @@ export class CollabService {
       this._roomCreate.next(message.roomId as string);
     } else if (msgId === MessageId.DeleteRoom) {
       this._roomDelete.next(message.roomId as string);
+    } else if (msgId === MessageId.UpdateRoomName) {
+      // When a room name is updated, notify all participants
+      const roomId = message.roomId as string;
+      const roomName = message.roomName as string;
+      this._roomNameUpdate.next({ roomId, roomName });
     } else if (msgId === MessageId.GetAllRooms) {
       // GetAllRooms shouldn't be called by the client, but by the admin user
       // to debug the backend. So we just log it.
@@ -583,15 +600,17 @@ export class CollabService {
    * Creates a new room for the given docId.
    * The backend should create a room with a unique name and send a message back to frontend.
    * The frontend should listen to the roomCreate$ observable to get the room id.
+   * @param docId - The document ID
+   * @param roomName - Optional custom room name
    */
-  public async createRoom(docId: string): Promise<boolean> {
+  public async createRoom(docId: string, roomName?: string): Promise<boolean> {
     if (!this.socket || !this.socket.connected) {
       const result = await this.init();
       if (!result) {
         return Promise.resolve(false);
       }
     }
-    this.sendMessage({ id: MessageId.CreateRoom, docId, body: { }});
+    this.sendMessage({ id: MessageId.CreateRoom, docId, roomName, body: { }});
     return Promise.resolve(true);
   }
 
@@ -607,6 +626,20 @@ export class CollabService {
       }
     }
     this.sendMessage({ id: MessageId.DeleteRoom, docId: this.getDocId(), roomId, body: { }});
+    return Promise.resolve(true);
+  }
+
+  /**
+   * Updates a room name and broadcasts to all participants.
+   */
+  public async updateRoomName(roomId: string, roomName: string): Promise<boolean> {
+    if (!this.socket || !this.socket.connected) {
+      const result = await this.init();
+      if (!result) {
+        return Promise.resolve(false);
+      }
+    }
+    this.sendMessage({ id: MessageId.UpdateRoomName, docId: this.getDocId(), roomId, roomName, body: { }});
     return Promise.resolve(true);
   }
 

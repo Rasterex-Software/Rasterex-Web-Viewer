@@ -66,7 +66,9 @@ export class ScaleManagementService {
         this.currentFile = file;
         this.loadScalesForCurrentFile();
         // Force apply the selected scale for the new file
-        this.forceApplySelectedScaleForFile();
+        setTimeout(() => {
+          this.forceApplySelectedScaleForFile();
+        }, 100);
       }else if (!file && this.currentFile) {
         // All files are closed, clear scales and reset to default
         this.currentFile = null;
@@ -279,7 +281,10 @@ export class ScaleManagementService {
 
     for (const scale of scales) {
 
-      if (this.isScaleApplicableToPage(scale, pageNumber) && scale.pageRanges && scale.pageRanges.length > 0) {
+      const isApplicable = this.isScaleApplicableToPage(scale, pageNumber);
+      const hasPageRanges = scale.pageRanges && scale.pageRanges.length > 0;
+
+      if (isApplicable && hasPageRanges) {
         pageSpecificScale = scale;
         break; // Take the first page-specific scale found
       }
@@ -412,10 +417,23 @@ export class ScaleManagementService {
     const selectedScale = this.fileScaleStorage.getSelectedScaleForFile(this.currentFile);
     
     if (selectedScale) {
-      this.applyScaleToCurrentPageInternal(selectedScale);
+      // Check if the selected scale is applicable to the current page
+      const currentPage = this.getCurrentPage();
+      if (this.isScaleApplicableToPage(selectedScale, currentPage + 1)) {
+        this.applyScaleToCurrentPageInternal(selectedScale);
+      } else {
+        // If selected scale doesn't apply to current page, try to find a scale that does
+        const applicableScale = this.getScaleForPage(currentPage + 1);
+        if (applicableScale) {
+          this.applyScaleToCurrentPageInternal(applicableScale);
+        } else {
+          this.resetToDefaultScale();
+        }
+      }
     } else {
       this.resetToDefaultScale();
     }
+
   }
 
   private resetToDefaultScale(): void {

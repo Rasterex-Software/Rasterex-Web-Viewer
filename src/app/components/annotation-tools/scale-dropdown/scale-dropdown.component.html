@@ -1,6 +1,6 @@
 <div class="dropdown-container" [ngClass]="{'dropdown-container-full': !showDelete}">
   <div
-    *ngIf="options.length > 0"
+    *ngIf="shouldShowDropdown()"
     class="dropdown-wrapper"
     [class.focused]="opened || selectedScale"
     [class.opened]="opened"

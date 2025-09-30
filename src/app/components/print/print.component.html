@@ -44,6 +44,13 @@
                 [displayField]="'value'"
                 (valueChange)="onPaperOrientationSelect($event)">
             </rx-dropdown>
+
+             <!-- 👇 New progress block -->
+            <div class="progress-container" *ngIf="progressVisible">
+                <p>Rendering page {{ currentPage }} of {{ totalPages }}…</p>
+                <progress [value]="currentPage" [max]="totalPages"></progress>
+            </div>
+
         </div>
         <div class="footer">
             <button (click)="cancel()" class="btn btn-light">CANCEL</button>

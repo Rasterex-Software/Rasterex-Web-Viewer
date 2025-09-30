@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Subject, BehaviorSubject, Observable } from "rxjs";
+import { CustomButton } from 'src/app/models/custom-button.model';
 
 @Injectable({
   providedIn: 'root'
@@ -8,6 +9,85 @@ export class AnnotationToolsService {
   
 
   constructor() { }
+
+  private customButtonsSubject = new BehaviorSubject<CustomButton[]>([]);
+  public customButtons$ = this.customButtonsSubject.asObservable();
+
+  addButton(button: CustomButton) {
+    const current = this.customButtonsSubject.getValue();
+    if (!current.find(b => b.id === button.id)) {
+      this.customButtonsSubject.next([...current, button]);
+    }
+  }
+
+  removeButton(id: string) {
+    const current = this.customButtonsSubject.getValue();
+    this.customButtonsSubject.next(current.filter(b => b.id !== id));
+  }
+
+  /*updateButtonState(id: string, active: boolean) {
+    const current = this.customButtonsSubject.getValue();
+    const updated = current.map(b =>
+      b.id === id ? { ...b, active } : b
+    );
+    this.customButtonsSubject.next(updated);
+  }*/
+
+  setButtonState(id: string, forceToggle: boolean = true): CustomButton | undefined {
+    const current = this.customButtonsSubject.getValue();
+    let updatedBtn: CustomButton | undefined;
+
+    const updated = current.map(b => {
+      if (b.id === id) {
+        // if forceToggle = true, flip it, otherwise explicitly deactivate
+        updatedBtn = { ...b, active: forceToggle ? !b.active : false };
+        return updatedBtn;
+      }
+      return { ...b, active: false }; // all others reset
+    });
+
+    this.customButtonsSubject.next(updated);
+    return updatedBtn;
+  }
+
+  updateButtonState(id: string, active: boolean): CustomButton | undefined {
+    const current = this.customButtonsSubject.getValue();
+    let updatedButton: CustomButton | undefined;
+  
+    const updated = current.map(b => {
+      if (b.id === id) {
+        updatedButton = { ...b, active };
+        return updatedButton;
+      }
+      return b;
+    });
+  
+    this.customButtonsSubject.next(updated);
+  
+    return updatedButton; // ✅ caller gets the new state
+  }
+
+  toggleExclusiveButton(id: string): CustomButton | undefined {
+    const current = this.customButtonsSubject.getValue();
+    let updatedBtn: CustomButton | undefined;
+
+    const updated = current.map(b => {
+      if (b.id === id) {
+        updatedBtn = { ...b, active: !b.active };
+        return updatedBtn;
+      }
+      return { ...b, active: false }; // all others reset
+    });
+
+    this.customButtonsSubject.next(updated);
+    return updatedBtn;
+  }
+
+  getButtonById(id: string): CustomButton | undefined {
+    return this.customButtonsSubject.getValue().find(b => b.id === id);
+  }
+
+
 
   private _opened: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   public opened$: Observable<boolean> = this._opened.asObservable();
@@ -113,4 +193,9 @@ export class AnnotationToolsService {
     this._selectedOption.next(any);
   }
 
+  
+
 }
+
+
+

@@ -258,6 +258,70 @@ svg {
     }
 
 }
+
+.custom-buttons {
+    display: flex;
+    align-items: center;
+  
+    .custom-toggle {
+      width: 28px;
+      height: 28px;
+      margin-right: 10px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      cursor: pointer;
+    }
+  
+    // ✅ Correct: .custom-toggle when it ALSO has .selected
+    .custom-toggle.selected {
+      background-color: $toolbar-background-active !important;
+      color: $toolbar-background !important;
+  
+      svg {
+        filter: brightness(0) invert(1);
+      }
+    }
+  
+    .tooltip-text {
+      visibility: hidden;
+      opacity: 0;
+      width: max-content;
+      background-color: #333c4e;
+      color: white;
+      text-align: center;
+      padding: 4px 6px;
+      border-radius: 4px;
+      position: absolute;
+      bottom: -32px;
+      left: 50%;
+      transform: translateX(-50%);
+      transition: opacity 0.2s ease;
+      z-index: 999;
+      font-size: 12px;
+      white-space: nowrap;
+  
+      &.tooltip-bottom::after {
+        content: '';
+        position: absolute;
+        top: -5px;
+        left: 50%;
+        transform: translateX(-50%);
+        border-width: 5px;
+        border-style: solid;
+        border-color: transparent transparent #333c4e transparent;
+      }
+    }
+  
+    .custom-toggle:hover .tooltip-text {
+      visibility: visible;
+      opacity: 1;
+    }
+  }
+  
+
 .scale-not-set {
     height: 1.75rem;
     font-size: 12px;

@@ -20,6 +20,10 @@ export class PrintComponent {
   includeAnnotations: boolean = false;
   pasteWatermark: boolean = false;
 
+  currentPage = 0;
+  totalPages = 0;
+  progressVisible = false;
+
   pages = [
     { label: 'All', value: 'all' },
     { label: 'Current page', value: 'currentPage' },
@@ -130,6 +134,35 @@ export class PrintComponent {
 
   ngOnInit() {
     this.initializeFormValues();
+
+    if (RXCore && RXCore.onPrintProgress) {
+      RXCore.onPrintProgress((pagenumtotal) => {
+
+        this.currentPage = pagenumtotal.current;
+        this.totalPages = pagenumtotal.total;
+        this.progressVisible = true;
+
+      });
+  
+    }
+    
+
+    if (RXCore && RXCore.onPrintComplete) {
+      RXCore.onPrintComplete(() => {
+        this.cancel();
+      });
+    }
+
+    /*if (RXCore && RXCore.onPrintComplete) {
+      RXCore.onPrintComplete(() => {
+        this.progressVisible = false;
+        this.currentPage = 0;
+        this.totalPages = 0;
+        // Auto-close optional:
+        // this.cancel();
+      });
+    }*/
+
   }
 
   initializeFormValues() {

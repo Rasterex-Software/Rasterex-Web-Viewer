@@ -145,6 +145,34 @@
                 }
             }
 
+            li.custom-annotation-toggle {
+                width: 28px;
+                height: 28px;
+                border-radius: 4px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                transition: background-color 0.1s;
+              
+                &:hover {
+                  background-color: $background-light;
+                }
+              
+                &.selected {
+                  background-color: $toolbar-background-active;
+              
+                  svg:not(.ignore-filter) {
+                    filter: brightness(0) invert(1);
+                  }
+                }
+              
+                .tooltip-text {
+                  left: auto;
+                  right: 40px; // tooltip to the left of vertical bar
+                }
+            }            
+
         }
     }
 

@@ -20,6 +20,8 @@ import { PrintService } from '../print/print.service';
 import { SideNavMenuService } from '../side-nav-menu/side-nav-menu.service';
 
 import { TopNavMenuService } from './top-nav-menu.service';
+import { CustomButton } from 'src/app/models/custom-button.model';
+
 import { ActionType } from './type';
 import { CollabService } from 'src/app/services/collab.service';
 
@@ -73,6 +75,7 @@ export class TopNavMenuComponent implements OnInit {
   containBlocks: boolean = false;
   isActionSelected: boolean = false;
   actionType: ActionType = "None";
+  customButtons: CustomButton[] = [];
   private guiOnNoteSelected: Subscription;
   //currentScaleValue: string;
   fileLength: number = 0;
@@ -108,7 +111,6 @@ export class TopNavMenuComponent implements OnInit {
     private readonly exportService: ExportService,
     private readonly scaleManagementService: ScaleManagementService,
     private readonly fileScaleStorage: FileScaleStorageService
-
     
     ) {
   }
@@ -139,6 +141,10 @@ export class TopNavMenuComponent implements OnInit {
   ngOnInit(): void {
     this.handleIconRotation();
     this._setOptions();
+
+    this.service.customButtons$.subscribe(btns => {
+      this.customButtons = btns;
+    });
     //this.addFont();
 
     // Subscribe to user changes and reload user-specific scales
@@ -191,13 +197,16 @@ export class TopNavMenuComponent implements OnInit {
     this.rxCoreService.guiState$.subscribe((state) => {
       this.guiState = state;
       this.canChangeSign = state.numpages && state.isPDF && RXCore.getCanChangeSign();
-      this._setOptions();
+      this._setOptions(this.selectedValue);
+      //this._setOptions();
 
       this.isPDF = state.isPDF;
       // Track file changes to update scales
       const file = RXCore.getOpenFilesList().find(file => file.isActive);
       if (file && (!this.currentFile || this.currentFile.index !== file.index)) {
         this.currentFile = file;
+        const newfilevalue = this.options.find(option => option.value == "view");
+        this.onModeChange(newfilevalue, false);
         this.updateScalesForCurrentFile();
       }
 
@@ -208,7 +217,7 @@ export class TopNavMenuComponent implements OnInit {
         }
       }else{
           //Hide compare toolbar if comparison window is closed Or not active
-          this.onModeChange(false, false);
+          this.onModeChange(this.selectedValue, false);
 
           //Disable tools which enabled for comparison
           this.rxCoreService.setGuiConfig({
@@ -315,9 +324,9 @@ export class TopNavMenuComponent implements OnInit {
         return;
       }
 
-      // Only update scales from RXCore if we don't have any scales loaded AND we don't have user scales
-      // This prevents deleted scales from reappearing
-      //if ((!this.scalesOptions || this.scalesOptions.length === 0) && (!user || !this.userScaleStorage.getScales(user.id)?.length)) {
+      // Only update scales from RXCore if we don't have any scales loaded AND we don't have user scales AND there's an active file
+      // This prevents deleted scales from reappearing and prevents inheritance when no file is open
+      
       const activeFile = RXCore.getOpenFilesList().find(file => file.isActive);
       if ((!this.scalesOptions || this.scalesOptions.length === 0) && (!user || !this.userScaleStorage.getScales(user.id)?.length) && activeFile) {
 
@@ -373,7 +382,7 @@ export class TopNavMenuComponent implements OnInit {
 
       // Only update scales from RXCore if we don't have any scales loaded AND we don't have user scales AND there's an active file
       // This prevents deleted scales from reappearing and prevents inheritance when no file is open
-      //if ((!this.scalesOptions || this.scalesOptions.length === 0) && (!user || !this.userScaleStorage.getScales(user.id)?.length)) {
+
       const activeFile = RXCore.getOpenFilesList().find(file => file.isActive);
       if ((!this.scalesOptions || this.scalesOptions.length === 0) && (!user || !this.userScaleStorage.getScales(user.id)?.length) && activeFile) {      
         const rxCoreScales = RXCore.getDocScales();
@@ -1079,15 +1088,15 @@ export class TopNavMenuComponent implements OnInit {
         if (this.currentFile) {
           this.fileScaleStorage.setSelectedScaleForFile(this.currentFile, null);
         }
+        let mrkUp: any = RXCore.getSelectedMarkup();
+
+        if (!mrkUp.isempty) {
+          RXCore.unSelectAllMarkup();
+          RXCore.selectMarkUpByIndex(mrkUp.markupnumber);
+        }
+    
     }
 
-    let mrkUp: any = RXCore.getSelectedMarkup();
-
-    if (!mrkUp.isempty) {
-      RXCore.unSelectAllMarkup();
-      RXCore.selectMarkUpByIndex(mrkUp.markupnumber);
-    }
-    //RXCore.resetToDefaultScaleValueForMarkup(scaleToDelete.label);
     this.measurePanelService.setScaleState({ deleted: true });
   }
 
@@ -1107,7 +1116,12 @@ export class TopNavMenuComponent implements OnInit {
       }
       
       try {
-        RXCore.scale(selectedScale.value);
+
+        // Use precise value if available, otherwise fall back to display value
+        const scaleValue = selectedScale.preciseValue !== undefined 
+        ? `1:${selectedScale.preciseValue}` 
+        : selectedScale.value;
+        RXCore.scale(scaleValue);
       } catch (error) {
         console.error('Error setting scale:', error);
       }
@@ -1116,6 +1130,13 @@ export class TopNavMenuComponent implements OnInit {
         RXCore.setScaleLabel(selectedScale.label);
       } catch (error) {
         console.error('Error setting scale label:', error);
+      }
+
+      // Redraw measurements to reflect the new scale
+      try {
+        RXCore.markUpRedraw();
+      } catch (error) {
+        console.error('Error redrawing measurements:', error);
       }
 
       this.scalesOptions = [...this.setPropertySelected(
@@ -1133,7 +1154,7 @@ export class TopNavMenuComponent implements OnInit {
         this.fileScaleStorage.setSelectedScaleForFile(this.currentFile, selectedScale);
       }
       
-      // Save to localStorage for the current user
+      // Save to localStorage for the current user (legacy support)
       const user = this.userService.getCurrentUser();
       
       if (user) {
@@ -1165,7 +1186,7 @@ export class TopNavMenuComponent implements OnInit {
           RXCore.setUnit(2);
           break;
         default:
-          console.log('Unknown metric type:', selectedMetricType);
+
       }
     } catch (error) {
       console.error('Error updating metric:', error);
@@ -1179,34 +1200,18 @@ export class TopNavMenuComponent implements OnInit {
       } else if (metric === METRIC.UNIT_TYPES.IMPERIAL) {
         RXCore.imperialUnit(metricUnit);
       } else {
-        console.log('Unknown metric type for unit update:', metric);
+        
       }
     } catch (error) {
       console.error('Error updating metric unit:', error);
     }
   }
 
-  private updateSelectedScaleFromCurrentPage(): void {
-    if (this.scalesOptions?.length > 0) {
-      const currentPageScaleLabel = RXCore.getCurrentPageScaleLabel();
-      if (currentPageScaleLabel) {
-        const foundScale = this.scalesOptions.find(scale => scale.label === currentPageScaleLabel);
-        if (foundScale) {
-          this.selectedScale = foundScale;
-        }
-      } else {
-        const foundScale = this.scalesOptions.find(scale => scale.isSelected);
-        if (foundScale) {
-          this.selectedScale = foundScale;
-        }
-      }
-    }
-  }
 
   private updateSelectedScaleFromPageRanges(): void {
     if (this.scalesOptions?.length > 0) {
-      // Get the current page number (RXCore uses 0-based indexing)
-      const currentPage = this.guiState?.currentpage !== undefined ? this.guiState.currentpage + 1 : 1;
+      // Use the scale management service to get the current page (it has better page detection)
+      const currentPage = this.scaleManagementService.getCurrentPage() + 1;
       
       // Use the scale management service to get the correct scale for the current page
       const scaleForPage = this.scaleManagementService.getScaleForPage(currentPage);
@@ -1281,6 +1286,14 @@ export class TopNavMenuComponent implements OnInit {
     // Update scales and selected scale
     this.scalesOptions = fileScales;
     this.selectedScale = selectedFileScale;
+  }
+
+  onCustomButtonClick(btn: CustomButton) {
+    const updated = this.service.toggleExclusiveButton(btn.id);
+  
+    if (btn.onClick && updated) {
+      btn.onClick(updated); // ✅ external handler gets updated state
+    }
   }
   
 

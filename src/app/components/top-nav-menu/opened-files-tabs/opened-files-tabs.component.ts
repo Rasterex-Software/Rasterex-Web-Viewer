@@ -195,8 +195,8 @@ export class OpenedFilesTabsComponent implements OnInit {
     });
 
     this.topNavMenuService.closeTab$.subscribe((file) => {
-      // this._closeTab(file);
-      this._closeTabWithSaveConfirmModal(file);
+      this._closeTab(file);
+      //this._closeTabWithSaveConfirmModal(file);
     })
   }
 

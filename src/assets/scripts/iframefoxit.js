@@ -748,7 +748,15 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
 
     };
     
-    this.getBitmapPrint = function(pagnenum, callback){
+    this.getBitmapPrint = function(pagenum, paperSize, callback){
+
+
+        const inchtomm = 25.4;
+
+        const paperwidth = (paperSize.width / inchtomm) * paperSize.DPI;
+        const paperheight = (paperSize.height / inchtomm) * paperSize.DPI;
+
+
 
 
         //foxitpage.pdfwidth = page.info.width;
@@ -782,38 +790,58 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
             foxview.pdfViewer.getCurrentPDFDoc().getPageByIndex(pagenum).then(function (page) {
                 var pgindex = page.info.index;
 
+                
+                //const DPI = 300;
+
+                const docheight = page.getHeight();
+                const docwidth = page.getWidth();
+
+                const xscale = paperwidth / docwidth; //thispage.MainImageWidth;
+                const yscale = paperheight / docheight; // thispage.MainImageHeight;
+                const scale = Math.min(xscale, yscale);
+        
+                const pdx = (paperwidth - (docwidth * scale)) / 2;
+                const pdy = (paperheight - (docheight * scale)) / 2;
+    
                 //var scale = birdseye.scale;
                 //var scale = 0.12;
                 var pagescale = scale * PixelToPoint;
                 var rotate = 0;
 
 
-                var pwwidth = Math.round(foxview.pagestates[pgindex].width * scale);
-                var pheight = Math.round(foxview.pagestates[pgindex].height * scale);
+                const pwwidth = Math.round(docwidth * scale);
+                const pheight = Math.round(docheight * scale);
 
                 var area = { x: 0, y: 0, width : pwwidth, height : pheight };
-
-                //var area = { x: 0, y: 0, width: foxview.pagestates[pgindex].width * scale, height: foxview.pagestates[pgindex].height * scale };
 
                 var contentsFlags = ["page", "annot"];
                 var usage = 'print';
 
-
-                //foxview.pagestates[0].width = pwidth;
-                //foxview.pagestates[0].height = pheight;
 
 
                 page.render(pagescale, rotate, area, contentsFlags, usage).then(function (bitmap) {
                     pgindex = page.info.index;
                     //RxCore.setBirdsEyeFoxit(bitmap, pgindex);
                     //RxCore.setPageBitmap(bitmap, pgindex);
-                    callback(bitmap, pgindex);
+                    //callback(bitmap, pgindex);
+
+                    callback({
+                        bitmap: bitmap,
+                        pgindex: pgindex,
+                        docwidth : docwidth,
+                        docheight : docheight,
+                        pdx: pdx,
+                        pdy: pdy,
+                        pscale: scale
+                    });
 
                     //foxview.pagestates[pagenum].thumbadded = true;
                 }).catch(function (error) {
                     //console.log(error);
-                    callback(error);
-                    console.log(error);
+                    callback({
+                        error,
+                        pgindex
+                    });
                 });
             });
         }

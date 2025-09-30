@@ -1,3 +1,51 @@
+September 30, 2025
+
+### 1. Fix for various scaling and measurement inconsistencies.
+### 2. New methods added to add buttons to top and side toolbars from an external applicaiton.
+### 3. New print functionality for PDF with progress.
+### 4. Corrected Compare features that had been made non-functional.
+
+
+
+Updated and new files
+RxCore version is now 37.12
+src\assets\scripts\rxcorefunctions.js
+src\assets\scripts\iframefoxit.js
+src\rxcore\index.ts
+src\app\app.component.ts
+src\app\app-message-broker.component.ts
+src\app\services\scale-management.service.ts
+src\app\services\file-scale-storage.service.ts
+
+src\app\models\custom-button.model.ts
+src\app\components\top-nav-menu\top-nav-menu.service.ts
+src\app\components\top-nav-menu\top-nav-menu.component.ts
+src\app\components\top-nav-menu\top-nav-menu.component.scss
+src\app\components\top-nav-menu\top-nav-menu.component.html
+
+src\app\components\top-nav-menu\opened-files-tabs\opened-files-tabs.component.ts
+
+src\app\components\print\print.component.ts
+src\app\components\print\print.component.scss
+src\app\components\print\print.component.html
+src\app\components\compare\compare.component.ts
+
+src\app\components\bottom-toolbar\bottom-toolbar.component.html
+src\app\components\annotation-tools\annotation-tools.service.ts
+src\app\components\annotation-tools\annotation-tools.component.ts
+src\app\components\annotation-tools\annotation-tools.component.scss
+src\app\components\annotation-tools\annotation-tools.component.html
+src\app\components\annotation-tools\scale-dropdown\scale-dropdown.component.ts
+src\app\components\annotation-tools\scale-dropdown\scale-dropdown.component.html
+
+src\app\components\annotation-tools\measure-panel\measure-panel.component.ts
+src\app\components\annotation-tools\measure-detail-panel\measure-detail-panel.component.ts
+
+
+
+
+
+
 
 September 17, 2025
 

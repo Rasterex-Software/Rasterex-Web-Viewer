@@ -407,150 +407,169 @@
              <span class="tooltip-text tooltip-top">Measure Angle</span>
         </li>            
 
-
-            <li
-            *ngIf="!(guiConfig$ | async)?.disableMarkupMeasureButton"
-                class="tooltip snap-section"
-                [class.selected]="isActionSelected['SNAP']"
-                (click)="onActionSelect('SNAP')">
-                <img src="/assets/images/snap-ico.svg" />
-                <span class="tooltip-text tooltip-top">Snap</span>
+        <!-- 🔽 Custom annotation toolbar buttons -->
+        <ng-container *ngIf="customAnnotationButtons?.length">
+            <li *ngFor="let btn of customAnnotationButtons"
+                class="tooltip custom-annotation-toggle"
+                [ngClass]="{ selected: btn.active }"
+                (click)="onCustomButtonClick(btn)">
+                
+            <!-- Inline SVG -->
+            <span *ngIf="btn.svgIcon"
+                    class="icon"
+                    [innerHTML]="btn.svgIcon | safeHtml">
+            </span>
+        
+            <!-- Fallback icon -->
+            <i *ngIf="btn.icon" [class]="btn.icon"></i>
+        
+            <!-- Tooltip -->
+            <span class="tooltip-text tooltip-top" *ngIf="btn.label">{{ btn.label }}</span>
             </li>
+        </ng-container>        
 
-            <li
-            *ngIf="!(guiConfig$ | async)?.disableMarkupMeasureButton"
-            class="tooltip no-scale-section"
-            [class.selected]="isActionSelected['NO_SCALE']"
-            (click)="onActionSelect('NO_SCALE')">
-            <svg height="17" width="17" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
-                viewBox="0 0 472.3 472.3" xml:space="preserve">
-            <g>
-                <path style="fill:#333C4E;" d="M402.708,61.688l-89.879-0.022c-2.621,0-4.989,1.584-5.987,4.005
-                    c-1.007,2.421-0.455,5.203,1.398,7.064l33.839,33.838L107.36,342.54l-33.809-33.809c-1.853-1.852-4.643-2.405-7.064-1.406
-                    c-2.421,1.006-3.997,3.368-3.997,5.989l-0.008,89.862c0,3.582,2.896,6.48,6.48,6.48l89.878,0.022c2.622,0,4.989-1.582,5.987-4.003
-                    c1.008-2.423,0.455-5.205-1.398-7.066l-33.809-33.808l178.827-180.133l55.862-55.864l33.809,33.809
-                    c1.853,1.853,4.643,2.406,7.064,1.406c2.421-1.006,3.997-3.366,3.997-5.987l0.008-89.863
-                    C409.188,64.587,406.29,61.688,402.708,61.688z"/>
-                <path style="fill:#333C4E;" d="M435.279,0H37.022C16.574,0,0,16.573,0,37.022v398.256C0,455.727,16.574,472.3,37.022,472.3h398.258
-                    c20.447,0,37.021-16.573,37.021-37.022V37.022C472.3,16.573,455.727,0,435.279,0z M440.813,435.278
-                    c0,3.052-2.482,5.535-5.534,5.535H37.022c-3.052,0-5.535-2.483-5.535-5.535V37.022c0-3.053,2.483-5.536,5.535-5.536h398.258
-                    c3.051,0,5.534,2.483,5.534,5.536V435.278z"/>
-            </g>
-            </svg>
-            <span class="tooltip-text tooltip-top">No Scale</span>
+        <li *ngIf="!(guiConfig$ | async)?.disableMarkupMeasureButton"
+            class="tooltip snap-section"
+            [class.selected]="isActionSelected['SNAP']"
+            (click)="onActionSelect('SNAP')">
+            <img src="/assets/images/snap-ico.svg" />
+            <span class="tooltip-text tooltip-top">Snap</span>
+        </li>
+        <!-- *ngIf="!(guiConfig$ | async)?.disableMarkupMeasureButton" -->
+            
+        <li
+        class="tooltip no-scale-section"
+        [class.selected]="isActionSelected['NO_SCALE']"
+        (click)="onActionSelect('NO_SCALE')">
+        <svg height="17" width="17" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+            viewBox="0 0 472.3 472.3" xml:space="preserve">
+        <g>
+            <path style="fill:#333C4E;" d="M402.708,61.688l-89.879-0.022c-2.621,0-4.989,1.584-5.987,4.005
+                c-1.007,2.421-0.455,5.203,1.398,7.064l33.839,33.838L107.36,342.54l-33.809-33.809c-1.853-1.852-4.643-2.405-7.064-1.406
+                c-2.421,1.006-3.997,3.368-3.997,5.989l-0.008,89.862c0,3.582,2.896,6.48,6.48,6.48l89.878,0.022c2.622,0,4.989-1.582,5.987-4.003
+                c1.008-2.423,0.455-5.205-1.398-7.066l-33.809-33.808l178.827-180.133l55.862-55.864l33.809,33.809
+                c1.853,1.853,4.643,2.406,7.064,1.406c2.421-1.006,3.997-3.366,3.997-5.987l0.008-89.863
+                C409.188,64.587,406.29,61.688,402.708,61.688z"/>
+            <path style="fill:#333C4E;" d="M435.279,0H37.022C16.574,0,0,16.573,0,37.022v398.256C0,455.727,16.574,472.3,37.022,472.3h398.258
+                c20.447,0,37.021-16.573,37.021-37.022V37.022C472.3,16.573,455.727,0,435.279,0z M440.813,435.278
+                c0,3.052-2.482,5.535-5.534,5.535H37.022c-3.052,0-5.535-2.483-5.535-5.535V37.022c0-3.053,2.483-5.536,5.535-5.536h398.258
+                c3.051,0,5.534,2.483,5.534,5.536V435.278z"/>
+        </g>
+        </svg>
+        <span class="tooltip-text tooltip-top">No Scale</span>
         </li>
 
-            <li
-                *ngIf="!(guiConfig$ | async)?.disableMarkupCountButton"
-                class="tooltip"
-                [class.selected]="isActionSelected['COUNT']"
-                (click)="onActionSelect('COUNT')">
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M15.4375 17H4.56246C4.34575 17 4.14772 16.8837 4.05475 16.7003C3.96164 16.5177 3.98938 16.3013 4.12589 16.1438L9.46377 9.99994L4.1252 3.85607C3.98869 3.69855 3.96164 3.48155 4.05475 3.29954C4.14772 3.11625 4.34575 3 4.56246 3H15.4375C15.748 3 16 3.2352 16 3.525V5.27495C16 5.56475 15.748 5.79995 15.4375 5.79995C15.127 5.79995 14.875 5.56475 14.875 5.27495V4.05H5.74295L10.6248 9.66886C10.792 9.86138 10.792 10.1379 10.6248 10.3304L5.74295 15.95H14.875V14.7249C14.875 14.4351 15.127 14.1999 15.4375 14.1999C15.748 14.1999 16 14.4351 16 14.7249V16.475C16 16.7648 15.748 17 15.4375 17Z" fill="#333C4E"/>
-                    </svg>
-                    <span class="tooltip-text tooltip-left">Count</span>
-            </li>
+        <li
+            *ngIf="!(guiConfig$ | async)?.disableMarkupCountButton"
+            class="tooltip"
+            [class.selected]="isActionSelected['COUNT']"
+            (click)="onActionSelect('COUNT')">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M15.4375 17H4.56246C4.34575 17 4.14772 16.8837 4.05475 16.7003C3.96164 16.5177 3.98938 16.3013 4.12589 16.1438L9.46377 9.99994L4.1252 3.85607C3.98869 3.69855 3.96164 3.48155 4.05475 3.29954C4.14772 3.11625 4.34575 3 4.56246 3H15.4375C15.748 3 16 3.2352 16 3.525V5.27495C16 5.56475 15.748 5.79995 15.4375 5.79995C15.127 5.79995 14.875 5.56475 14.875 5.27495V4.05H5.74295L10.6248 9.66886C10.792 9.86138 10.792 10.1379 10.6248 10.3304L5.74295 15.95H14.875V14.7249C14.875 14.4351 15.127 14.1999 15.4375 14.1999C15.748 14.1999 16 14.4351 16 14.7249V16.475C16 16.7648 15.748 17 15.4375 17Z" fill="#333C4E"/>
+                </svg>
+                <span class="tooltip-text tooltip-left">Count</span>
+        </li>
 
             
 
-            <!--disabled erase
-                <li *ngIf="!(guiConfig$ | async).disableMarkupEraseButton && (!(guiConfig$ | async).disableMarkupShapeButton || !(guiConfig$ | async).disableMarkupArrowButton || !(guiConfig$ | async).disableMarkupMeasureButton || !(guiConfig$ | async).disableMarkupCountButton)" class="separator"></li>
-              -->
+        <!--disabled erase
+            <li *ngIf="!(guiConfig$ | async).disableMarkupEraseButton && (!(guiConfig$ | async).disableMarkupShapeButton || !(guiConfig$ | async).disableMarkupArrowButton || !(guiConfig$ | async).disableMarkupMeasureButton || !(guiConfig$ | async).disableMarkupCountButton)" class="separator"></li>
+            -->
 
-            <!--disabled erase
-            <li
-                *ngIf="!(guiConfig$ | async).disableMarkupEraseButton"
-                class="tooltip"
-                [class.selected]="isActionSelected['ERASE']"
-                (click)="onActionSelect('ERASE')">
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M18.6261 19.217H0.725689C0.325107 19.217 0 18.8919 0 18.4913C0 18.0907 0.325107 17.7656 0.725689 17.7656H18.6261C19.0267 17.7656 19.3518 18.0907 19.3518 18.4913C19.3518 18.8919 19.0267 19.217 18.6261 19.217Z" fill="#333C4E"/>
-                        <path d="M9.83065 19.216C9.64497 19.216 9.45912 19.1453 9.31792 19.0031C9.03427 18.7196 9.03427 18.26 9.31792 17.9766L18.1906 9.10369C18.4218 8.87248 18.5487 8.57058 18.5487 8.25221C18.5487 7.92816 18.4218 7.62237 18.1906 7.39116L13.4398 2.64016C13.1496 2.34411 12.8119 2.28316 12.5786 2.28316C12.2554 2.28316 11.9546 2.40807 11.7329 2.63538L1.80944 12.559C1.51233 12.8492 1.45138 13.186 1.45138 13.4201C1.45138 13.7432 1.57628 14.0443 1.80359 14.2657L5.51531 17.9774C5.79878 18.2609 5.79878 18.7205 5.51531 19.0041C5.23166 19.2876 4.77208 19.2876 4.48861 19.0041L0.782738 15.2983C0.280638 14.8066 0 14.1382 0 13.4201C0 12.6955 0.280638 12.0238 0.789471 11.5265L10.7014 1.61558C11.6856 0.60536 13.4834 0.607309 14.4722 1.62143L19.2162 6.36641C19.7214 6.87152 20 7.54104 20 8.25327C20 8.95858 19.7214 9.62528 19.2162 10.1304L10.3436 19.0031C10.2022 19.1453 10.0165 19.216 9.83065 19.216Z" fill="#333C4E"/>
-                        <path d="M15.1159 13.9334C14.93 13.9334 14.7443 13.8629 14.603 13.7206L7.11397 6.23145C6.8305 5.94798 6.8305 5.4884 7.11397 5.20492C7.39744 4.92128 7.85702 4.92128 8.1405 5.20492L15.6297 12.6939C15.9131 12.9774 15.9131 13.4371 15.6297 13.7206C15.4865 13.8618 15.3007 13.9334 15.1159 13.9334Z" fill="#333C4E"/>
-                    </svg>
-                    <span class="tooltip-text tooltip-left">Erase</span>
-            </li>
-            <li *ngIf="!(guiConfig$ | async).disableMarkupEraseButton" class="separator"></li>
-              -->
+        <!--disabled erase
+        <li
+            *ngIf="!(guiConfig$ | async).disableMarkupEraseButton"
+            class="tooltip"
+            [class.selected]="isActionSelected['ERASE']"
+            (click)="onActionSelect('ERASE')">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M18.6261 19.217H0.725689C0.325107 19.217 0 18.8919 0 18.4913C0 18.0907 0.325107 17.7656 0.725689 17.7656H18.6261C19.0267 17.7656 19.3518 18.0907 19.3518 18.4913C19.3518 18.8919 19.0267 19.217 18.6261 19.217Z" fill="#333C4E"/>
+                    <path d="M9.83065 19.216C9.64497 19.216 9.45912 19.1453 9.31792 19.0031C9.03427 18.7196 9.03427 18.26 9.31792 17.9766L18.1906 9.10369C18.4218 8.87248 18.5487 8.57058 18.5487 8.25221C18.5487 7.92816 18.4218 7.62237 18.1906 7.39116L13.4398 2.64016C13.1496 2.34411 12.8119 2.28316 12.5786 2.28316C12.2554 2.28316 11.9546 2.40807 11.7329 2.63538L1.80944 12.559C1.51233 12.8492 1.45138 13.186 1.45138 13.4201C1.45138 13.7432 1.57628 14.0443 1.80359 14.2657L5.51531 17.9774C5.79878 18.2609 5.79878 18.7205 5.51531 19.0041C5.23166 19.2876 4.77208 19.2876 4.48861 19.0041L0.782738 15.2983C0.280638 14.8066 0 14.1382 0 13.4201C0 12.6955 0.280638 12.0238 0.789471 11.5265L10.7014 1.61558C11.6856 0.60536 13.4834 0.607309 14.4722 1.62143L19.2162 6.36641C19.7214 6.87152 20 7.54104 20 8.25327C20 8.95858 19.7214 9.62528 19.2162 10.1304L10.3436 19.0031C10.2022 19.1453 10.0165 19.216 9.83065 19.216Z" fill="#333C4E"/>
+                    <path d="M15.1159 13.9334C14.93 13.9334 14.7443 13.8629 14.603 13.7206L7.11397 6.23145C6.8305 5.94798 6.8305 5.4884 7.11397 5.20492C7.39744 4.92128 7.85702 4.92128 8.1405 5.20492L15.6297 12.6939C15.9131 12.9774 15.9131 13.4371 15.6297 13.7206C15.4865 13.8618 15.3007 13.9334 15.1159 13.9334Z" fill="#333C4E"/>
+                </svg>
+                <span class="tooltip-text tooltip-left">Erase</span>
+        </li>
+        <li *ngIf="!(guiConfig$ | async).disableMarkupEraseButton" class="separator"></li>
+            -->
 
-            <li
-                *ngIf="!(guiConfig$ | async)?.disableMarkupNoteButton && (canAddAnnotation | async)"
-                class="tooltip"
-                [class.selected]="isActionSelected['NOTE']"
-                (click)="onActionSelect('NOTE')">
-                    <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M21.9788 22C21.7453 22 21.5156 21.9177 21.3268 21.7579L18.3639 19.2524H6.01897C5.45703 19.2527 5 18.7916 5 18.2246V6.02814C5 5.46115 5.45703 5 6.01897 5H21.9813C22.543 5.00028 23 5.46143 23 6.02814V20.9702C23 21.374 22.7747 21.7313 22.4119 21.9018C22.2724 21.9679 22.1248 22 21.9788 22ZM6.01897 6.02814V18.2243H18.5492C18.669 18.2243 18.7846 18.2668 18.8766 18.3443L21.9816 20.9699L21.981 6.02814H6.01897ZM13.0435 9.71987C13.0435 9.43581 12.8154 9.20594 12.5341 9.20594H9.03341C8.75187 9.20594 8.52406 9.43609 8.52406 9.71987C8.52406 10.0037 8.75216 10.2338 9.03341 10.2338H12.5341C12.8157 10.2341 13.0435 10.0039 13.0435 9.71987ZM19.4759 12.1263C19.4759 11.8423 19.2478 11.6124 18.9666 11.6124H9.03341C8.75187 11.6124 8.52406 11.8426 8.52406 12.1263C8.52406 12.4101 8.75216 12.6403 9.03341 12.6403H18.9666C19.2478 12.6406 19.4759 12.4104 19.4759 12.1263ZM19.4759 14.5328C19.4759 14.249 19.2478 14.0189 18.9666 14.0189H9.03341C8.75187 14.0189 8.52406 14.249 8.52406 14.5328C8.52406 14.8166 8.75216 15.0468 9.03341 15.0468H18.9666C19.2478 15.047 19.4759 14.8166 19.4759 14.5328Z" fill="#333C4E" stroke="#333C4E" stroke-width="0.2"/>
-                    </svg>
-                    <span class="tooltip-text tooltip-left">Note</span>
-                    <!-- <span class="tooltip-text tooltip-left">Comments</span> -->
+        <li
+            *ngIf="!(guiConfig$ | async)?.disableMarkupNoteButton && (canAddAnnotation | async)"
+            class="tooltip"
+            [class.selected]="isActionSelected['NOTE']"
+            (click)="onActionSelect('NOTE')">
+                <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21.9788 22C21.7453 22 21.5156 21.9177 21.3268 21.7579L18.3639 19.2524H6.01897C5.45703 19.2527 5 18.7916 5 18.2246V6.02814C5 5.46115 5.45703 5 6.01897 5H21.9813C22.543 5.00028 23 5.46143 23 6.02814V20.9702C23 21.374 22.7747 21.7313 22.4119 21.9018C22.2724 21.9679 22.1248 22 21.9788 22ZM6.01897 6.02814V18.2243H18.5492C18.669 18.2243 18.7846 18.2668 18.8766 18.3443L21.9816 20.9699L21.981 6.02814H6.01897ZM13.0435 9.71987C13.0435 9.43581 12.8154 9.20594 12.5341 9.20594H9.03341C8.75187 9.20594 8.52406 9.43609 8.52406 9.71987C8.52406 10.0037 8.75216 10.2338 9.03341 10.2338H12.5341C12.8157 10.2341 13.0435 10.0039 13.0435 9.71987ZM19.4759 12.1263C19.4759 11.8423 19.2478 11.6124 18.9666 11.6124H9.03341C8.75187 11.6124 8.52406 11.8426 8.52406 12.1263C8.52406 12.4101 8.75216 12.6403 9.03341 12.6403H18.9666C19.2478 12.6406 19.4759 12.4104 19.4759 12.1263ZM19.4759 14.5328C19.4759 14.249 19.2478 14.0189 18.9666 14.0189H9.03341C8.75187 14.0189 8.52406 14.249 8.52406 14.5328C8.52406 14.8166 8.75216 15.0468 9.03341 15.0468H18.9666C19.2478 15.047 19.4759 14.8166 19.4759 14.5328Z" fill="#333C4E" stroke="#333C4E" stroke-width="0.2"/>
+                </svg>
+                <span class="tooltip-text tooltip-left">Note</span>
+                <!-- <span class="tooltip-text tooltip-left">Comments</span> -->
 
-            </li>
-            <!-- <li *ngIf="!(guiConfig$ | async).disableImages && (canAddAnnotation | async)" 
-            class="tooltip"
-            [class.selected]="isActionSelected['IMAGES_LIBRARY']"
-            (click)="onActionSelect('IMAGES_LIBRARY')">
-            <svg fill="#000000" height="20" width="20" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
-            viewBox="0 0 489.4 489.4" xml:space="preserve"><g><g><path d="M0,437.8c0,28.5,23.2,51.6,51.6,51.6h386.2c28.5,0,51.6-23.2,51.6-51.6V51.6c0-28.5-23.2-51.6-51.6-51.6H51.6
-                   C23.1,0,0,23.2,0,51.6C0,51.6,0,437.8,0,437.8z M437.8,464.9H51.6c-14.9,0-27.1-12.2-27.1-27.1v-64.5l92.8-92.8l79.3,79.3
-                   c4.8,4.8,12.5,4.8,17.3,0l143.2-143.2l107.8,107.8v113.4C464.9,452.7,452.7,464.9,437.8,464.9z M51.6,24.5h386.2
-                   c14.9,0,27.1,12.2,27.1,27.1v238.1l-99.2-99.1c-4.8-4.8-12.5-4.8-17.3,0L205.2,333.8l-79.3-79.3c-4.8-4.8-12.5-4.8-17.3,0
-                   l-84.1,84.1v-287C24.5,36.7,36.7,24.5,51.6,24.5z"/>
-               <path d="M151.7,196.1c34.4,0,62.3-28,62.3-62.3s-28-62.3-62.3-62.3s-62.3,28-62.3,62.3S117.3,196.1,151.7,196.1z M151.7,96
-                   c20.9,0,37.8,17,37.8,37.8s-17,37.8-37.8,37.8s-37.8-17-37.8-37.8S130.8,96,151.7,96z"/></g></g></svg>
-                <span class="tooltip-text tooltip-left">Images</span>
-            </li> -->
-            <li *ngIf="!(guiConfig$ | async)?.disableLinks && (canAddAnnotation | async)"
-            class="tooltip"
-            [class.selected]="isActionSelected['LINKS_LIBRARY']"
-            (click)="onActionSelect('LINKS_LIBRARY')">
-            <svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="20" height="20" 
-            viewBox="0 0 457.03 457.03" style="enable-background:new 0 0 457.03 457.03;" xml:space="preserve">
-            <g><path d="M421.512,207.074l-85.795,85.767c-47.352,47.38-124.169,47.38-171.529,0c-7.46-7.439-13.296-15.821-18.421-24.465 l39.864-39.861c1.895-1.911,4.235-3.006,6.471-4.296c2.756,9.416,7.567,18.33,14.972,25.736c23.648,23.667,62.128,23.634,85.762,0 l85.768-85.765c23.666-23.664,23.666-62.135,0-85.781c-23.635-23.646-62.105-23.646-85.768,0l-30.499,30.532 c-24.75-9.637-51.415-12.228-77.373-8.424l64.991-64.989c47.38-47.371,124.177-47.371,171.557,0 C468.869,82.897,468.869,159.706,421.512,207.074z M194.708,348.104l-30.521,30.532c-23.646,23.634-62.128,23.634-85.778,0 c-23.648-23.667-23.648-62.138,0-85.795l85.778-85.767c23.665-23.662,62.121-23.662,85.767,0 c7.388,7.39,12.204,16.302,14.986,25.706c2.249-1.307,4.56-2.369,6.454-4.266l39.861-39.845 c-5.092-8.678-10.958-17.03-18.421-24.477c-47.348-47.371-124.172-47.371-171.543,0L35.526,249.96 c-47.366,47.385-47.366,124.172,0,171.553c47.371,47.356,124.177,47.356,171.547,0l65.008-65.003 C246.109,360.336,219.437,357.723,194.708,348.104z" fill="#333C4E"/></g></svg>
-        
-       
-                <span class="tooltip-text tooltip-left">Links and Attachments</span>
-            </li>
-            <!-- <li *ngIf="!(guiConfig$ | async).disableSymbol && (canAddAnnotation | async)" 
-            class="tooltip"
-            [class.selected]="isActionSelected['SYMBOLS_LIBRARY']"
-            (click)="onActionSelect('SYMBOLS_LIBRARY')"> 
-            <svg width="20" height="20" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
-                <g id="ðŸ”-Product-Icons" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                    <g id="ic_fluent_select_all_24_regular" fill="#212121" fill-rule="nonzero">
-                        <path d="M20.4961766,5.62668182 C21.3720675,5.93447702 22,6.76890777 22,7.75 L22,17.75 C22,20.0972102 20.0972102,22 17.75,22 L7.75,22 C6.76890777,22 5.93447702,21.3720675 5.62668182,20.4961766 L7.72396188,20.4995565 L17.75,20.5 C19.2687831,20.5 20.5,19.2687831 20.5,17.75 L20.5,7.75 L20.4960194,7.69901943 L20.4961766,5.62668182 Z M17.246813,2 C18.4894537,2 19.496813,3.00735931 19.496813,4.25 L19.496813,17.246813 C19.496813,18.4894537 18.4894537,19.496813 17.246813,19.496813 L4.25,19.496813 C3.00735931,19.496813 2,18.4894537 2,17.246813 L2,4.25 C2,3.00735931 3.00735931,2 4.25,2 L17.246813,2 Z M17.246813,3.5 L4.25,3.5 C3.83578644,3.5 3.5,3.83578644 3.5,4.25 L3.5,17.246813 C3.5,17.6610266 3.83578644,17.996813 4.25,17.996813 L17.246813,17.996813 C17.6610266,17.996813 17.996813,17.6610266 17.996813,17.246813 L17.996813,4.25 C17.996813,3.83578644 17.6610266,3.5 17.246813,3.5 Z M9.58114564,11.3581942 L13.4696699,7.46966991 C13.7625631,7.1767767 14.2374369,7.1767767 14.5303301,7.46966991 C14.7965966,7.73593648 14.8208027,8.15260016 14.6029482,8.44621165 L14.5303301,8.53033009 L10.0303301,13.0303301 C9.73449239,13.3261678 9.26134027,13.3189471 8.97360394,13.0344464 L8.9,12.95 L7.4,10.95 C7.15147186,10.6186292 7.21862915,10.1485281 7.55,9.9 C7.85124623,9.67406533 8.26714548,9.7090277 8.52699676,9.96621555 L8.6,10.05 L9.58114564,11.3581942 L13.4696699,7.46966991 L9.58114564,11.3581942 Z" id="ðŸŽ¨-Color">
-             </path></g></g></svg>
-                <span class="tooltip-text tooltip-left">Symbols</span>
-            </li> -->
+        </li>
+        <!-- <li *ngIf="!(guiConfig$ | async).disableImages && (canAddAnnotation | async)" 
+        class="tooltip"
+        [class.selected]="isActionSelected['IMAGES_LIBRARY']"
+        (click)="onActionSelect('IMAGES_LIBRARY')">
+        <svg fill="#000000" height="20" width="20" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
+        viewBox="0 0 489.4 489.4" xml:space="preserve"><g><g><path d="M0,437.8c0,28.5,23.2,51.6,51.6,51.6h386.2c28.5,0,51.6-23.2,51.6-51.6V51.6c0-28.5-23.2-51.6-51.6-51.6H51.6
+                C23.1,0,0,23.2,0,51.6C0,51.6,0,437.8,0,437.8z M437.8,464.9H51.6c-14.9,0-27.1-12.2-27.1-27.1v-64.5l92.8-92.8l79.3,79.3
+                c4.8,4.8,12.5,4.8,17.3,0l143.2-143.2l107.8,107.8v113.4C464.9,452.7,452.7,464.9,437.8,464.9z M51.6,24.5h386.2
+                c14.9,0,27.1,12.2,27.1,27.1v238.1l-99.2-99.1c-4.8-4.8-12.5-4.8-17.3,0L205.2,333.8l-79.3-79.3c-4.8-4.8-12.5-4.8-17.3,0
+                l-84.1,84.1v-287C24.5,36.7,36.7,24.5,51.6,24.5z"/>
+            <path d="M151.7,196.1c34.4,0,62.3-28,62.3-62.3s-28-62.3-62.3-62.3s-62.3,28-62.3,62.3S117.3,196.1,151.7,196.1z M151.7,96
+                c20.9,0,37.8,17,37.8,37.8s-17,37.8-37.8,37.8s-37.8-17-37.8-37.8S130.8,96,151.7,96z"/></g></g></svg>
+            <span class="tooltip-text tooltip-left">Images</span>
+        </li> -->
+        <li *ngIf="!(guiConfig$ | async)?.disableLinks && (canAddAnnotation | async)"
+        class="tooltip"
+        [class.selected]="isActionSelected['LINKS_LIBRARY']"
+        (click)="onActionSelect('LINKS_LIBRARY')">
+        <svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="20" height="20" 
+        viewBox="0 0 457.03 457.03" style="enable-background:new 0 0 457.03 457.03;" xml:space="preserve">
+        <g><path d="M421.512,207.074l-85.795,85.767c-47.352,47.38-124.169,47.38-171.529,0c-7.46-7.439-13.296-15.821-18.421-24.465 l39.864-39.861c1.895-1.911,4.235-3.006,6.471-4.296c2.756,9.416,7.567,18.33,14.972,25.736c23.648,23.667,62.128,23.634,85.762,0 l85.768-85.765c23.666-23.664,23.666-62.135,0-85.781c-23.635-23.646-62.105-23.646-85.768,0l-30.499,30.532 c-24.75-9.637-51.415-12.228-77.373-8.424l64.991-64.989c47.38-47.371,124.177-47.371,171.557,0 C468.869,82.897,468.869,159.706,421.512,207.074z M194.708,348.104l-30.521,30.532c-23.646,23.634-62.128,23.634-85.778,0 c-23.648-23.667-23.648-62.138,0-85.795l85.778-85.767c23.665-23.662,62.121-23.662,85.767,0 c7.388,7.39,12.204,16.302,14.986,25.706c2.249-1.307,4.56-2.369,6.454-4.266l39.861-39.845 c-5.092-8.678-10.958-17.03-18.421-24.477c-47.348-47.371-124.172-47.371-171.543,0L35.526,249.96 c-47.366,47.385-47.366,124.172,0,171.553c47.371,47.356,124.177,47.356,171.547,0l65.008-65.003 C246.109,360.336,219.437,357.723,194.708,348.104z" fill="#333C4E"/></g></svg>
+    
+    
+            <span class="tooltip-text tooltip-left">Links and Attachments</span>
+        </li>
+        <!-- <li *ngIf="!(guiConfig$ | async).disableSymbol && (canAddAnnotation | async)" 
+        class="tooltip"
+        [class.selected]="isActionSelected['SYMBOLS_LIBRARY']"
+        (click)="onActionSelect('SYMBOLS_LIBRARY')"> 
+        <svg width="20" height="20" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
+            <g id="ðŸ”-Product-Icons" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                <g id="ic_fluent_select_all_24_regular" fill="#212121" fill-rule="nonzero">
+                    <path d="M20.4961766,5.62668182 C21.3720675,5.93447702 22,6.76890777 22,7.75 L22,17.75 C22,20.0972102 20.0972102,22 17.75,22 L7.75,22 C6.76890777,22 5.93447702,21.3720675 5.62668182,20.4961766 L7.72396188,20.4995565 L17.75,20.5 C19.2687831,20.5 20.5,19.2687831 20.5,17.75 L20.5,7.75 L20.4960194,7.69901943 L20.4961766,5.62668182 Z M17.246813,2 C18.4894537,2 19.496813,3.00735931 19.496813,4.25 L19.496813,17.246813 C19.496813,18.4894537 18.4894537,19.496813 17.246813,19.496813 L4.25,19.496813 C3.00735931,19.496813 2,18.4894537 2,17.246813 L2,4.25 C2,3.00735931 3.00735931,2 4.25,2 L17.246813,2 Z M17.246813,3.5 L4.25,3.5 C3.83578644,3.5 3.5,3.83578644 3.5,4.25 L3.5,17.246813 C3.5,17.6610266 3.83578644,17.996813 4.25,17.996813 L17.246813,17.996813 C17.6610266,17.996813 17.996813,17.6610266 17.996813,17.246813 L17.996813,4.25 C17.996813,3.83578644 17.6610266,3.5 17.246813,3.5 Z M9.58114564,11.3581942 L13.4696699,7.46966991 C13.7625631,7.1767767 14.2374369,7.1767767 14.5303301,7.46966991 C14.7965966,7.73593648 14.8208027,8.15260016 14.6029482,8.44621165 L14.5303301,8.53033009 L10.0303301,13.0303301 C9.73449239,13.3261678 9.26134027,13.3189471 8.97360394,13.0344464 L8.9,12.95 L7.4,10.95 C7.15147186,10.6186292 7.21862915,10.1485281 7.55,9.9 C7.85124623,9.67406533 8.26714548,9.7090277 8.52699676,9.96621555 L8.6,10.05 L9.58114564,11.3581942 L13.4696699,7.46966991 L9.58114564,11.3581942 Z" id="ðŸŽ¨-Color">
+            </path></g></g></svg>
+            <span class="tooltip-text tooltip-left">Symbols</span>
+        </li> -->
 
 
             
-            <li *ngIf="(!(guiConfig$ | async)?.disableMarkupLockButton) && (canUpdateAnnotation | async)"
-            class="tooltip"
-            [class.selected]="isActionSelected['MARKUP_LOCK']"
-            (click)="onActionSelect('MARKUP_LOCK')">
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M15.625 20H4.375C3.34167 20 2.5 19.1592 2.5 18.125V9.375C2.5 8.34083 3.34167 7.5 4.375 7.5H15.625C16.6583 7.5 17.5 8.34083 17.5 9.375V18.125C17.5 19.1592 16.6583 20 15.625 20ZM4.375 8.75C4.03083 8.75 3.75 9.03 3.75 9.375V18.125C3.75 18.47 4.03083 18.75 4.375 18.75H15.625C15.9692 18.75 16.25 18.47 16.25 18.125V9.375C16.25 9.03 15.9692 8.75 15.625 8.75H4.375Z" fill="#333C4E"/>
-                    <path d="M14.375 8.75C14.03 8.75 13.75 8.47 13.75 8.125V5C13.75 2.9325 12.0675 1.25 10 1.25C7.9325 1.25 6.25 2.9325 6.25 5V8.125C6.25 8.47 5.97 8.75 5.625 8.75C5.28 8.75 5 8.47 5 8.125V5C5 2.2425 7.2425 0 10 0C12.7575 0 15 2.2425 15 5V8.125C15 8.47 14.72 8.75 14.375 8.75Z" fill="#333C4E"/>
-                    <path d="M10.0007 14.1654C9.08148 14.1654 8.33398 13.4179 8.33398 12.4987C8.33398 11.5795 9.08148 10.832 10.0007 10.832C10.9198 10.832 11.6673 11.5795 11.6673 12.4987C11.6673 13.4179 10.9198 14.1654 10.0007 14.1654ZM10.0007 12.082C9.77148 12.082 9.58398 12.2687 9.58398 12.4987C9.58398 12.7287 9.77148 12.9154 10.0007 12.9154C10.2298 12.9154 10.4173 12.7287 10.4173 12.4987C10.4173 12.2687 10.2298 12.082 10.0007 12.082Z" fill="#333C4E"/>
-                    <path d="M10 16.6667C9.655 16.6667 9.375 16.3867 9.375 16.0417V13.75C9.375 13.405 9.655 13.125 10 13.125C10.345 13.125 10.625 13.405 10.625 13.75V16.0417C10.625 16.3867 10.345 16.6667 10 16.6667Z" fill="#333C4E"/>
-                </svg>
-                <span class="tooltip-text tooltip-left">Lock Annotations</span>
-            </li>
-            <li *ngIf="(guiState$ | async).isPDF" class="tooltip" (click)="onImportXFDF(false)">
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M10 2V14M10 14L6 10M10 14L14 10" stroke="#333C4E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    <rect x="3" y="16" width="14" height="2" rx="1" fill="#333C4E"/>
-                </svg>
-                <span class="tooltip-text tooltip-left">Import XFDF</span>
-                <input type="file" accept=".xfdf" style="display:none" #xfdfInput (change)="onXFDFFileSelected($event)">
-            </li>
-            <li *ngIf="(guiState$ | async).isPDF" class="tooltip" (click)="onExportXFDF(false)">
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M10 18V6M10 6L6 10M10 6L14 10" stroke="#333C4E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    <rect x="3" y="2" width="14" height="2" rx="1" fill="#333C4E"/>
-                </svg>
-                <span class="tooltip-text tooltip-left">Export XFDF</span>
-            </li>
+        <li *ngIf="(!(guiConfig$ | async)?.disableMarkupLockButton) && (canUpdateAnnotation | async)"
+        class="tooltip"
+        [class.selected]="isActionSelected['MARKUP_LOCK']"
+        (click)="onActionSelect('MARKUP_LOCK')">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M15.625 20H4.375C3.34167 20 2.5 19.1592 2.5 18.125V9.375C2.5 8.34083 3.34167 7.5 4.375 7.5H15.625C16.6583 7.5 17.5 8.34083 17.5 9.375V18.125C17.5 19.1592 16.6583 20 15.625 20ZM4.375 8.75C4.03083 8.75 3.75 9.03 3.75 9.375V18.125C3.75 18.47 4.03083 18.75 4.375 18.75H15.625C15.9692 18.75 16.25 18.47 16.25 18.125V9.375C16.25 9.03 15.9692 8.75 15.625 8.75H4.375Z" fill="#333C4E"/>
+                <path d="M14.375 8.75C14.03 8.75 13.75 8.47 13.75 8.125V5C13.75 2.9325 12.0675 1.25 10 1.25C7.9325 1.25 6.25 2.9325 6.25 5V8.125C6.25 8.47 5.97 8.75 5.625 8.75C5.28 8.75 5 8.47 5 8.125V5C5 2.2425 7.2425 0 10 0C12.7575 0 15 2.2425 15 5V8.125C15 8.47 14.72 8.75 14.375 8.75Z" fill="#333C4E"/>
+                <path d="M10.0007 14.1654C9.08148 14.1654 8.33398 13.4179 8.33398 12.4987C8.33398 11.5795 9.08148 10.832 10.0007 10.832C10.9198 10.832 11.6673 11.5795 11.6673 12.4987C11.6673 13.4179 10.9198 14.1654 10.0007 14.1654ZM10.0007 12.082C9.77148 12.082 9.58398 12.2687 9.58398 12.4987C9.58398 12.7287 9.77148 12.9154 10.0007 12.9154C10.2298 12.9154 10.4173 12.7287 10.4173 12.4987C10.4173 12.2687 10.2298 12.082 10.0007 12.082Z" fill="#333C4E"/>
+                <path d="M10 16.6667C9.655 16.6667 9.375 16.3867 9.375 16.0417V13.75C9.375 13.405 9.655 13.125 10 13.125C10.345 13.125 10.625 13.405 10.625 13.75V16.0417C10.625 16.3867 10.345 16.6667 10 16.6667Z" fill="#333C4E"/>
+            </svg>
+            <span class="tooltip-text tooltip-left">Lock Annotations</span>
+        </li>
+        <li *ngIf="(guiState$ | async).isPDF" class="tooltip" (click)="onImportXFDF(false)">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M10 2V14M10 14L6 10M10 14L14 10" stroke="#333C4E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <rect x="3" y="16" width="14" height="2" rx="1" fill="#333C4E"/>
+            </svg>
+            <span class="tooltip-text tooltip-left">Import XFDF</span>
+            <input type="file" accept=".xfdf" style="display:none" #xfdfInput (change)="onXFDFFileSelected($event)">
+        </li>
+        <li *ngIf="(guiState$ | async).isPDF" class="tooltip" (click)="onExportXFDF(false)">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M10 18V6M10 6L6 10M10 6L14 10" stroke="#333C4E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <rect x="3" y="2" width="14" height="2" rx="1" fill="#333C4E"/>
+            </svg>
+            <span class="tooltip-text tooltip-left">Export XFDF</span>
+        </li>
 
 
         </ul>

@@ -543,6 +543,14 @@ export class MeasurePanelComponent implements OnInit, OnDestroy {
   }
 
   applyScale(selectedScaleObj: any): void {
+
+    // Check if the scale is applicable to the current page
+    const currentPage = this.scaleManagementService.getCurrentPage();
+    if (!this.scaleManagementService.isScaleApplicableToPage(selectedScaleObj, currentPage + 1)) {
+      console.warn(`Scale "${selectedScaleObj.label}" is not applicable to current page ${currentPage + 1}`);
+      return;
+    }
+
     this.updateMetric(selectedScaleObj.metric as MetricUnitType);
     this.updateMetricUnit(selectedScaleObj.metric as MetricUnitType, selectedScaleObj.metricUnit);
     RXCore.setDimPrecisionForPage(
@@ -1066,8 +1074,12 @@ export class MeasurePanelComponent implements OnInit, OnDestroy {
 
     this.editingScaleOriginalLabel = editState.originalLabel || '';
     
-    this.selectedPageRanges = editState.pageRanges || (this.totalPages > 0 ? [[1, this.totalPages]] : []);
-    this.cdr.detectChanges();
+
+    // Use setTimeout to avoid ExpressionChangedAfterItHasBeenCheckedError
+    setTimeout(() => {
+      this.selectedPageRanges = editState.pageRanges || (this.totalPages > 0 ? [[1, this.totalPages]] : []);
+      this.cdr.detectChanges();
+    }, 0);
   }
 
   onImperialFractionChange(): void {
@@ -1099,12 +1111,21 @@ export class MeasurePanelComponent implements OnInit, OnDestroy {
   }
 
   onPageRangeChange(pageRanges: number[][]): void {
-    this.selectedPageRanges = pageRanges;
+    // Use setTimeout to avoid ExpressionChangedAfterItHasBeenCheckedError
+    setTimeout(() => {
+      this.selectedPageRanges = pageRanges;
+    }, 0);    
   }
 
   setScaleForCurrentPage(): void {
     const currentPage = this.scaleManagementService.getCurrentPage();
-    this.selectedPageRanges = [[currentPage + 1, currentPage + 1]];
+
+    // Use setTimeout to avoid ExpressionChangedAfterItHasBeenCheckedError
+    setTimeout(() => {
+      this.selectedPageRanges = [[currentPage + 1, currentPage + 1]];
+    }, 0);
+    
+
   }
 
   getPageRangeDescription(): string {
@@ -1170,8 +1191,13 @@ export class MeasurePanelComponent implements OnInit, OnDestroy {
 
   private setDefaultPageRange(): void {
     if (this.totalPages > 0 && this.selectedPageRanges.length === 0) {
-      this.selectedPageRanges = [[1, this.totalPages]];
-      this.cdr.detectChanges();
+
+
+      // Use setTimeout to avoid ExpressionChangedAfterItHasBeenCheckedError
+      setTimeout(() => {
+        this.selectedPageRanges = [[1, this.totalPages]];
+        this.cdr.detectChanges();
+      }, 0);
     }
   }
 
@@ -1213,12 +1239,15 @@ export class MeasurePanelComponent implements OnInit, OnDestroy {
       if (file && (!this.currentFile || this.currentFile.index !== file.index)) {
         this.currentFile = file;
         this.loadScalesForCurrentFile();
-        
+
         // Force apply the selected scale for the new file
-        this.forceApplySelectedScaleForCurrentFile();
-        
         // Fix any inconsistencies in selected scales
-        this.fileScaleStorage.fixSelectedScaleConsistency();
+
+        setTimeout(() => {
+          this.forceApplySelectedScaleForCurrentFile();
+          this.fileScaleStorage.fixSelectedScaleConsistency();
+        }, 100);
+
       }else if (!file && this.currentFile) {
         // All files are closed, clear scales and reset to default
         this.currentFile = null;

@@ -110,14 +110,19 @@ export class CompareComponent implements OnInit {
     this.rxCoreService.guiState$.subscribe(state => {
       const file = RXCore.getOpenFilesList().find(file => file.isActive);
       this.comparison = this.compareService.findComparisonByFileName(file?.name);
-      this.markupChanged = RXCore.markupChanged;
+      //this.markupChanged = RXCore.getnumMarkups() > 0;
+      
       if (this.comparison && this.markupChanged) {
         this.rxCoreService.setGuiMode(GuiMode.Compare);
       }
     });
 
     this.rxCoreService.guiMarkup$.subscribe(({markup, operation}) => {
-      this.markupChanged = RXCore.markupChanged;
+
+
+      this.markupChanged = RXCore.getnumMarkups() > 0;
+
+
       if (window !== top) {
         parent.postMessage({ type: "comparisonMarkupChanged", payload: this.markupChanged }, "*");
       }
@@ -212,7 +217,14 @@ export class CompareComponent implements OnInit {
     });
 
     this.rxCoreService.guiOnMarkupChanged.subscribe(({annotation, operation}) => {
-      this.markupChanged = true;
+
+      if(operation.created || operation.deleted){
+        
+        this.markupChanged = RXCore.getnumMarkups() > 0;
+      }
+      
+      
+
       if (window !== top) {
         parent.postMessage({ type: "comparisonMarkupChanged", payload: this.markupChanged }, "*");
       }

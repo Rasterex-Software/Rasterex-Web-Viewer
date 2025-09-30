@@ -34,7 +34,7 @@ export class AppComponent implements AfterViewInit {
   guiConfig: IGuiConfig | undefined;
   title: string = 'rasterex-viewer';
 
-  uiversion : string = '12.2.0.0'
+  uiversion : string = '12.3.0.0'
   numOpenFiles$ = this.rxCoreService.numOpenedFiles$;
   annotation: any;
   rectangle: any;
@@ -787,6 +787,11 @@ export class AppComponent implements AfterViewInit {
     //RXCore.onGuiPanUpdated((sx, sy, pagerect) => { 
     //  this.rxCoreService.guiOnPanUpdated.next({sx, sy, pagerect});
     //});
+
+    /*RXCore.onPrintProgress((pagenumtotal) => {
+      console.log("current page", pagenumtotal.current);
+      console.log("of total", pagenumtotal.total);
+    });*/
 
     RXCore.onGuiZoomUpdate((zoomparams, type) => { 
       this.rxCoreService.guiOnZoomUpdate.next({zoomparams, type});

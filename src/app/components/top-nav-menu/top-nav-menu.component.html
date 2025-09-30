@@ -624,6 +624,31 @@
       </rx-scale-dropdown>
     </div>
   </div>
+
+  <!-- Custom buttons placeholder -->
+<div *ngIf="customButtons?.length" class="custom-buttons">
+  <div *ngFor="let btn of customButtons"
+       class="tooltip custom-toggle"
+       [ngClass]="{ selected: btn.active }"
+       (click)="onCustomButtonClick(btn)">
+
+    <!-- Inline SVG if provided -->
+    <span *ngIf="btn.svgIcon"
+          class="icon"
+          [innerHTML]="btn.svgIcon | safeHtml">
+    </span>
+
+    <!-- Or fallback: icon class -->
+    <i *ngIf="btn.icon" [class]="btn.icon"></i>
+
+    <!-- Optional: label -->
+    <span class="tooltip-text tooltip-bottom" *ngIf="btn.label">{{ btn.label }}</span>
+  </div>
+</div>
+
+  
+
+  
   
   <div class="top-nav-item dropdown" *ngIf="fileLength > 0 && visibleOptionsCount > 1">
     <rx-dropdown

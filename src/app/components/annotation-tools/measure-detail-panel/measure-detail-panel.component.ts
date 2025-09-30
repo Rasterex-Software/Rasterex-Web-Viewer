@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, EventEmitter, Input, Output } from '@angular/core';
+import { Component, OnInit, OnDestroy, EventEmitter, Input, Output, ChangeDetectorRef } from '@angular/core';
 import { RXCore } from 'src/rxcore';
 import { AnnotationToolsService } from '../annotation-tools.service';
 import { Subscription } from 'rxjs';
@@ -6,6 +6,7 @@ import { ColorHelper } from 'src/app/helpers/color.helper';
 import { MARKUP_TYPES, METRIC } from 'src/rxcore/constants';
 import { RxCoreService } from 'src/app/services/rxcore.service';
 import { MeasurePanelService } from '../measure-panel/measure-panel.service';
+import { MetricUnitType } from 'src/app/domain/enums';
 
 @Component({
   selector: 'rx-measure-detail-panel',
@@ -43,7 +44,9 @@ export class MeasureDetailPanelComponent implements OnInit, OnDestroy {
     private readonly rxCoreService: RxCoreService,
     private readonly annotationToolsService: AnnotationToolsService,
     private readonly colorHelper: ColorHelper,
-    private readonly measurePanelService: MeasurePanelService) {}
+    private readonly measurePanelService: MeasurePanelService,
+    private readonly cdr: ChangeDetectorRef
+    ) {}
 
   ngOnInit(): void {
     this._setDefaults();
@@ -92,17 +95,13 @@ export class MeasureDetailPanelComponent implements OnInit, OnDestroy {
     });
 
     this.rxCoreService.guiPage$.subscribe((state) => {   
-      //this.docObj = RXCore.printDoc();
-      this.scalesOptions = [];
-      this.selectedScale = null;
+      
       this.updateScaleList();
       this.selectCurrentScale();
     }); 
 
     this.rxCoreService.guiScaleListLoadComplete$.subscribe(() => {
-      //this.docObj = RXCore.printDoc();
-      this.scalesOptions = [];
-      this.selectedScale = null;
+      
       this.updateScaleList();
       this.selectCurrentScale();
     });
@@ -206,86 +205,132 @@ export class MeasureDetailPanelComponent implements OnInit, OnDestroy {
   }
 
   manageRealTimeBox(markup) {
-    this.measureData = markup;
-      
-      if(markup !== -1) {
+    // Use setTimeout to avoid ExpressionChangedAfterItHasBeenCheckedError
+    setTimeout(() => {
+      this.measureData = markup;
+        
+        if(markup !== -1) {
 
-        if(markup.type === MARKUP_TYPES.MEASURE.LENGTH.type ||
-          markup.type === MARKUP_TYPES.SHAPE.RECTANGLE.type ||
-          markup.type === MARKUP_TYPES.MEASURE.AREA.type ||
-          markup.type === MARKUP_TYPES.MEASURE.PATH.type
-        ) {
-          this.updateScaleList();
-          this.selectCurrentScale(markup);
-        }
+          if(markup.type === MARKUP_TYPES.MEASURE.LENGTH.type ||
+            markup.type === MARKUP_TYPES.SHAPE.RECTANGLE.type ||
+            markup.type === MARKUP_TYPES.MEASURE.AREA.type ||
+            markup.type === MARKUP_TYPES.MEASURE.PATH.type
+          ) {
+            this.updateScaleList();
+            this.selectCurrentScale(markup);
+          }
 
-        switch(markup.type){
-          case MARKUP_TYPES.MEASURE.LENGTH.type :
-            this.panelHeading = "Distance Measurement";
-            this.measurementText = "Distance";
-            this.visible = true;            
-            this.setMeasurementOnLength(markup);
-          break;
-          case MARKUP_TYPES.SHAPE.RECTANGLE.type :
-            if(markup.subtype !== MARKUP_TYPES.MEASURE.RECTANGLE.subType) {
+          switch(markup.type){
+            case MARKUP_TYPES.MEASURE.LENGTH.type :
+              this.panelHeading = "Distance Measurement";
+              this.measurementText = "Distance";
+              this.visible = true;            
+              this.setMeasurementOnLength(markup);
+            break;
+            case MARKUP_TYPES.SHAPE.RECTANGLE.type :
+              if(markup.subtype !== MARKUP_TYPES.MEASURE.RECTANGLE.subType) {
+                this.visible = false;
+                break;
+              }
+              this.panelHeading = "Area Measurement";  
+              this.measurementText = "Area";
+              this.visible = true;
+              this.calculateArea(markup);
+              break;
+            case MARKUP_TYPES.MEASURE.AREA.type :
+              this.panelHeading = "Area Measurement";  
+              this.measurementText = "Area";
+              this.visible = true;
+              this.calculateArea(markup);
+            break;
+            case MARKUP_TYPES.MEASURE.PATH.type :
+              if(markup.subtype !== MARKUP_TYPES.MEASURE.PATH.subType) {
+                this.visible = false;
+                break;
+              }
+              this.panelHeading = "Perimeter Measurement";
+              this.measurementText = "Distance";
+              this.visible = true;
+              this.setDistanceOnArea(markup);
+            break;
+
+            case 13 :
+              this.measurementText = "Count";
+              this.panelHeading = "Count";
+              this.visible = true;
+              this.showScaleDropdownOnStartDrawing = false;
+              break;
+            default :
               this.visible = false;
               break;
-            }
-            this.panelHeading = "Area Measurement";  
-            this.measurementText = "Area";
-            this.visible = true;
-            this.calculateArea(markup);
-            break;
-          case MARKUP_TYPES.MEASURE.AREA.type :
-            this.panelHeading = "Area Measurement";  
-            this.measurementText = "Area";
-            this.visible = true;
-            this.calculateArea(markup);
-          break;
-          case MARKUP_TYPES.MEASURE.PATH.type :
-            if(markup.subtype !== MARKUP_TYPES.MEASURE.PATH.subType) {
-              this.visible = false;
-              break;
-            }
-            this.panelHeading = "Perimeter Measurement";
-            this.measurementText = "Distance";
-            this.visible = true;
-          break;
 
-          case 13 :
-            this.measurementText = "Count";
-            this.panelHeading = "Count";
-            this.visible = true;
-            this.showScaleDropdownOnStartDrawing = false;
-            break;
-          default :
-            this.visible = false;
-            break;
-  
-  
+
+          }
+        } else {
+          this.visible = false;
         }
         
-      }
+        this.cdr.detectChanges();
+    }, 0);
   }
 
   updateScaleList() {
 
     // Only update scales from RXCore if there's an active file
     const activeFile = RXCore.getOpenFilesList().find(file => file.isActive);
-
+    
+    
     if (activeFile) {
-      // Update scales from RXCore to get the latest scales
-      const rxCoreScales = RXCore.getDocScales();
-      if (rxCoreScales != undefined && rxCoreScales.length) {
-        this.scalesOptions = rxCoreScales;
-      }
 
-    }else{
+      const rxCoreScales = RXCore.getDocScales();
+      
+      if (rxCoreScales != undefined && rxCoreScales.length) {
+        // Process scales through ensureImperialScaleProperties to ensure proper format
+        this.scalesOptions = this.ensureImperialScaleProperties(rxCoreScales);
+        
+        // Ensure we have a selected scale
+        if (!this.selectedScale && this.scalesOptions.length > 0) {
+          this.selectedScale = this.scalesOptions[0];
+        }
+        
+        this.cdr.detectChanges();
+      } else {
+        this.scalesOptions = [];
+        this.cdr.detectChanges();
+      }
+    } else {
       // No active file, clear scales
       this.scalesOptions = [];
-
+      this.cdr.detectChanges();
     }
+  }
 
+  private ensureImperialScaleProperties(scales: any[]): any[] {
+    if (!scales || !Array.isArray(scales)) {
+      return [];
+    }
+    return scales.map(scale => {
+      const updatedScale = { ...scale };
+      
+      // Ensure imperial properties
+      if (scale.metric === MetricUnitType.IMPERIAL) {
+        updatedScale.imperialNumerator = scale.imperialNumerator || 1;
+        updatedScale.imperialDenominator = scale.imperialDenominator || 1;
+      }
+      
+      // Ensure precise value is available (extract from value string if not present)
+      if (updatedScale.preciseValue === undefined && updatedScale.value) {
+        const scaleParts = updatedScale.value.split(':');
+        if (scaleParts.length > 1) {
+          const pageScaleValue = parseFloat(scaleParts[0]);
+          const displayScaleValue = parseFloat(scaleParts[1]);
+          // For RXCore, we need the ratio of display to page scale
+          updatedScale.preciseValue = displayScaleValue / pageScaleValue;
+        }
+      }
+      
+      return updatedScale;
+    });
   }
 
   selectCurrentScale(markup?) {
@@ -293,13 +338,21 @@ export class MeasureDetailPanelComponent implements OnInit, OnDestroy {
       return;
     //element scale
     if(markup && markup.hasScale) {
-      this.selectedScale = this.scalesOptions.find(item=>item.label === markup.scaleObject.getScaleLabel());
+      const markupScaleLabel = markup.scaleObject.getScaleLabel();
+      this.selectedScale = this.scalesOptions.find(item=>item.label === markupScaleLabel);
     } 
     else {
       //page scale
       const scaleLabel = RXCore.getCurrentPageScaleLabel();
       this.selectedScale = this.scalesOptions.find(item=>item.label === scaleLabel);      
     }
+
+    // Fallback: if no scale is selected and we have scales, select the first one
+    if (!this.selectedScale && this.scalesOptions.length > 0) {
+      this.selectedScale = this.scalesOptions[0];
+    }
+
+
   }
 
   calculateArea(markup: any) {
@@ -327,6 +380,11 @@ export class MeasureDetailPanelComponent implements OnInit, OnDestroy {
     } else {
       this.measureData.dimtextWithHole = 0;
     }
+
+    // Update the scale selection to match the measurement's scale
+    this.selectCurrentScale(markup);
+
+
   }
 
   setDistanceOnArea(markup: any) {
@@ -379,6 +437,11 @@ export class MeasureDetailPanelComponent implements OnInit, OnDestroy {
     //this.measureData.yLength = Math.abs(yData[0]) + " " + yData[1];
 
     this.measureData.yLength = this.measureData.dimtexty;
+
+    // Update the scale selection to match the measurement's scale
+    this.selectCurrentScale(markup);
+
+
   }
 
   onScaleChanged(selectedScale: any): void {

@@ -5,6 +5,7 @@ import { RxCoreService } from 'src/app/services/rxcore.service';
 import { MARKUP_TYPES } from 'src/rxcore/constants';
 import { IGuiConfig } from 'src/rxcore/models/IGuiConfig';
 import { UserService } from '../user/user.service';
+import { CustomButton } from 'src/app/models/custom-button.model';
 import { firstValueFrom, lastValueFrom } from 'rxjs';
 
 
@@ -20,6 +21,9 @@ export class AnnotationToolsComponent implements OnInit {
   opened$ = this.service.opened$;
   guiConfig: IGuiConfig | undefined;
   shapesAvailable: number = 5;
+  customAnnotationButtons: CustomButton[] = [];
+
+  
 
   isActionSelected = {
     "TEXT": false,
@@ -98,6 +102,11 @@ export class AnnotationToolsComponent implements OnInit {
     private readonly userService: UserService) { }
 
   ngOnInit(): void {
+
+    this.service.customButtons$.subscribe(buttons => {
+      this.customAnnotationButtons = buttons;
+    });
+
     this.guiConfig$.subscribe(config => {
       this.guiConfig = config;
 
@@ -221,7 +230,10 @@ export class AnnotationToolsComponent implements OnInit {
 
   onActionSelect(actionName: string) {
     const selected = this.isActionSelected[actionName];
-    this._deselectAllActions();
+    if(actionName != 'SNAP'){
+      this._deselectAllActions();
+    }
+    
     this.isActionSelected[actionName] = !selected;
     if (actionName) {
       this.rxCoreService.resetLeaderLine(true);
@@ -475,6 +487,20 @@ export class AnnotationToolsComponent implements OnInit {
     // Reset input to allow re-importing same file
     input.value = '';
   }
+
+
+  onCustomButtonClick(btn: CustomButton) {
+    // toggle state
+    const newActive = !btn.active;
+    const updated = this.service.updateButtonState(btn.id, newActive);
+  
+    // external handler gets consistent state
+    if (btn.onClick && updated) {
+      btn.onClick(updated);
+    }
+    
+  }
+  
 
   /*calibrate(selected) {
 

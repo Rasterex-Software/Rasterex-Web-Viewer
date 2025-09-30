@@ -370,6 +370,8 @@ export class RXCore {
         RxCore.changeStrokeColor(color);
     }
 
+
+
     public static setLineWidth(width: number): void {
         RxCore.setLineWidth(width);
     }
@@ -939,6 +941,11 @@ export class RXCore {
         return RxCore.markupChanged();
     }
 
+    public static getnumMarkups(): number {
+        return RxCore.getnumMarkups();
+    }
+
+
     public static markupSaveCheck(onoff: boolean): void {
         RxCore.markupSaveCheck(onoff);
     }
@@ -1321,6 +1328,16 @@ export class RXCore {
     public static onGuiMarkupMeasureRealTimeData(callback: Function): void {
         RxCore.GUI_MarkupMeasureRealTimeData.connect(callback);
     }
+
+    public static onPrintProgress(callback: Function): void {
+        RxCore.onPrintProgress.connect(callback);
+    }
+
+    public static onPrintComplete(callback: Function): void {
+        RxCore.onPrintComplete.connect(callback);
+    }
+
+    
 
     public static zoomPageUpdate(zoomparams : any, type : number): void {
         RxCore.zoomPageUpdate(zoomparams, type);

@@ -4,6 +4,7 @@ import { RXCore } from 'src/rxcore';
 import { CompareService } from './components/compare/compare.service';
 import { firstValueFrom } from 'rxjs';
 import { TopNavMenuService } from './components/top-nav-menu/top-nav-menu.service';
+import { AnnotationToolsService } from './components/annotation-tools/annotation-tools.service';
 import { ColorHelper } from './helpers/color.helper';
 import { NotificationService } from './components/notification/notification.service';
 
@@ -17,6 +18,7 @@ export class AppMessageBrokerComponent implements OnInit {
     private readonly rxCoreService: RxCoreService,
     private readonly compareService: CompareService,
     private readonly topNavMenuService: TopNavMenuService,
+    private readonly annotationToolsService : AnnotationToolsService,
     private readonly colorHelper: ColorHelper,
     private readonly notificationService: NotificationService) { }
 
@@ -30,6 +32,69 @@ export class AppMessageBrokerComponent implements OnInit {
 
       window.addEventListener("message", async (event) => {
         switch (event.data.type) {
+
+
+          
+          case "addToolbarButton": {
+            const { target = "topnav", id, label, icon, svgIcon, active, toggle } = event.data.payload;
+          
+            const button = {
+              id,
+              label,
+              icon,
+              svgIcon,
+              active: false,         // default
+              toggle: toggle ?? false,
+              onClick: () => {
+                if (toggle) {
+                  const service = target === "annotation"
+                    ? this.annotationToolsService
+                    : this.topNavMenuService;
+              
+                  // 🔹 use exclusive toggle
+                  //const updatedBtn = service.toggleExclusiveButton(id);
+                  const updatedBtn = service.getButtonById(id);
+              
+                  parent.postMessage({
+                    type: "toolbarClick",
+                    id,
+                    active: updatedBtn?.active ?? false   // always include state
+                  }, "*");
+
+                } else {
+                  parent.postMessage({ type: "toolbarClick", id, active: true }, "*");
+                }
+              }
+              
+            };
+          
+            switch (target) {
+              case "annotation":
+                this.annotationToolsService.addButton(button);
+                break;
+              case "topnav":
+              default:
+                this.topNavMenuService.addButton(button);
+                break;
+            }
+            break;
+          }
+
+          case "removeToolbarButton": {
+            const { id, target = "topnav" } = event.data.payload;
+          
+            switch (target) {
+              case "annotation":
+                this.annotationToolsService.removeButton(id);
+                break;
+              case "topnav":
+              default:
+                this.topNavMenuService.removeButton(id);
+                break;
+            }
+            break;
+          }
+          
           case "guiConfig": {
             this.rxCoreService.setGuiConfig(event.data.payload, true);
             break;

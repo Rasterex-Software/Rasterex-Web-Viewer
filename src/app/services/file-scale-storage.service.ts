@@ -15,28 +15,57 @@ export class FileScaleStorageService {
   constructor() {}
 
   private getFileId(file: any): string {
+    // Use file index as primary identifier since it's more stable than name/path
+    const fileIndex = file.index !== undefined ? file.index : 'unknown';
+    let fileName = file.name || 'unknown';
 
+    // Extract just the filename if it contains a full path
     // Use file name as primary identifier since index is not unique per file
     // Add a hash of the file path/name to ensure uniqueness
-    const fileName = file.name || 'unknown';
-    const filePath = file.path || '';
-    const fileId = `file_${fileName}_${filePath}`.replace(/[^a-zA-Z0-9_]/g, '_');
+    
+    if (fileName.includes('/') || fileName.includes('\\')) {
+      const pathParts = fileName.split(/[/\\]/);
+      fileName = pathParts[pathParts.length - 1];
+    }
+
+    // Create a stable ID using index and clean filename
+    const fileId = `file_${fileIndex}_${fileName}`.replace(/[^a-zA-Z0-9_]/g, '_');
+
     return fileId;
   }
 
   getScalesForFile(file: any): ScaleWithPageRange[] {
     const fileId = this.getFileId(file);
-    const fileData = this.fileScalesMap.get(fileId);
-    const scales = fileData?.scales || [];
+    let fileData = this.fileScalesMap.get(fileId);
+    let scales = fileData?.scales || [];
+
+    // If no scales found with exact match, try to find by file index only
+    if (scales.length === 0 && file.index !== undefined) {
+      for (const [key, data] of this.fileScalesMap) {
+        if (key.startsWith(`file_${file.index}_`)) {
+          scales = data.scales;
+          break;
+        }
+      }
+    }
 
     return scales;
   }
 
   getSelectedScaleForFile(file: any): ScaleWithPageRange | null {
     const fileId = this.getFileId(file);
-    const fileData = this.fileScalesMap.get(fileId);
-    const selectedScale = fileData?.selectedScale || null;
+    let fileData = this.fileScalesMap.get(fileId);
+    let selectedScale = fileData?.selectedScale || null;
 
+    // If no selected scale found with exact match, try to find by file index only
+    if (!selectedScale && file.index !== undefined) {
+      for (const [key, data] of this.fileScalesMap) {
+        if (key.startsWith(`file_${file.index}_`)) {
+          selectedScale = data.selectedScale || null;
+          break;
+        }
+      }
+    }
     return selectedScale;
   }
 

@@ -610,10 +610,10 @@ export class AppComponent implements AfterViewInit {
       this.rxCoreService.setGuiMarkupUnselect(markup);
     });
 
-    RXCore.onRotatePage((degree: number, pageIndex: number) => {
+    /*RXCore.onRotatePage((degree: number, pageIndex: number) => {
       this.rxCoreService.setGuiRotatePage(degree, pageIndex);
 
-    });
+    });*/
 
     RXCore.onRotateDocument((degree: number) => {
       this.rxCoreService.setGuiRotateDocument(degree);
@@ -847,9 +847,36 @@ export class AppComponent implements AfterViewInit {
         return;
       }
 
-      if (panUpdateTimeout) {
+      /*if (panUpdateTimeout) {
         panUpdateData.sx += sx;
         panUpdateData.sy += sy;
+        panUpdateData.pagerect = pagerect;
+      } else {
+        panUpdateData = { sx: 0, sy: 0, pagerect: null };
+        panUpdateTimeout = setTimeout(() => {
+          // if both sx and sy are 0, then do not send pan change message
+          if (panUpdateData.sx !== 0 || panUpdateData.sy !== 0) {
+            this.collabService.sendPanChange(this.getRoomId(), panUpdateData);
+          }
+          panUpdateTimeout = null;
+          panUpdateData = { sx: 0, sy: 0, pagerect: null };
+        }, 20);
+      }*/
+    });
+    
+    panUpdateTimeout = null;
+    panUpdateData = null;
+
+    RXCore.onGuiPanUpdate((sx, sy, pagerect) => {
+      //console.log('RxCore onGuiPanUpdated:', sx, sy, pagerect);
+      this.rxCoreService.guiOnPanUpdate.next({sx, sy, pagerect});
+      if (!this.isCollaborate() || !this.collabService.isCurrentUserRoomPresenter()) {
+        return;
+      }
+
+      if (panUpdateTimeout) {
+        panUpdateData.sx = sx;
+        panUpdateData.sy = sy;
         panUpdateData.pagerect = pagerect;
       } else {
         panUpdateData = { sx: 0, sy: 0, pagerect: null };

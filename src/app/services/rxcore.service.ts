@@ -295,6 +295,12 @@ export class RxCoreService {
   public guiOnPanUpdated: BehaviorSubject<any> = new BehaviorSubject<any>({});
   guiOnPanUpdated$: Observable<any> = this.guiOnPanUpdated.asObservable();
 
+
+  public guiOnPanUpdate: BehaviorSubject<any> = new BehaviorSubject<any>({});
+  guiOnPanUpdate$: Observable<any> = this.guiOnPanUpdate.asObservable();
+
+  
+
 //onGuiZoomUpdate
 
   public guiOnZoomUpdate: BehaviorSubject<any> = new BehaviorSubject<any>({});

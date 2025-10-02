@@ -196,6 +196,10 @@ export class RXCore {
         RxCore.rotateThumbnail(pagnumber, degree);
     }
 
+    public static setPagePosPan( dx: number, dy: number) {
+        RxCore.setPagePosPan(dx, dy);
+    }
+
     
 
     public static setPageSize(pageRange: number[][], width: number, height: number) {
@@ -1320,6 +1324,11 @@ export class RXCore {
     public static onGuiPanUpdated(callback: (sx: number, sy: number, pagerect: any) => void): void {
         RxCore.GUI_PanUpdated.connect(callback);
     }
+
+    public static onGuiPanUpdate(callback: (sx: number, sy: number, pagerect: any) => void): void {
+        RxCore.GUI_PanUpdate.connect(callback);
+    }
+
 
     public static onGuiZoomUpdate(callback: (zoomparams : any, type : number) => void): void {
         RxCore.GUI_ZoomUpdate.connect(callback);

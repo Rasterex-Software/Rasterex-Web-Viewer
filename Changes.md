@@ -1,3 +1,18 @@
+October 2, 2025
+
+### 1. Collaboration synchronization of zoom and pan is now improved. Now uses new method RxCore.setPagePosPan for pan data
+
+Updated and new files
+RxCore version is now 37.13
+src\assets\scripts\rxcorefunctions.js
+src\rxcore\index.ts
+src\app\app.component.ts
+src\app\services\rxcore.service.ts
+src\app\services\collab.service.ts
+
+
+
+
 September 30, 2025
 
 ### 1. Fix for various scaling and measurement inconsistencies.
@@ -40,11 +55,6 @@ src\app\components\annotation-tools\scale-dropdown\scale-dropdown.component.html
 
 src\app\components\annotation-tools\measure-panel\measure-panel.component.ts
 src\app\components\annotation-tools\measure-detail-panel\measure-detail-panel.component.ts
-
-
-
-
-
 
 
 September 17, 2025

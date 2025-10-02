@@ -452,15 +452,16 @@ export class CollabService {
       // Handle pan change
       const data = msgBody.data;
       RXCore.setCollabBlock(false);
-      RXCore.setPageRect(data.pagerect);
-      RXCore.panPage(data.sx, data.sy);
+      //RXCore.setPageRect(data.pagerect);
+      //RXCore.panPage(data.sx, data.sy);
+      RXCore.setPagePosPan(data.sx, data.sy)
       RXCore.setCollabBlock(true);
-    } else if (msgId === MessageId.PageRectChange) {
+    } else if (msgId === MessageId.PageRectChange && msgId != MessageId.ZoomChange) {
       // Handle zoom before change
       const data = msgBody.data;
-      RXCore.setCollabBlock(false);
-      RXCore.setPageRect(data.zoomparams.rect);
-      RXCore.setCollabBlock(true);
+      //RXCore.setCollabBlock(false);
+      //RXCore.setPageRect(data.zoomparams.rect);
+      //RXCore.setCollabBlock(true);
     }
     else if (msgId === MessageId.ZoomChange) {
       // Handle zoom change

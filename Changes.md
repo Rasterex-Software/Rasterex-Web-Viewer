@@ -3,6 +3,7 @@ October 9, 2025
 ### 1. Text input for text annotation modified to reflect the correct font style and size of the text annotation.
 ### 2. Added support for new watermark function that uses preloaded fonts to display non western characters.
 ### 3. Fixed some state issues for toolbars and compare.
+### 4. Fixed undo/redo for text annotations.
 
 
 Updated and new files

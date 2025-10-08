@@ -34,7 +34,7 @@ export class AppComponent implements AfterViewInit {
   guiConfig: IGuiConfig | undefined;
   title: string = 'rasterex-viewer';
 
-  uiversion : string = '12.3.0.0'
+  uiversion : string = '12.4.0.0'
   numOpenFiles$ = this.rxCoreService.numOpenedFiles$;
   annotation: any;
   rectangle: any;
@@ -174,7 +174,7 @@ export class AppComponent implements AfterViewInit {
     //RXCore.setThumbnailSize(240,334);
 
     RXCore.setGlobalStyle(true);
-    RXCore.setLineWidth(4);
+    RXCore.setLineWidth(1);
     RXCore.setGlobalStyle(false);
 
     RXCore.useNoScale(false);
@@ -863,7 +863,7 @@ export class AppComponent implements AfterViewInit {
         }, 20);
       }*/
     });
-    
+
     panUpdateTimeout = null;
     panUpdateData = null;
 
@@ -1262,7 +1262,36 @@ export class AppComponent implements AfterViewInit {
     // if (event.button === 2 || event.type === 'touchend') clearTimeout(this.timeoutId);
   }
 
-  onKeydown(event):void{
+  private isTypingTarget(t: EventTarget | null): boolean {
+    const el = t as HTMLElement | null;
+    if (!el) return false;
+    if (el.isContentEditable) return true;
+    const tag = el.tagName?.toLowerCase();
+    return tag === 'input' || tag === 'textarea' || tag === 'select';
+  }
+  
+  onKeydown(event: KeyboardEvent): void {
+    // don't steal keys while typing
+    if (this.isTypingTarget(event.target)) return;
+  
+    // keep your zoom/pageLock shortcut only when not typing
+    if ((event.key === 'z' || event.key === 'Z') && !event.ctrlKey && !event.metaKey) {
+      event.preventDefault();
+      RXCore.pageLock(true);
+    }
+  }
+  
+  onKeyup(event: KeyboardEvent): void {
+    if (this.isTypingTarget(event.target)) return;
+  
+    if ((event.key === 'z' || event.key === 'Z') && !event.ctrlKey && !event.metaKey) {
+      event.preventDefault();
+      RXCore.pageLock(false);
+    }
+  }
+  
+
+  /*onKeydown(event):void{
 
     if (event.key == "z" ) {
       event.preventDefault();
@@ -1270,9 +1299,9 @@ export class AppComponent implements AfterViewInit {
       console.log( event.key, "kay pressed");
     }
    
-  }
+  }*/
 
-  onKeyup(event):void{
+  /*onKeyup(event):void{
 
     if (event.key == "z" ) {
       event.preventDefault();
@@ -1280,7 +1309,7 @@ export class AppComponent implements AfterViewInit {
       console.log( event.key, "kay released");
     }
    
-  }
+  }*/
 
 
   pasteMarkUp(): void {

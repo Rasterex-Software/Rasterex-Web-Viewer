@@ -212,17 +212,26 @@ export class TopNavMenuComponent implements OnInit {
 
       if (this.compareService.isComparisonActive) {
         const value = this.options.find(option => option.value == "compare");
+  
+        this.rxCoreService.setGuiConfig({
+          enableGrayscaleButton: this.compareService.isComparisonActive
+        });
+
         if (value) {
           this.onModeChange(value, false);
         }
+  
+
       }else{
+
+          this.rxCoreService.setGuiConfig({
+            enableGrayscaleButton: this.compareService.isComparisonActive
+          });
+
           //Hide compare toolbar if comparison window is closed Or not active
           this.onModeChange(this.selectedValue, false);
 
           //Disable tools which enabled for comparison
-          this.rxCoreService.setGuiConfig({
-              enableGrayscaleButton: this.compareService.isComparisonActive
-          });
       }
     });
 
@@ -232,6 +241,11 @@ export class TopNavMenuComponent implements OnInit {
       if (this.selectedScale && this.rxCoreReady) {
         this.onScaleChanged(this.selectedScale);
       }
+
+      const newfilevalue = this.options.find(option => option.value == "view");
+      this.onModeChange(newfilevalue, false);
+
+
     });
     
 

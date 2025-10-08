@@ -111,6 +111,8 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
     const markSelectClassName = 'fv__mark-selection-blank';
     const markSelectSelector = '.' + markSelectClassName;
 
+    		// === Load Open Sans via the FontFace API (no CSS @font-face needed) ===
+
 
     window.onscroll = function () {
         myScroll();
@@ -3963,7 +3965,55 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
         };
     };
 
-    this.addWatermarkRender = async function(text, settings = {}){
+
+    this.addWatermarkRender = async function(text, settings = {}) {
+        const watermarkOptions = this.createWatermarkOptions(text, settings);
+        const doc = await foxview.pdfViewer.getCurrentPDFDoc();
+        const render = foxview.pdfViewer.getPDFDocRender();
+        const viewer = foxview.pdfViewer;
+        const pageCount = await doc.getPageCount();
+    
+        // === 1️⃣ Load font dynamically if requested ===
+        if (settings.fontUrl && settings.fontName) {
+            try {
+                const customFont = new FontFace(settings.fontName, `url(${settings.fontUrl})`);
+                const loadedFace = await customFont.load();
+                document.fonts.add(loadedFace);
+                if (document.fonts && document.fonts.ready) await document.fonts.ready;
+    
+                // Register with Foxit’s JR font engine
+                const fontMaps = [{
+                    nameMatches: [new RegExp(settings.fontName, 'i')],
+                    glyphs: [{ flags: -1, url: settings.fontUrl }],
+                    charsets: [0]
+                }];
+                //const pdfViewer = await viewer.getPDFViewer();
+                viewer.setJRFontMap(fontMaps);
+    
+                console.log(`✅ Font '${settings.fontName}' loaded and registered.`);
+            } catch (e) {
+                console.warn('⚠️ Failed to load custom font. Falling back to default.', e);
+            }
+        }
+    
+        // === 2️⃣ Apply watermark to all pages ===
+        const arrAllPages = Array.from({ length: pageCount }, (_, i) => i);
+        const wmConfigs = arrAllPages.map(() => ({
+            ...watermarkOptions,
+            watermarkTextProperties: {
+                ...watermarkOptions.watermarkTextProperties,
+                font: settings.fontName || watermarkOptions.watermarkTextProperties.font
+            },
+            content: text
+        }));
+    
+        render.setWatermarkConfig(wmConfigs);
+        //const pdfViewer = await viewer.getPDFViewer();
+        if (viewer.redraw) viewer.redraw(true);
+    };
+    
+
+    this.addWatermarkRenderold = async function(text, settings = {}){
         
         const watermarkOptions = this.createWatermarkOptions(text, settings);
         const doc = await foxview.pdfViewer.getCurrentPDFDoc();

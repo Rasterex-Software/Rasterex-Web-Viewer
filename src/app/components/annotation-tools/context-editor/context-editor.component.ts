@@ -4,6 +4,7 @@ import { RxCoreService } from 'src/app/services/rxcore.service';
 import { AnnotationToolsService } from '../annotation-tools.service';
 import { ColorHelper } from 'src/app/helpers/color.helper';
 import { MARKUP_TYPES } from 'src/rxcore/constants';
+import { ElementRef, ViewChild } from '@angular/core';
 
 @Component({
   selector: 'rx-context-editor',
@@ -22,6 +23,9 @@ export class ContextEditorComponent implements OnInit {
   strokeThickness: number = 1;
   snap: boolean = false;
 
+  textTransform: any = {};
+  
+
   /* ui visibility */
   isTextAreaVisible: boolean = false;
   isFillOpacityVisible: boolean = true;
@@ -31,10 +35,15 @@ export class ContextEditorComponent implements OnInit {
   isBottom: boolean = false;
   style: any;
 
+  @ViewChild('textinput', { static: false }) textSpan!: ElementRef<HTMLSpanElement>;
+  @ViewChild('wrapper',   { static: false }) wrapper!: ElementRef<HTMLDivElement>;
+
+  
   constructor(
     private readonly rxCoreService: RxCoreService,
     private readonly annotationToolsService: AnnotationToolsService,
-    private readonly colorHelper: ColorHelper) { }
+    private readonly colorHelper: ColorHelper
+    ) { }
 
   private _setDefaults(): void {
     this.visible = false;
@@ -44,18 +53,43 @@ export class ContextEditorComponent implements OnInit {
     this.isThicknessVisible = false;
     this.isSnapVisible = false;
     this.text = '';
-    this.font = {
-      style: {
-          bold: false,
-          italic: false
-      },
-      font: 'Arial',
-      size: 18
-    };
+
+    this.font = this.getNormalizedFont(this.annotation);
+
+
     this.color = "#000000FF";
     this.strokeThickness = 1;
     this.snap = RXCore.getSnapState();
   }
+
+  private startWidthPx = 0; // lock initial width for wrapping
+
+  
+  private getNormalizedFont(raw: any): any {
+    if (!raw) return {
+      font: 'Arial',
+      size: 18,
+      scale: 1,
+      scalepx: 1,
+      style: { bold: false, italic: false }
+    };
+  
+    const pixelRatio = window.devicePixelRatio || 1;
+    const baseScale = raw.scale ?? 1;
+    const scalepx = baseScale / pixelRatio;
+  
+    return {
+      font: raw.font || raw.fontName || 'Arial',
+      size: raw.size || raw.height || 18,
+      scale: baseScale,
+      scalepx,
+      style: {
+        bold: !!raw.style?.bold || !!raw.bold,
+        italic: !!raw.style?.italic || !!raw.italic
+      }
+    };
+  }
+
 
   private _setVisibility(): void {
     const markup = this.annotation;
@@ -111,6 +145,68 @@ export class ContextEditorComponent implements OnInit {
     };
   }
 
+
+  private applyTransform(rect: any): void {
+    if (!rect) return;
+    this.textTransform = {
+      transform: 'none',
+      'transform-origin': 'top left'
+    };
+  }
+
+  private adjustTextBoxSize(): void {
+    const span = this.textSpan?.nativeElement;
+    const wrap = this.wrapper?.nativeElement;
+    if (!span || !wrap) return;
+  
+    span.style.width = '100%';
+    span.style.height = 'auto';
+    const contentHeight = Math.ceil(span.scrollHeight);
+  
+    const currentHeight = this.rectangle.h || 0;
+    const newHeight = Math.max(contentHeight, currentHeight); // never shrink
+  
+    // Only grow the box if content exceeds current height
+    if (newHeight > currentHeight) {
+      wrap.style.height = `${newHeight}px`;
+      this.rectangle.h = newHeight;
+  
+      const pr = window.devicePixelRatio || 1;
+      const wForCore = Math.round((this.rectangle.w || this.startWidthPx) * pr);
+      const hForCore = Math.round(newHeight * pr);
+  
+      if (typeof (RXCore as any).setTextboxSize === 'function') {
+        (RXCore as any).setTextboxSize(wForCore, hForCore);
+        (RXCore as any).markUpRedraw?.();
+      } else {
+        const annotation = (RXCore as any).getTextMarkup?.();
+        if (annotation?.setTextboxSize) {
+          annotation.setTextboxSize(wForCore, hForCore);
+          (RXCore as any).markUpRedraw?.();
+        }
+      }
+    }
+  }
+
+  private placeCaretAtEnd(el: HTMLElement) {
+    const range = document.createRange();
+    range.selectNodeContents(el);
+    range.collapse(false);
+    const sel = window.getSelection();
+    sel?.removeAllRanges();
+    sel?.addRange(range);
+  }
+
+  private sizeRaf: number | null = null;
+
+  private scheduleAdjust() {
+    if (this.sizeRaf) cancelAnimationFrame(this.sizeRaf);
+    this.sizeRaf = requestAnimationFrame(() => {
+      this.sizeRaf = null;
+      this.adjustTextBoxSize();
+    });
+  }
+
   ngOnInit(): void {
     this._setDefaults();
 
@@ -118,7 +214,7 @@ export class ContextEditorComponent implements OnInit {
 
 
       
-      if (markup === -1 || operation.created || operation.deleted) return;
+      if (markup === -1 || operation.deleted || operation.created) return;
       if (markup.type == MARKUP_TYPES.ERASE.type && markup.subtype == MARKUP_TYPES.ERASE.subType) return;
       if (markup.type == MARKUP_TYPES.COUNT.type) return;
       if (markup.type == MARKUP_TYPES.STAMP.type && markup.subtype == MARKUP_TYPES.STAMP.subType) return;
@@ -128,6 +224,9 @@ export class ContextEditorComponent implements OnInit {
       if (markup.type == MARKUP_TYPES.SHAPE.CLOUD.type && markup.subtype == MARKUP_TYPES.SHAPE.CLOUD.subtype) return;
       if (markup.type == MARKUP_TYPES.CALLOUT.type && markup.subtype == MARKUP_TYPES.CALLOUT.subType) return;
       if (markup.type == MARKUP_TYPES.LINK.type) return;
+
+
+      this.annotation = markup; // <-- make sure this is set
 
       this._setDefaults();
       this._setPosition();
@@ -145,14 +244,8 @@ export class ContextEditorComponent implements OnInit {
       
 
       
-      this.font = {
-          style: {
-            bold: markup.font.bold,
-            italic: markup.font.italic
-          },
-          font: markup.font.fontName,
-          size: markup.font.height
-      };
+      this.font = this.getNormalizedFont(markup.font);
+
       this.strokeThickness = markup.linewidth;
       this.fillOpacity = markup.transparency;
 
@@ -218,9 +311,15 @@ export class ContextEditorComponent implements OnInit {
       if (operation.start) {
         this._setDefaults();
       }
-      
 
       this.rectangle = { ...rectangle };
+
+      this.startWidthPx = Math.max(this.rectangle?.w || 150, 110);
+
+      // ensure initial DOM exists, then sync sizes once
+      this.scheduleAdjust();
+
+      this.applyTransform(rectangle);
 
       this.showContextEditor('0%', '-103%', '-30%', '-25%');
 
@@ -234,6 +333,18 @@ export class ContextEditorComponent implements OnInit {
       this.annotationToolsService.hideQuickActionsMenu();
       this.isTextAreaVisible = true;
       this.visible = true;
+
+
+      // ensure DOM is painted, then seed content, size, and focus
+      requestAnimationFrame(() => {
+        const el = this.textSpan?.nativeElement;
+        if (!el) return;
+        el.innerText = this.text || '';
+        this.adjustTextBoxSize();   // sync initial height
+        el.focus();
+        this.placeCaretAtEnd(el);   // optional, keeps caret at end
+      });
+
     });
 
     this.annotationToolsService.contextPopoverState$.subscribe(state => {
@@ -242,7 +353,7 @@ export class ContextEditorComponent implements OnInit {
     });
   }
 
-  adjustTextareaHeight(event: Event): void {
+  /*adjustTextareaHeight(event: Event): void {
     const textarea = event.target as HTMLTextAreaElement;
     textarea.style.height = 'auto';
     textarea.style.height = `${textarea.scrollHeight}px`;
@@ -251,7 +362,9 @@ export class ContextEditorComponent implements OnInit {
     RXCore.adjustTextAnnotationHeight(textarea.offsetWidth, textarea.scrollHeight, ratio);
 
 
-  }
+  }*/
+
+  
 
   showContextEditor(right, left, bottom, top, isArrow: boolean = false) {
 
@@ -290,8 +403,14 @@ export class ContextEditorComponent implements OnInit {
   }
 
   onTextStyleSelect(font): void {
-    this.font = font;
-    RXCore.setFontFull(font);
+    // Rebuild full font object using normalization logic
+    this.font = this.getNormalizedFont(font);
+
+    // Inform RXCore of the updated font
+    RXCore.setFontFull(this.font);
+
+    // Reschedule layout adjustment for new font size
+    this.scheduleAdjust();  
   }
 
   onColorSelect(color: string): void {
@@ -325,5 +444,114 @@ export class ContextEditorComponent implements OnInit {
   onTextChange(): void {
     RXCore.setText(this.text);
   }
+
+
+  getTextStyle() {
+    const fs = this.font; // your active font object (from RxCore or markup)
+    const fixedScale = (RXCore as any).getFixedScale?.() || 1;
+  
+    // --- replicate old AngularJS scaling logic ---
+    // No pixel ratio division here, because CSS 'pt' is already device-independent
+    let textSizePt: number;
+  
+    if (fixedScale === 1) {
+      // Fixed scale applied only when scale == 1
+      textSizePt = Math.round(fs.size * fs.scalepx * fixedScale);
+    } else {
+      textSizePt = Math.round(fs.size * fs.scalepx);
+    }
+  
+    // --- return a style object equivalent to the old textRectStyle ---
+    return {
+      // Use 'pt' to match legacy visual size (RXCore renders in points)
+      'font-size.pt': textSizePt,
+      'line-height.pt': textSizePt,
+  
+      // Font family and style
+      'font-family': fs.font || 'Arial',
+      'font-weight': fs.style?.bold ? 'bold' : 'normal',
+      'font-style': fs.style?.italic ? 'italic' : 'normal',
+  
+      // Color from current annotation / markup
+      'color': this.color || '#A52A2A',
+  
+      // Layout and behavior
+      display: 'block',
+      width: '100%',
+      height: 'auto',
+      'white-space': 'pre-wrap',
+      'word-break': 'break-word',
+      'background-color': 'transparent',
+      'box-sizing': 'border-box',
+      'overflow': 'hidden', // clip overflowed text (no scroll)
+      outline: 'none',
+      cursor: 'text',
+    };
+  }
+
+  
+
+  
+
+  onSpanInput(event: Event) {
+    const span = event.target as HTMLSpanElement;
+    this.text = span.innerText;
+    RXCore.setText(this.text);
+    this.scheduleAdjust();  // instead of calling adjust directly
+  }  
+
+/*onSpanInput(event: Event) {
+    const span = event.target as HTMLSpanElement;
+    this.text = span.innerText;
+  
+    // Sync text back to model
+    RXCore.setText(this.text);
+  
+    // Get current annotation
+    const annotation = RXCore.getTextMarkup?.();
+    if (!annotation) return;
+  
+    // Measure actual rendered size of the contenteditable span
+    const pixelRatio = window.devicePixelRatio || 1;
+    const scrollHeight = span.scrollHeight * pixelRatio;
+    const scrollWidth = span.scrollWidth * pixelRatio;
+  
+    // Update annotation rectangle in RXCore
+    annotation.setTextboxSize(scrollWidth, scrollHeight);
+  
+    // Request redraw
+    RXCore.markUpRedraw?.();
+  } */ 
+  
+  
+  onSpanBlur(event: Event) {
+    // Finalize text update when user leaves edit mode
+    RXCore.setText(this.text);
+  }
+
+  
+
+  getCombinedStyle() {
+    const width = this.rectangle?.w || 100;
+    const height = this.rectangle?.h || 20;
+  
+    return {
+      position: 'absolute',
+      top: '0px',
+      left: '0px',
+  
+      // Fixed dimensions for editing
+      width: `${width}px`,
+      height: `${height}px`,
+      minWidth: `${width}px`,
+      maxWidth: `${width}px`,
+      minHeight: `${height}px`,
+  
+      // Clip any overflowing text (no scroll)
+      overflow: 'hidden',
+      background: '#fff',
+      boxSizing: 'content-box',
+    };
+  }  
 
 }

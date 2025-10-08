@@ -1,76 +1,27 @@
-
 <div *ngIf="visible" class="text-editor-container" [ngStyle]="{ 'top.px' : rectangle?.y, 'left.px' : rectangle?.x }">
-    <div *ngIf="isTextAreaVisible"
-        class="textarea-wrapper"
-        [ngStyle]="{ 'width.px' : rectangle?.w, 'height.px' : rectangle?.h }">
-        <textarea
-            class="auto-expanding-textarea"
-            [ngStyle]="{'color': color, 'font-size.px': font.size - 3, 'font-family': font.font, 'font-style': font.style.italic ? 'italic' : 'normal', 'font-weight': font.style.bold ? 'bold' : 'normal' }"
-            [(ngModel)]="text"
-            (ngModelChange)="onTextChange()"
-            (input)="adjustTextareaHeight($event)"
-            placeholder="Insert text here...">
-        </textarea>
+    
+    <div class="text-span-wrapper"
+    #wrapper
+    [style.width.px]="rectangle?.w || 150"
+    [style.height.px]="rectangle?.h || 24"
+    [style.borderColor]="color">
+   
+     <!-- <div class="edit-frame" [style.borderColor]="color"></div> -->
+    
+     <span
+       id="textinput"
+       #textinput
+       class="contenteditable-span"
+       contenteditable="true"
+       role="textbox"
+       [ngStyle]="getTextStyle()"
+       [style.color]="color || '#b80000'"
+       (input)="onSpanInput($event)"
+       (blur)="onSpanBlur($event)">
+     </span>
     </div>
-    <div class="text-style-color-wrapper">
-        <div class="text-style-color-container" [ngStyle]="style"> 
-            <div *ngIf="isArrowsVisible" class="btn-group" role="group" style="margin-top: 16px;">
-                <button [class.selected]="annotation?.subtype == 3" (click)="onArrowStyleSelect(3)"><img src="/assets/images/arrow-filled-both-end-ico.svg"/></button>
-                <button [class.selected]="annotation?.subtype == 1" (click)="onArrowStyleSelect(1)"><img src="/assets/images/arrow-filled-single-end-ico.svg" /></button>
-                <button [class.selected]="annotation?.subtype == 2" (click)="onArrowStyleSelect(2)"><img src="/assets/images/arrow-both-end-ico.svg" /></button>
-                <button [class.selected]="annotation?.subtype == 0" (click)="onArrowStyleSelect(0)"><img src="/assets/images/arrow-single-end-ico.svg" /></button>
-            </div>
-            <!-- <rx-accordion [collapsing]="false" [isBottom]="isBottom">
-                <rx-accordion-item *ngIf="isTextAreaVisible" [title]="'Text Style'">
-                    <ng-template accordionContent>
-                        <rx-text-style-select
-                        [value]="font"
-                        (valueChange)="onTextStyleSelect($event)">
-                    </rx-text-style-select>
-                    </ng-template>
-                </rx-accordion-item>
-                <rx-accordion-item [title]="'Colors'">
-                    <ng-template accordionContent>
-                        <rx-color-picker
-                            [value]="color"
-                            (valueChange)="onColorSelect($event)">
-                        </rx-color-picker>
-                    </ng-template>
-                </rx-accordion-item>
-                <rx-accordion-item *ngIf="isFillOpacityVisible" [title]="'Opacity'">
-                    <ng-template accordionContent>
-                        <div class="slider-container">
-                            <ngx-slider
-                                class="slider"
-                                [(value)]="fillOpacity"
-                                [options]="{floor: 0, ceil: 100, hideLimitLabels: true, hidePointerLabels: true, showSelectionBar: true }"
-                                (userChange)="onFillOpacityChange()">
-                            </ngx-slider>
-                            <span class="value">{{fillOpacity}}%</span>
-                        </div>
-                    </ng-template>
-                </rx-accordion-item>
-                <rx-accordion-item *ngIf="isThicknessVisible" [title]="'Thickness'">
-                    <ng-template accordionContent>
-                        <div class="slider-container">
-                            <ngx-slider
-                                class="slider"
-                                [(value)]="strokeThickness"
-                                [options]="{floor: 1, ceil: 12, hideLimitLabels: true, hidePointerLabels: true, showSelectionBar: true }"
-                                (userChange)="onStrokeThicknessChange()">
-                            </ngx-slider>
-                            <span class="value">{{strokeThickness}}px</span>
-                        </div>
-                    </ng-template>
-                </rx-accordion-item>
-            </rx-accordion> -->
-            <div *ngIf="isSnapVisible" class="snap-section">
-                <span>Snap</span>
-                <rx-switch
-                    [checked]="snap"
-                    (change)="onSnapChange($event)">
-                </rx-switch>
-            </div>
-        </div>
-    </div>
+
+       
+    
+    
 </div>

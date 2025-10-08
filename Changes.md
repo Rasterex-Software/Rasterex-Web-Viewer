@@ -1,3 +1,32 @@
+October 9, 2025
+
+### 1. Text input for text annotation modified to reflect the correct font style and size of the text annotation.
+### 2. Added support for new watermark function that uses preloaded fonts to display non western characters.
+### 3. Fixed some state issues for toolbars and compare.
+
+
+Updated and new files
+RxCore version is now 37.14
+
+src\assets\scripts\rxcorefunctions.js
+src\assets\scripts\iframefoxit.js
+src\rxcore\index.ts
+src\app\app.component.ts
+src\app\app.component.html
+src\app\components\top-nav-menu\top-nav-menu.component.ts
+src\app\components\annotation-tools\annotation-tools.component.html
+src\app\components\annotation-tools\context-editor\context-editor.component.ts
+src\app\components\annotation-tools\context-editor\context-editor.component.scss
+src\app\components\annotation-tools\context-editor\context-editor.component.html
+
+
+
+
+new src\assets\watermarkdemo.html
+
+
+
+
 October 2, 2025
 
 ### 1. Collaboration synchronization of zoom and pan is now improved. Now uses new method RxCore.setPagePosPan for pan data

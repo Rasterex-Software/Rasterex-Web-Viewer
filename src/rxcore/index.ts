@@ -329,6 +329,14 @@ export class RXCore {
         RxCore.GUI_TextInput.setText(text);
     }
 
+
+    public static getTextMarkup(): any {
+        return RxCore.getTextMarkup();
+    }
+
+    
+
+
     public static getText(): string {
         return RxCore.GUI_TextInput.getText().text;
     }
@@ -1499,9 +1507,9 @@ export class RXCore {
         RxCore.removeWatermarkFromAllPages();
     }
 
-    /*public static addWatermarkRender(text: string, settings: any): void {
+    public static addWatermarkRender(text: string, settings: any): void {
         RxCore.addWatermarkRender(text, settings);
-    }*/
+    }
 
     
 

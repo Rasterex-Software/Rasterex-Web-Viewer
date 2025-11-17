@@ -18,10 +18,10 @@
                 <span>3D Parts visibility:</span>
                 <div class="btn-group" role="group">
                     <button [class.selected]="!item.indeterminate && item.checked" (click)="item.checked = true; onCheckedChange(); onCheckedAllChange(true)">
-                        <img src="/assets/images/show-on-ico.svg" />
+                        <img src="assets/images/show-on-ico.svg" />
                     </button>
                     <button [class.selected]="!item.indeterminate && !item.checked" (click)="item.checked = false; onCheckedChange(); onCheckedAllChange(false)">
-                        <img src="/assets/images/show-off-ico.svg" />
+                        <img src="assets/images/show-off-ico.svg" />
                     </button>
                 </div>
             </div>
@@ -34,14 +34,14 @@
             let-onCheckedChange="onCheckedChange">
             <div class="row-item" [class.show-off]="!item.indeterminate && !item?.checked" [ngStyle]="{'padding-left.px': 10*level }">
                 <ng-container [ngSwitch]="item.children?.length > 0">
-                    <img *ngSwitchCase="true" [class.collapsed]="item.collapsed" src="/assets/images/arrow-down.svg" (click)="onCollapseExpand()" />
+                    <img *ngSwitchCase="true" [class.collapsed]="item.collapsed" src="assets/images/arrow-down.svg" (click)="onCollapseExpand()" />
                     <span *ngSwitchCase="false" style="width: 10px;"></span>
                 </ng-container>
                 <div class="row-item-block">
                     <span role="button" (click)="onItemClick(item);" style="flex-grow: 1;">{{item.text}}</span>
                     <span role="button" class="check-button" (click)="item.checked = !item.checked; onCheckedChange(); onItemCheckedChange(item);">
-                        <img class="show-off" src="/assets/images/show-off-ico.svg" />
-                        <img class="show-on" src="/assets/images/show-on-ico.svg" />
+                        <img class="show-off" src="assets/images/show-off-ico.svg" />
+                        <img class="show-on" src="assets/images/show-on-ico.svg" />
                     </span>
                 </div>
             </div>

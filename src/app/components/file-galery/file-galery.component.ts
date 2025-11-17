@@ -171,13 +171,49 @@ export class FileGaleryComponent implements OnInit {
 
   }
 
+  handleFileSelect(item: any): void {
+    this.uploadFile(item);
+    this.fileType = item.type;
+    const fileName: string = item.file;
   
+    // Normal local emit
+    
+  
+    // If preselect mode is active (viewer running under host)
+    if (this.rxCoreService.usePreselect) {
+      console.log('[Viewer] usePreselect active — sending PRESELECT_DATA to host');
 
-  handleFileSelect(item): void {
+  
+      try {
+        parent.postMessage(
+          {
+            type: 'PRESELECT_DATA',
+            from: 'rasterex-viewer',
+            payload: {
+              fileName,
+              fileType: item?.type ?? null,
+              selectedLayers: this.filePreselectionService.selectedLayers || [],
+              selectedBlocks: this.filePreselectionService.selectedBlocks || [],
+            },
+          },
+          '*'
+        );
+        console.log('[Viewer] PRESELECT_DATA message sent to host');
+      } catch (err) {
+        console.warn('[Viewer] Could not send PRESELECT_DATA', err);
+      }
+    }else{
+      this.onSelect.emit(item);
+    }
+
+  }
+    
+
+  /*handleFileSelect(item): void {
     this.uploadFile(item);
     this.fileType = item.type;
     this.onSelect.emit(item);
-  }
+  }*/
 
   async loadDemoFiles() {
     this.isLoading = true;

@@ -32,7 +32,7 @@
       (touchend)="onMouseUp($event)"
       (window:keydown)="onKeydown($event)"
       (window:keyup)="onKeyup($event)">
-        <iframe id="foxitframe" src="/assets/html/foxpage.html"></iframe>
+        <iframe id="foxitframe" src="assets/html/foxpage.html"></iframe>
         <rx-context-editor></rx-context-editor>
         <div id="lineConnector" class="lineconnector-container">&nbsp;</div>
         
@@ -48,11 +48,11 @@
     <rx-bottom-toolbar *ngIf="numOpenFiles$ | async" [(isVisible)]="isVisible" [lists]="lists"></rx-bottom-toolbar>
     <div *ngFor="let list of lists;">
       <div *ngIf="list.linkURL !== ' ' && list.linkURL !== '' && isVisible && list.type !== 20" class="link" [ngStyle]="{ 'top.px' : list.rectangle?.y, 'left.px' : list.rectangle?.x}">
-        <img (click)="followLink = true; annotation = list;" src="/assets/images/link.svg" />
+        <img (click)="followLink = true; annotation = list;" src="assets/images/link.svg" />
       </div>
     </div>
 <!--     <div (click)="pasteMarkUp()" class="paste-markup" [ngStyle]="pasteStyle">
-      <img src="/assets/images/paste-ico.svg" /> Paste
+      <img src="assets/images/paste-ico.svg" /> Paste
     </div>
  -->    
   <rx-signature></rx-signature>

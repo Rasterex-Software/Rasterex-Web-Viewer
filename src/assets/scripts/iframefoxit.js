@@ -111,6 +111,11 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
     const markSelectClassName = 'fv__mark-selection-blank';
     const markSelectSelector = '.' + markSelectClassName;
 
+
+
+    let lastScrollPos = { left: 0, top: 0 };
+    let lastMoveState = { x: true, y: true };
+
     		// === Load Open Sans via the FontFace API (no CSS @font-face needed) ===
 
 
@@ -226,7 +231,7 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
                     foxview.firstrender = false;
 
                     if (foxview.createRxDoc) {
-                        foxview.rxindex = RxCore.createFoxitDoc(foxview);
+                        RxCore.createFoxitDoc(foxview);
                         RxCore.hidedisplayCanvas(true);
                     }
                 }
@@ -948,7 +953,7 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
         }
     };
 
-    this.getThumbnail = function (pagenum) {
+    this.getThumbnailold = function (pagenum) {
         if (foxview.pdfViewer) {
 
             const checkPDFDoc = () => {
@@ -985,6 +990,64 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
             });*/
         }
     };
+
+
+    
+// A map to track pending thumbnail requests
+//const thumbnailLocks = {};
+
+// Queue for sequential thumbnail rendering
+// Track a global thumbnail render state
+let isThumbnailBusy = false;
+let currentThumbnailPromise = null;
+
+this.getThumbnail = function (pagenum) {
+    if (!foxview.pdfViewer) return;
+
+    // If a render is already in progress, just return the current promise (or null)
+    if (isThumbnailBusy) {
+        //console.warn("Thumbnail generation already in progress – skipping", pagenum);
+        return currentThumbnailPromise;
+    }
+
+    isThumbnailBusy = true;
+
+    currentThumbnailPromise = new Promise((resolve, reject) => {
+        const checkPDFDoc = () => {
+            const pdfDoc = foxview.pdfViewer.getCurrentPDFDoc();
+            if (!pdfDoc) {
+                setTimeout(checkPDFDoc, 300);
+                return;
+            }
+
+            pdfDoc.getPageByIndex(pagenum)
+                .then((page) => {
+                    return page.getThumb(0, 1.5);
+                })
+                .then((thumbnail) => {
+                    RxCore.setThumbnailFoxit(thumbnail, pagenum);
+                    foxview.pagestates[pagenum].thumbadded = false;
+                    resolve(thumbnail);
+                })
+                .catch((error) => {
+                    console.error("Thumbnail generation error:", error);
+                    reject(error);
+                })
+                .finally(() => {
+                    isThumbnailBusy = false;
+                    currentThumbnailPromise = null;
+                });
+        };
+
+        checkPDFDoc();
+    });
+
+    return currentThumbnailPromise;
+};
+
+
+
+
 
     this.getNewThumbnail = async function (pagenum) {
         if (foxview.pdfViewer) {
@@ -2218,8 +2281,17 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
                 });
 
                 if (foxview.createRxDoc) {
-                    foxview.rxindex = RxCore.createFoxitDoc(foxview);
+
+                    
+
+
                     RxCore.hidedisplayCanvas(true);
+                    foxview.fileOpen = true;
+
+                    RxCore.createFoxitDoc(foxview);
+
+
+
                 }
                 //console.log('file open', pnum);
 
@@ -2774,6 +2846,69 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
             foxview.pagestates[foxview.curpage].scrollupdate = true;
         }
     };
+
+    this.getScrollPosEx = function(){
+
+        let doc = window.document.body;
+
+        var left = (window.pageXOffset || doc.scrollLeft) - (doc.clientLeft || 0);
+        var top = (window.pageYOffset || doc.scrollTop) - (doc.clientTop || 0);
+
+        return {
+            left: left,
+            top: top
+        };
+
+    };
+
+
+    this.getEffectivePanDelta = function (panCallback) {
+        const before = this.getScrollPosEx() || { left: 0, top: 0 };
+        panCallback();
+        const after = this.getScrollPosEx() || { left: 0, top: 0 };
+        return {
+            dx: (after.left ?? 0) - (before.left ?? 0),
+            dy: (after.top ?? 0) - (before.top ?? 0)
+        };
+    };
+
+    // Store last scroll position and last movement state
+
+    this.shouldUpdateAlignPoint = function (panCallback) {
+        const before = this.getScrollPosEx();
+        panCallback();
+        const after = this.getScrollPosEx();
+    
+        const dx = after.left - before.left;
+        const dy = after.top - before.top;
+    
+        const threshold = 0.5; // tolerance for micro-scroll differences
+    
+        const movedX = Math.abs(dx) > threshold;
+        const movedY = Math.abs(dy) > threshold;
+    
+        // Update individual axis states
+        if (movedX) {
+            lastScrollPos.left = after.left;
+            lastMoveState.x = true;
+        } else if (!movedX && lastMoveState.x) {
+            lastMoveState.x = false;
+        }
+    
+        if (movedY) {
+            lastScrollPos.top = after.top;
+            lastMoveState.y = true;
+        } else if (!movedY && lastMoveState.y) {
+            lastMoveState.y = false;
+        }
+    
+        // Return independent movement booleans
+        return { x: lastMoveState.x, y: lastMoveState.y };
+    };
+
+
+    
+
 
     this.getScrollPos = function (doc, offsettop) {
 
@@ -3408,6 +3543,33 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
 
     };
 
+    this.deviceToPage = async function (x, y,  pageIndex = null) {
+        if (!foxview.pdfViewer) {
+            console.warn("Foxit viewer not initialized");
+            return { x: 0, y: 0, pageIndex: pageIndex, scale: 1, rotation: 0 };
+        }
+    
+        try {
+            const coordInfo = await foxview.pdfViewer.convertClientCoordToPDFCoord({ clientX: x, clientY: y });
+            if (!coordInfo) {
+                console.warn("convertClientCoordToPDFCoord returned null");
+                return { x: 0, y: 0, pageIndex: pageIndex, scale: 1, rotation: 0 };
+            }
+    
+            return {
+                x: coordInfo.left,
+                y: coordInfo.top,
+                pageIndex: coordInfo.index,
+                scale: coordInfo.scale,
+                rotation: coordInfo.rotation
+            };
+        } catch (err) {
+            console.error("deviceToPage conversion failed:", err);
+            return { x: 0, y: 0, pageIndex: pageIndex, scale: 1, rotation: 0 };
+        }
+    };
+    
+
 
     this.getpageBox = function(npagenum){
 
@@ -3426,6 +3588,37 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
 
         //getPageBox(0)
         //getDeviceRect()
+    };
+
+    this.getPDFAlignCoordinates = function(x,y, pointnum, callback){
+
+        var point = {x: x, y: y};
+
+        foxview.pdfViewer.convertClientCoordToPDFCoord({clientX: x, clientY: y}).then(function(coordInfo) {
+            if (!coordInfo) {
+                //console.error("Coordinate conversion failed");
+                callback({found: false});
+                return;
+
+            }
+            //console.log("Converted PDF coordinates:", coordInfo);
+
+            
+            
+            var pdfX = coordInfo.left;
+            var pdfY = coordInfo.top;
+            var scale = coordInfo.scale;
+            var rotation = coordInfo.rotation;
+
+            callback({x: pdfX, y: pdfY, point : pointnum, rotation: rotation,scale: scale});
+
+            
+            }).catch(function(error) {
+                console.error("Page loading error:", error);
+                callback({found: false});
+            });
+
+
     };
 
     this.getSnapPointRotate = function(npagenum, x, y, callback) {

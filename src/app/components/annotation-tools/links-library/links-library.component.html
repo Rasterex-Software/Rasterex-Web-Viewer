@@ -9,7 +9,7 @@
           [src]="template.src"
           [ngStyle]="{ 'width.px': template.width, 'height.px': template.height }" />
           <button (click)="deleteLink(i)" class="delete-link-button">
-            <img src="/assets/images/trash-ico.svg" />
+            <img src="assets/images/trash-ico.svg" />
           </button>
         </div> 
       </div>
@@ -24,7 +24,7 @@
 <rx-modal-dialog [opened]="opened" (onClose)="opened = false">
   <div class="confirm-modal-container" style="max-width: fit-content;">
     <div class="rx-modal-dialog-header">
-      <img (click)="opened = false;" class="close" style="right: 14px; top: 10px;" src="/assets/images/close-modal-ico.svg" />
+      <img (click)="opened = false;" class="close" style="right: 14px; top: 10px;" src="assets/images/close-modal-ico.svg" />
       <span class="title">Add Links</span>
     </div>
     <div class="body link-input-container">

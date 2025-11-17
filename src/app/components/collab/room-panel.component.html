@@ -9,13 +9,13 @@
     <div class="header-section">
       <span *ngIf="!user">Please login first!</span>
       <button *ngIf="user" (click)="updateRoomList()" title="Refresh room list">
-        <img src="/assets/images/refresh.svg" alt="" srcset="">
+        <img src="assets/images/refresh.svg" alt="" srcset="">
       </button>
       <button *ngIf="user" (click)="createRoom()" title="Create room">
-        <img src="/assets/images/tree-unfold.svg" alt="" srcset="">
+        <img src="assets/images/tree-unfold.svg" alt="" srcset="">
       </button>
       <button *ngIf="user && isAdmin()" (click)="getAllRooms()" title="Print all existing rooms to console">
-        <img src="/assets/images/info-ico.svg" alt="" srcset="">
+        <img src="assets/images/info-ico.svg" alt="" srcset="">
       </button>
     </div>
     <div class="main-section">
@@ -25,16 +25,16 @@
           <span title="{{getDisplayRoomId(room.roomId)}}">{{getDisplayRoomId(room.roomId) + (isActiveRoom(room.roomId) ? " (Active)" : "")}}</span>
           <div class="button-group">
             <button *ngIf="user && !isActiveRoom(room.roomId)" (click)="joinRoom(room.roomId)" class="btn" title="Join room">
-              <img src="/assets/images/join-room.svg" alt="Join" srcset="">
+              <img src="assets/images/join-room.svg" alt="Join" srcset="">
             </button>
             <button *ngIf="user && isActiveRoom(room.roomId)" (click)="leaveRoom()" class="btn" title="Leave room">
-              <img src="/assets/images/leave-room.svg" alt="Leave" srcset="">
+              <img src="assets/images/leave-room.svg" alt="Leave" srcset="">
             </button>
             <button *ngIf="user && isAdmin() && hasMarkupForRoom(room.roomId)" (click)="deleteMarkupsForRoom(room.roomId)" class="btn" title="Delete markups for room">
-              <img src="/assets/images/clean-room.svg" alt="Clear" srcset="">
+              <img src="assets/images/clean-room.svg" alt="Clear" srcset="">
             </button>
             <button *ngIf="user && isAdmin() && !isDefaultRoom(room.roomId)" (click)="deleteRoom(room.roomId)" class="btn" title="Delete room">
-              <img src="/assets/images/trash-ico.svg" alt="Delete" srcset="">
+              <img src="assets/images/trash-ico.svg" alt="Delete" srcset="">
             </button>
           </div>
         </li>
@@ -54,10 +54,10 @@
             <!-- <div *ngIf="socketId && participant.socketId == socketId" class="button-group"> -->
             <div *ngIf="socketId && participant.socketId == socketId && !isDefaultRoom(activeRoomId)" class="button-group">              
               <button *ngIf="!participant.isPresenter" (click)="openPresenterConfirmDialog()" class="btn" title="Start presenting">
-                <img src="/assets/images/presenter.svg" alt="Presenter on" srcset="">
+                <img src="assets/images/presenter.svg" alt="Presenter on" srcset="">
               </button>
               <button *ngIf="participant.isPresenter" (click)="removeRoomPresenter(activeRoomId)" class="btn" title="Stop presenting">
-                <img src="/assets/images/presenter_off.svg" alt="Stop presenting" srcset="">
+                <img src="assets/images/presenter_off.svg" alt="Stop presenting" srcset="">
               </button>
             </div>
           </li>
@@ -70,7 +70,7 @@
 <rx-modal-dialog [opened]="presenterConfirmDialogOpen" (onClose)="presenterConfirmDialogOpen = false">
   <div class="confirm-modal-container" style="max-width: fit-content;">
     <div class="rx-modal-dialog-header">
-      <img (click)="presenterConfirmDialogOpen = false;" class="close" style="right: 14px; top: 10px;" src="/assets/images/close-modal-ico.svg" />
+      <img (click)="presenterConfirmDialogOpen = false;" class="close" style="right: 14px; top: 10px;" src="assets/images/close-modal-ico.svg" />
       <span class="title">Room Presenter</span>
     </div>
     <div class="body">

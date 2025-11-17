@@ -12,14 +12,20 @@ export interface IGuiConfig {
     canSignature?: boolean;
     disableImages?: boolean;
     disableSymbol?: boolean;
+    disableScaling?: boolean;
     disableLinks?: boolean;
     disableSignature?: boolean;    
     canFileOpen?: boolean;
+    alwaysShowScaling?: boolean;
     canCompare?: boolean;
     canPrint?: boolean;
     canExport?: boolean;
     canSaveFile?: boolean;
     canGetFileInfo?: boolean;
+
+    disableImportXFDFButton?: boolean;
+    disableExportXFDFButton?: boolean;
+
     disableSideNavMenu?: boolean;
     disableTopNavMenu?: boolean;
     disableBurgerMenuCompare?: boolean;
@@ -46,6 +52,7 @@ export interface IGuiConfig {
     disableMarkupNoteButton?: boolean;
     disableMarkupLockButton?: boolean;
     disableMarkupUndoRedoButtons?: boolean;
+    disableNoScaleButton?: boolean;
     disableBottomToolbar?: boolean;
     disableBirdEyeButton?: boolean;
     disableReset3DModelButton?: boolean;

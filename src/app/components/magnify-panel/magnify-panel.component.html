@@ -1,0 +1,16 @@
+<rx-panel
+  class="magnify-panel"
+  title="Magnified View"
+  [class.hidden]="!isVisible"
+  (onClose)="close()"
+>
+  <div class="canvas-container" [ngStyle]="{'width.px': width, 'height.px': height}">
+    <canvas #magnifierCanvas [width]="width" [height]="height"></canvas>
+    <canvas #magnifierOverlay [width]="width" [height]="height" class="overlay"></canvas>
+  </div>
+
+  <div class="controls">
+    <button (click)="zoomOut()">−</button>
+    <button (click)="zoomIn()">+</button>
+  </div>
+</rx-panel>

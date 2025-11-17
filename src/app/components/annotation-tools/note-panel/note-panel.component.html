@@ -8,7 +8,7 @@
   <div class="note-panel-container">
     <div class="header-section">
       <!-- <div class="search">
-        <img src="/assets/images/search-ico.svg" />
+        <img src="assets/images/search-ico.svg" />
         <input
           type="text"
           placeholder="Search for comments..."
@@ -38,7 +38,7 @@
         >
         </rx-dropdown>
         <img
-          src="/assets/images/filter-ico.svg"
+          src="assets/images/filter-ico.svg"
           role="button"
           [class.active]="isFilterActive"
           (click)="filterVisible = !filterVisible"
@@ -253,7 +253,7 @@
                                 {{ item.timestamp | date: (guiConfig$ | async)?.dateFormat?.dateTimeWithoutYear }}
                               </div>
                               <div class="comments-count">
-                                <img src="/assets/images/comment-ico.svg" />{{
+                                <img src="assets/images/comment-ico.svg" />{{
                                   item.GetComments().length
                                 }}
                               </div>
@@ -263,7 +263,7 @@
                           </div>
                           <div style="flex: 1"></div>
                           <div *ngIf="(guiConfig$ | async)?.showmarkupZoom" (click)="zoomTo(item)">                            
-                            <img src="/assets/images/zoom-window-ico.svg" />
+                            <img src="assets/images/zoom-window-ico.svg" />
                           </div>
                           <div style="flex: 1"></div>
                           <div
@@ -299,7 +299,7 @@
                             (click)="onHideComment($event, item.markupnumber)"
                           >
                             <img
-                              src="/assets/images/arrow-down.svg"
+                              src="assets/images/arrow-down.svg"
                               alt="icon"
                             />
                             <span class="tooltip-text tooltip-left">Hide</span>
@@ -336,7 +336,7 @@
                                   item.markupnumber !== activeMarkupNumber
                                 "
                               >
-                                <img src="/assets/images/comment-ico.svg" />{{
+                                <img src="assets/images/comment-ico.svg" />{{
                                   item.GetComments().length
                                 }}
                               </div>
@@ -354,7 +354,7 @@
                             (click)="onHideComment($event, item.markupnumber)"
                           >
                             <img
-                              src="/assets/images/arrow-down.svg"
+                              src="assets/images/arrow-down.svg"
                               alt="icon"
                             />
                             <span class="tooltip-text tooltip-left">Hide</span>
@@ -363,14 +363,14 @@
 
                         <div class="comments-controls">
                           <img
-                            src="/assets/images/pen-ico.svg"
+                            src="assets/images/pen-ico.svg"
                             role="button"
                             (click)="
                               OnEditComment($event, item.markupnumber, itemNote)
                             "
                           />
                           <img
-                            src="/assets/images/trash-ico.svg"
+                            src="assets/images/trash-ico.svg"
                             role="button"
                             (click)="
                               OnRemoveComment($event, item, itemNote.id, i)
@@ -393,7 +393,7 @@
                       [(ngModel)]="note[item.markupnumber]"
                     />
                     <img
-                      src="/assets/images/redo-ico.svg"
+                      src="assets/images/redo-ico.svg"
                       role="button"
                       [class.disabled]="!note[item.markupnumber]"
                       (click)="note[item.markupnumber] && onAddNote(item)"

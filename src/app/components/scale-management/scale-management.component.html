@@ -23,7 +23,7 @@
 
   <div class="add-scale-section">
     <button class="add-scale-button" (click)="addNewScale()">
-      <img src="/assets/images/tree-unfold.svg" alt="Add" />
+      <img src="assets/images/tree-unfold.svg" alt="Add" />
       Add New Scale
     </button>
   </div>
@@ -130,7 +130,7 @@
           </div>
           
           <div class="conflict-warning" *ngIf="hasConflictingScales()">
-            <img src="/assets/images/warning-ico.svg" alt="Warning" />
+            <img src="assets/images/warning-ico.svg" alt="Warning" />
             <span>This may conflict with existing scales on some pages</span>
           </div>
         </div>
@@ -172,13 +172,13 @@
         <div class="table-cell">
           <div class="action-buttons">
             <button class="action-btn apply-btn" (click)="applyScale(scale)" title="Apply scale">
-              <img src="/assets/images/check-ico.svg" alt="Apply" />
+              <img src="assets/images/check-ico.svg" alt="Apply" />
             </button>
             <button class="action-btn edit-btn" (click)="editScale(scale)" title="Edit scale">
-              <img src="/assets/images/edit-ico.svg" alt="Edit" />
+              <img src="assets/images/edit-ico.svg" alt="Edit" />
             </button>
             <button class="action-btn delete-btn" (click)="deleteScale(scale)" title="Delete scale">
-              <img src="/assets/images/trash-ico.svg" alt="Delete" />
+              <img src="assets/images/trash-ico.svg" alt="Delete" />
             </button>
           </div>
         </div>
@@ -188,12 +188,12 @@
 
   <div class="empty-state" *ngIf="scales.length === 0 && !isAddingNewScale">
     <div class="empty-icon">
-      <img src="/assets/images/annotation-ico.svg" alt="No scales" />
+      <img src="assets/images/annotation-ico.svg" alt="No scales" />
     </div>
     <h3>No scales defined</h3>
     <p>Create your first scale to get started with accurate measurements.</p>
     <button class="add-scale-button" (click)="addNewScale()">
-      <img src="/assets/images/tree-unfold.svg" alt="Add" />
+      <img src="assets/images/tree-unfold.svg" alt="Add" />
       Add Your First Scale
     </button>
   </div>

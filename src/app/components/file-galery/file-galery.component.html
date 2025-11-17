@@ -6,7 +6,7 @@
     </ul>
     <div class="main-content">
         <div class="rx-modal-dialog-header">
-            <img class="close" src="/assets/images/close-modal-ico.svg" (click)="handleCloseModalFileGalery()" />
+            <img class="close" src="assets/images/close-modal-ico.svg" (click)="handleCloseModalFileGalery()" />
             <span class="title">FILE GALLERY</span>
         </div>
         <div [ngSwitch]="leftTabActiveIndex" style="height: 91%;">
@@ -55,7 +55,7 @@
                             onclick="this.value = null;"
                             #fileToUpload
                             (change)="handleFileUpload($event)" />
-                        <img src="/assets/images/files-img.svg" />
+                        <img src="assets/images/files-img.svg" />
                         <p class="dnd-text">Drag & drop a file here or</p>
                         <span class="dnd-choose">CHOOSE FILE</span>
                     </div>
@@ -77,8 +77,8 @@
                 <ng-template #fileUploadProgress>
                     <div *ngIf="selectedFileName" class="container-file-upload">
                         <div class="info-file-gallery">
-                            <img *ngIf="!isUploadFile" class="close"  src="/assets/images/close-modal-ico.svg" (click)="clearData()" />
-                            <div class="file"><img src="/assets/images/file-ico.svg" /></div>
+                            <img *ngIf="!isUploadFile" class="close"  src="assets/images/close-modal-ico.svg" (click)="clearData()" />
+                            <div class="file"><img src="assets/images/file-ico.svg" /></div>
                             <div class="selected-file">
                                 <div class="name">{{ selectedFileName }}</div>
                                 <div class="size">{{ fileSize + ' ' + fileSizeUnits }} </div>

@@ -110,7 +110,7 @@ function addfoxitiframe(divid, container){
 
     iframe.setAttribute("id", divid);
 
-    iframe.src = '/assets/html/foxpage.html';
+    iframe.src = 'assets/html/foxpage.html';
 
     RxCore.getdivcontainer().insertBefore(iframe, container);
 }

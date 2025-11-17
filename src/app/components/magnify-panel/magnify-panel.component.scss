@@ -1,0 +1,66 @@
+:host {
+    display: block;
+  }
+  
+  rx-panel.magnify-panel {
+    position: fixed;
+    bottom: 60px;
+    right: 60px;
+    width: 320px;
+    height: 280px; /* Overall panel size */
+    z-index: 1000;
+    transition: transform 0.3s ease;
+  }
+  
+  rx-panel.magnify-panel.hidden {
+    display: none;  /* Hide the panel when it's not visible */
+  }
+  
+  .canvas-container {
+    position: relative;
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #111;
+    overflow: hidden;
+    height: 200px; /* Height for the magnify viewport */
+  }
+  
+  canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 300px;
+    height: 200px;
+  }
+  
+  canvas.overlay {
+    pointer-events: none;
+  }
+  
+  .controls {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    padding: 6px;
+    background: #222;
+    border-top: 1px solid #444;
+  
+    button {
+      width: 28px;
+      height: 28px;
+      font-size: 16px;
+      border: none;
+      background: #333;
+      color: #fff;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.2s;
+  
+      &:hover {
+        background: #555;
+      }
+    }
+  }
+  

@@ -2,7 +2,7 @@
     <div class="search-panel-container">
         <div class="header-section">
             <div class="search">
-                <img src="/assets/images/search-ico.svg" />
+                <img src="assets/images/search-ico.svg" />
                 <input type="text" id="search" placeholder="Search for text..." [(ngModel)]="search" autocomplete="off"/>
                 <span class="btn-close" (click)="onReset()" *ngIf="search !== ''">&times;</span>
             </div>
@@ -18,9 +18,9 @@
         <div class="search-toolbar-section">
             <span>{{searchNumMatches}} matches found</span>
             <div>
-                <img src="/assets/images/arrow-down.svg" style="rotate: 90deg;" [class.disabled]="searchCurrentMatches === 0"
+                <img src="assets/images/arrow-down.svg" style="rotate: 90deg;" [class.disabled]="searchCurrentMatches === 0"
                     (click)="onTextSearchNavigate(false)" />
-                <img src="/assets/images/arrow-down.svg" style="rotate: -90deg;"
+                <img src="assets/images/arrow-down.svg" style="rotate: -90deg;"
                     [class.disabled]="searchCurrentMatches == searchNumMatches" (click)="onTextSearchNavigate(true)" />
             </div>
         </div>

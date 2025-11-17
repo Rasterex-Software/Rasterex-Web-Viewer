@@ -17,6 +17,7 @@ import { LoginService } from './services/login.service';
 import { MeasurePanelService } from './components/annotation-tools/measure-panel/measure-panel.service';
 import { RouterModule } from '@angular/router';
 import { IVectorLayer } from 'src/rxcore/models/IVectorLayer';
+import { MagnifyService } from './services/magnify.service';
 
 
 
@@ -51,6 +52,8 @@ export class AppComponent implements AfterViewInit {
   bfoxitreadycalled : boolean = false;
   bguireadycalled : boolean = false;
   binitfileopened : boolean = false;
+  viewerReadySent : boolean = false;
+
   timeoutId: any;
   isUploadFile: boolean = false;
   pasteStyle: { [key: string]: string } = { display: 'none' };
@@ -69,6 +72,7 @@ export class AppComponent implements AfterViewInit {
     private readonly collabService: CollabService,  
     private readonly annotationStorageService: AnnotationStorageService,
     private readonly measurePanelService: MeasurePanelService,
+    private magnifyService: MagnifyService,
     private titleService:Title,
     private el: ElementRef) { }
     
@@ -190,6 +194,8 @@ export class AppComponent implements AfterViewInit {
 
 
     RXCore.initialize({ offsetWidth: 0, offsetHeight: 0});
+
+    //RXCore.initializeMagnifier();
 
     RXCore.onGui2DBlock((block: IVectorBlock) => {
 
@@ -428,7 +434,9 @@ export class AppComponent implements AfterViewInit {
       RXCore.setdisplayBackground(document.documentElement.style.getPropertyValue("--background") || '#D6DADC');
       RXCore.setrxprintdiv(document.getElementById('printdiv'));
 
-      this.openInitFile(initialDoc);  
+      this.checkIfFullyReady(initialDoc);
+
+      
 
     });
 
@@ -437,13 +445,14 @@ export class AppComponent implements AfterViewInit {
 
       this.bfoxitreadycalled = true;
       
-      if(this.bguireadycalled){
-        this.openInitFile(initialDoc);
-      }
+      this.checkIfFullyReady(initialDoc);
 
       this.rxCoreService.guiFoxitReady.next();
 
     });
+
+
+        
 
     RXCore.onGuiState((state: any) => {
       //console.log('RxCore GUI_State:', state);
@@ -480,6 +489,13 @@ export class AppComponent implements AfterViewInit {
 
 
     });
+
+
+
+    RXCore.onGuiMagnify((active: boolean) => {
+      this.magnifyService.toggle(active);
+    });
+
 
     RXCore.onGuiFileLoadComplete(() => {
       console.log('RxCore onGuiFileLoadComplete:');
@@ -556,6 +572,10 @@ export class AppComponent implements AfterViewInit {
     RXCore.onGuiMarkup((annotation: any, operation: any) => {
       //console.log('RxCore GUI_Markup:', annotation, operation);
       if (annotation !== -1 || this.rxCoreService.lastGuiMarkup.markup !== -1) {
+
+        if (operation.created) {
+          RXCore.useFixedScale(true);
+        }
         
         if (annotation !== -1 && (this.isCollaborate() || this.isStorageAnnotation())) {
           if (operation.created) {
@@ -1183,6 +1203,20 @@ export class AppComponent implements AfterViewInit {
 
         });
       }
+    }
+  }
+
+  private checkIfFullyReady(initialDoc: any): void {
+    if (this.bguireadycalled && this.bfoxitreadycalled && !this.viewerReadySent) {
+      this.viewerReadySent = true; // prevent duplicates
+
+      this.openInitFile(initialDoc);
+
+      this.rxCoreService.fullyReady.next();
+  
+      console.log('[Viewer] RxCore + Foxit fully ready — notifying host');
+  
+      // Use the same postMessage mechanism as before
     }
   }
 

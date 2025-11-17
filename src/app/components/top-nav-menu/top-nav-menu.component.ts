@@ -132,6 +132,10 @@ export class TopNavMenuComponent implements OnInit {
 
     this.selectedValue = option ? option : this.options[0];
     this.annotationToolsService.setSelectedOption(this.selectedValue);
+
+
+
+
   }
 
   get visibleOptionsCount(): number {
@@ -141,6 +145,8 @@ export class TopNavMenuComponent implements OnInit {
   ngOnInit(): void {
     this.handleIconRotation();
     this._setOptions();
+
+
 
     this.service.customButtons$.subscribe(btns => {
       this.customButtons = btns;
@@ -206,7 +212,9 @@ export class TopNavMenuComponent implements OnInit {
       if (file && (!this.currentFile || this.currentFile.index !== file.index)) {
         this.currentFile = file;
         const newfilevalue = this.options.find(option => option.value == "view");
+
         this.onModeChange(newfilevalue, false);
+
         this.updateScalesForCurrentFile();
       }
 
@@ -244,6 +252,7 @@ export class TopNavMenuComponent implements OnInit {
 
       const newfilevalue = this.options.find(option => option.value == "view");
       this.onModeChange(newfilevalue, false);
+
 
 
     });
@@ -619,6 +628,7 @@ export class TopNavMenuComponent implements OnInit {
           canExport: false,
           canPrint: false,
           canGetFileInfo: false,
+          disableScaling: !this.guiConfig.alwaysShowScaling,
           disableBurgerMenuCompare: true,
           disableBirdEyeButton: true,
           disableRotateButton: true,
@@ -628,6 +638,9 @@ export class TopNavMenuComponent implements OnInit {
           disableMarkupTextButton: true,
           disableMarkupCalloutButton: true,
           disableMarkupStampButton: true,
+          disableNoScaleButton: true,
+          disableImportXFDFButton : true,
+          disableExportXFDFButton : true,
           disableMarkupPaintButton: true,
           disableMarkupArrowButton: true,
           disableMarkupMeasureButton: true,
@@ -651,6 +664,7 @@ export class TopNavMenuComponent implements OnInit {
 
         if (this.compareService.isComparisonActive) {
           this.rxCoreService.setGuiConfig({
+            disableScaling: !this.guiConfig.alwaysShowScaling,
             canCompare: true,
             canSignature: false,
             canAnnotate: true,
@@ -693,6 +707,7 @@ export class TopNavMenuComponent implements OnInit {
               disableMarkupCalloutButton: true,
               disableMarkupEraseButton: true,
               disableMarkupNoteButton: true,
+              disableScaling: false,
               //disableMarkupShapeRectangleButton: true,
               //disableMarkupShapeEllipseButton: true,
               //disableMarkupShapeRoundedRectangleButton: true,
@@ -723,6 +738,7 @@ export class TopNavMenuComponent implements OnInit {
   
           } else if(option.value === 'annotate'){
             this.rxCoreService.setGuiConfig({
+              disableScaling: !this.guiConfig.alwaysShowScaling,
               disableMarkupTextButton: false,
               disableMarkupCalloutButton: false,
               disableMarkupEraseButton: false,
@@ -744,7 +760,11 @@ export class TopNavMenuComponent implements OnInit {
             });
 
           }else{
+
             this.rxCoreService.resetGuiConfig();
+
+
+
           }
   
 
@@ -754,6 +774,15 @@ export class TopNavMenuComponent implements OnInit {
 
       this.annotationToolsService.show();
     } else {
+
+
+      
+        this.rxCoreService.setGuiConfig({
+          disableScaling: !this.guiConfig.alwaysShowScaling
+        });
+  
+      
+
       this.annotationToolsService.hide();
     }
 

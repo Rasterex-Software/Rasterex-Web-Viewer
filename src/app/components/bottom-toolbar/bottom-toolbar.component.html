@@ -91,7 +91,7 @@
                     <span class="tooltip-text tooltip-top">Cross Section</span>
                 </li>
                 <!--  <li *ngIf="!(guiConfig$ | async).disableCreateViewButton && (guiState$ | async).is3D" class="tooltip">
-                    <img src="/assets/images/create-view-ico.svg" />
+                    <img src="assets/images/create-view-ico.svg" />
                     <span class="tooltip-text tooltip-top">Create view</span>
                 </li> -->
                 <!-- <li *ngIf="!(guiConfig$ | async).disableExplode3DModelButton || !(guiConfig$ | async).disableTransparency3DModelButton || !(guiConfig$ | async).disableClipping3DModelButton" class="separator"></li> -->
@@ -99,7 +99,7 @@
             </ng-container>
 
             <ng-container *ngIf="!(guiState$ | async).is3D">
-                <li *ngIf="!(guiState$ | async).isPDF && !(guiConfig$ | async)?.disableMagnifyingGlassButton" (click)="onActionSelect('MAGNIFY')" [class.selected]="state.isActionSelected['MAGNIFY']" class="tooltip">
+                <li *ngIf="!(guiConfig$ | async)?.disableMagnifyingGlassButton" (click)="onActionSelect('MAGNIFY')" [class.selected]="state.isActionSelected['MAGNIFY']" class="tooltip">
                     <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M17.109 16.2237L14.1523 13.267C15.0723 12.1512 15.6257 10.722 15.6257 9.16536C15.6257 5.60453 12.7282 2.70703 9.16732 2.70703C5.60648 2.70703 2.70898 5.60453 2.70898 9.16536C2.70898 12.7262 5.60648 15.6237 9.16732 15.6237C10.7232 15.6237 12.1523 15.0704 13.269 14.1504L16.2256 17.107C16.3473 17.2287 16.5073 17.2904 16.6673 17.2904C16.8273 17.2904 16.9873 17.2295 17.109 17.107C17.3532 16.8629 17.3532 16.4679 17.109 16.2237ZM3.95898 9.16536C3.95898 6.2937 6.29565 3.95703 9.16732 3.95703C12.039 3.95703 14.3757 6.2937 14.3757 9.16536C14.3757 12.037 12.039 14.3737 9.16732 14.3737C6.29565 14.3737 3.95898 12.037 3.95898 9.16536Z" fill="#333C4E"/>
                     </svg>
@@ -359,6 +359,8 @@
             </div>
     </rx-panel>
 
+    <rx-magnify-panel></rx-magnify-panel>
+
     <rx-panel
         *ngIf="state.isActionSelected['SEARCH_TEXT']"
         class="search-text-panel"
@@ -385,12 +387,12 @@
                     <span>{{searchNumMatches}} matches found</span>
                     <div>
                         <img
-                            src="/assets/images/arrow-down.svg"
+                            src="assets/images/arrow-down.svg"
                             style="rotate: 90deg;"
                             [class.disabled]="searchCurrentMatch < 2"
                             (click)="onTextSearchNavigate(false)" />
                         <img
-                            src="/assets/images/arrow-down.svg"
+                            src="assets/images/arrow-down.svg"
                             style="rotate: -90deg;"
                             [class.disabled]="searchCurrentMatch == searchNumMatches"
                             (click)="onTextSearchNavigate(true)"/>

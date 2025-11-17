@@ -8,7 +8,7 @@
     (click)="opened = !opened"
   >
     <span class="value">{{ selectedScaleLabel }}</span>
-    <img src="/assets/images/arrow-down.svg" class="btn-dropdown" />
+    <img src="assets/images/arrow-down.svg" class="btn-dropdown" />
   </div>
   <div *ngIf="opened" class="options-container">
     <div class="options-wrapper">
@@ -29,7 +29,7 @@
             class="delete-item"
           >
             <img
-              src="/assets/images/trash-ico.svg"
+              src="assets/images/trash-ico.svg"
               height="22"
               class="trash-icon"
             />
@@ -39,14 +39,14 @@
             <div *ngIf="selectedScale" class="option" (click)="onEditScale()">
                 <div class="edit-scale-trigger" title="Edit scale">
                   <div class="edit-scale-icon">
-                    <img src="/assets/images/edit-ico.svg" /> Edit Selected
+                    <img src="assets/images/edit-ico.svg" /> Edit Selected
                   </div>
                 </div>
               </div>
               <div class="option" (click)="showScaleSettings()">
                 <div class="add-scale-trigger" title="Add new scale">
                   <div class="add-scale-icon">
-                    <img src="/assets/images/tree-unfold.svg" /> Add New
+                    <img src="assets/images/tree-unfold.svg" /> Add New
                   </div>
                 </div>
               </div>

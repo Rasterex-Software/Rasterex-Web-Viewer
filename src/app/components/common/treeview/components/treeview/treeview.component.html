@@ -32,7 +32,7 @@
   let-onCollapseExpand="onCollapseExpand"
   let-onCheckedChange="onCheckedChange">
   <div class="row-item" [ngStyle]="{'padding-left.px': 10*level }">
-    <img [class.collapsed]="item.collapsed" *ngIf="item.children" src="/assets/images/arrow-down.svg" (click)="onCollapseExpand()" />
+    <img [class.collapsed]="item.collapsed" *ngIf="item.children" src="assets/images/arrow-down.svg" (click)="onCollapseExpand()" />
     <div class="form-check">
       <input
         type="checkbox"

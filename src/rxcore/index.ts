@@ -5,11 +5,12 @@ import { IPageThumb } from "./models/IPageThumb";
 import { IVectorBlock } from "./models/IVectorBlock";
 import { IVectorLayer } from "./models/IVectorLayer";
 import { ISignatureData } from "./models/ISignatures";
+import { IMagnifier } from './models/IMagnifier';
 
 declare var RxCore: any;
 declare var RxConfig: any;
 declare var UIConfig: any;
-
+//declare const MagnifierController: new () => IMagnifier;
 
 
 export class RXCore {
@@ -215,8 +216,42 @@ export class RXCore {
     }
 
 
+    //private static _magnifier: IMagnifier | null = null;
+
+    /*public static initializeMagnifier(): void {
+        if (!this._magnifier) {
+            this._magnifier = new MagnifierController();
+        }
+    }*/
+
+    /** Expose as read-only */
+    /*public static get magnifier(): IMagnifier {
+        if (!this._magnifier) {
+            this.initializeMagnifier();
+        }
+        return this._magnifier!;
+    }*/
+
+
+    public static get magnifier(): IMagnifier {
+        return RxCore.magnifier;
+    }
+
+
     public static magnifyGlass(onoff: boolean): void {
         RxCore.magnifyGlass(onoff);
+    }
+
+    public static setMagnifyContext(extmagctx : CanvasRenderingContext2D , width : number, height: number): void {
+        RxCore.setMagnifyContext(extmagctx, width, height);
+    }
+
+    public static resetMagnifyContext(): void {
+        RxCore.resetMagnifyContext();
+    }
+
+    public static setMagnificationScale(bup : boolean): void {
+        RxCore.setMagnificationScale(bup);
     }
 
     public static getVectorEntity(onoff: boolean): void {
@@ -1161,6 +1196,10 @@ export class RXCore {
 
     public static onGuiMarkup(callback: Function): void {
         RxCore.GUI_Markup.connect(callback);
+    }
+
+    public static onGuiMagnify(callback: Function): void {
+        RxCore.GUI_Magnify.connect(callback);
     }
 
     public static onGuiMarkupLoadComplete(callback: (markups : any, fileindex : any, activefile : any)=> void): void {

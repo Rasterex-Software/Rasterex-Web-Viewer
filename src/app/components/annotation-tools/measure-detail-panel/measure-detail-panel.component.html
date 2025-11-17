@@ -16,7 +16,7 @@
                   measureData.type === MARKUP_TYPES.MEASURE.PATH.type ||
                   showScaleDropdownOnStartDrawing === true">
               <div class="scale-dropdown-section" [ngClass]="{'d-block': scalesOptions.length > 0, 'd-flex': scalesOptions.length === 0}">
-                <span *ngIf="scalesOptions !== undefined && scalesOptions.length === 0" (click)="onScaleChanged(null)" class="scale-not-set">Scale Not Set <img src="/assets/images/arrow-down.svg" class="btn-dropdown" /></span>
+                <span *ngIf="scalesOptions !== undefined && scalesOptions.length === 0" (click)="onScaleChanged(null)" class="scale-not-set">Scale Not Set <img src="assets/images/arrow-down.svg" class="btn-dropdown" /></span>
 
                 <rx-scale-dropdown
                   class="select-scale"

@@ -122,7 +122,7 @@ export class SignatureComponent implements OnInit {
           rect,
           currentpage,
           {
-            src: "/assets/images/sign-here.svg",
+            src: "assets/images/sign-here.svg",
             width: 148 * pgscale,
             height: 42 * pgscale,
             orgwidth: 148,

@@ -8,7 +8,7 @@
         (click)="handleDropdown()">
             <span *ngIf="value; else placeholderTemplate" class="value" [innerHTML]="(value || {})[displayField]"></span>
             <ng-template #placeholderTemplate><span class="value placeholder">{{placeholder}}</span></ng-template>
-            <img src="/assets/images/arrow-down.svg" class="btn-dropdown" />
+            <img src="assets/images/arrow-down.svg" class="btn-dropdown" />
     </div>
     <div *ngIf="opened" class="options-container">
         <div
@@ -27,7 +27,7 @@
 
                     <div class="option-item">
                         <span [innerHTML]="item?.label"></span>
-                        <img *ngIf="item.imgSrc" [src]='"/assets/images/" + item.imgSrc' class="btn-dropdown" />
+                        <img *ngIf="item.imgSrc" [src]='"assets/images/" + item.imgSrc' class="btn-dropdown" />
                     </div>
 
                 </li>

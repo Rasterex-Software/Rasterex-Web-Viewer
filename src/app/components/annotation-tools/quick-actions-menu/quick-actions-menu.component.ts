@@ -135,7 +135,7 @@ export class QuickActionsMenuComponent implements OnInit, OnDestroy {
     }
 
     //<li *ngIf="annotation.type == 20 && (canUpdateAnnotation | async)" (click)="onRedirectClick()">
-    //<img src="/assets/images/link.svg"  />
+    //<img src="assets/images/link.svg"  />
 
     if(this.annotation.type == 20 && this.canUpdateAnnotation){
       this.redirectButton = true;

@@ -29,7 +29,7 @@ export class RxCoreService {
       canCompare: true,
       canSignature: true,
       canConsolidate: true,
-      logoUrl: "/assets/images/logo.svg"
+      logoUrl: "assets/images/logo.svg"
     };
 
     
@@ -75,6 +75,10 @@ export class RxCoreService {
   }
 
 
+  public fullyReady: Subject<void> = new Subject<void>();
+  public fullyReady$: Observable<void> = this.fullyReady.asObservable();
+
+
   public guiFoxitReady: Subject<void> = new Subject<void>();
   public guiFoxitReady$: Observable<void> = this.guiFoxitReady.asObservable();
 
@@ -107,6 +111,21 @@ export class RxCoreService {
   }
 
   }*/
+
+
+  private _usePreselect = new BehaviorSubject<boolean>(false);
+  public usePreselect$ = this._usePreselect.asObservable();
+
+  public setUsePreselect(enabled: boolean): void {
+    this._usePreselect.next(enabled);
+    console.log('[RxCoreService] usePreselect set to', enabled);
+  }
+
+  // Optional getter for convenience
+  public get usePreselect(): boolean {
+    return this._usePreselect.value;
+  }
+
 
 
   public guiPage: Subject<any> = new Subject<any>();

@@ -6,7 +6,7 @@
         </ul>
         <div class="body">
             <div class="rx-modal-dialog-header">
-                <img class="close" src="/assets/images/close-modal-ico.svg" (click)="close()" />
+                <img class="close" src="assets/images/close-modal-ico.svg" (click)="close()" />
                 <span class="title">{{visible === 'INSERT' ? "Insert New Page(s)" : "Replace Page(s)"}}</span>
             </div>
             <div [ngSwitch]=" leftTabIndex">
@@ -15,7 +15,7 @@
                         <div class="dnd-content" (click)="onChooseClick()">
                             <input type="file" style="display: none;" id="fileToUpload" onclick="this.value = null;" #fileToUpload
                                 (change)="handleFileUpload($event)" />
-                            <img src="/assets/images/files-img.svg" />
+                            <img src="assets/images/files-img.svg" />
                             <p class="dnd-text">Drag & drop a file here or</p>
                             <span class="dnd-choose">CHOOSE ON COMPUTER</span>
                         </div>
@@ -33,13 +33,13 @@
                         <div *ngIf="selectedFileName" class="container-file-upload">
                             <div class="info-file-gallery"> 
                                 <div class="file">
-                                    <img src="/assets/images/file-ico.svg" />
+                                    <img src="assets/images/file-ico.svg" />
                                     <div class="selected-file">
                                         <div class="name">{{ selectedFileName }}</div>
                                         <div class="size">{{ fileSize + ' ' + fileSizeUnits }} </div>
                                     </div>
                                 </div>
-                                <img *ngIf="!isUploadFile" class="close" src="/assets/images/close-modal-ico.svg" (click)="clearData()" />
+                                <img *ngIf="!isUploadFile" class="close" src="assets/images/close-modal-ico.svg" (click)="clearData()" />
                             </div>
                             <div class="btn-file-gallery">
                                 <button *ngIf="!isUploadFile" class="btn btn-light" (click)="clearData()">CANCEL</button>
@@ -131,7 +131,7 @@
                 </svg>
                 <span class="title">Select Pages to {{visible === 'INSERT' ? "Insert" : "Replace"}} ({{selectedCount()}})</span>
             </div>
-            <img class="close" src="/assets/images/close-modal-ico.svg" (click)="close()" />
+            <img class="close" src="assets/images/close-modal-ico.svg" (click)="close()" />
         </div>
         <div class="body">
             <div class="group" *ngIf="visible ===  'INSERT'">

@@ -25,13 +25,13 @@
                                     [class.active]="!isSelectedCalibrate"
                                     [disabled]="!isSelectedCalibrate"
                                     (click)="onCalibrateCheckedChange(false)">
-                                <img src="/assets/images/select-text-ico.svg" />
+                                <img src="assets/images/select-text-ico.svg" />
                                 <span class="button-label">Manual Scale</span>
                             </button>
                             <button class="scale-settings__mode-button" 
                                     [class.active]="isSelectedCalibrate"
                                     (click)="onCalibrateButtonClick()">
-                                <img src="/assets/images/measure-length-no-arrow-ico.svg"/>
+                                <img src="assets/images/measure-length-no-arrow-ico.svg"/>
                                 <span class="button-label">Calibrate</span>
                             </button>
                         </div>
@@ -91,7 +91,7 @@
                                     <div class="scale-settings__input-unit-container scale-settings__input-container--border-radius-left">
                                         <div #scaleUnitTrigger class="scale-settings__input-unit-container-trigger" (click)="this.isScaleUnitOpened = !this.isScaleUnitOpened">
                                             {{selectedMetricUnit.shortLabel}}
-                                            <img src="/assets/images/arrow-down.svg" class="btn-dropdown" />
+                                            <img src="/ssets/images/arrow-down.svg" class="btn-dropdown" />
                                         </div>
                                         <div #scaleUnitDropdown class="scale-settings__input-unit-container-dropdown top right" *ngIf="isScaleUnitOpened">
                                             <ul class="options-list">
@@ -127,7 +127,7 @@
                                     <div class="scale-settings__input-unit-container scale-settings__input-container--border-radius-left">
                                         <div #scaleUnitTrigger class="scale-settings__input-unit-container-trigger" (click)="this.isScaleUnitOpened = !this.isScaleUnitOpened">
                                             {{selectedMetricUnit.shortLabel}}
-                                            <img src="/assets/images/arrow-down.svg" class="btn-dropdown" />
+                                            <img src="assets/images/arrow-down.svg" class="btn-dropdown" />
                                         </div>
                                         <div #scaleUnitDropdown class="scale-settings__input-unit-container-dropdown top right" *ngIf="isScaleUnitOpened">
                                             <ul class="options-list">
@@ -153,7 +153,7 @@
                                 <div class="scale-settings__input-unit-container border-left-none">
                                     <div #scaleUnitTrigger class="scale-settings__input-unit-container-trigger" (click)="onScaleUnitTriggerClick()">
                                         {{selectedMetricUnit.shortLabel}}
-                                        <img src="/assets/images/arrow-down.svg" class="btn-dropdown" />
+                                        <img src="assets/images/arrow-down.svg" class="btn-dropdown" />
                                     </div>
                                 
                                     <div #scaleUnitDropdown class="scale-settings__input-unit-container-dropdown top right" *ngIf="isScaleUnitOpened">
@@ -176,7 +176,7 @@
                                 <div class="scale-settings__input-unit-container border-left-none">
                                     <div #fractionScaleUnitTrigger class="scale-settings__input-unit-container-trigger" (click)="onFractionScaleUnitTriggerClick()">
                                         {{selectedMetricUnitFraction.shortLabel}}
-                                        <img src="/assets/images/arrow-down.svg" class="btn-dropdown" />
+                                        <img src="assets/images/arrow-down.svg" class="btn-dropdown" />
                                     </div>
                                     <div #fractionScaleUnitDropdown class="scale-settings__input-unit-container-dropdown top right" *ngIf="isScaleUnitOpenedFraction">
                                         <ul class="options-list">
@@ -265,11 +265,11 @@
             <ng-template accordionContent>
                 <div class="btn-group" role="group">
                     <button [class.selected]="lengthMeasureType == 0" (click)="onLengthMeasureTypeChange(0)">
-                        <img src="/assets/images/measure-length-no-arrow-ico.svg" />
+                        <img src="assets/images/measure-length-no-arrow-ico.svg" />
                         <span>No arrow</span>
                     </button>
                     <button [class.selected]="lengthMeasureType == 1" (click)="onLengthMeasureTypeChange(1)">
-                        <img src="/assets/images/measure-length-ico.svg" />
+                        <img src="assets/images/measure-length-ico.svg" />
                         <span>Open Arrow</span>
                     </button>
                 </div>

@@ -15,19 +15,19 @@ export class NotificationComponent implements OnInit {
   typeInfo = {
     'info': {
       title: 'Information',
-      src: '/assets/images/inform-ico.svg'
+      src: 'assets/images/inform-ico.svg'
     },
     'error': {
       title: 'Error',
-      src: '/assets/images/error-ico.svg'
+      src: 'assets/images/error-ico.svg'
     },
     'warning': {
       title: 'Warning',
-      src: '/assets/images/warning-ico.svg'
+      src: 'assets/images/warning-ico.svg'
     },
     'success': {
       title: 'Success',
-      src: '/assets/images/success-ico.svg'
+      src: 'assets/images/success-ico.svg'
     }
   };
 

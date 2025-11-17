@@ -13,7 +13,7 @@
             "canConsolidate": true,
             "convertPDFAnnots" : true,
             "canLogin" : true,
-            "logoUrl": "/assets/images/logo.svg"
+            "logoUrl": "assets/images/logo.svg"
         
     },
     "UIStyles" : [

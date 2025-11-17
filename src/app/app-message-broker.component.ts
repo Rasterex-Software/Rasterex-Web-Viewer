@@ -7,6 +7,8 @@ import { TopNavMenuService } from './components/top-nav-menu/top-nav-menu.servic
 import { AnnotationToolsService } from './components/annotation-tools/annotation-tools.service';
 import { ColorHelper } from './helpers/color.helper';
 import { NotificationService } from './components/notification/notification.service';
+import { FileMetadataService } from './services/file-metadata.service';
+import { take } from 'rxjs/operators';
 
 @Component({
   selector: 'app-message-broker',
@@ -20,19 +22,48 @@ export class AppMessageBrokerComponent implements OnInit {
     private readonly topNavMenuService: TopNavMenuService,
     private readonly annotationToolsService : AnnotationToolsService,
     private readonly colorHelper: ColorHelper,
-    private readonly notificationService: NotificationService) { }
+    private readonly notificationService: NotificationService,
+    private fileMetadataService: FileMetadataService
+    ) { }
 
     currentPage: number = 0;
+    usePreselect : boolean = false;
 
   ngOnInit() {
+
+    
+
      if (window !== top) {
+
+
       this.rxCoreService.guiPage$.subscribe((state) => {
         this.currentPage = state.currentpage;
       });
 
+      this.rxCoreService.fullyReady$
+        .pipe(take(1))
+        .subscribe(() => {
+          console.log('[Viewer] viewerReady message sent to host');
+          parent.postMessage({
+            type: 'ViewerReady',
+            from: 'rasterex-viewer',
+            payload: { time: new Date().toISOString() },
+          }, '*');
+      });
+
+
       window.addEventListener("message", async (event) => {
         switch (event.data.type) {
 
+          case "ENABLE_PRESELECT":
+
+            this.usePreselect = true;
+            this.rxCoreService.setUsePreselect(true);
+
+            console.log('[Viewer] Pre-select mode enabled by host');
+
+
+          break;
 
           
           case "addToolbarButton": {
@@ -221,12 +252,65 @@ export class AppMessageBrokerComponent implements OnInit {
             break;
           }
 
+          case "cad:listMetadata": {
+            const { fileName } = event.data.payload || {};
+            if (!fileName) {
+              parent.postMessage({
+                type: "cad:metadataError",
+                payload: { message: "Missing file name in cad:listMetadata payload." }
+              }, "*");
+              break;
+            }
+          
+            try {
+              this.fileMetadataService.getFileMetadata(fileName).subscribe({
+                next: (metadata) => {
+                  const response = {
+                    type: "cad:metadata",
+                    payload: {
+                      filename: fileName,
+                      format: metadata.format || '',
+                      size: metadata.filesize || '', // ✅ corrected here
+                      layers: metadata.layers || [],
+                      blocks: metadata.layouts?.flatMap(l => l.blocks || []) || []
+                    }
+                  };
+          
+                  parent.postMessage(response, "*");
+                },
+                error: (err) => {
+                  parent.postMessage({
+                    type: "cad:metadataError",
+                    payload: {
+                      message: "Failed to load file metadata.",
+                      error: err?.message || err
+                    }
+                  }, "*");
+                }
+              });
+            } catch (error) {
+              parent.postMessage({
+                type: "cad:metadataError",
+                payload: { message: "Unexpected error loading metadata.", error }
+              }, "*");
+            }
+          
+            break;
+          }
+          
+          
+
           default: {
             parent.postMessage({ type: "progressEnd" }, "*");
+
+
             break;
           }
         }
       }, false);
+
+
+
     }
   }
 }

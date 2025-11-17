@@ -148,6 +148,11 @@ export class CompareComponent implements OnInit {
           if (this.alignComparison) {
             this.alignArray.push(data);
             this.topNavMenuService.selectTab.next(this.alignComparison.activeSetAs.value == 'overlay' ? this.alignComparison.activeFile : this.alignComparison.otherFile);
+
+            if (RXCore.magnifier) {
+              RXCore.magnifier.setActive(true);
+            }
+
             RXCore.compareMeasure();
             this.alignInProgress = true;
           }
@@ -155,6 +160,12 @@ export class CompareComponent implements OnInit {
         }
         case 1: {
           try {
+
+            if (RXCore.magnifier) {
+              RXCore.magnifier.setActive(false);
+            }
+
+
             this.progressMessage = "It takes a few seconds to align compare";
             this.progress = true;
 
@@ -317,6 +328,11 @@ export class CompareComponent implements OnInit {
 
   onAlignClick(): void {
     this.actionsMenuOpened = false;
+
+
+    if (RXCore.magnifier) {
+      RXCore.magnifier.setActive(true);
+    }
 
     if (window === top && !localStorage.getItem("alignFeatureTutorialChecked")) {
       this.tutorialService.show();

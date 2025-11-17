@@ -33,7 +33,7 @@
             <button title="trash" *ngIf="(canDeleteAnnotation | async) && (isLoggedIn | async)"
                     (click)="deleteStandardStamp(template.id)"
                     class="delete-button">
-              <img src="/assets/images/trash-ico.svg" />
+              <img src="assets/images/trash-ico.svg" />
             </button>
           </div>
         </div>
@@ -59,12 +59,12 @@
             class="draggable-stamp">
           <button title="edit" (click)="editCustomStamp(template.id)"
             style="border: none; background: none; cursor: pointer; padding: 0; margin-left: 8px;">
-            <img src="/assets/images/edit-ico.svg" />
+            <img src="assets/images/edit-ico.svg" />
           </button>
 
           <button title="trash" (click)="deleteCustomStamp(template.id)"
             style="border: none; background: none; cursor: pointer; padding: 0; margin-left: 8px;">
-            <img src="/assets/images/trash-ico.svg" />
+            <img src="assets/images/trash-ico.svg" />
           </button>
         </div>
       </div>
@@ -105,7 +105,7 @@
   
                 <button title="Delete stamp" (click)="deleteImageStamp(template.id)"
                         class="stamp-delete-button">
-                  <img src="/assets/images/trash-ico.svg" />
+                  <img src="assets/images/trash-ico.svg" />
                 </button>
               </div>
               <div *ngIf="template.originalFileName" 
@@ -129,10 +129,10 @@
   <div class="confirm-modal-container" id="confirmModal">
     <div class="rx-modal-dialog-header">
 
-      <img (click)="opened = false; resetEditMode()" class="close" id="close" src="/assets/images/close-modal-ico.svg" />
+      <img (click)="opened = false; resetEditMode()" class="close" id="close" src="assets/images/close-modal-ico.svg" />
       <span class="title">{{ isEditMode ? 'Edit Stamp' : 'Add Stamp' }}</span>
 
-<!--       <img (click)="opened = false;" class="close" id="close" src="/assets/images/close-modal-ico.svg" />
+<!--       <img (click)="opened = false;" class="close" id="close" src="assets/images/close-modal-ico.svg" />
       <span class="title">Add stamp</span>
  -->    
     </div>

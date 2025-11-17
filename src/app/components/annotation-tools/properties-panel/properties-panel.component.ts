@@ -475,6 +475,10 @@ export class PropertiesPanelComponent implements OnInit {
     //RXCore.changeSnapState(onoff);
     let mrkUp = RXCore.getSelectedMarkup();
     mrkUp.locked = onoff;
+    mrkUp.updatemarkup();
+
+    
+
   }
 
   

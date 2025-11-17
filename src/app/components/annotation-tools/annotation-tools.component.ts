@@ -239,6 +239,7 @@ export class AnnotationToolsComponent implements OnInit {
       this.rxCoreService.resetLeaderLine(true);
     }
 
+    
 
     switch(actionName) {
       case 'TEXT':

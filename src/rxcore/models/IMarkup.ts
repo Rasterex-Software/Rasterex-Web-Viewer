@@ -46,5 +46,6 @@ export interface IMarkup {
     editComment: (id: number, value: string) => void;
     deleteComment: (id: number) => void;
     GetComments: () => Array<any>;
+    updatemarkup: () => void;
 
 }

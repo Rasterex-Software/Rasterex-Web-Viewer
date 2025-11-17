@@ -114,6 +114,9 @@ import { RxNumberFormatDirective } from "./directives/rx-number-format.directive
 import { ResizableDirective } from './directives/resizable.directive';
 import {IsPinnedPipe} from "./components/top-nav-menu/opened-files-tabs/is-pinned.pipe";
 import { ExportDialogComponent } from './components/export-dialog/export-dialog.component';
+import { MagnifyPanelComponent } from './components/magnify-panel/magnify-panel.component';
+
+
 
 const storeSchema = [
   { name: 'name', keypath: 'name', options: { unique: false } },
@@ -224,6 +227,7 @@ const dbConfig: DBConfig  = {
     RxNumberFormatDirective,    
     LoginModalComponent,
     ExportDialogComponent,
+    MagnifyPanelComponent,
   ],
   imports: [
     BrowserModule,

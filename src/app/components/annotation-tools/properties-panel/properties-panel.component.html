@@ -52,11 +52,11 @@
                             <h4>Type</h4>
                             <div class="btn-group" role="group">
                                 <button [class.selected]="lengthMeasureType == 0" (click)="onLengthMeasureTypeChange(0)">
-                                    <img src="/assets/images/measure-length-no-arrow-ico.svg" />
+                                    <img src="assets/images/measure-length-no-arrow-ico.svg" />
                                     <span>No arrow</span>
                                 </button>
                                 <button [class.selected]="lengthMeasureType == 1" (click)="onLengthMeasureTypeChange(1)">
-                                    <img src="/assets/images/measure-length-ico.svg" />
+                                    <img src="assets/images/measure-length-ico.svg" />
                                     <span>Open Arrow</span>
                                 </button>
                             </div>
@@ -65,10 +65,10 @@
                         <section *ngIf="currentType == 6">
                             <div class="btn-group" role="group" style="margin-top: 16px;">
                                 <button [class.selected]="annotation?.subtype == 3" (click)="onArrowStyleSelect(3)">
-                                    <img src="/assets/images/arrow-filled-both-end-ico.svg"/></button>
-                                <button [class.selected]="annotation?.subtype == 1" (click)="onArrowStyleSelect(1)"><img src="/assets/images/arrow-filled-single-end-ico.svg" /></button>
-                                <button [class.selected]="annotation?.subtype == 2" (click)="onArrowStyleSelect(2)"><img src="/assets/images/arrow-both-end-ico.svg" /></button>
-                                <button [class.selected]="annotation?.subtype == 0" (click)="onArrowStyleSelect(0)"><img src="/assets/images/arrow-single-end-ico.svg" /></button>
+                                    <img src="assets/images/arrow-filled-both-end-ico.svg"/></button>
+                                <button [class.selected]="annotation?.subtype == 1" (click)="onArrowStyleSelect(1)"><img src="assets/images/arrow-filled-single-end-ico.svg" /></button>
+                                <button [class.selected]="annotation?.subtype == 2" (click)="onArrowStyleSelect(2)"><img src="assets/images/arrow-both-end-ico.svg" /></button>
+                                <button [class.selected]="annotation?.subtype == 0" (click)="onArrowStyleSelect(0)"><img src="assets/images/arrow-single-end-ico.svg" /></button>
                             </div>
                         </section>
 

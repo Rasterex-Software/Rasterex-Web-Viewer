@@ -1,3 +1,49 @@
+November 17, 2025
+
+### 1. Align method udpate to clamp Foxit pan position.
+### 2. Align method udpate to correct for screen resolution.
+### 3. Added magnify glass support for PDF.
+### 4. Added magnifier support during overlay compare align.
+### 5. Fixed an issue with new pdfpage class addpages method that could lead to non centering of single page PDFs.
+### 6. Fixed an upload callback problem in RxCore.
+### 7. Fixed button states for compare.
+
+
+RxCore version is now 37.2
+src\assets\scripts\rxcorefunctions.js
+src\assets\scripts\iframefoxit.js
+src\assets\scripts\foxiframeconnect.js
+src\assets\html\foxpage.html
+
+
+src\rxcore\index.ts
+src\rxcore\models\IMarkup.ts
+src\rxcore\models\IMagnifier.ts
+src\rxcore\models\IGuiConfig.ts
+src\app\app.module.ts
+src\app\app.component.ts
+src\app\app.component.html
+src\app\app-message-broker.component.ts
+src\app\services\rxcore.service.ts
+src\app\services\magnify.service.ts
+src\app\components\user\login\login.component.html
+src\app\components\top-nav-menu\top-nav-menu.component.ts
+src\app\components\top-nav-menu\top-nav-menu.component.html
+src\app\components\top-nav-menu\opened-files-tabs\opened-files-tabs.component.html
+src\app\components\size-modal\size-modal.component.html
+src\app\components\magnify-panel\magnify-panel.component.ts
+src\app\components\magnify-panel\magnify-panel.component.scss
+src\app\components\magnify-panel\magnify-panel.component.html
+src\app\components\compare\compare.component.ts
+src\app\components\compare\compare.component.html
+src\app\components\compare\edit-comparison\edit-comparison.component.html
+src\app\components\compare\create-comparison\create-comparison.component.html
+src\app\components\bottom-toolbar\bottom-toolbar.component.html
+src\app\components\annotation-tools\properties-panel\properties-panel.component.ts
+src\app\components\annotation-tools\properties-panel\properties-panel.component.html
+
+
+
 October 9, 2025
 
 ### 1. Text input for text annotation modified to reflect the correct font style and size of the text annotation.

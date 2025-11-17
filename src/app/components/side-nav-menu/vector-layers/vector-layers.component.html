@@ -3,10 +3,10 @@
         <span>Layers visibility:</span>
         <div class="btn-group" role="group">
             <button [class.selected]="vectorLayersAll" (click)="onVectorLayersAllSelect(true)">
-                <img src="/assets/images/show-on-ico.svg" />
+                <img src="assets/images/show-on-ico.svg" />
             </button>
             <button [class.selected]="!vectorLayersAll" (click)="onVectorLayersAllSelect(false)">
-                <img src="/assets/images/show-off-ico.svg" />
+                <img src="assets/images/show-off-ico.svg" />
             </button>
         </div>
     </div>
@@ -16,8 +16,8 @@
                 <span class="color-circle" [style.background]="layer?.color"></span>
                 <span style="flex-grow: 1;">{{layer?.name}}</span>
 
-                <img *ngIf="layer?.state == 0" src="/assets/images/show-off-ico.svg" />
-                <img *ngIf="layer?.state == 1" src="/assets/images/show-on-ico.svg" />
+                <img *ngIf="layer?.state == 0" src="assets/images/show-off-ico.svg" />
+                <img *ngIf="layer?.state == 1" src="assets/images/show-on-ico.svg" />
 
 
             </li>
@@ -29,8 +29,8 @@
                 <span class="color-circle" [style.background]="layer?.color"></span>
                 <span style="flex-grow: 1;">{{layer?.name}}</span>
 
-                <img *ngIf="!layer?.visible" src="/assets/images/show-off-ico.svg" />
-                <img *ngIf="layer?.visible" src="/assets/images/show-on-ico.svg" />
+                <img *ngIf="!layer?.visible" src="assets/images/show-off-ico.svg" />
+                <img *ngIf="layer?.visible" src="assets/images/show-on-ico.svg" />
 
 
             </li>

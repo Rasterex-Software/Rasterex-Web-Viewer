@@ -44,8 +44,15 @@ rx-modal-dialog {
         rx-dropdown {
             ::ng-deep {
                 .dropdown-container {
+                    display :flex;
+                    flex-shrink: 0;          /* Prevent the container from shrinking */
+                    justify-content: flex-start;  /* Align to the left */
                     .value {
                         font-size: 14px;
+                        max-width: 200px;       /* Set max-width to avoid stretching */
+                        white-space: nowrap;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
                     }
                     .options-container {
                         .options-wrapper {
@@ -55,6 +62,7 @@ rx-modal-dialog {
                 }
             }
         }
+        
     }
 
     .select-new-document {
@@ -93,4 +101,5 @@ rx-modal-dialog {
         align-items: center;
         justify-content: center;
     }
+    
 }

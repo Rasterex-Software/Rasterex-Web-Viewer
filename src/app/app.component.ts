@@ -496,6 +496,35 @@ export class AppComponent implements AfterViewInit {
       this.magnifyService.toggle(active);
     });
 
+    RXCore.onGuiAlignPoint((npoint: number) => {
+      //this.magnifyService.toggle(active);
+      //this.magnifyService.onPointSelected?.(npoint);
+
+      this.magnifyService.notifyPointSelected?.(npoint);
+
+    
+    });
+
+
+    this.magnifyService.onExitPrecision = () => {
+      // Hide magnifier panel
+      this.magnifyService.toggle(false);
+  
+      // Tell alignment tool to resume for point #2
+      /*if (RXCore.magnifier?.alignmentTool) {
+        RXCore.magnifier.alignmentTool.tool.started = true;
+      }*/
+    };
+
+    /*RXCore.onGuiAlignPointComplete((npoint: number) => {
+      //this.magnifyService.toggle(active);
+      //this.magnifyService.onPointSelected?.(npoint);
+    
+    });*/
+
+
+    
+
 
     RXCore.onGuiFileLoadComplete(() => {
       console.log('RxCore onGuiFileLoadComplete:');

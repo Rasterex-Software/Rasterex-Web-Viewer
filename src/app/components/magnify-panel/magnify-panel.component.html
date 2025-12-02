@@ -1,11 +1,56 @@
-<rx-panel
-  class="magnify-panel"
-  title="Magnified View"
+<div class="magnify-wrapper"
+  #wrapper
   [class.hidden]="!isVisible"
+  [class.precision-mode]="precisionMode"
+  (mousedown)="startMove($event)"
+  (mousemove)="onMove($event)"
+  (mouseup)="endMove()"
+  (mouseleave)="endMove()"
+  (touchstart)="startMove($event)"
+  (touchmove)="onMove($event)"
+  (touchend)="endMove()">
+
+    <!-- HEADER -->
+    <div class="header">
+        <span class="title">Magnifier</span>
+        <button class="close-btn" (click)="close()">✕</button>
+    </div>
+
+    <!-- CANVAS AREA -->
+    <div class="canvas-container"
+         [style.width.px]="width"
+         [style.height.px]="height">
+
+        <canvas #magnifierCanvas></canvas>
+        <canvas #magnifierSnap class="overlay"></canvas>
+        <canvas #magnifierOverlay class="overlay"></canvas>
+        
+    </div>
+
+    <!-- FOOTER CONTROLS -->
+    <div class="controls">
+      <button (click)="zoomOut()">-</button>
+      <button (click)="zoomIn()">+</button>
+    </div>
+    
+</div>
+
+
+
+<!-- <rx-panel
+  class="magnify-panel"
+  [class.hidden]="!isVisible"
+  [class.precision-mode]="precisionMode"
   (onClose)="close()"
->
+  (mousedown)="startMove($event)"
+  (mouseup)="endMove()"
+  (mouseleave)="endMove()"
+  (touchstart)="startMove($event)"
+  (touchend)="endMove()">
+
   <div class="canvas-container" [ngStyle]="{'width.px': width, 'height.px': height}">
     <canvas #magnifierCanvas [width]="width" [height]="height"></canvas>
+    <canvas #magnifierSnap [width]="width" [height]="height" class="overlay"></canvas>
     <canvas #magnifierOverlay [width]="width" [height]="height" class="overlay"></canvas>
   </div>
 
@@ -13,4 +58,7 @@
     <button (click)="zoomOut()">−</button>
     <button (click)="zoomIn()">+</button>
   </div>
-</rx-panel>
+</rx-panel> -->
+
+
+

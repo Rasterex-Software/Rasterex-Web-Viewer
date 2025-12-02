@@ -1,3 +1,27 @@
+December 2, 2025
+
+### 1. Added two stage alignment for Compare using magnifier.
+### 2. Various fixes to the magnfier.
+
+Updated and new files
+RxCore version is now 37.23
+
+src\assets\scripts\rxcorefunctions.js
+src\app\app.component.ts
+src\app\components\bottom-toolbar\bottom-toolbar.component.html
+src\app\components\compare\compare.component.ts
+src\app\components\compare\create-comparison\create-comparison.component.html
+src\app\components\compare\create-comparison\create-comparison.component.scss
+src\app\components\compare\create-comparison\create-comparison.component.ts
+src\app\components\magnify-panel\magnify-panel.component.ts
+src\app\components\magnify-panel\magnify-panel.component.scss
+src\app\components\magnify-panel\magnify-panel.component.html
+src\app\services\magnify.service.ts
+src\rxcore\models\IMagnifier.ts
+src\rxcore\index.ts
+
+
+
 November 17, 2025
 
 ### 1. Align method udpate to clamp Foxit pan position.

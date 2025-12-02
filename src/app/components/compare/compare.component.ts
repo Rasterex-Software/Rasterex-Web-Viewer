@@ -9,6 +9,8 @@ import { TopNavMenuService } from '../top-nav-menu/top-nav-menu.service';
 import { ColorHelper } from 'src/app/helpers/color.helper';
 import { AlignFeatureTutorialService } from '../align-feature-tutorial/align-feature-tutorial.service';
 import { GuiMode } from 'src/rxcore/enums/GuiMode';
+import { MagnifyService } from '../../services/magnify.service';
+
 
 @Component({
   selector: 'rx-compare',
@@ -46,7 +48,9 @@ export class CompareComponent implements OnInit {
     private readonly notificationService: NotificationService,
     private readonly topNavMenuService: TopNavMenuService,
     private readonly colorHelper: ColorHelper,
-    private readonly tutorialService: AlignFeatureTutorialService) {}
+    private readonly tutorialService: AlignFeatureTutorialService,
+    private readonly magnifyService: MagnifyService // ✅ ADD THIS
+    ) {}
 
   /* Listeners */
   handleClickOutside(event: any) {
@@ -64,6 +68,10 @@ export class CompareComponent implements OnInit {
       if (this.alignInProgress) {
         this.alignInProgress = false;
         RXCore.exicompareMeasure();
+        RXCore.magnifier.exitPrecisionMode();
+
+        this.magnifyService.toggle(false);
+
         if (this.comparisonFile) {
           this.topNavMenuService.selectTab.next(this.comparisonFile);
         }

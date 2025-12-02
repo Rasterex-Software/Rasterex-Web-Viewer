@@ -37,6 +37,9 @@ export class CreateComparisonComponent implements OnInit, OnDestroy {
   activeFile: any = undefined;
   otherFile: any = undefined;
   progress: boolean = false;
+  dpi: number = 200;
+
+
 
   constructor(
     private readonly rxCoreService: RxCoreService,
@@ -102,12 +105,19 @@ export class CreateComparisonComponent implements OnInit, OnDestroy {
   async onCreateComparisonConfirm(): Promise<void> {
     this.progress = true;
 
+
+    
+  
+
     const relativePath = await RXCore.compareOverlayServerJSON(
       this.selectedOption.value == 'background' ? this.activeFile.name : this.otherFile.value.name,
       this.selectedOption.value == 'background' ? this.otherFile.value.name : this.activeFile.name,
       undefined,
       this.colorHelper.hexToRgb(this.selectedOption.value == 'background' ? this.color1.value : this.color2.value),
       this.colorHelper.hexToRgb(this.selectedOption.value == 'background' ? this.color2.value : this.color1.value),
+      undefined,
+      undefined,
+      this.dpi
     );
 
     this.onComplete.emit({

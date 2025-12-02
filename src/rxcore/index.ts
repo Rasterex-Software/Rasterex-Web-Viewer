@@ -1039,13 +1039,13 @@ export class RXCore {
         outputName?: string,
         dpi: number = 200
         ): Promise<string> {
-            if (backFileName?.toLowerCase().endsWith("dwg")
+/*             if (backFileName?.toLowerCase().endsWith("dwg")
                 || frontFileName?.toLowerCase().endsWith("dwg")
                 || backFileName?.toLowerCase().endsWith("dgn")
                 || frontFileName?.toLowerCase().endsWith("dgn")) {
                 dpi = 400;
             }
-
+ */
             const payload = [{
                 "Command": "Compare",
                 "LicenseID": localStorage.getItem("RxLic"),
@@ -1201,6 +1201,16 @@ export class RXCore {
     public static onGuiMagnify(callback: Function): void {
         RxCore.GUI_Magnify.connect(callback);
     }
+
+    public static onGuiAlignPoint(callback: Function): void {
+        RxCore.GUI_AlignPoint.connect(callback);
+    }
+
+    public static onGuiAlignPointComplete(callback: Function): void {
+        RxCore.GUI_AlignPointComplete.connect(callback);
+    }
+
+
 
     public static onGuiMarkupLoadComplete(callback: (markups : any, fileindex : any, activefile : any)=> void): void {
         RxCore.GUI_MarkupLoadComplete.connect(callback);

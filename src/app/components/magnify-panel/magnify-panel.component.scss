@@ -1,66 +1,127 @@
-:host {
-    display: block;
+.precision-mode {
+  background-color: green;
+}
+
+
+.magnify-wrapper {
+  position: fixed;
+  width: 300px;          /* EXACT WIDTH */
+  background: #222;
+  border-radius: 6px;
+  z-index: 10000;
+  cursor: default;
+  user-select: none;
+  color: white;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+  transition: background-color 0.3s ease; /* Smooth transition for color change */
+
+  &.hidden {
+      display: none;
   }
-  
-  rx-panel.magnify-panel {
-    position: fixed;
-    bottom: 60px;
-    right: 60px;
-    width: 320px;
-    height: 280px; /* Overall panel size */
-    z-index: 1000;
-    transition: transform 0.3s ease;
+}
+
+
+/* Precision Mode Color */
+.magnify-wrapper.precision-mode {
+  background-color: green !important; /* Ensure it overrides other background settings */
+}
+
+/* Additional control styling */
+
+
+.magnify-wrapper.dragging {
+  cursor: move !important; // only when dragging panel
+}
+
+/* HEADER */
+.header {
+  height: 32px;
+  padding: 4px 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  background: #333;
+  border-bottom: 1px solid #444;
+
+  .title {
+      font-size: 13px;
+      opacity: 0.9;
   }
-  
-  rx-panel.magnify-panel.hidden {
-    display: none;  /* Hide the panel when it's not visible */
-  }
-  
-  .canvas-container {
-    position: relative;
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: #111;
-    overflow: hidden;
-    height: 200px; /* Height for the magnify viewport */
-  }
-  
-  canvas {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 300px;
-    height: 200px;
-  }
-  
-  canvas.overlay {
-    pointer-events: none;
-  }
-  
-  .controls {
-    display: flex;
-    justify-content: center;
-    gap: 12px;
-    padding: 6px;
-    background: #222;
-    border-top: 1px solid #444;
-  
-    button {
-      width: 28px;
-      height: 28px;
-      font-size: 16px;
+
+  .close-btn {
+      background: transparent;
       border: none;
-      background: #333;
-      color: #fff;
-      border-radius: 4px;
+      color: white;
+      font-size: 14px;
       cursor: pointer;
-      transition: background 0.2s;
-  
+      padding: 0;
+      width: 22px;
+      height: 22px;
+      line-height: 22px;
+      text-align: center;
+
       &:hover {
-        background: #555;
+          color: #f88;
       }
-    }
   }
-  
+}
+
+.magnify-wrapper.precision-mode .header {
+  background-color: green !important; /* This will apply the color change to the header */
+}
+
+/* CANVAS AREA */
+.canvas-container {
+  position: relative;
+  background: #111;
+  overflow: hidden;
+
+  canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+  }
+
+  .overlay {
+      pointer-events: auto;
+  }
+}
+
+/* FOOTER */
+
+
+.controls {
+
+  display: flex;
+  justify-content: center;   // <-- center buttons horizontally
+  align-items: center;
+  gap: 8px;                  // nice spacing between +/-
+  padding: 6px 0;
+  background: #222;
+  border-top: 1px solid #333;
+  height: 32px;
+
+  button {
+      width: 26px;
+      height: 24px;
+      background: #555;
+      border: 1px solid #666;
+      border-radius: 4px;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+      line-height: 18px;
+
+      &:hover {
+          background: #666;
+      }
+  }
+}
+
+.magnify-wrapper.precision-mode .controls {
+  background-color: #4CAF50; /* Optional: Change button color when in precision mode */
+  color: white;
+}
+

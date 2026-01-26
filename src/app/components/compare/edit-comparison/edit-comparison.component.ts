@@ -20,6 +20,7 @@ export class EditComparisonComponent implements OnInit {
 
   colorOptions = this.compareService.colorOptions;
   isUpdateComparison: boolean = false;
+  dpi: number = 200;
 
   ngOnInit(): void {
   }
@@ -45,12 +46,17 @@ export class EditComparisonComponent implements OnInit {
   async onApplyClick(): Promise<void> {
     this.isUpdateComparison = true;
 
+    this.compareService.setDPI(this.dpi);
+
     this.comparison.relativePath = await RXCore.compareOverlayServerJSON(
       this.comparison.activeSetAs.value == 'background' ? this.comparison.activeFile.name : this.comparison.otherFile.name,
       this.comparison.activeSetAs.value == 'background' ? this.comparison.otherFile.name : this.comparison.activeFile.name,
       this.comparison.alignarray,
       this.colorHelper.hexToRgb(this.comparison.activeSetAs.value == 'background' ? this.comparison.activeColor.value : this.comparison.otherColor.value),
-      this.colorHelper.hexToRgb(this.comparison.activeSetAs.value == 'background' ? this.comparison.otherColor.value : this.comparison.activeColor.value)
+      this.colorHelper.hexToRgb(this.comparison.activeSetAs.value == 'background' ? this.comparison.otherColor.value : this.comparison.activeColor.value),
+      undefined,
+      undefined,
+      this.dpi
     );
 
     this.onApply.emit(this.comparison);

@@ -36,6 +36,8 @@ export class CompareService {
 
   private _comparisons: Array<IComparison> = [];
 
+  private dpi : number;
+
   public findComparisonByFileName(fileName: string): IComparison | undefined {
     return this.comparisons.find(c => c.relativePath.endsWith(fileName));
   }
@@ -57,6 +59,7 @@ export class CompareService {
 
     return c;
   }
+
 
   public deleteComparison(comparison: IComparison): void {
     this._comparisons = this.comparisons.filter(c => c != comparison);
@@ -105,5 +108,14 @@ export class CompareService {
 
   public onComparisonAdded: BehaviorSubject<IComparison | undefined> = new BehaviorSubject<IComparison | undefined>(undefined);
   public onComparisonAdded$ = this.onComparisonAdded.asObservable();
+
+  public setDPI(dpi : number){
+    this.dpi = dpi;
+  }
+
+  public getDPI(){
+    return this.dpi;
+  }
+
 
 }

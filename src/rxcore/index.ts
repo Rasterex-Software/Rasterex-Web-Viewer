@@ -983,6 +983,10 @@ export class RXCore {
         RxCore.uploadPDF();
     }
 
+    public static uploadOnlyPDF(): void {
+        RxCore.uploadOnlyPDF();
+    }
+    
 
     public static get markupChanged(): boolean {
         return RxCore.markupChanged();
@@ -1028,6 +1032,15 @@ export class RXCore {
     public static exicompareMeasure(): void {
         RxCore.exicompareMeasure();
     }
+
+    public static openExtractedPageInViewer(fileName : string, pageNumber : number): void {
+        RxCore.openExtractedPageInViewer(fileName, pageNumber);
+        //this.openExtractedPageInViewer = async function(fileName, pageNumber){
+    }
+
+    
+
+    
 
     public static async compareOverlayServerJSON(
         backFileName: string,
@@ -1470,6 +1483,13 @@ export class RXCore {
         // RxCore.GUI_MarkupIndex.connect(callback);
         RxCore.GUI_Calibratediag.connect(callback);
     }
+
+    public static onGuiCacheCreated(callback: Function): void {
+        RxCore.GUI_CacheCreated.connect(callback);
+    }
+
+
+    
 
     public static getPageScaleObject(pageindex: number): any {
         return RxCore.getPageScaleObject(pageindex);

@@ -12,7 +12,7 @@ import { TopNavMenuService } from '../top-nav-menu/top-nav-menu.service';
   styleUrls: ['./room-panel.component.scss']
 })
 export class RoomPanelComponent implements OnInit {
-  canCollaborate: boolean = false;
+  canCollaborate: boolean | undefined = false;
   // isCollabActive: boolean = false;
   @Input() visible = true;
   @Output() visibleChange = new EventEmitter<boolean>();

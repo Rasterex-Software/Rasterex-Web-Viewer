@@ -37,6 +37,7 @@ export class CompareComponent implements OnInit {
   alignComparison: any = undefined;
   unsavedChanges: boolean = false;
   alignInProgress: boolean = false;
+  dpi : number = 200;
 
   window = window;
   top = top;
@@ -221,6 +222,8 @@ export class CompareComponent implements OnInit {
     this.compareService.onGrayScaleChange$.subscribe(async (value) => {
       if (!this.comparison) return;
 
+      this.dpi = this.compareService.getDPI();
+
       this.progressMessage = "It takes a few seconds to generate the comparison";
       this.progress = true;
       this.comparison.relativePath = await RXCore.compareOverlayServerJSON(
@@ -229,7 +232,9 @@ export class CompareComponent implements OnInit {
         this.comparison.alignarray,
         this.colorHelper.hexToRgb(this.comparison.activeSetAs.value == 'background' ? this.comparison.activeColor.value : this.comparison.otherColor.value),
         this.colorHelper.hexToRgb(this.comparison.activeSetAs.value == 'background' ? this.comparison.otherColor.value : this.comparison.activeColor.value),
-        this._getEqualColor(value)
+        this._getEqualColor(value),
+        undefined,
+        this.dpi
       );
 
       this.onEditComparisonApply(this.comparison);

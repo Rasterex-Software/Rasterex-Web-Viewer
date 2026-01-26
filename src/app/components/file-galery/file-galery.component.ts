@@ -153,7 +153,10 @@ export class FileGaleryComponent implements OnInit {
     });
 
 
-    this.canCollaborate =  window.location.pathname.includes('collaboration');
+    //this.canCollaborate =  window.location.pathname.includes('collaboration');
+    this.canCollaborate =  this.rxCoreService.IsCollaboration();
+
+    
     // If we can find the roomId in the URL, we will create a collabService
 
     // There maybe a better way to open a file, we may refactor this later

@@ -163,7 +163,7 @@ export class OpenedFilesTabsComponent implements OnInit {
 
     // broadcast if viewer is inside iframe
     if (window !== top) {
-      RXCore.zoomWidth();
+      //RXCore.zoomWidth();
       RXCore.redrawPage(0);
       parent.postMessage({ type: "activeFileChanged", payload: file }, "*");
     }

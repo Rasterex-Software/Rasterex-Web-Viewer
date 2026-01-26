@@ -37,6 +37,55 @@
                 </svg>
             </button>
         </div>
+        <!-- Divider -->
+        <hr style="border: 0; border-top: 1px solid #E0E0E0; margin: 16px 0;" />
+
+        <!-- DPI Slider Section -->
+        <div style="margin: 0 0 16px 0; text-align: center;">
+
+            <!-- Header row with DPI value -->
+            <div style="
+                display: flex;
+                justify-content: center;
+                align-items: baseline;
+                gap: 8px;
+                margin-bottom: 8px;
+            ">
+                <div class="header" style="text-align: center;">DPI</div>
+                <span style="font-weight: 500; font-size: 14px; color: #333;">
+                    {{ dpi }}
+                </span>
+            </div>
+
+            <!-- Slider centered -->
+            <div style="display: flex; justify-content: center; margin-bottom: 4px;">
+                <input
+                    type="range"
+                    min="200"
+                    max="600"
+                    step="100"
+                    [(ngModel)]="dpi"
+                    style="width: 260px;"
+                />
+            </div>
+
+            <!-- Tick labels centered -->
+            <div style="
+                display: flex;
+                justify-content: space-between;
+                width: 260px;
+                margin: 0 auto;
+                font-size: 12px;
+                color: #666;
+            ">
+                <span>200</span>
+                <span>300</span>
+                <span>400</span>
+                <span>500</span>
+                <span>600</span>
+            </div>
+        </div>
+
         <div class="rx-modal-footer">
             <button (click)="onCancelClick()" class="btn btn-light">CANCEL</button>
             <button

@@ -35,7 +35,7 @@ export class AppComponent implements AfterViewInit {
   guiConfig: IGuiConfig | undefined;
   title: string = 'rasterex-viewer';
 
-  uiversion : string = '12.4.0.0'
+  uiversion : string = '12.5.0.2'
   numOpenFiles$ = this.rxCoreService.numOpenedFiles$;
   annotation: any;
   rectangle: any;
@@ -45,7 +45,7 @@ export class AppComponent implements AfterViewInit {
   convertPDFAnnots : boolean | undefined = false;
   createPDFAnnotproxy : boolean | undefined = false;
   showAnnotationsOnLoad : boolean | undefined = false;
-  canCollaborate : boolean = false;
+  canCollaborate : boolean | undefined = false;
   eventUploadFile: boolean = false;
   lists: any[] = [];
   state: any;
@@ -451,8 +451,9 @@ export class AppComponent implements AfterViewInit {
 
     });
 
-
-        
+    RXCore.onGuiCacheCreated((OriginalURL: string, FileNameSRC : string, CacheURL : string) => {
+      console.log("cache created", FileNameSRC, OriginalURL, CacheURL );
+    }); 
 
     RXCore.onGuiState((state: any) => {
       //console.log('RxCore GUI_State:', state);
@@ -497,12 +498,7 @@ export class AppComponent implements AfterViewInit {
     });
 
     RXCore.onGuiAlignPoint((npoint: number) => {
-      //this.magnifyService.toggle(active);
-      //this.magnifyService.onPointSelected?.(npoint);
-
       this.magnifyService.notifyPointSelected?.(npoint);
-
-    
     });
 
 

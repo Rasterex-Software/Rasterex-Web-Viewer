@@ -608,8 +608,15 @@ export class TopNavMenuComponent implements OnInit {
     // iFrame will get src in format of https://<site>/collaboration?roomId=document_collaboration_room_wB4Oe4Qv
     //const parameters = new URLSearchParams(window.location.search);
     //const isOnDocumentCollaborationPage = parameters.get('roomId');
+    let collaboration = false;
 
-    return this.rxCoreService.IsCollaboration() && !!this.userService.getCurrentUser() && !this.rxCoreService.IsDocumentCollaboration();
+    if(this.rxCoreService.IsCollaboration() == undefined || this.rxCoreService.IsCollaboration() == false){
+      collaboration = false;
+    }else{
+      collaboration = true;
+    }
+
+    return collaboration && !!this.userService.getCurrentUser() && !this.rxCoreService.IsDocumentCollaboration();
 
     
   }
@@ -859,6 +866,7 @@ export class TopNavMenuComponent implements OnInit {
       //RXCore.exportPDF();
       RXCore.setDefultExportparams();
       RXCore.uploadPDF();
+      //RXCore.uploadOnlyPDF();
       //var szURL = "http://myserver.somedomain.com/mypdfhandlingapp?documentid";
       //RXCore.uploadPDFCustom(szURL);
 

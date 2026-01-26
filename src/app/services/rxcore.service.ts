@@ -374,9 +374,13 @@ export class RxCoreService {
     this.guiCalibrateSubject.next(data);
   }
 
-  IsCollaboration(): boolean {
+  IsCollaboration(): boolean | undefined {
     //return window.location.pathname === '/collaboration';
-    return window.location.pathname.includes('/collaboration');
+
+    //this._defaultGuiConfig.canCollaborate
+    //return window.location.pathname.includes('/collaboration');
+    return this._defaultGuiConfig.canCollaborate;
+    
   }
   
   IsDocumentCollaboration(): boolean {

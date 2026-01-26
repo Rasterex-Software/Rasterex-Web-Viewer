@@ -1,3 +1,35 @@
+January 26, 2026
+
+### 1. Running the viewer in collaboration mode no longer require the web viewer to run from a folder with name "collaboration".
+### 2. Fixed a problem where resetting the line style sat the annotaion line width to 0.
+### 3. New method openExtractedPageInViewer - This allow an extracted page to open as a new document in the viewer.
+### 4. New method uploadOnlyPDF - This will allow an upload of a PDF without creating an export and creating a new PDF.
+### 5. Edit and create compare now allow setting the DPI resolution for the compare result in the compare dialog.
+
+
+Updated and new files
+RxCore version is now 37.27
+
+src\rxcore\index.ts
+src\assets\scripts\rxcorefunctions.js
+src\assets\scripts\iframefoxit.js
+src\app\app.component.ts
+src\app\services\rxcore.service.ts
+src\app\components\top-nav-menu\top-nav-menu.component.ts
+src\app\components\top-nav-menu\opened-files-tabs\opened-files-tabs.component.ts
+src\app\components\side-nav-menu\pages\pages.component.ts
+src\app\components\side-nav-menu\context-menu\context-menu.component.html
+src\app\components\file-galery\file-galery.component.ts
+src\app\components\collab\room-panel.component.ts
+src\app\components\compare\create-comparison\create-comparison.component.ts
+src\app\components\compare\compare.service.ts
+src\app\components\compare\compare.component.ts
+src\app\components\compare\edit-comparison\edit-comparison.component.ts
+src\app\components\compare\edit-comparison\edit-comparison.component.html
+src\app\components\compare\create-comparison\create-comparison.component.ts
+
+
+
 December 2, 2025
 
 ### 1. Added two stage alignment for Compare using magnifier.
@@ -19,7 +51,6 @@ src\app\components\magnify-panel\magnify-panel.component.html
 src\app\services\magnify.service.ts
 src\rxcore\models\IMagnifier.ts
 src\rxcore\index.ts
-
 
 
 November 17, 2025

@@ -1072,6 +1072,27 @@ this.getThumbnail = function (pagenum) {
         }
     };
 
+    this.pdfUploadonly = function (bcustom, endpoint) {
+        if (foxview.pdfViewer) {
+            const pdfDoc = foxview.pdfViewer.getCurrentPDFDoc();
+      
+            pdfDoc.extractPages([[0, pdfDoc.getPageCount() - 1]]).then((doc) => {
+                
+
+               const blob = new Blob(doc, { type: "application/pdf" });
+               const uploadname = foxview.filename;
+       
+
+               if(bcustom){
+                RxCore.uploadOnlyCustomPDF({filename : uploadname, binfile : blob}, bcustom, endpoint);
+               }else{
+                RxCore.uploadOnlyCustomPDF({filename : uploadname, binfile : blob});
+               } 
+                
+            });
+        }
+    };
+
     this.exportPDFupload = function (bcustom, endpoint) {
         if (foxview.pdfViewer) {
             const pdfDoc = foxview.pdfViewer.getCurrentPDFDoc();
@@ -3049,6 +3070,73 @@ this.getThumbnail = function (pagenum) {
         }
     };
 
+    /**
+     * Extract a single page, wrap it as a File, and open it using the viewer’s
+     * own document-opening pipeline (foxview.openPDF), ensuring Rasterex
+     * document initialization occurs properly.
+     *
+     * @param {string} fileName - The display name for the new one-page document.
+     * @param {number} pageNumber - 1-based index of the page to extract.
+     */
+    
+    this.openExtractedPageInViewer = async function(fileName, pageNumber) {
+        if (!foxview || !foxview.pdfViewer) {
+            console.error("Foxit viewer not initialized.");
+            return;
+        }
+    
+        const pdfViewer = foxview.pdfViewer;
+        const pdfDoc = pdfViewer.getCurrentPDFDoc();
+    
+        // Extract a single page
+        const range = [[pageNumber, pageNumber]];
+        
+        const extractedData = await pdfDoc.extractPages(range);  // <-- returns PDF bytes, NOT PDFDoc
+    
+        // Wrap in Blob
+        const blob = new Blob(extractedData, { type: "application/pdf" });
+
+        //const blob = new Blob(pdfDoc, { type: "application/pdf" });
+    
+        // Wrap in File so Foxit's openPDF workflow can initialize Rasterex doc system
+        const file = new File([blob], fileName, { type: "application/pdf" });
+    
+        // Open via your standard viewer pipeline
+
+        RxCore.createNewPDFfromFile(file);
+        //foxview.openPDF(file, true);
+    };
+    
+    /*this.openExtractedPageInViewer = async function(fileName, pageNumber) {
+        if (!foxview || !foxview.pdfViewer) {
+            console.error("Foxit viewer not initialized.");
+            return;
+        }
+
+        const pdfViewer = foxview.pdfViewer;
+        const pdfDoc = pdfViewer.getCurrentPDFDoc();
+
+        // Extract ONE page only:
+        const range = [[pageNumber, pageNumber]];
+        const extractedDoc = await pdfDoc.extractPages(range);
+
+        // Export the extracted PDFDoc into ArrayBuffer
+        const buffer = await extractedDoc.saveAsBuffer();
+
+        // Create Blob
+        const blob = new Blob([buffer], { type: "application/pdf" });
+
+        // Wrap in File — required for your viewer pipeline
+        const file = new File([blob], fileName, { type: "application/pdf" });
+
+        // 🔥 Critical: open via your wrapper (NOT Foxit's openPDFDoc!)
+        // This ensures createRxDoc, createFoxitDoc, RxCore setup, GUI update, etc.
+        foxview.openPDF(file, true);
+
+        return extractedDoc;
+    };*/
+
+
     this.insertBlankPages = function (pageRange, count, width, height) {
         if (foxview.pdfViewer) {
         const pdfDoc = foxview.pdfViewer.getCurrentPDFDoc();
@@ -3828,7 +3916,7 @@ this.getThumbnail = function (pagenum) {
                 var pgscale = pageRender.getScale();
                 
                 
-
+                var pdfrect = pageRender.getHandlerDOM().getBoundingClientRect();
 
                 //console.log(pgscale);
 
@@ -3999,7 +4087,9 @@ this.getThumbnail = function (pagenum) {
                     height : pageheight
                 };*/
 
-                foxitpage = foxview.getCanvases(foxitpage);
+                //foxitpage = foxview.getCanvases(foxitpage);
+
+                foxitpage.pagepos = pdfrect;
                 //foxitpage = foxview.getAnnotCanvases(foxitpage);
                 if(foxitpage.pagepos){
                     foxview.pagestates[pgindex].scrollTop = foxitpage.pagepos.top;

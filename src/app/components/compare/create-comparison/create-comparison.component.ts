@@ -106,7 +106,7 @@ export class CreateComparisonComponent implements OnInit, OnDestroy {
     this.progress = true;
 
 
-    
+    this.compareService.setDPI(this.dpi);  
   
 
     const relativePath = await RXCore.compareOverlayServerJSON(

@@ -9,7 +9,7 @@ import { TopNavMenuService } from '../../top-nav-menu/top-nav-menu.service';
 import { CdkDragDrop } from '@angular/cdk/drag-drop';
 
 
-export type Action = 'move-top' | 'move-bottom' | 'move-up' | 'move-down' | 'rotate-r' | 'rotate-l' | 'page-insert' | 'page-replace' | 'page-copy' | 'page-paste' | 'page-extract' | 'page-delete' | 'page-size'
+export type Action = 'move-top' | 'move-bottom' | 'move-up' | 'move-down' | 'rotate-r' | 'rotate-l' | 'page-insert' | 'page-replace' | 'page-copy' | 'page-paste' | 'page-extract' | 'page-open-extracted' | 'page-delete' | 'page-size'
 
 
 @Component({
@@ -509,6 +509,26 @@ export class PagesComponent implements OnInit {
         this.sideNavMenuService.setPageRange(pageRange);
         this.sideNavMenuService.toggleExtractModal(true);
         break;
+
+        case 'page-open-extracted': {
+
+          // Get the 1-based page number from the thumbnail index
+          const pageNumber = this.rightClickedPageIndex;
+      
+          // Get original document filename from RxCore
+          const originalName = RXCore.getDocFileName();   // e.g. "invoice.pdf"
+      
+          // Strip extension safely (handles .pdf, .xfd, etc.)
+          const baseName = originalName.replace(/\.[^/.]+$/, "");
+      
+          // Build new extracted filename
+          const fileName = `${baseName}_Page_${pageNumber}.pdf`;
+      
+          // Call your fully wired extraction→open pipeline
+          RXCore.openExtractedPageInViewer(fileName, pageNumber);
+      
+          break;
+      }        
       case 'page-copy':
         RXCore.copyPage(pageRange)
         break;

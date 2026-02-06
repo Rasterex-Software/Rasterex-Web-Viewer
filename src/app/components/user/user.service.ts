@@ -73,6 +73,8 @@ export class UserService {
     this._canDeleteAnnotation.next(true);
   }
 
+
+
   async login(username: string, password: string): Promise<User> {
     // username and password shouldn't be null here
     const url = `${this.apiUrl}api/login`;
@@ -112,6 +114,8 @@ export class UserService {
       });
     });
   }
+
+  
 
     /**
    * Gets current user.
@@ -162,6 +166,12 @@ export class UserService {
   /**
    * Creates an annotation.
    */
+
+  /**
+ * @deprecated Not used. Annotation persistence is handled by AnnotationStorageService.
+ * Keeping temporarily for cleanup / diff stability.
+ */
+
   async createAnnotation(projId: number, data: string, createdBy?: number): Promise<Annotation> {
     const url = `${this.apiUrl}api/annotation`;
     const body = { projId, data, createdBy };
@@ -183,6 +193,12 @@ export class UserService {
   /**
    * Gets an annotation by id.
    */
+
+  /**
+ * @deprecated Not used. Annotation persistence is handled by AnnotationStorageService.
+ * Keeping temporarily for cleanup / diff stability.
+ */
+
   async getAnnotation(id: number): Promise<Annotation> {
     const url = `${this.apiUrl}api/annotations/${id}`;
     const options = { headers : { 'x-access-token': `${this.accessToken}` } };
@@ -203,6 +219,12 @@ export class UserService {
   /**
    * Gets annotations from back-end.
    */
+
+  /**
+ * @deprecated Not used. Annotation persistence is handled by AnnotationStorageService.
+ * Keeping temporarily for cleanup / diff stability.
+ */
+
   async getAnnotations(projId: number): Promise<Annotation[]> {
     const url = `${this.apiUrl}api/annotations?projId=${projId}`;
     const options = { headers : { 'x-access-token': `${this.accessToken}` } };
@@ -223,6 +245,12 @@ export class UserService {
   /**
    * Updates an annotation by id.
    */
+
+    /**
+ * @deprecated Not used. Annotation persistence is handled by AnnotationStorageService.
+ * Keeping temporarily for cleanup / diff stability.
+ */
+
   async updateAnnotation(id: number, projId: number, data: string, updatedBy?: number): Promise<Annotation> {
     const url = `${this.apiUrl}api/annotations/${id}`;
     const body = { projId, data, updatedBy };
@@ -244,6 +272,12 @@ export class UserService {
   /**
    * Deletes an annotation by id.
    */
+
+    /**
+ * @deprecated Not used. Annotation persistence is handled by AnnotationStorageService.
+ * Keeping temporarily for cleanup / diff stability.
+ */
+
   async deleteAnnotation(id: number): Promise<Annotation> {
     const url = `${this.apiUrl}api/annotations/${id}`;
     const options = { headers : { 'x-access-token': `${this.accessToken}` } };
@@ -312,4 +346,42 @@ export class UserService {
     console.log('Annotations:', annos);
     // TODO: implement it
   }
+
+  // user.service.ts
+  externalSetUser(username: string, displayName: string, email: string) {
+    const u = { id: -1, username, displayName, email };
+    RXCore.setUser(username, displayName || username);
+    this._currentUser.next(u);
+
+  // For POC you want "can do everything"
+    this.setUserPermissions(); // no args => all true in your implementation
+    return u;
+  }
+
+
+  setCurrentUser(username : string, displayName : string, email: string){
+
+
+    /*id: number;
+    username: string;
+    email: string;
+    displayName?: string;*/
+    let extuser = {
+      id: 0,
+      username : username,
+      displayName : displayName,
+      email : email
+    }
+
+    //this._currentUser.id = 0;
+    //this._currentUser.username = username;
+    //this._currentUser.displayName = displayName;
+    //this._currentUser.email = email;
+    RXCore.setUser(username, displayName);
+    this._currentUser.next(extuser);
+    
+
+  } 
+  
+
 }

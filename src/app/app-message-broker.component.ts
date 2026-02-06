@@ -5,6 +5,9 @@ import { CompareService } from './components/compare/compare.service';
 import { firstValueFrom } from 'rxjs';
 import { TopNavMenuService } from './components/top-nav-menu/top-nav-menu.service';
 import { AnnotationToolsService } from './components/annotation-tools/annotation-tools.service';
+import { UserService } from './components/user/user.service';
+import { CollabService } from './services/collab.service';
+import { LoginService } from './services/login.service';
 import { ColorHelper } from './helpers/color.helper';
 import { NotificationService } from './components/notification/notification.service';
 import { FileMetadataService } from './services/file-metadata.service';
@@ -21,6 +24,9 @@ export class AppMessageBrokerComponent implements OnInit {
     private readonly compareService: CompareService,
     private readonly topNavMenuService: TopNavMenuService,
     private readonly annotationToolsService : AnnotationToolsService,
+    private readonly userService: UserService,
+    private readonly collabService: CollabService,
+    private readonly loginService: LoginService,
     private readonly colorHelper: ColorHelper,
     private readonly notificationService: NotificationService,
     private fileMetadataService: FileMetadataService
@@ -131,6 +137,35 @@ export class AppMessageBrokerComponent implements OnInit {
             break;
           }
 
+          case "setUser": {
+            const { username, displayName, email } = event.data.payload;
+          
+            // 1) Ensure we have a token so annotation REST calls work.
+            // POC: log in silently as a built-in technical account if needed.
+            if (!this.userService.accessToken) {
+              await this.userService.login("bob", "123456");  // <- your built-in POC account
+            }
+          
+            // 2) Set “current user” for UI + RXCore
+            const u = this.userService.externalSetUser(username, displayName, email);
+          
+            // 3) Set sender identity for socket collaboration
+            this.collabService.setUsername(u.username, u.displayName || "");
+          
+            // 4) Mirror what LoginModal does to put app in “logged in” state
+            // (no permission fetch needed for POC since we allow all)
+            this.loginService.hideLoginModal();
+            this.loginService.setLoginInfo(u.username, u.displayName || u.username, u.email);
+            this.loginService.enableLandingPageLayout(true);
+          
+            // Optional: keep profile panel “permissions” view populated.
+            // If you want: load permissions for the TECH account you logged in as.
+            // const techUser = this.userService.getCurrentUser(); // will currently be externalSetUser user
+            // Better: store tech login user separately if you need this list.
+          
+            break;
+          }
+          
           case "view": {
             parent.postMessage({ type: "progressStart", message: "It takes a few seconds to open the file." }, "*");
             RXCore.openFile(`${RXCore.Config.baseFileURL}${event.data.payload.fileName}`);
@@ -139,6 +174,16 @@ export class AppMessageBrokerComponent implements OnInit {
 
             break;
           }
+
+          case "viewAny": {
+            parent.postMessage({ type: "progressStart", message: "It takes a few seconds to open the file." }, "*");
+            RXCore.openFile(`${event.data.payload}`);
+            await firstValueFrom(this.rxCoreService.guiFileLoadComplete$);
+            parent.postMessage({ type: "progressEnd" }, "*");
+
+            break;
+          }
+
 
           case "compare": {
             const { backgroundFileName, overlayFileName, outputName } = event.data.payload;

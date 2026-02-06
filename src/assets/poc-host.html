@@ -1,0 +1,148 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Rasterex WebViewer POC Host</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      body { margin: 0; font-family: system-ui, sans-serif; }
+      .bar {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        padding: 10px;
+        border-bottom: 1px solid #ddd;
+        flex-wrap: wrap;
+      }
+      input { padding: 6px 8px; width: 220px; }
+      button { padding: 6px 10px; cursor: pointer; }
+      iframe { width: 100vw; height: calc(100vh - 70px); border: 0; }
+      .note { margin-left: auto; font-size: 12px; color: #666; }
+      .status { font-size: 12px; color: #333; }
+      .pill { padding: 2px 6px; border: 1px solid #ccc; border-radius: 999px; }
+    </style>
+  </head>
+
+  <body>
+    <div class="bar">
+      <input id="username" placeholder="username" value="alice" />
+      <input id="displayName" placeholder="display name" value="Alice (auto)" />
+      <input id="email" placeholder="email" value="alice@example.com" />
+
+      <!-- NOTE: value uses single backslashes for readability.
+           We will DOUBLE-ESCAPE before sending, because your backend strips one escape layer. -->
+      <input id="filePath" placeholder="file path (Windows)" value="E:\rasterex\samples\ARKITEKT.DWG" />
+
+      <button id="armAuto">Arm auto on ViewerReady</button>
+      <button id="sendUser">Send setUser</button>
+      <button id="openAny">Open via viewAny</button>
+
+      <div class="status">
+        <span class="pill" id="readyPill">ViewerReady: no</span>
+        <span class="pill" id="autoPill">Auto: armed</span>
+      </div>
+
+      <span class="note">Open this at /assets/poc-host.html</span>
+    </div>
+
+    <!-- Same-origin iframe loading the Angular app root -->
+    <iframe id="viewer" src="/"></iframe>
+
+    <script>
+      const iframe = document.getElementById("viewer");
+
+      let viewerReady = false;
+      let autoArmed = true;     // default: auto-run for POC convenience
+      let autoRan = false;      // only run once per page load
+
+      const readyPill = document.getElementById("readyPill");
+      const autoPill = document.getElementById("autoPill");
+
+      function setPill(el, ok, label, value) {
+        el.textContent = `${label}: ${value}`;
+        el.style.background = ok ? "#e6ffed" : "#fff3cd";
+        el.style.borderColor = ok ? "#9ae6b4" : "#ffeeba";
+      }
+
+      function postToViewer(msg) {
+        iframe.contentWindow.postMessage(msg, "*");
+        console.log("[Host] -> viewer", msg);
+      }
+
+      function buildUserPayload() {
+        return {
+          username: document.getElementById("username").value,
+          displayName: document.getElementById("displayName").value,
+          email: document.getElementById("email").value
+        };
+      }
+
+      // Backend strips one escape layer, so we intentionally double-escape backslashes.
+      function doubleEscapeBackslashes(path) {
+        // Turn: E:\a\b  into  E:\\a\\b
+        return String(path || "").replace(/\\/g, "\\\\");
+      }
+
+      function sendSetUser(payload = buildUserPayload()) {
+        postToViewer({ type: "setUser", payload });
+      }
+
+      function sendViewAny(winPath) {
+        const payload = doubleEscapeBackslashes(winPath);
+        postToViewer({ type: "viewAny", payload });
+      }
+
+      function runAutoSequence() {
+        if (!autoArmed || autoRan || !viewerReady) return;
+        autoRan = true;
+
+        // 1) set predefined (or current form) user
+        sendSetUser(buildUserPayload());
+
+        // 2) open file via viewAny (slight delay helps)
+        setTimeout(() => {
+          const rawPath = document.getElementById("filePath").value;
+          sendViewAny(rawPath);
+        }, 200);
+      }
+
+      // Buttons
+      document.getElementById("armAuto").addEventListener("click", () => {
+        autoArmed = true;
+        autoRan = false;
+        setPill(autoPill, true, "Auto", "armed");
+        console.log("[Host] Auto sequence armed; will run on ViewerReady.");
+        runAutoSequence(); // in case viewer is already ready
+      });
+
+      document.getElementById("sendUser").addEventListener("click", () => {
+        sendSetUser();
+      });
+
+      document.getElementById("openAny").addEventListener("click", () => {
+        const rawPath = document.getElementById("filePath").value;
+        sendViewAny(rawPath);
+      });
+
+      // Listen for messages FROM the iframe viewer
+      window.addEventListener("message", (event) => {
+        const data = event.data || {};
+
+        if (data.type !== "ViewerReady") return;
+        if (data.from !== "rasterex-viewer") return;
+
+        console.log("[Host] <- ViewerReady", data);
+
+        viewerReady = true;
+        setPill(readyPill, true, "ViewerReady", "yes");
+
+        // Run auto behavior if armed
+        runAutoSequence();
+      });
+
+      // Initial UI state
+      setPill(readyPill, false, "ViewerReady", "no");
+      setPill(autoPill, true, "Auto", autoArmed ? "armed" : "off");
+    </script>
+  </body>
+</html>

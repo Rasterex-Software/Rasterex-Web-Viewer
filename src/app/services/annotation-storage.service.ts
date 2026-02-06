@@ -27,7 +27,15 @@ export class AnnotationStorageService {
    */
    async createAnnotation(projId: number, docId: string, data: string, roomId?: string, createdBy?: number): Promise<Annotation> {
     const url = `${this.apiUrl}api/annotation`;
-    const body = { projId, docId, roomId, data, createdBy };
+    //const body = { projId, docId, roomId, data, createdBy };
+
+    const body: any = { projId, docId, roomId, data };
+
+  // Only include createdBy if it is a valid DB FK
+  if (typeof createdBy === "number" && createdBy > 0) {
+    body.createdBy = createdBy;
+  }
+
     const options = { headers : { 'x-access-token': `${this.userService.accessToken}` } };
 
     return new Promise((resolve, reject) => {

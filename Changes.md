@@ -1,3 +1,139 @@
+February 06, 2026
+
+### 1. Enabled shadow user that does not require login using our db back-end. Added new "setUser" command for postMessage interface.
+### 2. Added new "viewAny" command for postMessag interface that can use a full path instead of the relative path supported by "view" command.
+### 3. See poc-hos.html postMessage implementation example.
+
+Updated and new files
+src\assets\poc-host.html
+
+
+src\app\app-message-broker.component.ts
+Changes
+
+ ```typescript
+
+ //added services
+
+import { UserService } from './components/user/user.service';
+import { CollabService } from './services/collab.service';
+import { LoginService } from './services/login.service';
+
+//constructor(
+
+    private readonly userService: UserService,
+    private readonly collabService: CollabService,
+    private readonly loginService: LoginService,
+
+
+//window.addEventListener("message", async (event) => {
+
+          case "setUser": {
+            const { username, displayName, email } = event.data.payload;
+          
+            // 1) Ensure we have a token so annotation REST calls work.
+            // POC: log in silently as a built-in technical account if needed.
+            if (!this.userService.accessToken) {
+              await this.userService.login("bob", "123456");  // <- your built-in POC account
+            }
+          
+            // 2) Set “current user” for UI + RXCore
+            const u = this.userService.externalSetUser(username, displayName, email);
+          
+            // 3) Set sender identity for socket collaboration
+            this.collabService.setUsername(u.username, u.displayName || "");
+          
+            // 4) Mirror what LoginModal does to put app in “logged in” state
+            // (no permission fetch needed for POC since we allow all)
+            this.loginService.hideLoginModal();
+            this.loginService.setLoginInfo(u.username, u.displayName || u.username, u.email);
+            this.loginService.enableLandingPageLayout(true);
+          
+            // Optional: keep profile panel “permissions” view populated.
+            // If you want: load permissions for the TECH account you logged in as.
+            // const techUser = this.userService.getCurrentUser(); // will currently be externalSetUser user
+            // Better: store tech login user separately if you need this list.
+          
+            break;
+          }
+
+          case "viewAny": {
+            parent.postMessage({ type: "progressStart", message: "It takes a few seconds to open the file." }, "*");
+            RXCore.openFile(`${event.data.payload}`);
+            await firstValueFrom(this.rxCoreService.guiFileLoadComplete$);
+            parent.postMessage({ type: "progressEnd" }, "*");
+
+            break;
+          }
+
+
+
+```
+
+
+src\app\components\user\user.service.ts
+Changes
+
+ ```typescript
+ // changes to user.service.ts added two new method.
+  externalSetUser(username: string, displayName: string, email: string) {
+    const u = { id: -1, username, displayName, email };
+    RXCore.setUser(username, displayName || username);
+    this._currentUser.next(u);
+
+  // For POC you want "can do everything"
+    this.setUserPermissions(); // no args => all true in your implementation
+    return u;
+  }
+
+
+  setCurrentUser(username : string, displayName : string, email: string){
+
+
+    /*id: number;
+    username: string;
+    email: string;
+    displayName?: string;*/
+    let extuser = {
+      id: 0,
+      username : username,
+      displayName : displayName,
+      email : email
+    }
+
+    //this._currentUser.id = 0;
+    //this._currentUser.username = username;
+    //this._currentUser.displayName = displayName;
+    //this._currentUser.email = email;
+    RXCore.setUser(username, displayName);
+    this._currentUser.next(extuser);
+    
+
+  } 
+```
+
+src\app\services\annotation-storage.service.ts
+changes
+
+```typescript
+
+//async createAnnotation 
+
+    const url = `${this.apiUrl}api/annotation`;
+    //const body = { projId, docId, roomId, data, createdBy };
+
+    const body: any = { projId, docId, roomId, data };
+
+  // Only include createdBy if it is a valid DB FK
+  if (typeof createdBy === "number" && createdBy > 0) {
+    body.createdBy = createdBy;
+  }
+
+
+
+```
+
+
 January 26, 2026
 
 ### 1. Running the viewer in collaboration mode no longer require the web viewer to run from a folder with name "collaboration".

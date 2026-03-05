@@ -1,3 +1,12 @@
+March 05, 2026
+
+### 1. Minor updates to RxCore related to 3D navigations issues caused by resetting of the current 3D tool camera when calling RxCore.getBlockInsert(false);
+### 2. Moved the hide 3D mesh as a modifier in both of the main 3D navigation tools.
+
+Updated and new files
+RxCore version is now 37.28
+
+
 February 06, 2026
 
 ### 1. Enabled shadow user that does not require login using our db back-end. Added new "setUser" command for postMessage interface.

@@ -630,6 +630,10 @@ export class AppComponent implements AfterViewInit {
 
     });
 
+    RXCore.onGuiMarkupLoadComplete((markups : any, fileindex : any, activefile: any) => {
+      console.log("markup loaded from xml file", markups.length);
+    });
+
 
     RXCore.onGuiMarkupIndex((annotation: any, operation: any) => {
       //console.log('RxCore GUI_Markup index:', annotation, operation);

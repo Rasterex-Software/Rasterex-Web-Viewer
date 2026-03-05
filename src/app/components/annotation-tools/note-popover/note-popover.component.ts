@@ -60,11 +60,19 @@ export class NotePopoverComponent implements OnInit {
           return;
         }
 
+        const xscaled = (markup.xscaled || markup.x) / window.devicePixelRatio;
+        const yscaled = (markup.yscaled || markup.y) / window.devicePixelRatio;
+
+
         this.note.author = RXCore.getDisplayName(markup.signature);
         this.note.created = (markup as any).GetDateTime(true);
         this.text = markup.text;
-        this.left = markup.x;
-        this.top = markup.y + 20;
+
+        this.left = xscaled - 10;
+        this.top = yscaled + 12;
+        
+        //this.left = markup.x;
+        //this.top = markup.y + 20;
 
         if (operation.created) {
           this.visible = true;
@@ -83,12 +91,18 @@ export class NotePopoverComponent implements OnInit {
           return;
         }
 
+        const xscaled = (markup.xscaled || markup.x) / window.devicePixelRatio;
+        const yscaled = (markup.yscaled || markup.y) / window.devicePixelRatio;
+  
         this.note = markup;
         this.note.author = RXCore.getDisplayName(markup.signature);
         this.note.created = (markup as any).GetDateTime(true);
         this.text = markup.text;
-        this.left = markup.x;
-        this.top = markup.y + 20;
+
+        this.left = xscaled - 10;
+        this.top = yscaled + 12;
+        //this.left = markup.x;
+        //this.top =  + 20;
 
         if (this.visible != visible) {
           this.visible = true;

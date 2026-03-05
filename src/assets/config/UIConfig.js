@@ -19,7 +19,7 @@ var UIConfig = (function() {
                 "canLogin" : true,
                 "showmarkupZoom" : false,
                 "alwaysShowScaling" : false,
-                "showAnnotationsOnLoad" : false,
+                "showAnnotationsOnLoad" : true,
                 //"localStoreStamp" : true,
                 "localStoreAnnotation": false,
                 "disable2DVectorInfoButton" : false,

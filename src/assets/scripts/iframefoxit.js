@@ -3164,11 +3164,7 @@ this.getThumbnail = function (pagenum) {
             scrollupdate: false,
             scrollArr: [],
             };
-            foxview.pagestates.splice(
-            flattenRange[pi],
-            0,
-            ...Array(count).fill(pageState)
-            );
+            foxview.pagestates.splice(flattenRange[pi],0,...Array(count).fill(pageState));
         }
 
         // Update pageindex for each pageState

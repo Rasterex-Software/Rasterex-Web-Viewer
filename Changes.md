@@ -1,3 +1,19 @@
+March 15, 2026
+
+### 1. Upgraded Three.js from r138 to r183.
+### 2. GLTFLoader compatibility with Three.js r183.
+### 3. Replaced deprecated THREE.Clock with THREE.Timer
+
+Updated and new files
+
+- src\assets\scripts\three.core.min.js
+- src\assets\scripts\three.module.min.js
+- src\assets\scripts\GLTFLoader.js
+- src\assets\scripts\rxcorefunctions.js
+- src\assets\scripts\BufferGeometryUtils.js
+- src\index.html
+
+
 March 05, 2026
 
 ### 1. Minor updates to RxCore related to 3D navigations issues caused by resetting of the current 3D tool camera when calling RxCore.getBlockInsert(false);

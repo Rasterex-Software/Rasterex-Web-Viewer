@@ -8,17 +8,30 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
   <!-- <script type="text/javascript" src="assets/scripts/jquery-2.1.0.min.js"></script> -->
-  <script type="text/javascript" src="assets/scripts/three.min.js"></script>
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "./assets/scripts/three.module.min.js"
+    }
+  }
+</script>
+<script type="module">
+  import * as THREE from 'three';
+  import { GLTFLoader } from "./assets/scripts/GLTFLoader.js";
+  if (!window.THREE) {
+    window.THREE = { ...THREE }; 
+  }
+  window.THREE.GLTFLoader = GLTFLoader; 
+</script>
   <script src="assets/scripts/Detector.js"></script>
-  <script src="assets/scripts/GLTFLoader.js"></script>
   <script type="text/javascript" src="assets/scripts/popper.min.js"></script>
   <script type="text/javascript" src="assets/scripts/rxconfig.js"></script>
   <script type="text/javascript" src="assets/config/UIConfig.js"></script>
   <script type="text/javascript" src="assets/scripts/rxconstants.js"></script>
-  <script type="text/javascript" src="assets/scripts/rxcorefunctions.js"></script>
+  <script type="text/javascript" src="assets/scripts/rxcorefunctions.js" defer></script>
   <script type="text/javascript" src="assets/scripts/foxiframeconnect.js"></script>
   <script type="text/javascript" src="assets/scripts/rxsignlibrary.js"></script>
-  <script type="text/javascript" src="assets/scripts/BufferGeometryUtils.js"></script>
+  <script type="text/javascript" src="assets/scripts/BufferGeometryUtils.js" defer></script>
 </head>
 
 <body>

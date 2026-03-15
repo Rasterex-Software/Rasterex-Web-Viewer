@@ -1,6 +1,6 @@
-( function () {
+ import * as THREE from 'three';
 
-	class GLTFLoader extends THREE.Loader {
+ export	class GLTFLoader extends THREE.Loader {
 
 		constructor( manager ) {
 
@@ -200,7 +200,8 @@
 
 			} else {
 
-				const magic = THREE.LoaderUtils.decodeText( new Uint8Array( data, 0, 4 ) );
+				//const magic = THREE.LoaderUtils.decodeText( new Uint8Array( data, 0, 4 ) );
+				const magic = new TextDecoder().decode( new Uint8Array( data, 0, 4 ) )
 
 				if ( magic === BINARY_EXTENSION_HEADER_MAGIC ) {
 
@@ -219,7 +220,7 @@
 
 				} else {
 
-					content = THREE.LoaderUtils.decodeText( new Uint8Array( data ) );
+					content = new TextDecoder().decode( new Uint8Array( data ) );//THREE.LoaderUtils.decodeText( new Uint8Array( data ) );
 
 				}
 
@@ -1125,7 +1126,7 @@
 			this.body = null;
 			const headerView = new DataView( data, 0, BINARY_EXTENSION_HEADER_LENGTH );
 			this.header = {
-				magic: THREE.LoaderUtils.decodeText( new Uint8Array( data.slice( 0, 4 ) ) ),
+				magic: new TextDecoder().decode( new Uint8Array( data.slice( 0, 4 ) ) ),//THREE.LoaderUtils.decodeText( new Uint8Array( data.slice( 0, 4 ) ) ),
 				version: headerView.getUint32( 4, true ),
 				length: headerView.getUint32( 8, true )
 			};
@@ -1154,7 +1155,7 @@
 				if ( chunkType === BINARY_EXTENSION_CHUNK_TYPES.JSON ) {
 
 					const contentArray = new Uint8Array( data, BINARY_EXTENSION_HEADER_LENGTH + chunkIndex, chunkLength );
-					this.content = THREE.LoaderUtils.decodeText( contentArray );
+					this.content = new TextDecoder().decode(contentArray);//THREE.LoaderUtils.decodeText( contentArray );
 
 				} else if ( chunkType === BINARY_EXTENSION_CHUNK_TYPES.BIN ) {
 
@@ -4013,6 +4014,8 @@
 
 	}
 
-	THREE.GLTFLoader = GLTFLoader;
+// 	THREE.GLTFLoader = GLTFLoader;
 
-} )();
+// } )();
+
+//THREE.GLTFLoader = GLTFLoader;

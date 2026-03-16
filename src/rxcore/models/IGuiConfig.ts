@@ -27,12 +27,14 @@ export interface IGuiConfig {
     disableExportXFDFButton?: boolean;
 
     disableSideNavMenu?: boolean;
+
     disableTopNavMenu?: boolean;
     disableBurgerMenuCompare?: boolean;
     disableViewPages?: boolean;
     disableViewAnnotations?: boolean;
     disableViewUserLayers?: boolean;
     disableViewVectorLayers?: boolean;
+    disablePenTableMenu?: boolean;
     disableView3DParts?: boolean;
     disableMarkupTextButton?: boolean;
     disableMarkupCalloutButton?: boolean;

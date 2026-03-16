@@ -1,6 +1,7 @@
 import { IBlock3D } from "./models/IBlock3D";
 import { IGuiConfig } from "./models/IGuiConfig";
 import { IMarkup } from "./models/IMarkup";
+import { IVectorPenTable } from "./models/IVectorPenTable";
 import { IPageThumb } from "./models/IPageThumb";
 import { IVectorBlock } from "./models/IVectorBlock";
 import { IVectorLayer } from "./models/IVectorLayer";
@@ -1205,6 +1206,21 @@ export class RXCore {
         RxCore.GUI_Page.connect(callback);
     }
 
+    public static onGuiautoPenTable(callback: Function): void {
+        RxCore.GUI_autopenTable.connect(callback);
+    }
+
+    public static onGuipenTable(callback: Function): void {
+        RxCore.GUI_penTable.connect(callback);
+    }
+
+    public static onGuipenTableJSON(callback: Function): void {
+        RxCore.GUI_penTableJSON.connect(callback);
+    }
+
+    
+    
+
     public static getCurrentFileInfo() {
         return RxCore.getCurrentFileInfo();
     }
@@ -1418,7 +1434,45 @@ export class RXCore {
         RxCore.onPrintComplete.connect(callback);
     }
 
+   /*
+      Pen table methods setPenTable
+   */
+
+    public static penTabledialog(): void {
+        RxCore.penTabledialog();
+    }
+
+    public static setPenTable(OnOff : boolean): void {
+        RxCore.setPenTable(OnOff);
+    }
+
+    public static setpentablePen(penobj : any, breset : boolean): void {
+        RxCore.setpentablePen(penobj, breset);
+    }
+
+    public static setPenTableScaled(OnOff : boolean): void {
+        RxCore.setPenTableScaled(OnOff);
+    }
+
+    public static setPenwidth(penobj : any): void {
+        RxCore.setPenwidth(penobj);
+    }
+
+    public static get2DVectorPentable(): IVectorPenTable {
+        return RxCore.get2DVectorPentable();
+    }
+
+    public static usePentableUpload(): void {
+        RxCore.usePentableUpload();
+    }
+
+
     
+
+    /*
+      Pen table methods setPenTable
+    */
+
 
     public static zoomPageUpdate(zoomparams : any, type : number): void {
         RxCore.zoomPageUpdate(zoomparams, type);

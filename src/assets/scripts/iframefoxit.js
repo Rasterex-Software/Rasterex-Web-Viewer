@@ -1046,7 +1046,46 @@ this.getThumbnail = function (pagenum) {
 };
 
 
+let thumbnailQueue = Promise.resolve();
 
+this.getThumbnailn = function (pagenum) {
+    if (!foxview.pdfViewer) {
+        return Promise.resolve(null);
+    }
+
+    const job = thumbnailQueue.then(async () => {
+        const pdfDoc = await waitForPDFDoc();
+        const page = await pdfDoc.getPageByIndex(pagenum);
+        const thumbnail = await page.getThumb(0, 1.5);
+
+        RxCore.setThumbnailFoxit(thumbnail, pagenum);
+        foxview.pagestates[pagenum].thumbadded = false;
+
+        return thumbnail;
+    });
+
+    // Keep queue alive even if one thumbnail fails
+    thumbnailQueue = job.catch((error) => {
+        console.error(`Thumbnail generation error for page ${pagenum}:`, error);
+    });
+
+    return job;
+};
+
+function waitForPDFDoc() {
+    return new Promise((resolve) => {
+        const checkPDFDoc = () => {
+            const pdfDoc = foxview.pdfViewer.getCurrentPDFDoc();
+            if (pdfDoc) {
+                resolve(pdfDoc);
+            } else {
+                setTimeout(checkPDFDoc, 300);
+            }
+        };
+
+        checkPDFDoc();
+    });
+}
 
 
     this.getNewThumbnail = async function (pagenum) {

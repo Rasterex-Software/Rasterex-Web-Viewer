@@ -2,7 +2,7 @@
  * @author mrdoob / http://mrdoob.com/
  */
 
-THREE.BufferGeometryUtils = {
+window.THREE.BufferGeometryUtils = {
 
 	computeTangents: function ( geometry ) {
 

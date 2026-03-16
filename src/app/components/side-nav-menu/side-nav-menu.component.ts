@@ -58,7 +58,7 @@ export class SideNavMenuComponent implements OnInit {
   }
 
   toggle(index) {
-    const openIndex = [0, 3, 4, 5, 6].includes(index);
+    const openIndex = [0, 3, 4, 5, 6, 7].includes(index);
     this.toggleablePanelOpened = openIndex ? this.activeIndex !== index || !this.toggleablePanelOpened : false;
     this.activeIndex = !this.toggleablePanelOpened && openIndex ? -1 : index;
     

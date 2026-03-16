@@ -8,6 +8,7 @@
                 <ng-container *ngSwitchCase="4">3D Parts</ng-container>
                 <ng-container *ngSwitchCase="5">Signature</ng-container>
                 <ng-container *ngSwitchCase="6">Blocks</ng-container>
+                <ng-container *ngSwitchCase="7">Pen Table</ng-container>
             </h4>
              <span role="button" (click)="togglePanel(false); activeIndex = -1;">
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -21,6 +22,8 @@
             <rx-threed-parts *ngSwitchCase="4"></rx-threed-parts>
             <rx-signature-panel *ngSwitchCase="5"></rx-signature-panel>
             <rx-blocks *ngSwitchCase="6"></rx-blocks>
+            <rx-pen-table *ngSwitchCase="7"></rx-pen-table>
+
         </div>
         <div
             *ngIf="activeIndex === 0"

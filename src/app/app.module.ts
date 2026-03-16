@@ -48,6 +48,7 @@ import { ErasePanelComponent } from './components/annotation-tools/erase-panel/e
 import { PrintComponent } from './components/print/print.component';
 import { FileInfoComponent } from './components/file-info/file-info.component';
 import { PagesComponent } from './components/side-nav-menu/pages/pages.component';
+import { PenTableComponent } from './components/side-nav-menu/pen-table/pen-table.component';
 import { ThreedPartInfoComponent } from './components/side-nav-menu/threed-part-info/threed-part-info.component';
 import { PageThumbnailDirective } from './components/side-nav-menu/pages/page-thumbnail.directive';
 import { CountPanelComponent } from './components/annotation-tools/count-panel/count-panel.component';
@@ -173,6 +174,7 @@ const dbConfig: DBConfig  = {
     PrintComponent,
     FileInfoComponent,
     PagesComponent,
+    PenTableComponent,
     ThreedPartInfoComponent,
     PageThumbnailDirective,
     NumericRangeDirective,

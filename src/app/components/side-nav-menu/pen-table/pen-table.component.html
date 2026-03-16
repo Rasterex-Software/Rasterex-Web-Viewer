@@ -1,0 +1,48 @@
+<div class="pen-table-panel">
+    <div class="pen-table-controls">
+      <label>
+        <input
+          type="checkbox"
+          [checked]="penTableEnabled"
+          (change)="onPenTableEnabledChange($any($event.target).checked)"
+        />
+        Use pen table
+      </label>
+  
+      <label>
+        <input
+          type="checkbox"
+          [checked]="penTableScaled"
+          (change)="onPenTableScaledChange($any($event.target).checked)"
+        />
+        Scaled
+      </label>
+    </div>
+  
+    <div class="pen-table-actions">
+      <button type="button" (click)="onPenTableUpload()">Upload</button>
+      <button type="button" (click)="onPenTableDefault()">Default</button>
+    </div>
+  
+    <table class="pen-table-grid">
+      <thead>
+        <tr>
+          <th>Pen index</th>
+          <th>Width</th>
+          <th>Color</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let row of penData">
+          <td>{{ row.index }}</td>
+          <td>{{ row.width }}</td>
+          <td>
+            <span
+              class="color-swatch"
+              [style.background]="row.color"
+            ></span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>

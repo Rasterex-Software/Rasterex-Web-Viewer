@@ -1,3 +1,22 @@
+March 16, 2026
+
+### 1. Upgraded Three.js from r138 to r183.
+### 2. GLTFLoader compatibility with Three.js r183.
+### 3. Replaced deprecated THREE.Clock with THREE.Timer
+### 4. Up vector is now always set to Z except for Inventor files.
+### 5. Added support for DGN vector entity types.
+
+Updated and new files
+RxCore version is now 37.31
+
+- src\assets\scripts\three.core.min.js
+- src\assets\scripts\three.module.min.js
+- src\assets\scripts\GLTFLoader.js
+- src\assets\scripts\rxcorefunctions.js
+- src\assets\scripts\BufferGeometryUtils.js
+- src\index.html
+
+
 March 05, 2026
 
 ### 1. Minor updates to RxCore related to 3D navigations issues caused by resetting of the current 3D tool camera when calling RxCore.getBlockInsert(false);

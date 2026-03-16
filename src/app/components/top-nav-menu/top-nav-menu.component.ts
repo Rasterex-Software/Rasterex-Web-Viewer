@@ -1030,6 +1030,11 @@ export class TopNavMenuComponent implements OnInit {
         index: 4,
         visible: !this.guiConfig?.disableView3DParts && this.guiState?.is3D,
       },
+      {
+        index: 7,
+        visible: !this.guiConfig?.disablePenTableMenu && this.guiState?.is2D,
+      },
+
     ];
 
     return visibleItems.filter((item) => item.visible);

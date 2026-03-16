@@ -1,0 +1,32 @@
+.pen-table-panel {
+    padding: 12px;
+  }
+  
+  .pen-table-controls,
+  .pen-table-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  
+  .pen-table-grid {
+    width: 100%;
+    border-collapse: collapse;
+  
+    th,
+    td {
+      padding: 6px 8px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+  }
+  
+  .color-swatch {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border: 1px solid #999;
+    margin-right: 8px;
+    vertical-align: middle;
+  }

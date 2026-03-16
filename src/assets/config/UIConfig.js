@@ -16,6 +16,7 @@ var UIConfig = (function() {
                 "convertPDFAnnots" : false,
                 "createPDFAnnotproxy" : false,
                 "canCollaborate": false,
+                "disablePenTableMenu": true,
                 "canLogin" : true,
                 "showmarkupZoom" : false,
                 "alwaysShowScaling" : false,

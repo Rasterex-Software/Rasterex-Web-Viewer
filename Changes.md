@@ -1,3 +1,15 @@
+March 17, 2026
+
+### 1. Added environment map (enviMap) support for 3D scenes.
+
+Updated and new files
+RxCore version is now 37.31
+
+- src\assets\scripts\envTexture.js
+- src\assets\scripts\rxcorefunctions.js
+- src\index.html
+
+
 March 16, 2026
 
 ### 1. Upgraded Three.js from r138 to r183.

@@ -1,3 +1,13 @@
+March 30, 2026
+
+### 1. Updated lights in scene
+
+Updated and new files
+RxCore version is now 37.31
+
+- src\assets\scripts\rxcorefunctions.js
+
+
 March 16, 2026
 
 ### 1. Upgraded Three.js from r138 to r183.

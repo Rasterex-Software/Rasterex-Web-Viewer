@@ -1,3 +1,12 @@
+March 21, 2026
+
+### 1. Add inertia to OrbitControl.
+### 2. Fix the issue that the mouse wheel cannot be used to zoom in further when approaching the model in OrbitControl mode.
+
+Updated and new files
+
+- src\assets\scripts\rxcorefunctions.js
+
 March 16, 2026
 
 ### 1. Upgraded Three.js from r138 to r183.

@@ -1,3 +1,13 @@
+March 22, 2026
+
+### 1. In the 3D scene, display the ViewCube, and support synchronizing and setting the camera view.
+
+Updated and new files
+
+- src\assets\scripts\ViewCube.js
+- src\assets\scripts\rxcorefunctions.js
+- src\index.html
+
 March 16, 2026
 
 ### 1. Upgraded Three.js from r138 to r183.

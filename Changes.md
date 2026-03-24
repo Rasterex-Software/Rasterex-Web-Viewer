@@ -1,6 +1,6 @@
 March 24, 2026
 
-### Mew Thumbnail generation pipeline. Combining generation of multiple thumbnails for PDF documents that ensure the Foxit rendering is not compromized. 
+### New Thumbnail generation pipeline. Combining generation of multiple thumbnails for PDF documents that ensure the Foxit rendering is not compromized. 
 ### New method for getting thumbnails in Foxit wrapper class.
 ### UI for page thumbnails should now use IntersectionObserver to prevent flooding Foxit with thumbnail requests. 
 ### Three.js version updated.

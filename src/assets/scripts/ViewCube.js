@@ -103,18 +103,15 @@
             this.AXIS_COLOR_Z = 0x0000ff;
             this.FACE_BACKGROUND_COLOR = 0xffffff;
             this.FACE_HOVER_BACKGROUND_COLOR = 0x31BD59;
-            this.INNER_CUBE_WIDTH = 80;
             this.OUTER_CUBE_WIDTH = 100;
+            this.INNER_CUBE_WIDTH = this.OUTER_CUBE_WIDTH; // keep same size for full coverage
             this.CORNER_WIDTH = 10;
-            this.AXIS_LENGTH = this.OUTER_CUBE_WIDTH * 1.3;
             this.EDGE_COLOUR = 0xd0d0d0;
             this.EDGE_OPACITY = 0.2;
-            this.EDGE_SIZE = new THREE.Vector2(this.INNER_CUBE_WIDTH, this.CORNER_WIDTH);
             this.CORNER_COLOR = 0xcacbd4;
             this.CORNER_OPACITY = 1.0;
             this.faces = [];
             this.innerViewCubeMesh = undefined;
-            this.showAxes = cfg && cfg.showAxes !== undefined ? cfg.showAxes : false;
             this.lineColor = cfg && cfg.lineColor !== undefined ? cfg.lineColor : 0x90a0a0;
             this.dirty = false;
             this.activateMeshName = undefined;
@@ -123,28 +120,9 @@
         }
 
         init() {
-            if (this.showAxes) {
-                this.add(this.createAxes());
-            }
             this.add(this.createViewCubeFaces());
             this.add(this.createViewCubeEdges());
             this.add(this.createViewCubeCorners());
-        }
-
-        createAxes() {
-            var v = this.OUTER_CUBE_WIDTH / 2 + 1;
-            var object = new THREE.Object3D();
-            var origin = new THREE.Vector3(-v, -v, -v);
-            var axisX = new THREE.Vector3(1, 0, 0);
-            var axisY = new THREE.Vector3(0, 1, 0);
-            var axisZ = new THREE.Vector3(0, 0, 1);
-            var headLength = this.AXIS_LENGTH / 15;
-            var headWidth = this.AXIS_LENGTH / 20;
-            var arrowX = new THREE.ArrowHelper(axisX, origin, this.AXIS_LENGTH, this.AXIS_COLOR_X, headLength, headWidth);
-            var arrowY = new THREE.ArrowHelper(axisY, origin, this.AXIS_LENGTH, this.AXIS_COLOR_Y, headLength, headWidth);
-            var arrowZ = new THREE.ArrowHelper(axisZ, origin, this.AXIS_LENGTH, this.AXIS_COLOR_Z, headLength, headWidth);
-            object.add(arrowX, arrowY, arrowZ);
-            return object;
         }
 
         createViewCubeFaces() {
@@ -204,17 +182,17 @@
 
         createViewCubeEdges() {
             var object = new THREE.Object3D();
-            var h = (this.INNER_CUBE_WIDTH + this.OUTER_CUBE_WIDTH) / 4; // 45
-            var w = this.INNER_CUBE_WIDTH; // 80
+            var h = (this.OUTER_CUBE_WIDTH - this.CORNER_WIDTH) / 2 + 0.1; // 45.1, 0.1 extra to avoid z-fighting
+            var w = this.INNER_CUBE_WIDTH - 2 * this.CORNER_WIDTH; // 80
             var t = this.CORNER_WIDTH; // 10
 
-            // Top edges (Z = +45)
+            // Top edges (Z = +45.1)
             object.add(this.createEdgeBox(ViewCubeElement.TopBackEdge, new THREE.Vector3(0, h, h), [w, t, t]));
             object.add(this.createEdgeBox(ViewCubeElement.TopFrontEdge, new THREE.Vector3(0, -h, h), [w, t, t]));
             object.add(this.createEdgeBox(ViewCubeElement.TopRightEdge, new THREE.Vector3(h, 0, h), [t, w, t]));
             object.add(this.createEdgeBox(ViewCubeElement.TopLeftEdge, new THREE.Vector3(-h, 0, h), [t, w, t]));
 
-            // Bottom edges (Z = -45)
+            // Bottom edges (Z = -45.1)
             object.add(this.createEdgeBox(ViewCubeElement.BottomBackEdge, new THREE.Vector3(0, h, -h), [w, t, t]));
             object.add(this.createEdgeBox(ViewCubeElement.BottomFrontEdge, new THREE.Vector3(0, -h, -h), [w, t, t]));
             object.add(this.createEdgeBox(ViewCubeElement.BottomRightEdge, new THREE.Vector3(h, 0, -h), [t, w, t]));
@@ -245,7 +223,7 @@
 
         createViewCubeCorners() {
             var object = new THREE.Object3D();
-            var h = (this.INNER_CUBE_WIDTH + this.OUTER_CUBE_WIDTH) / 4; // 45
+            var h = (this.OUTER_CUBE_WIDTH - this.CORNER_WIDTH) / 2 + 0.1; // 45.1, 0.1 extra to avoid z-fighting
             var t = this.CORNER_WIDTH; // 10
 
             // 8 corners
@@ -371,16 +349,8 @@
                     var color = gradient(this.FACE_BACKGROUND_COLOR, this.FACE_HOVER_BACKGROUND_COLOR, tick);
                     if (tick > 0) material.color.set(color);
                 }
-                if (this.innerViewCubeMesh) {
-                    this.updateMeshTick(mesh, "translateTick", 2);
-                    var normal = mesh.position.clone().normalize();
-                    var transTick = Math.max(mesh.userData.translateTick * 2 - 2, 0);
-                    normal.multiplyScalar((transTick * this.CORNER_WIDTH) / 2);
-                    if (transTick > 0) {
-                        this.innerViewCubeMesh.position.copy(normal);
-                    }
-                }
-            } else if (mesh.name.indexOf("Edge") > -1) {
+            }
+            else if (mesh.name.indexOf("Edge") > -1) {
                 var material = mesh.material;
                 var color = gradient(this.EDGE_COLOUR, this.FACE_HOVER_BACKGROUND_COLOR, tick);
                 material.color.set(color);
@@ -491,9 +461,12 @@
         initLights() {
             var ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
             this.scene.add(ambientLight);
+            const hemisphereLight = new THREE.HemisphereLight(0xffffff, 0xdddddd, 0.5);
+            this.scene.add(hemisphereLight);
             var directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
             directionalLight.position.set(-100, 200, 100);
             this.scene.add(directionalLight);
+            this.scene.add(directionalLight.target);
         }
 
         initViewCube() {

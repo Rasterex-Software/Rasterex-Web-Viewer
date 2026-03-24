@@ -625,6 +625,21 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
         }
     };
 
+    this.switchViewmode = function (viewmode) {
+        if (!foxview.pdfViewer) {
+            return;
+        }
+    
+        const manager = foxview.pdfViewer.getViewModeManager
+            ? foxview.pdfViewer.getViewModeManager()
+            : foxview.pdfViewer.viewModeManager;
+    
+        if (!manager) {
+            return;
+        }
+    
+        manager.switchTo(viewmode);
+    };
     this.getTextSearch = function (szkeyword, pageindex, returnmethod, casesens, wholeword) {
         let pdfDoc = undefined;
 
@@ -993,28 +1008,70 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
 
 
     
-// A map to track pending thumbnail requests
-//const thumbnailLocks = {};
+    // A map to track pending thumbnail requests
+    //const thumbnailLocks = {};
 
-// Queue for sequential thumbnail rendering
-// Track a global thumbnail render state
-let isThumbnailBusy = false;
-let currentThumbnailPromise = null;
+    // Queue for sequential thumbnail rendering
+    // Track a global thumbnail render state
+    let isThumbnailBusy = false;
+    let currentThumbnailPromise = null;
 
-this.getThumbnail = function (pagenum) {
-    if (!foxview.pdfViewer) return;
+    this.getThumbnailcurrent = function (pagenum) {
+        if (!foxview.pdfViewer) return;
 
-    // If a render is already in progress, just return the current promise (or null)
-    if (isThumbnailBusy) {
-        //console.warn("Thumbnail generation already in progress – skipping", pagenum);
+        // If a render is already in progress, just return the current promise (or null)
+        if (isThumbnailBusy) {
+            //console.warn("Thumbnail generation already in progress – skipping", pagenum);
+            return currentThumbnailPromise;
+        }
+
+        isThumbnailBusy = true;
+
+        currentThumbnailPromise = new Promise((resolve, reject) => {
+            const checkPDFDoc = () => {
+                const pdfDoc = foxview.pdfViewer.getCurrentPDFDoc();
+                if (!pdfDoc) {
+                    setTimeout(checkPDFDoc, 300);
+                    return;
+                }
+
+                pdfDoc.getPageByIndex(pagenum)
+                    .then((page) => {
+                        return page.getThumb(0, 1.5);
+                    })
+                    .then((thumbnail) => {
+                        RxCore.setThumbnailFoxit(thumbnail, pagenum);
+                        foxview.pagestates[pagenum].thumbadded = false;
+                        resolve(thumbnail);
+                    })
+                    .catch((error) => {
+                        console.error("Thumbnail generation error:", error);
+                        reject(error);
+                    })
+                    .finally(() => {
+                        isThumbnailBusy = false;
+                        currentThumbnailPromise = null;
+                    });
+            };
+
+            checkPDFDoc();
+        });
+
         return currentThumbnailPromise;
-    }
+    };
 
-    isThumbnailBusy = true;
 
-    currentThumbnailPromise = new Promise((resolve, reject) => {
+    this.getThumbnail = function (pagenum, successCallback, errorCallback) {
+        if (!foxview.pdfViewer) {
+            if (errorCallback) {
+                errorCallback(new Error("Foxit PDF viewer is not available."));
+            }
+            return;
+        }
+
         const checkPDFDoc = () => {
             const pdfDoc = foxview.pdfViewer.getCurrentPDFDoc();
+
             if (!pdfDoc) {
                 setTimeout(checkPDFDoc, 300);
                 return;
@@ -1025,67 +1082,35 @@ this.getThumbnail = function (pagenum) {
                     return page.getThumb(0, 1.5);
                 })
                 .then((thumbnail) => {
-                    RxCore.setThumbnailFoxit(thumbnail, pagenum);
-                    foxview.pagestates[pagenum].thumbadded = false;
-                    resolve(thumbnail);
+                    if (successCallback) {
+                        successCallback(thumbnail);
+                    }
                 })
                 .catch((error) => {
-                    console.error("Thumbnail generation error:", error);
-                    reject(error);
-                })
-                .finally(() => {
-                    isThumbnailBusy = false;
-                    currentThumbnailPromise = null;
+                    console.error("Thumbnail generation error for page " + pagenum, error);
+                    if (errorCallback) {
+                        errorCallback(error);
+                    }
                 });
         };
 
         checkPDFDoc();
-    });
+    };
 
-    return currentThumbnailPromise;
-};
+    /*function waitForPDFDoc() {
+        return new Promise((resolve) => {
+            const checkPDFDoc = () => {
+                const pdfDoc = foxview.pdfViewer.getCurrentPDFDoc();
+                if (pdfDoc) {
+                    resolve(pdfDoc);
+                } else {
+                    setTimeout(checkPDFDoc, 300);
+                }
+            };
 
-
-let thumbnailQueue = Promise.resolve();
-
-this.getThumbnailn = function (pagenum) {
-    if (!foxview.pdfViewer) {
-        return Promise.resolve(null);
-    }
-
-    const job = thumbnailQueue.then(async () => {
-        const pdfDoc = await waitForPDFDoc();
-        const page = await pdfDoc.getPageByIndex(pagenum);
-        const thumbnail = await page.getThumb(0, 1.5);
-
-        RxCore.setThumbnailFoxit(thumbnail, pagenum);
-        foxview.pagestates[pagenum].thumbadded = false;
-
-        return thumbnail;
-    });
-
-    // Keep queue alive even if one thumbnail fails
-    thumbnailQueue = job.catch((error) => {
-        console.error(`Thumbnail generation error for page ${pagenum}:`, error);
-    });
-
-    return job;
-};
-
-function waitForPDFDoc() {
-    return new Promise((resolve) => {
-        const checkPDFDoc = () => {
-            const pdfDoc = foxview.pdfViewer.getCurrentPDFDoc();
-            if (pdfDoc) {
-                resolve(pdfDoc);
-            } else {
-                setTimeout(checkPDFDoc, 300);
-            }
-        };
-
-        checkPDFDoc();
-    });
-}
+            checkPDFDoc();
+        });
+    }*/
 
 
     this.getNewThumbnail = async function (pagenum) {

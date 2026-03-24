@@ -1,3 +1,24 @@
+March 24, 2026
+
+### Mew Thumbnail generation pipeline. Combining generation of multiple thumbnails for PDF documents that ensure the Foxit rendering is not compromized. 
+### New method for getting thumbnails in Foxit wrapper class.
+### UI for page thumbnails should now use IntersectionObserver to prevent flooding Foxit with thumbnail requests. 
+### Three.js version updated.
+### Updated orbit controller for 3D with dampening effect and improved model navigation.
+
+
+Updated and new files
+RxCore version is now 37.33
+
+- src\assets\scripts\rxcorefunctions.js
+- src\assets\scripts\iframefoxit.js
+- src\index.html
+- src\assets\scripts\envTexture.js
+- src\app\components\side-nav-menu\pages\pages.component.ts
+- src\app\components\side-nav-menu\pages\page-thumbnail.directive.ts
+- src\app\components\side-nav-menu\insert-modal\insert-modal.component.ts
+
+
 March 16, 2026
 
 ### 1. Upgraded Three.js from r138 to r183.
@@ -29,8 +50,8 @@ RxCore version is now 37.28
 February 06, 2026
 
 ### 1. Enabled shadow user that does not require login using our db back-end. Added new "setUser" command for postMessage interface.
-### 2. Added new "viewAny" command for postMessag interface that can use a full path instead of the relative path supported by "view" command.
-### 3. See poc-hos.html postMessage implementation example.
+### 2. Added new "viewAny" command for postMessage interface that can use a full path instead of the relative path supported by "view" command.
+### 3. See poc-host.html postMessage implementation example.
 
 Updated and new files
 src\assets\poc-host.html

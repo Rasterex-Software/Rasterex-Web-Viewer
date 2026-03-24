@@ -173,6 +173,14 @@ export class InsertModalComponent implements OnInit {
         const DPI = RXCore.getDPI()
 
         switch (this.selectedPresets) {
+            case '1': width = 595.28; height = 841.89; break; // A4
+            case '2': width = 841.89; height = 1190.55; break; // A3
+            case '3': width = 612; height = 792; break; // Letter
+            case '4': width = 396; height = 612; break; // Half Letter
+            case '5': width = 360; height = 576; break; // Junior Legal
+        }
+
+        /*switch (this.selectedPresets) {
             case '1':
                 width = 8.27 * DPI.x;
                 height = 11.69 * DPI.y;
@@ -207,10 +215,19 @@ export class InsertModalComponent implements OnInit {
                         width = this.customWidth / 25.4 * DPI.x;
                         height = this.customHeight / 25.4 * DPI.y;
                 }
-        }
+        }*/
 
-        RXCore.insertBlankPages(pageRange, this.numberPages, width, height)
-        this.close()
+        const count = Number(this.numberPages);
+
+        if (!Number.isFinite(count) || count <= 0) {
+          console.error('Invalid numberPages value:', this.numberPages);
+          return;
+        }
+        
+        RXCore.insertBlankPages(pageRange, count, width, height);
+        this.close();
+
+        
     }
 
     parseInputString(str: string): number[] {

@@ -469,7 +469,7 @@ export class PagesComponent implements OnInit {
         RXCore.movePageTo(pageRange, 0)
         break;
       case 'move-bottom':
-        RXCore.movePageTo(pageRange, this.numpages - 1)
+        RXCore.movePageTo(pageRange, this.numpages)
         break;
       case 'move-up':
         RXCore.movePageTo(pageRange, pageRange[0][0] > 0 ? pageRange[0][0] - 1: 0)

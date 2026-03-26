@@ -1,3 +1,13 @@
+March 26, 2026
+
+### Adjust the orientation of the entire scene so that the y - axis is upward, and fix issues such as selection and explode caused by this adjustment.
+
+
+Updated and new files
+
+- src\assets\scripts\rxcorefunctions.js
+
+
 March 24, 2026
 
 ### New Thumbnail generation pipeline. Combining generation of multiple thumbnails for PDF documents that ensure the Foxit rendering is not compromized. 

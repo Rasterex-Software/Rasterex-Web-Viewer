@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { RxCoreService } from 'src/app/services/rxcore.service';
 import { RXCore } from 'src/rxcore';
+import { ColorHelper } from 'src/app/helpers/color.helper';
 import { IVectorPenTable, IVectorPen} from 'src/rxcore/models/IVectorPenTable';
 
 interface IPenTableRow {
@@ -20,14 +21,19 @@ export class PenTableComponent implements OnInit {
   penTableEnabled = false;
   penTableScaled = true;
   pentablestate = false;
+  color : string = "";
+  selectedPenRow: IPenTableRow | null = null;
+  colorPickerVisible = false;
 
   guiState: any;
 
- constructor(private readonly rxCoreService: RxCoreService) {}
+ constructor(private readonly rxCoreService: RxCoreService,
+  private readonly colorHelper: ColorHelper
+  ) {}
 
   ngOnInit(): void {
 
-    
+    //RXCore.setuploadPenTableInput("penTableFileInput");
 
     RXCore.onGuipenTable((pentable : Array<IVectorPen>) => {
 
@@ -186,10 +192,53 @@ export class PenTableComponent implements OnInit {
     }
   }
 
-  
-
-  onPenTableUpload(): void {
-    //RXCore.GUI_penTableJSON();
+  onPenTableUpload(fileInput: HTMLInputElement): void {
     RXCore.usePentableUpload();
+    //fileInput.id;
+    RXCore.setuploadPenTableInput(fileInput);
+    fileInput.click();
   }
+  
+  onPenTableFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+  
+    if (!input.files || input.files.length === 0) {
+      return;
+    }
+  
+    RXCore.fileSelected();
+  
+    // Optional refresh if needed after upload completes
+    // RxCore.penTabledialog();
+  }
+  
+  clearFileInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    input.value = '';
+  }
+
+  openColorPicker(row: IPenTableRow, event: MouseEvent): void {
+    this.selectedPenRow = row;
+    this.colorPickerVisible = true;
+  }
+
+  onPenColorChanged(color: string): void {
+    if (!this.selectedPenRow) {
+      return;
+    }
+      this.selectedPenRow.color = color;
+
+      this.colorPickerVisible = false;
+      this.selectedPenRow = null;
+
+  }
+  
+  onColorSelect(color: string): void {
+    
+    this.color = color;
+    
+  }
+
+  
+  
 }

@@ -27,6 +27,9 @@ var RxConfig = (function() {
     var savefile = baseURLBin + "RxCSISAPI.dll?WebClientSaveFile";
 
     var FileuploadURL = baseURLBin + "RxCSISAPI.dll?WebClientFileUpload";
+    var PenTableUpload = baseURLBin + "RxCSISAPI.dll?WebClientCTBConvert";
+    var PenTableFile = baseURLBin + "RxCSISAPI.dll?WebClientCTBConvertFile";
+
     var PDFExportURL = baseURLBin + "RxCSISAPI.dll?WebClientSaveAs";
     var PDFExportPageURL = baseURLBin + "RxCSISAPI.dll?WebClientSavePageAs"; 
 
@@ -95,6 +98,8 @@ var RxConfig = (function() {
         markupsave : markupsave,
         savefile : savefile,
         FileuploadURL: FileuploadURL,
+        PenTableUpload : PenTableUpload,
+        PenTableFile : PenTableFile,
         PDFExportURL: PDFExportURL,
         PDFExportPageURL : PDFExportPageURL,
         PDFPrintPrepare : PDFPrintPrepare,

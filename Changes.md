@@ -1,3 +1,13 @@
+March 26, 2026
+
+### Sync udate to keep the changes for new 3D functionality up to date. 
+### Added new navigation cube for 3D models.
+
+RxCore version is now 37.34
+- src\assets\scripts\rxcorefunctions.js
+- src\assets\scripts\ViewCube.js
+
+
 March 24, 2026
 
 ### Mew Thumbnail generation pipeline. Combining generation of multiple thumbnails for PDF documents that ensure the Foxit rendering is not compromized. 
@@ -1701,3 +1711,4 @@ Component Path: `components/annotation-tools/search-panel`
 - `markupDocumentSearchResult`
 - `markupTextWithOrange`
 - `onGuiDocumentSearch`
+

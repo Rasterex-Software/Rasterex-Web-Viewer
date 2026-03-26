@@ -138,6 +138,12 @@ export class RXCore {
         RxCore.setActiveFileEx(index);
     }
 
+    public static setuploadPenTableInput(inputelement : HTMLElement): void {
+        RxCore.setuploadPenTableInput(inputelement);
+    }
+
+    
+
     public static fileSelected(): void {
         RxCore.fileSelected();
     }

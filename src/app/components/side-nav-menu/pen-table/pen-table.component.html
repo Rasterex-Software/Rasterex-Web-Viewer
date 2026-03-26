@@ -20,8 +20,20 @@
     </div>
   
     <div class="pen-table-actions">
-      <button type="button" (click)="onPenTableUpload()">Upload</button>
+
+      <input
+        #penTableFileInput
+        type="file"
+        (change)="onPenTableFileSelected($event)"
+        style="display: none"
+        (click)="clearFileInput($event)"
+    />
+    
+
+      <button type="button" (click)="onPenTableUpload(penTableFileInput)">Upload</button>
       <button type="button" (click)="onPenTableDefault()">Default</button>
+    
+
     </div>
   
     <table class="pen-table-grid">
@@ -37,12 +49,29 @@
           <td>{{ row.index }}</td>
           <td>{{ row.width }}</td>
           <td>
-            <span
-              class="color-swatch"
-              [style.background]="row.color"
-            ></span>
+            <button
+              type="button"
+              class="color-cell-button"
+              (click)="openColorPicker(row, $event)"
+            >
+              <span
+                class="color-swatch"
+                [style.background]="row.color">
+              </span>
+            </button>
           </td>
+
+
+          
         </tr>
       </tbody>
     </table>
+
+    <rx-color-picker
+      *ngIf="colorPickerVisible"
+      [value]="selectedPenRow?.color || ''"
+      (valueChange)="onPenColorChanged($event)">
+    </rx-color-picker>
+
+
   </div>

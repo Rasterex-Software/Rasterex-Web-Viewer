@@ -1,3 +1,15 @@
+March 28, 2026
+
+### Adjust the orientation of the entire scene so that the y - axis is upward, and fix issues such as selection and explode caused by this adjustment.
+### Refine view cube and fix some bugs
+
+
+Updated and new files
+
+- src\assets\scripts\rxcorefunctions.js
+- src\assets\scripts\ViewCube.js
+
+
 March 26, 2026
 
 ### Sync udate to keep the changes for new 3D functionality up to date. 

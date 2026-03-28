@@ -550,7 +550,6 @@
         }
 
         initLights() {
-            // Match x-viewer ViewCubePlugin: directional + ambient + hemisphere so faces show clear light/shade variation
             var color = 0xffffff;
             var directionalLight = new THREE.DirectionalLight(color, 1.5);
             directionalLight.position.set(-100, 80, 0);

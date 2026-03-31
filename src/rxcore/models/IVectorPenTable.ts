@@ -13,11 +13,31 @@ export interface IVectorPen {
     resetcolor:() => void;
     resetwidth:() => void;
     resetstyle:() => void;
+    setcolor:(pcolor : string) => void;
+    getcolor:() => string;
+    setwidth:(pwidth : number) => void;
+    getwidth:() => number;
+    getdisplaywidth:() => number;
+    setstyle:(pstyle : number) => void; //check type
+    setOriginalwidth :(pwidth : number) => void;
+    setdisplaywidth :(pwidth : number) => void;
+    setOriginalcolor:(pcolor : string) => void;
+    setOriginalStyle:(pstyle : number) => void; //check type
+    setarrayindex:(indx : number) => void;
+    getarrindex:() => number;
+    setunitwidth:(uwidth : number) => void;
 
 }
+
 
 export interface IVectorPenTable {
     pens: Array<IVectorPen>;
-    changed : boolean;
+    changed: boolean;
+
     getPen: (index: number) => IVectorPen;
+
+    setChanged?: (value: boolean) => void;
+    isChanged?: () => boolean;
+    markChanged?: () => void;
 }
+

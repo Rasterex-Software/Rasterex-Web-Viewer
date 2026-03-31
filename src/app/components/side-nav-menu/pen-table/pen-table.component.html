@@ -1,77 +1,119 @@
 <div class="pen-table-panel">
-    <div class="pen-table-controls">
-      <label>
-        <input
-          type="checkbox"
+  <div class="pen-table-toolbar">
+    <div class="pen-table-options">
+      
+      <div class="option-row">
+        <span>Use pen table</span>
+        <rx-switch
           [checked]="penTableEnabled"
-          (change)="onPenTableEnabledChange($any($event.target).checked)"
-        />
-        Use pen table
-      </label>
-  
-      <label>
-        <input
-          type="checkbox"
+          (change)="onPenTableEnabledChange($event)">
+        </rx-switch>
+      </div>
+
+
+      <div class="option-row" [class.is-disabled]="!penTableEnabled">
+        <span>Scaled</span>
+        <rx-switch
           [checked]="penTableScaled"
-          (change)="onPenTableScaledChange($any($event.target).checked)"
-        />
-        Scaled
-      </label>
+          [class.disabled]="!penTableEnabled"
+          (change)="onPenTableScaledChange($event)">
+        </rx-switch>
+      </div>
+
     </div>
-  
+
     <div class="pen-table-actions">
+      <button
+        type="button"
+        class="btn btn-primary"
+        (click)="onPenTableUpload(fileInput)">
+        Upload
+      </button>
 
-      <input
-        #penTableFileInput
-        type="file"
-        (change)="onPenTableFileSelected($event)"
-        style="display: none"
-        (click)="clearFileInput($event)"
-    />
-    
-
-      <button type="button" (click)="onPenTableUpload(penTableFileInput)">Upload</button>
-      <button type="button" (click)="onPenTableDefault()">Default</button>
-    
-
+      <button
+        type="button"
+        class="btn btn-outline"
+        (click)="onPenTableDefault()">
+        Default
+      </button>
     </div>
-  
+
+
+    <div class="pen-table-editor" *ngIf="selectedPenRow">
+      <div class="editor-header">
+        <span class="editor-title">
+          Selected pen {{ selectedPenRow.index }}
+        </span>
+    
+        <span
+          class="color-circle selected-color"
+          [style.background]="tempColor">
+        </span>
+      </div>
+    
+      <rx-color-picker
+        [value]="tempColor"
+        (valueChange)="onTempColorChanged($event)">
+      </rx-color-picker>
+    
+      <div class="editor-actions">
+        <button type="button" class="btn btn-outline" (click)="onCancelColor()">
+          Cancel
+        </button>
+    
+        <button type="button" class="btn btn-primary" (click)="onApplyColor()">
+          Apply
+        </button>
+      </div>
+    </div>
+
+    <!-- <div class="pen-table-editor" *ngIf="selectedPenRow">
+      <div class="editor-header">
+        <span class="editor-title">Selected pen {{ selectedPenRow.index }}</span>
+        <span
+          class="color-circle selected-color"
+          [style.background]="selectedPenRow.color">
+        </span>
+      </div>
+
+      <rx-color-picker
+        [value]="selectedPenRow.color || ''"
+        (valueChange)="onPenColorChanged($event)">
+      </rx-color-picker>
+    </div> -->
+  </div>
+
+  <div class="pen-table-list">
     <table class="pen-table-grid">
       <thead>
         <tr>
-          <th>Pen index</th>
+          <th>Pen</th>
           <th>Width</th>
           <th>Color</th>
         </tr>
       </thead>
+
       <tbody>
-        <tr *ngFor="let row of penData">
+        <tr
+          *ngFor="let row of penData"
+          [class.selected]="selectedPenRow?.index === row.index">
           <td>{{ row.index }}</td>
           <td>{{ row.width }}</td>
-          <td>
-            <button
-              type="button"
-              class="color-cell-button"
-              (click)="openColorPicker(row, $event)"
-            >
-              <span
-                class="color-swatch"
-                [style.background]="row.color">
-              </span>
-            </button>
+          <td class="color-cell">
+            <span
+              class="color-circle clickable"
+              [style.background]="row.color"
+              (click)="openColorPicker(row, $event)">
+            </span>
           </td>
-
-
-          
         </tr>
       </tbody>
     </table>
-
-    <rx-color-picker
-      *ngIf="colorPickerVisible"
-      [value]="selectedPenRow?.color || ''"
-      (valueChange)="onPenColorChanged($event)">
-    </rx-color-picker>
-
-
   </div>
+
+  <input
+    #fileInput
+    type="file"
+    style="display: none"
+    (change)="onPenTableFileSelected($event)" />
+</div>

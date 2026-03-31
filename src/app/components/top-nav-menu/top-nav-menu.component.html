@@ -226,7 +226,17 @@
           tabindex="0"
           (click)="handleSidebarOpen(7)"
         >
-          <svg
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="2.5" y="3.5" width="15" height="3" rx="0.75" stroke="currentColor" stroke-width="1.5"/>
+          <rect x="2.5" y="8.5" width="15" height="3" rx="0.75" stroke="currentColor" stroke-width="1.5"/>
+          <rect x="2.5" y="13.5" width="15" height="3" rx="0.75" stroke="currentColor" stroke-width="1.5"/>
+        
+          <line x1="6" y1="3.5" x2="6" y2="6.5" stroke="currentColor" stroke-width="1.5"/>
+          <line x1="10" y1="8.5" x2="10" y2="11.5" stroke="currentColor" stroke-width="1.5"/>
+          <line x1="14" y1="13.5" x2="14" y2="16.5" stroke="currentColor" stroke-width="1.5"/>
+        </svg>
+
+<!--           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="24"
             height="24"
@@ -239,7 +249,7 @@
             />
             <path fill="none" d="M0 0h36v36H0z" />
           </svg>
-          <span>PEN TABLE</span>
+ -->          <span>PEN TABLE</span>
         </li>          
           <li
             *ngIf="

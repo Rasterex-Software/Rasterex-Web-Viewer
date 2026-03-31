@@ -19,7 +19,7 @@ var UIConfig = (function() {
                 "disablePenTableMenu": true,
                 "canLogin" : true,
                 "showmarkupZoom" : false,
-                "alwaysShowScaling" : false,
+                "alwaysShowScaling" : true,
                 "showAnnotationsOnLoad" : true,
                 //"localStoreStamp" : true,
                 "localStoreAnnotation": false,

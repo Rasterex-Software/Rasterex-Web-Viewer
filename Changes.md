@@ -1,3 +1,20 @@
+March 31, 2026
+
+### Added support for CAD pen table. Use "disablePenTableMenu": false, in UIConfig.js to enable.
+### Fixed various problems with scaling related to 3D measurement and pen table related to the new internal scaling object.
+
+
+RxCore version is now 37.35
+- src\assets\scripts\rxcorefunctions.js
+- src\assets\scripts\rxcorefunctions.min.js
+- src\rxcore\models\IVectorPenTable.ts
+- src\assets\config\UIConfig.js
+- src\app\components\top-nav-menu\top-nav-menu.component.html
+- src\app\components\side-nav-menu\pen-table\pen-table.component.ts
+- src\app\components\side-nav-menu\pen-table\pen-table.component.scss
+- src\app\components\side-nav-menu\pen-table\pen-table.component.html
+
+
 March 26, 2026
 
 ### Sync udate to keep the changes for new 3D functionality up to date. 

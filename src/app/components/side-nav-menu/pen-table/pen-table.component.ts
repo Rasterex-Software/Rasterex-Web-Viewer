@@ -22,6 +22,7 @@ export class PenTableComponent implements OnInit {
   penTableScaled = true;
   pentablestate = false;
   color : string = "";
+  tempColor: string = '';
   selectedPenRow: IPenTableRow | null = null;
   colorPickerVisible = false;
 
@@ -75,7 +76,9 @@ export class PenTableComponent implements OnInit {
                 
             }
 
-            curpentable.changed = true;
+
+            curpentable.setChanged?.(true);
+
             this.redrawpens();
 
             
@@ -105,6 +108,7 @@ export class PenTableComponent implements OnInit {
     this.penTableEnabled = onoff;
     this.pentablestate = onoff;
     RXCore.setPenTable(onoff);
+
   }
   
   sortpens() : void{
@@ -146,6 +150,8 @@ export class PenTableComponent implements OnInit {
 
     }
 
+    RXCore.redrawCurrentPage();
+
   }
 
  setPenTableScaling() : void {
@@ -158,13 +164,19 @@ export class PenTableComponent implements OnInit {
           RXCore.setPenwidth(pen);
         }
       }
-      curpentable.changed = true;
+      curpentable.markChanged?.();
     }
 
+    this.redrawpens();
 
  }
 
   onPenTableScaledChange(onoff: boolean): void {
+
+    if (!this.penTableEnabled) {
+      return;
+    }
+
     this.penTableScaled = onoff;
     RXCore.setPenTableScaled(onoff);
     this.setPenTableScaling();
@@ -184,7 +196,7 @@ export class PenTableComponent implements OnInit {
         }
       }
 
-      curpentable.changed = false;
+      curpentable.setChanged?.(false);
       this.redrawpens();
 
       RXCore.setPenTable(this.pentablestate);
@@ -217,28 +229,100 @@ export class PenTableComponent implements OnInit {
     input.value = '';
   }
 
-  openColorPicker(row: IPenTableRow, event: MouseEvent): void {
+  /*openColorPicker(row: IPenTableRow, event: MouseEvent): void {
     this.selectedPenRow = row;
+    this.tempColor = row.color; // store original
+    this.colorPickerVisible = true;
+    
+  }*/
+
+  openColorPicker(row: IPenTableRow): void {
+    this.selectedPenRow = row;
+    this.tempColor = row.color;
     this.colorPickerVisible = true;
   }
 
-  onPenColorChanged(color: string): void {
+  onTempColorChanged(color: string): void {
+    this.tempColor = this.normalizeColor(color);
+  }  
+
+  /*onTempColorChanged(color: string): void {
+    this.tempColor = color;
+  }*/
+
+
+
+  /*onApplyColor(): void {
+    if (this.selectedPenRow) {
+      this.selectedPenRow.color = this.tempColor;
+      this.colorPickerVisible = false;
+      this.redrawpens();
+    }
+  }*/  
+
+  onApplyColor(): void {
     if (!this.selectedPenRow) {
       return;
     }
-      this.selectedPenRow.color = color;
-
-      this.colorPickerVisible = false;
-      this.selectedPenRow = null;
-
+  
+    const pentable = RXCore.get2DVectorPentable();
+    const pen = pentable?.getPen(this.selectedPenRow.index);
+  
+    if (pen) {
+      pen.setcolor(this.tempColor);
+      pentable.markChanged?.();
+    }
+  
+    //this.colorPickerVisible = false;
+    this.selectedPenRow = null;
+    this.redrawpens();
   }
   
-  onColorSelect(color: string): void {
-    
-    this.color = color;
-    
+  onCancelColor(): void {
+    //this.colorPickerVisible = false;
+    this.tempColor = '';
+    this.selectedPenRow = null;
   }
 
+  /*onCancelColor(): void {
+    // simply reset temp color and close editor if you want
+    this.colorPickerVisible = false;
+    this.tempColor = this.selectedPenRow?.color || '';
+  }*/  
+
   
+  normalizeColor(color: string): string {
+    if (color.length === 9) {
+      return color.slice(0, 7); // strip alpha
+    }
+    return color;
+  }  
+
+  /*onPenColorChanged(color: string): void {
+    if (!this.selectedPenRow) {
+      return;
+    }
+
+    this.normalizeColor(color);
+
+    const pentable = RXCore.get2DVectorPentable();
+    const pen = pentable.getPen(this.selectedPenRow.index);
+
+    if (pen) {
+      pen.setcolor(color);
+    }
+
+    pentable.markChanged?.();
+
+    // whatever method you use to enable applying the pen table
+    // RXCore.setUsePenTable(true);
+    this.redrawpens();
+  
+
+    this.colorPickerVisible = false;
+    this.selectedPenRow = null;
+  }*/
+  
+    
   
 }

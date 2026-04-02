@@ -1,3 +1,11 @@
+April 2, 2026
+
+### Fixed dampening effect when model is large.
+
+RxCore version is now 37.35
+- src\assets\scripts\rxcorefunctions.js
+
+
 March 31, 2026
 
 ### Added support for CAD pen table. Use "disablePenTableMenu": false, in UIConfig.js to enable.

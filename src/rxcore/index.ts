@@ -1387,6 +1387,10 @@ export class RXCore {
         RxCore.GUI_exportComplete.connect(callback);
     }
 
+    public static onGuiClipBoardBlob(callback: Function): void {
+        RxCore.GUI_ClipBoardBlob.connect(callback);
+    }
+
     public static onGuiCompareMeasure(callback: Function): void {
         RxCore.GUI_CompareMeasure.connect(callback);
     }

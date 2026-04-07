@@ -440,6 +440,12 @@ export class AppComponent implements AfterViewInit {
 
     });
 
+    RXCore.onGuiClipBoardBlob((blob : any) => {
+
+      console.log("check blob here");
+
+    });
+
 
     RXCore.onGuiFoxitReady((initialDoc: any) => {
 

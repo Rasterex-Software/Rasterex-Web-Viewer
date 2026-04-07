@@ -49,12 +49,12 @@
     var AxisZ = new THREE.Vector3(0, 0, 1);
 
     var faceConfigs = [
-        { name: ViewCubeElement.RightFace, text: "RIGHT", pos: [50, 0, 0], rot: [AxisY, Rotation.Rotate90], textRot: 0 },
-        { name: ViewCubeElement.LeftFace, text: "LEFT", pos: [-50, 0, 0], rot: [AxisY, Rotation.Rotate270], textRot: 0 },
-        { name: ViewCubeElement.TopFace, text: "TOP", pos: [0, 50, 0], rot: [AxisX, Rotation.Rotate270], textRot: Rotation.Rotate180 },
-        { name: ViewCubeElement.BottomFace, text: "BOTTOM", pos: [0, -50, 0], rot: [AxisX, Rotation.Rotate90], textRot: 0 },
-        { name: ViewCubeElement.FrontFace, text: "FRONT", pos: [0, 0, 50], rot: [AxisY, Rotation.Rotate0], textRot: 0 },
-        { name: ViewCubeElement.BackFace, text: "BACK", pos: [0, 0, -50], rot: [AxisY, Rotation.Rotate180], textRot: 0 },
+        { name: ViewCubeElement.RightFace, text: "RIGHT", pos: [50, 0, 0], rot: [AxisY, Math.PI / 2], textRot: -Math.PI / 2 },
+        { name: ViewCubeElement.LeftFace, text: "LEFT", pos: [-50, 0, 0], rot: [AxisY, -Math.PI / 2], textRot: Math.PI / 2 },
+        { name: ViewCubeElement.BackFace, text: "BACK", pos: [0, 50, 0], rot: [AxisX, -Math.PI / 2], textRot: Math.PI },
+        { name: ViewCubeElement.FrontFace, text: "FRONT", pos: [0, -50, 0], rot: [AxisX, Math.PI / 2], textRot: 0 },
+        { name: ViewCubeElement.TopFace, text: "TOP", pos: [0, 0, 50], rot: [AxisY, 0], textRot: 0 },
+        { name: ViewCubeElement.BottomFace, text: "BOTTOM", pos: [0, 0, -50], rot: [AxisX, Math.PI], textRot: Math.PI },
     ];
 
     function gradient(startColor, endColor, step) {
@@ -159,13 +159,11 @@
             for (var i = 0; i < faceConfigs.length; i++) {
                 var config = faceConfigs[i];
                 var textTexture = createTextTexture(config.text, "#" + this.FACE_BACKGROUND_COLOR.toString(16).padStart(6, '0'), config.textRot);
-                var material = new THREE.MeshStandardMaterial({
+                var material = new THREE.MeshBasicMaterial({
                     color: this.FACE_BACKGROUND_COLOR,
                     map: textTexture,
                     opacity: 1.0,
                     transparent: true,
-                    roughness: 0.55,
-                    metalness: 0.05,
                 });
                 originalMaterials.push(material);
 
@@ -206,129 +204,76 @@
 
         createViewCubeEdges() {
             var object = new THREE.Object3D();
-            var v = this.OUTER_CUBE_WIDTH / 2 + 1;
-            var R = Rotation;
+            var h = (this.INNER_CUBE_WIDTH + this.OUTER_CUBE_WIDTH) / 4; // 45
+            var w = this.INNER_CUBE_WIDTH; // 80
+            var t = this.CORNER_WIDTH; // 10
 
-            object.add(this.createEdge(ViewCubeElement.TopFrontEdge, new THREE.Vector3(0, v, v), [
-                { axis: AxisZ, rad: R.Rotate180 },
-            ]));
-            object.add(this.createEdge(ViewCubeElement.TopRightEdge, new THREE.Vector3(v, v, 0), [
-                { axis: AxisX, rad: R.Rotate180 },
-                { axis: AxisY, rad: R.Rotate90 },
-                { axis: AxisZ, rad: R.Rotate0 },
-            ]));
-            object.add(this.createEdge(ViewCubeElement.TopBackEdge, new THREE.Vector3(0, v, -v), [
-                { axis: AxisZ, rad: R.Rotate180 },
-                { axis: AxisY, rad: R.Rotate180 },
-            ]));
-            object.add(this.createEdge(ViewCubeElement.TopLeftEdge, new THREE.Vector3(-v, v, 0), [
-                { axis: AxisX, rad: R.Rotate90 },
-                { axis: AxisY, rad: R.Rotate180 },
-                { axis: AxisZ, rad: R.Rotate90 },
-            ]));
-            object.add(this.createEdge(ViewCubeElement.BottomFrontEdge, new THREE.Vector3(0, -v, v), [
-                { axis: AxisZ, rad: R.Rotate0 },
-            ]));
-            object.add(this.createEdge(ViewCubeElement.BottomRightEdge, new THREE.Vector3(v, -v, 0), [
-                { axis: AxisX, rad: R.Rotate90 },
-                { axis: AxisY, rad: R.Rotate0 },
-                { axis: AxisZ, rad: R.Rotate90 },
-            ]));
-            object.add(this.createEdge(ViewCubeElement.BottomBackEdge, new THREE.Vector3(0, -v, -v), [
-                { axis: AxisZ, rad: R.Rotate0 },
-                { axis: AxisY, rad: R.Rotate180 },
-            ]));
-            object.add(this.createEdge(ViewCubeElement.BottomLeftEdge, new THREE.Vector3(-v, -v, 0), [
-                { axis: AxisX, rad: R.Rotate90 },
-                { axis: AxisY, rad: R.Rotate270 },
-                { axis: AxisZ, rad: R.Rotate90 },
-            ]));
-            object.add(this.createEdge(ViewCubeElement.FrontRightEdge, new THREE.Vector3(v, 0, v), [
-                { axis: AxisZ, rad: R.Rotate90 },
-            ]));
-            object.add(this.createEdge(ViewCubeElement.BackRightEdge, new THREE.Vector3(v, 0, -v), [
-                { axis: AxisZ, rad: R.Rotate90 },
-                { axis: AxisY, rad: R.Rotate180 },
-            ]));
-            object.add(this.createEdge(ViewCubeElement.BackLeftEdge, new THREE.Vector3(-v, 0, -v), [
-                { axis: AxisZ, rad: R.Rotate270 },
-                { axis: AxisY, rad: R.Rotate180 },
-            ]));
-            object.add(this.createEdge(ViewCubeElement.FrontLeftEdge, new THREE.Vector3(-v, 0, v), [
-                { axis: AxisZ, rad: R.Rotate270 },
-            ]));
+            // Top edges (Z = +45)
+            object.add(this.createEdgeBox(ViewCubeElement.TopBackEdge, new THREE.Vector3(0, h, h), [w, t, t]));
+            object.add(this.createEdgeBox(ViewCubeElement.TopFrontEdge, new THREE.Vector3(0, -h, h), [w, t, t]));
+            object.add(this.createEdgeBox(ViewCubeElement.TopRightEdge, new THREE.Vector3(h, 0, h), [t, w, t]));
+            object.add(this.createEdgeBox(ViewCubeElement.TopLeftEdge, new THREE.Vector3(-h, 0, h), [t, w, t]));
+
+            // Bottom edges (Z = -45)
+            object.add(this.createEdgeBox(ViewCubeElement.BottomBackEdge, new THREE.Vector3(0, h, -h), [w, t, t]));
+            object.add(this.createEdgeBox(ViewCubeElement.BottomFrontEdge, new THREE.Vector3(0, -h, -h), [w, t, t]));
+            object.add(this.createEdgeBox(ViewCubeElement.BottomRightEdge, new THREE.Vector3(h, 0, -h), [t, w, t]));
+            object.add(this.createEdgeBox(ViewCubeElement.BottomLeftEdge, new THREE.Vector3(-h, 0, -h), [t, w, t]));
+
+            // Side edges (Z = 0)
+            object.add(this.createEdgeBox(ViewCubeElement.FrontRightEdge, new THREE.Vector3(h, -h, 0), [t, t, w]));
+            object.add(this.createEdgeBox(ViewCubeElement.FrontLeftEdge, new THREE.Vector3(-h, -h, 0), [t, t, w]));
+            object.add(this.createEdgeBox(ViewCubeElement.BackRightEdge, new THREE.Vector3(h, h, 0), [t, t, w]));
+            object.add(this.createEdgeBox(ViewCubeElement.BackLeftEdge, new THREE.Vector3(-h, h, 0), [t, t, w]));
 
             return object;
         }
 
-        createEdge(name, position, rotations) {
-            var object = new THREE.Object3D();
-            var geometry = new THREE.PlaneGeometry(this.EDGE_SIZE.x, this.EDGE_SIZE.y);
-            var material = new THREE.MeshStandardMaterial({
+        createEdgeBox(name, position, size) {
+            var geometry = new THREE.BoxGeometry(size[0], size[1], size[2]);
+            var material = new THREE.MeshBasicMaterial({
                 color: this.EDGE_COLOUR,
                 opacity: this.EDGE_OPACITY,
                 transparent: true,
-                roughness: 0.6,
-                metalness: 0,
             });
-            var userData = { tick: 0 };
-            var edgeFrontFace = new THREE.Mesh(geometry, material);
-            edgeFrontFace.name = name;
-            edgeFrontFace.userData = userData;
-            edgeFrontFace.position.setY(this.EDGE_SIZE.y / 2);
-
-            var edgeBottomFace = new THREE.Mesh(geometry, material);
-            edgeBottomFace.name = name;
-            edgeBottomFace.userData = userData;
-            edgeBottomFace.position.setZ(-this.EDGE_SIZE.y / 2);
-            edgeBottomFace.rotateOnAxis(new THREE.Vector3(1, 0, 0), Math.PI / 2);
-
-            object.add(edgeFrontFace);
-            object.add(edgeBottomFace);
-            object.position.copy(position);
-            rotations.forEach(function(rotation) {
-                object.rotateOnAxis(rotation.axis, rotation.rad);
-            });
-            return object;
+            var mesh = new THREE.Mesh(geometry, material);
+            mesh.name = name;
+            mesh.position.copy(position);
+            mesh.userData = { tick: 0 };
+            return mesh;
         }
 
         createViewCubeCorners() {
             var object = new THREE.Object3D();
-            var v = this.OUTER_CUBE_WIDTH / 2 + 1;
-            var R = Rotation;
+            var h = (this.INNER_CUBE_WIDTH + this.OUTER_CUBE_WIDTH) / 4; // 45
+            var t = this.CORNER_WIDTH; // 10
 
-            object.add(this.createCorner(ViewCubeElement.TopFrontLeftCorner, new THREE.Vector3(-v, v, v), [
-                { axis: AxisZ, rad: R.Rotate270 },
-            ]));
-            object.add(this.createCorner(ViewCubeElement.TopFrontRightCorner, new THREE.Vector3(v, v, v), [
-                { axis: AxisZ, rad: R.Rotate180 },
-            ]));
-            object.add(this.createCorner(ViewCubeElement.TopBackRightCorner, new THREE.Vector3(v, v, -v), [
-                { axis: AxisX, rad: R.Rotate90 },
-                { axis: AxisY, rad: R.Rotate180 },
-                { axis: AxisZ, rad: R.Rotate0 },
-            ]));
-            object.add(this.createCorner(ViewCubeElement.TopBackLeftCorner, new THREE.Vector3(-v, v, -v), [
-                { axis: AxisX, rad: R.Rotate90 },
-                { axis: AxisY, rad: R.Rotate180 },
-                { axis: AxisZ, rad: R.Rotate90 },
-            ]));
-            object.add(this.createCorner(ViewCubeElement.BottomFrontLeftCorner, new THREE.Vector3(-v, -v, v), [
-                { axis: AxisZ, rad: R.Rotate0 },
-            ]));
-            object.add(this.createCorner(ViewCubeElement.BottomFrontRightCorner, new THREE.Vector3(v, -v, v), [
-                { axis: AxisZ, rad: R.Rotate90 },
-            ]));
-            object.add(this.createCorner(ViewCubeElement.BottomBackRightCorner, new THREE.Vector3(v, -v, -v), [
-                { axis: AxisX, rad: R.Rotate0 },
-                { axis: AxisY, rad: R.Rotate180 },
-                { axis: AxisZ, rad: R.Rotate0 },
-            ]));
-            object.add(this.createCorner(ViewCubeElement.BottomBackLeftCorner, new THREE.Vector3(-v, -v, -v), [
-                { axis: AxisX, rad: R.Rotate0 },
-                { axis: AxisY, rad: R.Rotate180 },
-                { axis: AxisZ, rad: R.Rotate90 },
-            ]));
+            // 8 corners
+            var positions = [
+                [h, h, h, ViewCubeElement.TopBackRightCorner],
+                [h, -h, h, ViewCubeElement.TopFrontRightCorner],
+                [-h, -h, h, ViewCubeElement.TopFrontLeftCorner],
+                [-h, h, h, ViewCubeElement.TopBackLeftCorner],
+                [h, h, -h, ViewCubeElement.BottomBackRightCorner],
+                [h, -h, -h, ViewCubeElement.BottomFrontRightCorner],
+                [-h, -h, -h, ViewCubeElement.BottomFrontLeftCorner],
+                [-h, h, -h, ViewCubeElement.BottomBackLeftCorner],
+            ];
+
+            for (var i = 0; i < positions.length; i++) {
+                var p = positions[i];
+                var geometry = new THREE.BoxGeometry(t, t, t);
+                var material = new THREE.MeshBasicMaterial({
+                    color: this.CORNER_COLOR,
+                    opacity: this.CORNER_OPACITY,
+                    transparent: true,
+                });
+                var mesh = new THREE.Mesh(geometry, material);
+                mesh.name = p[3];
+                mesh.position.set(p[0], p[1], p[2]);
+                mesh.userData = { tick: 0 };
+                object.add(mesh);
+            }
 
             return object;
         }
@@ -336,12 +281,10 @@
         createCorner(name, position, rotations) {
             var object = new THREE.Object3D();
             var geometry = new THREE.PlaneGeometry(this.CORNER_WIDTH, this.CORNER_WIDTH);
-            var material = new THREE.MeshStandardMaterial({
+            var material = new THREE.MeshBasicMaterial({
                 color: this.CORNER_COLOR,
                 opacity: this.CORNER_OPACITY,
                 transparent: true,
-                roughness: 0.6,
-                metalness: 0,
             });
             var userData = { tick: 0 };
             var cornerFrontFace = new THREE.Mesh(geometry, material);
@@ -379,32 +322,32 @@
 
         getDirectionByElement(viewCubeName) {
             switch (viewCubeName) {
-                case ViewCubeElement.TopFace: return new THREE.Vector3(0, 1, 0);
-                case ViewCubeElement.BottomFace: return new THREE.Vector3(0, -1, 0);
-                case ViewCubeElement.FrontFace: return new THREE.Vector3(0, 0, 1);
-                case ViewCubeElement.BackFace: return new THREE.Vector3(0, 0, -1);
+                case ViewCubeElement.TopFace: return new THREE.Vector3(0, 0, 1);
+                case ViewCubeElement.BottomFace: return new THREE.Vector3(0, 0, -1);
+                case ViewCubeElement.FrontFace: return new THREE.Vector3(0, -1, 0);
+                case ViewCubeElement.BackFace: return new THREE.Vector3(0, 1, 0);
                 case ViewCubeElement.LeftFace: return new THREE.Vector3(-1, 0, 0);
                 case ViewCubeElement.RightFace: return new THREE.Vector3(1, 0, 0);
-                case ViewCubeElement.TopFrontEdge: return new THREE.Vector3(0, 1, 1);
-                case ViewCubeElement.TopRightEdge: return new THREE.Vector3(1, 1, 0);
-                case ViewCubeElement.TopBackEdge: return new THREE.Vector3(0, 1, -1);
-                case ViewCubeElement.TopLeftEdge: return new THREE.Vector3(-1, 1, 0);
-                case ViewCubeElement.BottomFrontEdge: return new THREE.Vector3(0, -1, 1);
-                case ViewCubeElement.BottomRightEdge: return new THREE.Vector3(1, -1, 0);
-                case ViewCubeElement.BottomBackEdge: return new THREE.Vector3(0, -1, -1);
-                case ViewCubeElement.BottomLeftEdge: return new THREE.Vector3(-1, -1, 0);
-                case ViewCubeElement.FrontLeftEdge: return new THREE.Vector3(-1, 0, 1);
-                case ViewCubeElement.FrontRightEdge: return new THREE.Vector3(1, 0, 1);
-                case ViewCubeElement.BackRightEdge: return new THREE.Vector3(1, 0, -1);
-                case ViewCubeElement.BackLeftEdge: return new THREE.Vector3(-1, 0, -1);
-                case ViewCubeElement.TopFrontLeftCorner: return new THREE.Vector3(-1, 1, 1);
-                case ViewCubeElement.TopFrontRightCorner: return new THREE.Vector3(1, 1, 1);
-                case ViewCubeElement.TopBackRightCorner: return new THREE.Vector3(1, 1, -1);
-                case ViewCubeElement.TopBackLeftCorner: return new THREE.Vector3(-1, 1, -1);
-                case ViewCubeElement.BottomFrontLeftCorner: return new THREE.Vector3(-1, -1, 1);
-                case ViewCubeElement.BottomFrontRightCorner: return new THREE.Vector3(1, -1, 1);
-                case ViewCubeElement.BottomBackRightCorner: return new THREE.Vector3(1, -1, -1);
-                case ViewCubeElement.BottomBackLeftCorner: return new THREE.Vector3(-1, -1, -1);
+                case ViewCubeElement.TopFrontEdge: return new THREE.Vector3(0, -1, 1);
+                case ViewCubeElement.TopRightEdge: return new THREE.Vector3(1, 0, 1);
+                case ViewCubeElement.TopBackEdge: return new THREE.Vector3(0, 1, 1);
+                case ViewCubeElement.TopLeftEdge: return new THREE.Vector3(-1, 0, 1);
+                case ViewCubeElement.BottomFrontEdge: return new THREE.Vector3(0, -1, -1);
+                case ViewCubeElement.BottomRightEdge: return new THREE.Vector3(1, 0, -1);
+                case ViewCubeElement.BottomBackEdge: return new THREE.Vector3(0, 1, -1);
+                case ViewCubeElement.BottomLeftEdge: return new THREE.Vector3(-1, 0, -1);
+                case ViewCubeElement.FrontLeftEdge: return new THREE.Vector3(-1, -1, 0);
+                case ViewCubeElement.FrontRightEdge: return new THREE.Vector3(1, -1, 0);
+                case ViewCubeElement.BackRightEdge: return new THREE.Vector3(1, 1, 0);
+                case ViewCubeElement.BackLeftEdge: return new THREE.Vector3(-1, 1, 0);
+                case ViewCubeElement.TopFrontLeftCorner: return new THREE.Vector3(-1, -1, 1);
+                case ViewCubeElement.TopFrontRightCorner: return new THREE.Vector3(1, -1, 1);
+                case ViewCubeElement.TopBackRightCorner: return new THREE.Vector3(1, 1, 1);
+                case ViewCubeElement.TopBackLeftCorner: return new THREE.Vector3(-1, 1, 1);
+                case ViewCubeElement.BottomFrontLeftCorner: return new THREE.Vector3(-1, -1, -1);
+                case ViewCubeElement.BottomFrontRightCorner: return new THREE.Vector3(1, -1, -1);
+                case ViewCubeElement.BottomBackRightCorner: return new THREE.Vector3(1, 1, -1);
+                case ViewCubeElement.BottomBackLeftCorner: return new THREE.Vector3(-1, 1, -1);
                 default: break;
             }
             return undefined;
@@ -447,11 +390,7 @@
                 var color = gradient(this.CORNER_COLOR, this.FACE_HOVER_BACKGROUND_COLOR, tick);
                 material.color.set(color);
                 var scale = 1 + tick * 0.3;
-                if (mesh.parent) {
-                    mesh.parent.scale.set(scale, scale, scale);
-                } else {
-                    mesh.scale.set(scale, scale, scale);
-                }
+                mesh.scale.set(scale, scale, scale);
             }
         }
 
@@ -550,17 +489,11 @@
         }
 
         initLights() {
-            // Match x-viewer ViewCubePlugin: directional + ambient + hemisphere so faces show clear light/shade variation
-            var color = 0xffffff;
-            var directionalLight = new THREE.DirectionalLight(color, 1.5);
-            directionalLight.position.set(-100, 80, 0);
-            this.scene.add(directionalLight);
-            this.scene.add(directionalLight.target);
-
-            var ambientLight = new THREE.AmbientLight(color, 1);
-            var hemisphereLight = new THREE.HemisphereLight(color, 0xdddddd, 0.5);
+            var ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
             this.scene.add(ambientLight);
-            this.scene.add(hemisphereLight);
+            var directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            directionalLight.position.set(-100, 200, 100);
+            this.scene.add(directionalLight);
         }
 
         initViewCube() {

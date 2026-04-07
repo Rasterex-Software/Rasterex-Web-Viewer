@@ -1,3 +1,16 @@
+April 7, 2026
+
+### Sync udate to keep the changes for new 3D functionality up to date. 
+### 3D navigagion cube is now Y up.
+### Added orbit controller dampening fix for larger models.
+### Added a check for early exit in getMarkupFilelist function when performing rapid close open cycles.
+
+Updated and new files
+RxCore version is now 37.37
+- src\assets\scripts\rxcorefunctions.js
+- src\assets\scripts\ViewCube.js
+
+
 March 31, 2026
 
 ### Added support for CAD pen table. Use "disablePenTableMenu": false, in UIConfig.js to enable.

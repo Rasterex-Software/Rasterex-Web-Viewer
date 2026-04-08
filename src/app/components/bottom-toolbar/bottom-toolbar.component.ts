@@ -261,6 +261,11 @@ export class BottomToolbarComponent implements OnInit, AfterViewInit {
         break;
       case 'CLIPPING_3D_MODEL':
         RXCore.clipping3D(this.state.isActionSelected[action], -1, 0);
+        if (this.state.isActionSelected[action]) {
+          RXCore.clipping3D(true, 0, 100 - this.clippingXValue);
+          RXCore.clipping3D(true, 1, 100 - this.clippingYValue);
+          RXCore.clipping3D(true, 2, 100 - this.clippingZValue);
+        }
         break;
       case 'CLIPPINGX_3D_VALUE':
         RXCore.clipping3D(true, 0, 100 - this.clippingXValue);

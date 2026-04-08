@@ -1,9 +1,11 @@
 April 8, 2026
 
 ### Clean up lights in scene, leave just 1 DirectionalLight, 1 HemisphereLight, 1 AmbientLight.
+### Fix y clipping panel, make it top-down.
 
 Updated and new files
 - src\assets\scripts\rxcorefunctions.js
+- src\app\components\bottom-toolbar\bottom-toolbar.component.ts
 
 
 April 7, 2026

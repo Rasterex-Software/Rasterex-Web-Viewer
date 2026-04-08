@@ -1,3 +1,11 @@
+April 8, 2026
+
+### Clean up lights in scene, leave just 1 DirectionalLight, 1 HemisphereLight, 1 AmbientLight.
+
+Updated and new files
+- src\assets\scripts\rxcorefunctions.js
+
+
 April 7, 2026
 
 ### Sync udate to keep the changes for new 3D functionality up to date. 

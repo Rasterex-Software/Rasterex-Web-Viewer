@@ -260,7 +260,17 @@ export class BottomToolbarComponent implements OnInit, AfterViewInit {
         this.state.isActionSelected["TRANSPARENT_3D_MODEL"] = true;
         break;
       case 'CLIPPING_3D_MODEL':
-        RXCore.clipping3D(this.state.isActionSelected[action], -1, 0);
+
+        if (this.state.isActionSelected[action]) {
+          RXCore.clipping3D(true, 0, 100 - this.clippingXValue);
+          RXCore.clipping3D(true, 1, 100 - this.clippingYValue);
+          RXCore.clipping3D(true, 2, 100 - this.clippingZValue);
+        }
+      
+      //RXCore.clipping3D(this.state.isActionSelected[action], -1, 0);
+
+
+
         break;
       case 'CLIPPINGX_3D_VALUE':
         RXCore.clipping3D(true, 0, 100 - this.clippingXValue);

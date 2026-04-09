@@ -1,4 +1,15 @@
+April 9, 2026 update 2
+
+### Sync udate to keep the changes for new 3D functionality up to date. 
+### Fixed various issue caused by the previous update. 
+
+Updated and new files
+RxCore version is now 37.38
+- src\assets\scripts\rxcorefunctions.js
+
+
 April 9, 2026
+
 
 ### Sync udate to keep the changes for new 3D functionality up to date. 
 

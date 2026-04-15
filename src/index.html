@@ -8,6 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
   <!-- <script type="text/javascript" src="assets/scripts/jquery-2.1.0.min.js"></script> -->
+
   <script type="importmap">
     {
       "imports": {
@@ -15,16 +16,10 @@
       }
     }
   </script>
-  <script type="module">
-    import * as THREE from 'three';
-    import { GLTFLoader } from "./assets/scripts/GLTFLoader.js";
-    import { ViewCube } from "./assets/scripts/ViewCube.js"
-    if (!window.THREE) {
-      window.THREE = { ...THREE }; 
-    }
-    window.THREE.GLTFLoader = GLTFLoader; 
-    window.ViewCube = ViewCube;
-  </script>
+
+  <script type="module" src="./assets/scripts/three.loader.mjs"></script>
+  
+
   <!-- <script type="text/javascript" src="assets/scripts/three.min.js"></script> -->
   <script src="assets/scripts/Detector.js"></script>
   <!-- <script src="assets/scripts/GLTFLoader.js"></script> -->

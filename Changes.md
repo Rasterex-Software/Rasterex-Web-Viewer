@@ -1,3 +1,18 @@
+April 15, 2026 update
+
+### Refactored the 3D references.
+### New method RxCore.setViewCubePosition takes a string "UL" = upper left, "UR" = upper right, "LL" = lower left, "LR" = lower right.
+### RxCore optimized for 2D CAD fill type pointArray.
+
+
+Updated and new files
+RxCore version is now 37.39
+
+- src\assets\scripts\three.loader.mjs
+- src\index.html
+- src\assets\scripts\ViewCube.js
+
+
 April 9, 2026 update 2
 
 ### Sync udate to keep the changes for new 3D functionality up to date. 

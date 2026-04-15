@@ -520,6 +520,52 @@
             this.container = container;
         }
 
+        clearPosition() {
+            this.container.style.top = "";
+            this.container.style.bottom = "";
+            this.container.style.left = "";
+            this.container.style.right = "";
+        }
+
+        setPosition(pos){
+            if(this.container != undefined){
+                switch(pos){
+                    case "UL" : {
+                        this.clearPosition();
+                        this.container.style.top = "15px";
+                        this.container.style.left = "15px";
+                        break;
+                    }
+
+                    case "UR" : {
+                        this.clearPosition();
+                        this.container.style.top = "15px";
+                        this.container.style.right = "15px";
+        
+                        break;
+                    }
+
+                    case "LR" : {
+                        this.clearPosition();
+                        this.container.style.bottom = "15px";
+                        this.container.style.right = "15px";
+        
+                        break;
+                    }
+
+                    case "LL" : {
+                        this.clearPosition();
+                        this.container.style.bottom = "15px";
+                        this.container.style.left = "15px";
+        
+                        break;
+                    }
+
+                }
+
+            }
+        }
+
         initScene() {
             this.scene = new THREE.Scene();
         }

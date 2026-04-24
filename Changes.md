@@ -1,3 +1,34 @@
+April 24, 2026 update
+
+
+### Method RxCore.setViewCubePosition modified to also optionally take offset values for x and y.
+### Restructured the close cycle when using RxCore.closeDocumentEx. The closing will now wait until the document load is complete.
+### Further restructured the close cycle when using RxCore.closeDocumentEx. Added extra guards to prevent operation on orphaned page objects during closing.
+### Added new methods RxCore.showEdgeLines() and RxCore.hideEdgeLines() that turns on/off edge lines in IFC 3D models.
+### Added new method RxCore.enableDampening(true/false) turns on or off the inertia effect for 3D orbit mode.
+         
+
+Example of use RxCore.closeDocumentEx.
+
+```typescript
+
+await RxCore.closeDocumentEx(
+RxCore.openFile(fileobject);
+
+```
+
+
+Updated and new files
+RxCore version is now 37.43
+
+
+- src\assets\scripts\rxcorefunctions.js
+- src\assets\scripts\ViewCube.js
+- src\rxcore\index.ts
+- src\app\components\top-nav-menu\opened-files-tabs\opened-files-tabs.component.ts
+- src\app\components\compare\compare.component.ts
+
+
 April 15, 2026 update
 
 ### Refactored the 3D references.

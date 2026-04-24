@@ -97,7 +97,16 @@ export class OpenedFilesTabsComponent implements OnInit {
     }
 
     //RXCore.markupSaveCheck(false);    
-    RXCore.closeDocument();
+    //RXCore.closeDocument();
+
+    //console.log("before close");
+    RXCore.closeDocumentEx().then(() => {
+        console.log("close complete");
+    });
+    //console.log("after close call");
+
+    
+
     RXCore.markupSaveCheck(true);
 
     this.bottomToolbarService.removeFromStates(file.index);

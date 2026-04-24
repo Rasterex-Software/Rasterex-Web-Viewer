@@ -125,9 +125,12 @@ export class RXCore {
         return RxCore.getOriginalPath();
     }
 
-
-    public static closeDocument(): void {
+   public static closeDocument(): void {
         RxCore.closeDocument();
+    }
+
+    public static closeDocumentEx(index?: number): Promise<number> {
+        return RxCore.closeDocumentEx(index);
     }
 
     public static doResize(binternal: boolean , offsetWidth: number, offsetHeight: number): void {

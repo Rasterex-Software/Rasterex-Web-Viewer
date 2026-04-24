@@ -527,36 +527,82 @@
             this.container.style.right = "";
         }
 
-        setPosition(pos){
+        setPosition(pos, offsetY, offsetX){
             if(this.container != undefined){
                 switch(pos){
                     case "UL" : {
                         this.clearPosition();
-                        this.container.style.top = "15px";
-                        this.container.style.left = "15px";
+
+                        if(offsetY){
+                            this.container.style.top = offsetY + "px";
+                        }else{
+                            this.container.style.top = "15px";
+                        }
+                        if(offsetX){
+                            this.container.style.left = offsetX + "px";
+                        }else{
+                            this.container.style.left = "15px";
+                        }
+                        
+                        
                         break;
                     }
 
                     case "UR" : {
                         this.clearPosition();
-                        this.container.style.top = "15px";
-                        this.container.style.right = "15px";
-        
+
+
+                        if(offsetY){
+                            this.container.style.top = offsetY + "px";
+                        }else{
+                            this.container.style.top = "15px";
+                        }
+                        if(offsetX){
+                            this.container.style.right = offsetX + "px";
+                        }else{
+                            this.container.style.right = "15px";
+                        }
+
                         break;
                     }
 
                     case "LR" : {
+
                         this.clearPosition();
-                        this.container.style.bottom = "15px";
-                        this.container.style.right = "15px";
+
+                        if(offsetY){
+                            this.container.style.bottom = offsetY + "px";
+                        }else{
+                            this.container.style.bottom = "15px";
+                        }
+                        if(offsetX){
+                            this.container.style.right = offsetX + "px";
+                        }else{
+                            this.container.style.right = "15px";
+                        }
+
+                        //this.container.style.bottom = "15px";
+                        //this.container.style.right = "15px";
         
                         break;
                     }
 
                     case "LL" : {
                         this.clearPosition();
-                        this.container.style.bottom = "15px";
-                        this.container.style.left = "15px";
+
+                        if(offsetY){
+                            this.container.style.bottom = offsetY + "px";
+                        }else{
+                            this.container.style.bottom = "15px";
+                        }
+                        if(offsetX){
+                            this.container.style.left = offsetX + "px";
+                        }else{
+                            this.container.style.left = "15px";
+                        }
+
+                        //this.container.style.bottom = "15px";
+                        //this.container.style.left = "15px";
         
                         break;
                     }

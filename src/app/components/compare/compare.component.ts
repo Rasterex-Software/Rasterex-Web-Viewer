@@ -196,7 +196,16 @@ export class CompareComponent implements OnInit {
 
             this.comparison = comparison;
             this.compareService.updateComparison(comparison);
-            RXCore.closeDocument();
+
+            //RXCore.closeDocument();
+
+            console.log("before close");
+            RXCore.closeDocumentEx().then(() => {
+                console.log("close complete");
+            });
+            console.log("after close call");
+
+
             RXCore.openFile(comparison.relativePath);
             await firstValueFrom(this.rxCoreService.guiFileLoadComplete$);
             this.rxCoreService.setGuiMode(GuiMode.Compare);
@@ -295,7 +304,16 @@ export class CompareComponent implements OnInit {
       this.progress = true;
       this.comparison = comparison;
       this.compareService.updateComparison(comparison);
-      RXCore.closeDocument();
+
+      //RXCore.closeDocument();
+
+      //console.log("before close");
+      RXCore.closeDocumentEx().then(() => {
+          console.log("close complete");
+      });
+      //console.log("after close call");
+
+      
       RXCore.openFile(comparison.relativePath);
       await firstValueFrom(this.rxCoreService.guiFileLoadComplete$);
       this.rxCoreService.setGuiMode(GuiMode.Compare);

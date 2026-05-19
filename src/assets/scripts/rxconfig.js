@@ -21,6 +21,8 @@ var RxConfig = (function() {
     var closesessionurl = baseURLBin + "RxCSISAPI.dll?CloseSession";
     var xmlurlmarkupsave = baseURLBin + "RxCSISAPI.dll?WebClientSaveMarkup";
 
+    var CommandJSONSingle = baseURLBin + "RxCSISAPI?CommandJSONSingle";
+
     var WebClientPDFUpload = baseURLBin + "RxCSISAPI.dll?WebClientPDFUpload";
 
     var markupsave = baseURLBin + "RxCSISAPI.dll?MarkupSave";
@@ -125,6 +127,7 @@ var RxConfig = (function() {
         configurationLocation: configurationLocation,
         serverComparefiles: serverComparefiles,
         serverJSONcommand : serverJSONcommand,
+        CommandJSONSingle : CommandJSONSingle,
         putSignature : putSignature,
         getSignature : getSignature,
         putInitial : putInitial,

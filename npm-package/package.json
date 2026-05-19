@@ -1,0 +1,30 @@
+{
+
+    "name": "rasterex-viewer",
+    "version": "1.0.0",
+    "description": "Static Rasterex web viewer bundle",
+    "private": false,
+  
+    "bin": {
+      "rasterex-viewer": "./server.js"
+    },
+  
+    "files": [
+      "dist/rasterex-viewer",
+      "server.js",
+      "README.md"
+    ],
+  
+    "dependencies": {
+      "express": "^4.19.2"
+    },
+  
+    "publishConfig": {
+      "access": "public"
+    },
+    "scripts": {
+        "start": "node server.js"
+      }
+
+
+  }

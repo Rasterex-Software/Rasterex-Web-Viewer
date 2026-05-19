@@ -6,6 +6,10 @@
 /out-tsc
 /bazel-out
 
+# Local npm package staging folder
+npm-package/dist/
+
+
 # Node
 /node_modules
 npm-debug.log

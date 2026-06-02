@@ -1,3 +1,66 @@
+June 6, 2026 update
+
+### Updated THREE.js to verion 151. Updated 3D lighting. Added new method search3DAttributesExArr that takes an array of global IDs to get a an array of meshes. These can be used to turn these meshes on/off or other operations.
+### Optimized RxCore parser for 2D binary data. Should now load CAD files quite a bit faster than before.
+### Added handling of text annotations outside page when doing export and markup save. Require new iframefoxit.js to work.
+### Added handling of PDF files that has non-continuous page scrolling. When this is detected, annotations not on current page is not rendered. Require new iframefoxit.js to work.
+### Download progress now supported using new callback RxCore.GUI_Progress.connect(callback); any open file process can now be used with a progress bar.
+### Calibration is no longer applied directly but used to calculate the scale. The calculated calibrate scale can then be applied as any other scale.
+    
+### The data in RXCore.onGuiCalibratediag callback has been changed from a string to a number, affects the files : src\app\services\rxcore.service.ts, src\rxcore\index.ts and src\app\components\annotation-tools\measure-panel\measure-panel.component.ts.
+
+### New helper methods for Scale and Calibration.
+
+```typescript
+
+    
+    public static getFractionString(val: number, fractionPrecision:number): string {
+        return RxCore.getFractionString(val, fractionPrecision);
+    }
+    // returns a string representation of a distance measured using fraction notation. Used for calibration.
+
+    
+
+    public static getFractionScaleParts(val: number, fractionPrecision:number): any {
+        return RxCore.getFractionScaleParts(val, fractionPrecision);
+    }
+    //Returns a scale in imperial fraction notation for use with scales drop down menu.
+
+
+```
+
+
+Updated and new files
+RxCore version is now 37.47
+
+- src\index.html
+- .gitignore
+- src\rxcore\index.ts
+- src\assets\scripts\ViewCube.js
+- src\assets\scripts\three.loader.js
+- src\assets\scripts\rxcorefunctions.min.js
+- src\assets\scripts\rxcorefunctions.js
+- src\assets\scripts\iframefoxit.js
+- src\app\app.component.ts
+- src\app\app.component.scss
+- src\app\app.component.html
+- src\app\shared\measure-options.ts
+- src\app\services\rxcore.service.ts
+- src\app\domain\enums\measurement-unit-type.ts
+- src\app\domain\enums\index.ts
+- src\app\components\side-nav-menu\threed-parts\threed-parts.component.ts
+- src\app\components\annotation-tools\scale-dropdown\scale-dropdown.component.ts
+- src\app\components\annotation-tools\measure-panel\measure-panel.component.ts
+- src\app\components\annotation-tools\measure-panel\measure-panel.component.scss
+- src\app\components\annotation-tools\measure-panel\measure-panel.component.html
+
+Third party 
+
+- src\assets\scripts\three.module.min.js
+- src\assets\scripts\three.min.js
+- src\assets\scripts\BufferGeometryUtils.js
+
+
 April 24, 2026 update
 
 

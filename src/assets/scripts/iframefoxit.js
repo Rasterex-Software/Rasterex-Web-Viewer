@@ -528,6 +528,8 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
         request.open('GET', url, true);
         request.responseType = 'blob';
         request.onload = function () {
+
+            RxCore.onPDFloadprogress(100);
             const file = new File([request.response], filename, {
                 type: 'application/pdf',
                 lastModified: Date.now()
@@ -535,6 +537,17 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
     
             foxview.openPDF(file, false);
         };
+        request.onprogress = function (event) {
+            if (event.lengthComputable) {
+              const progress = Math.round((event.loaded / event.total) * 95);
+              RxCore.onPDFloadprogress(progress);
+          
+              /*window.parent.postMessage({
+                type: 'PDF_LOAD_PROGRESS',
+                progress
+              }, '*');*/
+            }
+          };
         request.send();
     };
 

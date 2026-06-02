@@ -192,6 +192,27 @@ export class ScaleDropdownComponent implements OnInit, OnDestroy {
     this.cdr.markForCheck();
   }
 
+
+  convertToMM(value: string): number {
+    let unitScale = 1;
+
+    if (value === 'Centimeter') {
+      unitScale = 10;
+    } else if (value === 'Decimeter') {
+      unitScale = 100;
+    } else if (value === 'Meter') {
+      unitScale = 1000;
+    } else if (value === 'Kilometer') {
+      unitScale = 1000000;
+    } else if (value === 'Nautical Miles') {
+      unitScale = 185200000;
+    } else if (value === 'Inch') {
+      unitScale = 25.4;
+    }
+
+    return unitScale;
+  }
+
   onEditScale(): void {
     this.opened = false;
 
@@ -199,22 +220,8 @@ export class ScaleDropdownComponent implements OnInit, OnDestroy {
     
     if (this.selectedScale) {
 
-      let displayScaleValue = this.selectedScale.value ? this.selectedScale.value.split(':')[1] : 1;
+      this.measurePanelService.setMeasurePanelEditState(this.selectedScale);
       
-      // Convert feet back from inches for editing
-      if (this.selectedScale.metricUnit === 'Feet') {
-        const feetValue = parseFloat(displayScaleValue) / 12;
-        displayScaleValue = Math.round(feetValue * 10000) / 10000;
-      }
-
-      this.measurePanelService.setMeasurePanelEditState({
-        metricType: this.selectedScale.metric,
-        metricUnit: this.selectedScale.metricUnit,
-        precision: this.selectedScale.dimPrecision,
-        pageScaleValue: this.selectedScale.value ? this.selectedScale.value.split(':')[0] : 1,
-        displayScaleValue: displayScaleValue,
-        originalLabel: this.selectedScale.label
-      });
     }
 
     this.cdr.markForCheck();
@@ -222,63 +229,29 @@ export class ScaleDropdownComponent implements OnInit, OnDestroy {
 
   get selectedScaleLabel(): string {
     if (!this.selectedScale) return '';
-    const metric = this.selectedScale.metric;
-    const precision = this.selectedScale.dimPrecision;
-    let separator = metric === '1' ? ' = ' : ' : ';
-    let left: string;
-    let right: string;
-
-    if (metric === '1') {
-      // Handle cases where imperial properties might be missing
-      const numerator = this.selectedScale.imperialNumerator || 1;
-      const denominator = this.selectedScale.imperialDenominator || 1;
-      left = `${numerator}/${denominator}`;
-      right = this.selectedScale.value && this.selectedScale.value.includes(':') ? this.selectedScale.value.split(':')[1] : (this.selectedScale.customScaleValue || '');
-      if (this.selectedScale.metricUnit === 'Feet') {
-        const feetValue = parseFloat(right) / 12;
-        right = this.formatWithPrecision(feetValue.toString(), precision);
-      } else {
-        right = this.formatWithPrecision(right, precision);
-      }      
-    } else {
-      left = this.selectedScale.value && this.selectedScale.value.includes(':') ? this.selectedScale.value.split(':')[0] : (this.selectedScale.pageScaleValue || '');
-      right = this.selectedScale.value && this.selectedScale.value.includes(':') ? this.selectedScale.value.split(':')[1] : (this.selectedScale.customScaleValue || '');
-      right = this.formatWithPrecision(right, precision);
+  
+    if (this.selectedScale.label) {
+      return this.selectedScale.label;
     }
-
-    const unitShortLabel = this.getUnitShortLabel(this.selectedScale.metric, this.selectedScale.metricUnit);
-    return `${left}${separator}${right} ${unitShortLabel}`;
+  
+    return "no label found";
+    // fallback existing logic below...
   }
 
+  
   getScaleLabel(item: any): string {
     if (!item) return '';
+  
+    if (item.label) {
+      return item.label;
+    }
+  
     const metric = item.metric;
     const precision = item.dimPrecision;
-    let separator = metric === '1' ? ' = ' : ' : ';
-    let left: string;
-    let right: string;
-
-    if (metric === '1') {
-      // Handle cases where imperial properties might be missing
-      const numerator = item.imperialNumerator || 1;
-      const denominator = item.imperialDenominator || 1;
-      left = `${numerator}/${denominator}`;
-      right = item.value && item.value.includes(':') ? item.value.split(':')[1] : (item.customScaleValue || '');
-      if (item.metricUnit === 'Feet') {
-        const feetValue = parseFloat(right) / 12;
-        right = this.formatWithPrecision(feetValue.toString(), precision);
-      } else {
-        right = this.formatWithPrecision(right, precision);
-      }
-    } else {
-      left = item.value && item.value.includes(':') ? item.value.split(':')[0] : (item.pageScaleValue || '');
-      right = item.value && item.value.includes(':') ? item.value.split(':')[1] : (item.customScaleValue || '');
-      right = this.formatWithPrecision(right, precision);
-    }
-
-    const unitShortLabel = this.getUnitShortLabel(item.metric, item.metricUnit);
-    return `${left}${separator}${right} ${unitShortLabel}`;
+  
+    return "no label found";
   }
+  
 
   isScaleSelected(item: any): boolean {
     if (!item || !this.selectedScale) {
@@ -289,33 +262,7 @@ export class ScaleDropdownComponent implements OnInit, OnDestroy {
     return item.label === this.selectedScale.label || item.value === this.selectedScale.value;
   }
 
-  private getUnitShortLabel(metric: string, metricUnit: string): string {
-    let unitOptions;
-    
-    if (metric === MetricUnitType.METRIC) {
-      unitOptions = metricUnitsOptions;
-    } else if (metric === MetricUnitType.IMPERIAL) {
-      unitOptions = imperialUnitsOptions;
-    } else {
-      return metricUnit; 
-    }
-
-    const unitOption = unitOptions.find(option => option.label === metricUnit);
-    return unitOption?.shortLabel || metricUnit; 
-  }
-
-  private formatWithPrecision(value: string, precision: number): string {
-    const numValue = parseFloat(value);
-    if (isNaN(numValue)) return value;
-    
-    // Handle special case for "Rounded" precision (precision = 0 means round to whole numbers)
-    if (precision === 0) {
-      return Math.round(numValue).toString();
-    }
-    
-    return numValue.toFixed(precision);
-  }
-
+  
   private updateScaleOptionsFromFile(): void {
 
     // If we have parent-provided options, don't update anything

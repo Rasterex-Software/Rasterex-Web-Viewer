@@ -313,6 +313,41 @@
       }
     }
 
+    .scale-settings__input-separator {
+      padding: 0 8px;
+      font-size: 14px;
+      color: rgba(0, 0, 0, 0.54);
+    }
+    
+    .scale-settings__input-container--calibration {
+      padding-left: 4px !important;
+      padding-right: 4px !important;
+    
+      input {
+        width: 60px;
+      }
+    
+      .scale-settings__input-unit-container {
+        width: 28px;
+        font-size: 10px;
+      }
+    
+      .scale-settings__input-unit-container-trigger {
+        cursor: default;
+        padding: 2px 4px;
+    
+        &:hover {
+          background: transparent;
+        }
+      }
+    }
+    
+    .scale-settings__input-container--calibration-measured {
+      input {
+        width: 90px;
+      }
+    }    
+
     .grid {
       display: grid;
       grid-template-columns: 1fr 1fr 1fr;

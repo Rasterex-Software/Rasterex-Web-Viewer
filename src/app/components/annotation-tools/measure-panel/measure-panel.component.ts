@@ -19,7 +19,7 @@ import { RXCore } from 'src/rxcore';
 import { MARKUP_TYPES, METRIC } from 'src/rxcore/constants';
 import { AnnotationToolsService } from '../annotation-tools.service';
 import { MeasurePanelService } from './measure-panel.service';
-import { MetricUnitType } from 'src/app/domain/enums';
+import { MetricUnitType, MeasurementSystem } from 'src/app/domain/enums';
 import { 
   MeasureOption, 
   metricUnitsOptions, 
@@ -28,6 +28,7 @@ import {
   presetOptions,
   imperialPresetOptions,
   metricSystemOptions,
+  measurementSystemOptions,
   PresetOption,
   imperialPrecisionOptions,
 } from 'src/app/shared/measure-options';
@@ -52,6 +53,7 @@ export class MeasurePanelComponent implements OnInit, OnDestroy {
   private guifileloadSub: Subscription;
   bounds: HTMLElement = document.getElementById('mainContent') as HTMLElement;
   MetricUnitType = MetricUnitType;
+  MeasurementSystem = MeasurementSystem;
   MARKUP_TYPES = MARKUP_TYPES;
   visible: boolean = false;
   created: boolean = true;
@@ -72,15 +74,37 @@ export class MeasurePanelComponent implements OnInit, OnDestroy {
   precisionOptions = precisionOptions;
   imperialPrecisionOptions = imperialPrecisionOptions;
   metricSystemOptions = metricSystemOptions;
+  measurementSystemOptions = measurementSystemOptions;
   presetOptions = presetOptions;
   imperialPresetOptions = imperialPresetOptions;
-  selectedMetricType = MetricUnitType.METRIC;
+  selectedMetricType = MeasurementSystem.METRIC;
+  selectedMeasurementSystem = MeasurementSystem.METRIC;
+
+  
+
   selectedMetricUnit: MeasureOption = this.scaleUnits.metric[0];
   selectedMetricUnitFraction: MeasureOption = this.scaleUnits.imperial[1];
+
+  selectedUnitOption: MeasureOption = this.scaleUnits.metric[0]; 
+  selectedUnitFractionOption: MeasureOption = this.scaleUnits.imperial[1];
+  
+  selectedUnitFractionOptionInch: MeasureOption = this.scaleUnits.imperial[0];
+  selectedUnitFractionOptionFoot: MeasureOption = this.scaleUnits.imperial[1];
+
+
+  
   selectedScalePrecision: MeasureOption = precisionOptions[2];
-  calibrateLength: string;
+  
+  calibrateLength: number;
+  calibrateTempScale:number = 1;
+  calibrateLengthString: string;
   calibrateLengthFraction: string;
-  measuredCalibrateLength: string;
+  calibrateCorrectionMetricValue: string = '';
+
+  calibrateCorrectionFeetValue : string = '0';
+  calibrateCorrectionInchValue : string = '0';
+
+  measuredCalibrateLength: number;
   calibrateScale: string;
   isSelectedCalibrate: boolean;
   isCalibrateFinished: boolean;
@@ -134,9 +158,9 @@ export class MeasurePanelComponent implements OnInit, OnDestroy {
     this.strokeThickness = 2;
     this.strokeLineStyle = 0;
     this.snap = true;
-    this.calibrateLength = '0';
+    this.calibrateLength = 0;
     this.calibrateLengthFraction = '0';
-    this.measuredCalibrateLength = '0';
+    this.measuredCalibrateLength = 0;
     this.calibrateScale = '';
     this.isSelectedCalibrate = false;
     this.isCalibrateFinished = false;
@@ -149,7 +173,7 @@ export class MeasurePanelComponent implements OnInit, OnDestroy {
     this.expandedIndex = 0;
   }
 
-  private metricTypeState$ = new BehaviorSubject<MetricUnitType>(MetricUnitType.METRIC);
+  private metricTypeState$ = new BehaviorSubject<MeasurementSystem>(MeasurementSystem.METRIC);
   private metricTypeSub: Subscription;
 
   constructor(
@@ -200,7 +224,7 @@ export class MeasurePanelComponent implements OnInit, OnDestroy {
     });
 
     this.metricTypeSub = this.metricTypeState$.subscribe(type => {
-      this.selectedMetricType = type;
+      this.selectedMeasurementSystem = type;
     });
 
     this.stateSubscription =
@@ -222,15 +246,27 @@ export class MeasurePanelComponent implements OnInit, OnDestroy {
             this.applyScale(this.selectedScale);
           }
 
-          this.measuredCalibrateLength = '0';
+          this.measuredCalibrateLength = 0;
         }
       });
 
     this.rxCoreService.guiCalibrateFinished$.subscribe((state) => {
-      this.calibrateLength = parseFloat(state.data || '0').toFixed(
-        this.countDecimals(this.selectedScalePrecision?.value as number)
-      );
+
+      this.calibrateLength = state.data;
+
+      if (this.selectedMeasurementSystem === MeasurementSystem.IMPERIAL) {
+
+        this.calibrateLengthString = RXCore.getFractionString(this.calibrateLength, 32);
+
+      } else {
+        
+        this.calibrateCorrectionMetricValue = this.calibrateLength.toFixed(this.countDecimals(this.selectedScalePrecision?.value as number)).toString();
+        
+      }
+
       this.measuredCalibrateLength = this.calibrateLength;
+
+
       this.isCalibrateFinished = state.isFinished;
       if (state.isFinished) {
         this.calibrateScale = this.currentScale;
@@ -367,13 +403,13 @@ export class MeasurePanelComponent implements OnInit, OnDestroy {
   }
 
   selectMetricUnit(unit: MeasureOption): void {
-    this.selectedMetricUnit = unit;
+    this.selectedUnitOption = unit;
     this.isScaleUnitOpened = false;
     this.isScaleUnitOpenedFraction = false;
   }
 
   selectMetricUnitFraction(unit: MeasureOption): void {
-    this.selectedMetricUnitFraction = unit;
+    this.selectedUnitFractionOption = unit;
     this.isScaleUnitOpenedFraction = false;
     this.isScaleUnitOpened = false;
   }
@@ -409,7 +445,7 @@ export class MeasurePanelComponent implements OnInit, OnDestroy {
 
   onCalibrateCheckedChange(event: boolean): void {
     this.isSelectedCalibrate = event;
-    this.measuredCalibrateLength = '0.00';
+    this.measuredCalibrateLength = 0.0;
 
     // Store the current selected scale before switching to calibrate mode
     const currentSelectedScale = this.selectedScale;
@@ -453,7 +489,7 @@ export class MeasurePanelComponent implements OnInit, OnDestroy {
     this.isSelectedCalibrate = false;
     this.isCalibrateFinished = false;
 
-    this.calibrateLength = '0';
+    this.calibrateLength = 0;
     this.calibrateLengthFraction = '0';
 
     if (snap === false) {
@@ -461,24 +497,38 @@ export class MeasurePanelComponent implements OnInit, OnDestroy {
     }
   }
 
-  updateMetric(selectedMetricType: MetricUnitType): void {
+  updateMeasureSystem(selectedMeasurementSystem: MeasurementSystem): void {
+    RXCore.setUnit(selectedMeasurementSystem);
+  }
+
+  /*updateMetric(selectedMeasurementSystem: MeasurementSystem): void {
+    
+    
     switch (selectedMetricType) {
-      case MetricUnitType.METRIC:
+      case MeasurementSystem.METRIC:
         RXCore.setUnit(1);
         break;
-      case MetricUnitType.IMPERIAL:
+      case MeasurementSystem.IMPERIAL:
         RXCore.setUnit(2);
         break;
     }
-  }
+  }*/
 
-  updateMetricUnit(metric: MetricUnitType, metricUnit: string): void {
-    if (metric === METRIC.UNIT_TYPES.METRIC) {
-      RXCore.metricUnit(metricUnit);
-    } else if (metric === METRIC.UNIT_TYPES.IMPERIAL) {
-      RXCore.imperialUnit(metricUnit);
+  updateMeasureSystemUnit(metric: MeasurementSystem, measureUnit: string): void {
+    if (metric === MeasurementSystem.METRIC) {
+      RXCore.metricUnit(measureUnit);
+    } else if (metric === MeasurementSystem.IMPERIAL) {
+      RXCore.imperialUnit(measureUnit);
     }
   }
+
+  /*updateMetricUnit(metric: MeasurementSystem, metricUnit: string): void {
+    if (metric === MeasurementSystem.METRIC) {
+      RXCore.metricUnit(metricUnit);
+    } else if (metric === MeasurementSystem.IMPERIAL) {
+      RXCore.imperialUnit(metricUnit);
+    }
+  }*/
 
   convertToMM(value: string): number {
     let unitScale = 1;
@@ -520,27 +570,34 @@ export class MeasurePanelComponent implements OnInit, OnDestroy {
     return unitScale;
   }
 
+
   calculateScale(): string {
-    let selectedMetricForPage = '1';
-    let unitScaleForPage;
-    let unitScaleForDisplay;
-
-    if (selectedMetricForPage === this.selectedMetricType) {
-      unitScaleForPage = 1;
-      unitScaleForDisplay =
-        this.selectedMetricType === MetricUnitType.METRIC
-          ? this.convertToMM(this.selectedMetricUnit.label)
-          : this.convertToInch(this.selectedMetricUnit.label);
-    } else {
-      unitScaleForPage = 1;
-      unitScaleForDisplay = 1;
+    if (this.selectedMeasurementSystem === MeasurementSystem.IMPERIAL) {
+      const drawingInches =
+        Number(this.imperialNumerator) / Number(this.imperialDenominator);
+  
+      const realInches =
+        Number(this.customDisplayScaleValue) *
+        this.convertToInch(this.selectedUnitOption.label);
+  
+      if (!Number.isFinite(drawingInches) || drawingInches === 0) {
+        return '1:1';
+      }
+  
+      const scale = realInches / drawingInches;
+  
+      return `1:${scale}`;
     }
-
-    const scaleForPage = this.customPageScaleValue * unitScaleForPage;
-    const scaleForDisplay = this.customDisplayScaleValue * unitScaleForDisplay;
-
+  
+    const scaleForPage = Number(this.customPageScaleValue);
+    const scaleForDisplay =
+      Number(this.customDisplayScaleValue) *
+      this.convertToMM(this.selectedUnitOption.label);
+  
     return `${scaleForPage}:${scaleForDisplay}`;
-  }
+  }  
+
+  
 
   applyScale(selectedScaleObj: any): void {
 
@@ -551,8 +608,8 @@ export class MeasurePanelComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.updateMetric(selectedScaleObj.metric as MetricUnitType);
-    this.updateMetricUnit(selectedScaleObj.metric as MetricUnitType, selectedScaleObj.metricUnit);
+    this.updateMeasureSystem(selectedScaleObj.metric as MeasurementSystem);
+    this.updateMeasureSystemUnit(selectedScaleObj.metric as MeasurementSystem, selectedScaleObj.metricUnit);
     RXCore.setDimPrecisionForPage(
       this.countDecimals(this.selectedScalePrecision?.value as number)
     );
@@ -595,8 +652,8 @@ export class MeasurePanelComponent implements OnInit, OnDestroy {
   }
 
   applyScaleToDefault(rerenderMeasurePanel = false): void {
-    this.updateMetric(MetricUnitType.METRIC);
-    this.updateMetricUnit(MetricUnitType.METRIC, 'Millimeter');
+    this.updateMeasureSystem(MeasurementSystem.METRIC);
+    this.updateMeasureSystemUnit(MeasurementSystem.METRIC, 'Millimeter');
     RXCore.setDimPrecisionForPage(3);
     RXCore.scale('1:1');
 
@@ -616,20 +673,57 @@ export class MeasurePanelComponent implements OnInit, OnDestroy {
     }
   }
 
-  addNewScale(): void {
-    const getPageScaleObject = RXCore.getPageScaleObject(0);
+  confirmCalibrate(): void {
 
-    if (this.isSelectedCalibrate) {
-      this.applyCalibrate();
-      return;
+    this.applyCalibrate();
+
+    // switch from calibration view
+    //this.isEditingScale = false;
+    //this.isSelectedCalibrate = false;
+
+
+    /*console.log('before populate', {
+      imperialNumerator: this.imperialNumerator,
+      imperialDenominator: this.imperialDenominator,
+      customDisplayScaleValue: this.customDisplayScaleValue,
+      customPageScaleValue: this.customPageScaleValue
+    });*/
+
+
+    // populate scale edit values
+
+
+
+  }
+
+  private getImperialScaleLabel(): string {
+    const numerator = this.imperialNumerator || 1;
+    const denominator = this.imperialDenominator || 1;
+    const displayValue = this.customDisplayScaleValue || 1;
+  
+    if (this.selectedUnitOption.label === 'Feet') {
+      return `${numerator}/${denominator}" = ${displayValue}'`;
     }
+  
+    if (this.selectedUnitOption.label === 'Inch') {
+      return `${numerator}/${denominator}" = ${displayValue}"`;
+    }
+  
+    return `${numerator}/${denominator}" = ${displayValue} ${this.selectedUnitOption.label}`;
+  }
+ 
+  addNewScale(): void {
+    //const getPageScaleObject = RXCore.getPageScaleObject(0);
 
     // For imperial scales, use fraction format in the label
     let scaleLabel: string;
-    if (this.selectedMetricType === MetricUnitType.IMPERIAL) {
-      scaleLabel = `${this.imperialNumerator}/${this.imperialDenominator} = ${this.customDisplayScaleValue} ${this.selectedMetricUnit.label}`;
+    if (this.selectedMeasurementSystem === MeasurementSystem.IMPERIAL) {
+      scaleLabel = this.getImperialScaleLabel();
+      //scaleLabel = `${this.imperialNumerator}/${this.imperialDenominator} = ${this.customDisplayScaleValue} ${this.selectedUnitOption.label}`;
     } else {
-      scaleLabel = `${this.customPageScaleValue} ${this.selectedMetricUnit.label} : ${this.customDisplayScaleValue} ${this.selectedMetricUnit.label}`;
+
+      scaleLabel = `${this.customPageScaleValue}:${this.customDisplayScaleValue} ${this.selectedUnitOption.label}`;
+      //scaleLabel = `${this.customPageScaleValue} ${this.selectedUnitOption.label} : ${this.customDisplayScaleValue} ${this.selectedUnitOption.label}`;
     }
     let scale = this.calculateScale();
 
@@ -657,8 +751,8 @@ export class MeasurePanelComponent implements OnInit, OnDestroy {
           value: scale,
           preciseValue: preciseValue, // Store precise value for accurate scaling
           label: scaleLabel,
-          metric: this.selectedMetricType,
-          metricUnit: this.selectedMetricUnit.label,
+          metric: this.selectedMeasurementSystem,
+          metricUnit: this.selectedUnitOption.label,
           dimPrecision: this.countDecimals(this.selectedScalePrecision?.value as number),
           isSelected: true,
           pageRanges: this.selectedPageRanges,
@@ -741,8 +835,8 @@ export class MeasurePanelComponent implements OnInit, OnDestroy {
       value: scale,
       preciseValue: preciseValue, // Store precise value for accurate scaling
       label: scaleLabel,
-      metric: this.selectedMetricType,
-      metricUnit: this.selectedMetricUnit.label,
+      metric: this.selectedMeasurementSystem,
+      metricUnit: this.selectedUnitOption.label,
       dimPrecision: this.countDecimals(this.selectedScalePrecision?.value as number),
       isSelected: true,
       pageRanges: this.selectedPageRanges,
@@ -782,148 +876,84 @@ export class MeasurePanelComponent implements OnInit, OnDestroy {
     this.onCloseClick();
   }
 
-  applyCalibrate(): void {
-    if (
-      this.measuredCalibrateLength === this.calibrateLength &&
-      this.currentPageMetricUnitCalibrate === this.selectedMetricUnit.label
-    ) {
+  private populateScaleEditorFromCalibration(calibrationScale: number): void {
+    if (!Number.isFinite(calibrationScale)) {
       return;
     }
-
-    this.updateMetric(this.selectedMetricType);
-    this.updateMetricUnit(this.selectedMetricType, this.selectedMetricUnit.label);
-
-    this.calibrateLength = this.calibrateLength.trim();
-    const calibrateconn = RXCore.getCalibrateGUI();
-
-    let converttedCalibrateLength: number;
-    
-    if (this.selectedMetricType === MetricUnitType.IMPERIAL) {
-      // For Imperial, combine both calibrateLength and calibrateLengthFraction
-      const firstValue = parseFloat(this.calibrateLength) || 0;
-      const secondValue = parseFloat(this.calibrateLengthFraction) || 0;
-      
-      // Convert both values to inches and add them together
-      const firstValueInches = firstValue * this.convertToInch(this.selectedMetricUnit.label);
-      const secondValueInches = secondValue * this.convertToInch(this.selectedMetricUnitFraction.label);
-      
-      converttedCalibrateLength = Math.round((firstValueInches + secondValueInches) * 10000) / 10000;
+  
+    if (this.selectedMeasurementSystem === MeasurementSystem.IMPERIAL) {
+      // calibrationScale = real inches per drawing inch
+      const drawingInchesForOneFoot = 12 / calibrationScale;
+  
+      const fraction = RXCore.getFractionScaleParts(drawingInchesForOneFoot, 32);
+  
+      this.imperialNumerator = fraction.numerator;
+      this.imperialDenominator = fraction.denominator;
+      this.customDisplayScaleValue = 1;
+      this.selectedUnitOption = this.scaleUnits.imperial[1]; // Feet
     } else {
-      // For Metric, use the existing logic
-      converttedCalibrateLength =
-        parseInt(this.calibrateLength) * this.convertToMM(this.selectedMetricUnit.label);
+      this.customPageScaleValue = 1;
+      this.customDisplayScaleValue = Number(calibrationScale.toFixed(2));
     }
-
-    calibrateconn.SetTempCal(converttedCalibrateLength);
-    calibrateconn.setCalibrateScaleByLength();
-
-    if (!Number.isFinite(calibrateconn.getMeasureScale())) {
-      return;
-    }
-
-    calibrateconn.setCalibration(true);
-
-    RXCore.setDimPrecisionForPage(
-      this.countDecimals(this.selectedScalePrecision?.value as number)
-    );
-
-    RXCore.scale('Calibration');
-
-    // Get the precise measure scale value (don't round it)
-    const preciseMeasureScale = calibrateconn.getMeasureScale();
-    
-    // Create display value with limited precision for UI
-    let displayMeasureScale = preciseMeasureScale.toFixed(2);
-    displayMeasureScale = parseFloat(displayMeasureScale);
-
-    // Calculate the actual scale ratio (page units to real units)
-
-
-    //const scaleVaue = `1:${displayMeasureScale}`;
-
-    const pageScaleLebel = this.selectedMetricType === MetricUnitType.METRIC ? this.currentPageMetricUnitCalibrate : 'Inch';
-    const convertedMeasureScale =
-      this.selectedMetricType === MetricUnitType.METRIC
-        ? (
-            displayMeasureScale / this.convertToMM(this.selectedMetricUnit.label)
-          ).toFixed(2)
-        : (
-            displayMeasureScale / this.convertToInch(this.selectedMetricUnit.label)
-          ).toFixed(2);
-
-    // For imperial scales, determine the proper fraction representation
-
-    let scaleLabel: string;
-    let scaleValue: string;
-
-
-    if (this.selectedMetricType === MetricUnitType.IMPERIAL) {
-      // For imperial, we need to determine if this should be a fraction scale
-      const realValue = parseFloat(convertedMeasureScale);
-      
-      // If the real value is less than 1, it should be a fraction scale (e.g., 1/2 = 0.5 feet)
-      if (realValue < 1) {
-        const denominator = Math.round(1 / realValue);
-        scaleLabel = `1/${denominator} = ${convertedMeasureScale} ${this.selectedMetricUnit.label}`;
-        scaleValue = `1:${displayMeasureScale}`;
-      } else {
-        // If the real value is 1 or greater, use 1/1 format
-        scaleLabel = `1/1 = ${convertedMeasureScale} ${this.selectedMetricUnit.label}`;
-        scaleValue = `1:${displayMeasureScale}`;
-      }
-    } else {
-      scaleLabel = `1 ${pageScaleLebel} : ${convertedMeasureScale} ${this.selectedMetricUnit.label}`;
-      scaleValue = `1:${displayMeasureScale}`;
-    }
-
-    RXCore.setScaleLabel(scaleLabel);
-
-    RXCore.calibrate(false);
-
+  
+    this.isEditingScale = false;
     this.isSelectedCalibrate = false;
-    RXCore.scale(scaleValue);
-    this.measuredCalibrateLength = '0';
-    
-    let obj = {
-      value: scaleValue,
-      preciseValue: preciseMeasureScale, // Store the precise value for accurate scaling
-      label: scaleLabel,
-      metric: this.selectedMetricType,
-      metricUnit: this.selectedMetricUnit.label,
-      dimPrecision: this.countDecimals(this.selectedScalePrecision?.value as number),
-      isSelected: true,
-      imperialNumerator: this.selectedMetricType === MetricUnitType.IMPERIAL ? 1 : undefined,
-      imperialDenominator: this.selectedMetricType === MetricUnitType.IMPERIAL ? 1 : undefined,
-    };
 
-    // Use the scale management service to add the scale (handles file storage automatically)
-    this.scaleManagementService.addScale(obj);
-    
-    // Update local state from service (which now has proper selection state)
-    this.scalesOptions = this.scaleManagementService.getScales();
-    this.selectedScale = this.scalesOptions.find(scale => scale.isSelected);
+    /*this.customPageScaleValue
+    this.customDisplayScaleValue
+    this.imperialNumerator
+    this.imperialDenominator
+    this.selectedUnitOption*/
 
-    console.log('this.scalesOptions', this.scalesOptions);
 
-    // Apply the newly created scale to RXCore
-    if (this.selectedScale) {
-      this.applyScale(this.selectedScale);
-    }
-
-    this.currentScale = this.selectedScale?.label || '';
-
-    this.measurePanelService.setMeasureScaleState({
-      visible: true,
-      value: this.currentScale,
-    });
-    this.measurePanelService.setScaleState({
-      created: true,
-      scaleLabel: this.selectedScale?.label || '',
-      scalesOptions: this.scalesOptions, // Pass the updated scales
-    });
-
-    this.onCloseClick();
   }
+
+  private getConvertedCalibrateLength(): number {
+
+    if (this.selectedMeasurementSystem === MeasurementSystem.IMPERIAL) {
+  
+      const feet = parseFloat(this.calibrateCorrectionFeetValue) || 0;
+      const inches = parseFloat(this.calibrateCorrectionInchValue) || 0;
+  
+      return (feet * 12) + inches;
+    }
+  
+    const metricValue = parseFloat(this.calibrateCorrectionMetricValue);
+  
+    if (!Number.isFinite(metricValue)) {
+      return NaN;
+    }
+  
+    return metricValue * this.convertToMM(this.selectedUnitOption.label);
+  }
+
+
+
+  applyCalibrate(): void {
+    const calibrateconn = RXCore.getCalibrateGUI();
+  
+    const convertedCalibrateLength = this.getConvertedCalibrateLength();
+  
+    if (!Number.isFinite(convertedCalibrateLength)) {
+      return;
+    }
+  
+    calibrateconn.SetTempCal(convertedCalibrateLength);
+      
+    this.calibrateTempScale = calibrateconn.getCalibrationScale();
+  
+    if (!Number.isFinite(this.calibrateTempScale)) {
+      return;
+    }
+  
+    this.populateScaleEditorFromCalibration(this.calibrateTempScale);
+
+  
+    this.isEditingScale = false;
+    this.isSelectedCalibrate = false;
+  }
+
+  
 
   loadScaleList(): void {
     if (!this.scalesOptions || this.scalesOptions.length === 0) {
@@ -980,15 +1010,18 @@ export class MeasurePanelComponent implements OnInit, OnDestroy {
     );
   }
 
-  onRadioSelectionChange(value: MetricUnitType): void {
+  onRadioSelectionChange(value: MeasurementSystem): void {
     this.metricTypeState$.next(value);
+
     
-    this.selectedMetricType = value;
-    if (this.selectedMetricType === MetricUnitType.METRIC) {
+    this.updateMeasureSystem(value);
+    
+    this.selectedMeasurementSystem = value;
+    if (this.selectedMeasurementSystem === MeasurementSystem.METRIC) {
       this.customPageScaleValue = 1;
       this.customDisplayScaleValue = 1;
       this.scaleUnitOptions = this.scaleUnits.metric;
-      this.selectedMetricUnit = this.scaleUnits.metric[0];
+      this.selectedUnitOption = this.scaleUnits.metric[0];
       this.selectedScalePrecision = this.precisionOptions[2];
     } else {
       this.customPageScaleValue = 1/1;
@@ -997,7 +1030,7 @@ export class MeasurePanelComponent implements OnInit, OnDestroy {
       this.imperialDenominator = 1;
 
       this.scaleUnitOptions = this.scaleUnits.imperial;
-      this.selectedMetricUnit = this.scaleUnits.imperial[1];
+      this.selectedUnitOption = this.scaleUnits.imperial[0];
       this.selectedScalePrecision = this.imperialPrecisionOptions[0];
 
       this.setImperialFractionFromValue(this.customPageScaleValue);
@@ -1014,7 +1047,7 @@ export class MeasurePanelComponent implements OnInit, OnDestroy {
     this.customPageScaleValue = preset.pageScaleValue;
     this.customDisplayScaleValue = preset.customScaleValue;
 
-    if (this.selectedMetricType === MetricUnitType.IMPERIAL) {
+    if (this.selectedMeasurementSystem === MeasurementSystem.IMPERIAL) {
       if (preset.imperialNumerator && preset.imperialDenominator) {
         this.imperialNumerator = preset.imperialNumerator;
         this.imperialDenominator = preset.imperialDenominator;
@@ -1025,6 +1058,8 @@ export class MeasurePanelComponent implements OnInit, OnDestroy {
   }
 
   onCalibrateButtonClick(): void {
+    
+
     if (this.dontShowCalibrateAgain) {
       this.onCalibrateCheckedChange(true);
     } else {
@@ -1032,25 +1067,75 @@ export class MeasurePanelComponent implements OnInit, OnDestroy {
     }
   }
 
+  private findUnitOption(metricType: number, unitLabel: string): MeasureOption | undefined {
+    const unitList = metricType === MeasurementSystem.METRIC ? this.scaleUnits.metric : this.scaleUnits.imperial;
+    return unitList.find(u => u.label === unitLabel);
+  }
+  
+
+  private getImperialDisplayValue(scale: any): number {
+    return Number(scale.customDisplayScaleValue ?? scale.displayScaleValue ?? 1);
+  }
+  
+  private getMetricPageValue(scale: any): number {
+    const value = scale.value?.includes(':')
+      ? Number(scale.value.split(':')[0])
+      : Number(scale.pageScaleValue ?? 1);
+  
+    return Number.isFinite(value) ? value : 1;
+  }
+  
+  private getMetricDisplayValue(scale: any): number {
+    const internalDisplayValue = scale.value?.includes(':')
+      ? Number(scale.value.split(':')[1])
+      : Number(scale.displayScaleValue ?? scale.customScaleValue ?? 1);
+  
+    const unitScale = this.convertToMM(scale.metricUnit);
+  
+    const displayValue = internalDisplayValue / unitScale;
+  
+    return Number.isFinite(displayValue) ? displayValue : 1;
+  }
+
   mapEditStateToPanel(editState: any): void {
     this.isEditingScale = true;
 
+
+    this.selectedMeasurementSystem = editState.metric;
+
+    const unitOption = this.findUnitOption(editState.metric, editState.metricUnit);
+
+    if (unitOption) {
+      this.selectedUnitOption = unitOption; // safe assignment
+    } else {
+      console.warn(`Unit option not found for ${editState.metricUnit}, keeping previous selection.`); 
+    }
+
+    if (this.selectedMeasurementSystem === MeasurementSystem.IMPERIAL) {
+      this.imperialNumerator = editState.imperialNumerator ?? 1;
+      this.imperialDenominator = editState.imperialDenominator ?? 1;
+      this.customDisplayScaleValue = this.getImperialDisplayValue(editState);
+    } else {
+      this.customPageScaleValue = this.getMetricPageValue(editState);
+      this.customDisplayScaleValue = this.getMetricDisplayValue(editState);
+    }
+
     if (editState.metricType !== undefined) {
-      this.selectedMetricType = editState.metricType;
+      this.selectedMeasurementSystem = editState.metricType;
       this.onRadioSelectionChange(editState.metricType);
     }
 
     if (editState.metricUnit) {
-      const unitOptions = this.selectedMetricType === MetricUnitType.METRIC ? 
+      const unitOptions = this.selectedMeasurementSystem === MeasurementSystem.METRIC ? 
         this.scaleUnits.metric : this.scaleUnits.imperial;
       const unit = unitOptions.find(u => u.label === editState.metricUnit);
       if (unit) {
-        this.selectedMetricUnit = unit;
+        this.selectedUnitOption = unit;
       }
     }
 
     if (editState.precision !== undefined) {
-      if (this.selectedMetricType === MetricUnitType.IMPERIAL) {
+      if (this.selectedMeasurementSystem === MeasurementSystem.IMPERIAL) {
         this.selectedScalePrecision = imperialPrecisionOptions[0];
       } else {
         const precisionValue = editState.precision === 0 ? 1 : (1 / Math.pow(10, editState.precision));
@@ -1063,7 +1148,7 @@ export class MeasurePanelComponent implements OnInit, OnDestroy {
 
     if (editState.pageScaleValue !== undefined) {
       this.customPageScaleValue = editState.pageScaleValue;
-      if (this.selectedMetricType === MetricUnitType.IMPERIAL) {
+      if (this.selectedMeasurementSystem === MeasurementSystem.IMPERIAL) {
         this.setImperialFractionFromValue(editState.pageScaleValue);
       }
     }
@@ -1152,8 +1237,8 @@ export class MeasurePanelComponent implements OnInit, OnDestroy {
     const conflicts = this.scaleManagementService.getConflictingScales({
       label: this.isEditingScale ? this.editingScaleOriginalLabel : '',
       value: '',
-      metric: this.selectedMetricType,
-      metricUnit: this.selectedMetricUnit.label,
+      metric: this.selectedMeasurementSystem,
+      metricUnit: this.selectedUnitOption.label,
       dimPrecision: this.countDecimals(this.selectedScalePrecision?.value as number),
       isSelected: false,
       pageRanges: this.selectedPageRanges
@@ -1209,7 +1294,7 @@ export class MeasurePanelComponent implements OnInit, OnDestroy {
       const updatedScale = { ...scale };
       
       // Ensure imperial properties
-      if (scale.metric === MetricUnitType.IMPERIAL) {
+      if (scale.metric === MeasurementSystem.IMPERIAL) {
         updatedScale.imperialNumerator = scale.imperialNumerator || 1;
         updatedScale.imperialDenominator = scale.imperialDenominator || 1;
       }

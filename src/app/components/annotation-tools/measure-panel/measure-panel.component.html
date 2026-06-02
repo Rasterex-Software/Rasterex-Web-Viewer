@@ -38,14 +38,14 @@
 
                         <div class="scale-settings__presets" *ngIf="!isSelectedCalibrate">
                             <span class="preset-label">Presets: </span>
-                            <div *ngIf="selectedMetricType === MetricUnitType.METRIC">
+                            <div *ngIf="selectedMeasurementSystem === MeasurementSystem.METRIC">
                                 <button class="preset-button" (click)="onPresetChanged(presetOptions[0])">1:1</button>
                                 <button class="preset-button" (click)="onPresetChanged(presetOptions[1])">1:10</button>
                                 <button class="preset-button" (click)="onPresetChanged(presetOptions[2])">1:64</button>
                                 <button class="preset-button" (click)="onPresetChanged(presetOptions[3])">1:100</button>
                             </div>
 
-                            <div *ngIf="selectedMetricType === MetricUnitType.IMPERIAL">
+                            <div *ngIf="selectedMeasurementSystem === MeasurementSystem.IMPERIAL">
                                 <button class="preset-button" (click)="onPresetChanged(imperialPresetOptions[0])">1/128"= 1'</button>
                                 <button class="preset-button" (click)="onPresetChanged(imperialPresetOptions[1])">1/64"= 1'</button>
                                 <button class="preset-button" (click)="onPresetChanged(imperialPresetOptions[2])">1/32"= 1'</button>
@@ -53,7 +53,7 @@
                             </div>
                             
                             <rx-dropdown
-                                [options]="selectedMetricType === MetricUnitType.IMPERIAL ? imperialPresetOptions : presetOptions"
+                                [options]="selectedMeasurementSystem === MeasurementSystem.IMPERIAL ? imperialPresetOptions : presetOptions"
                                 type="three-dots"
                                 (valueChange)="onPresetChanged($event)"
                             >
@@ -61,7 +61,7 @@
                         </div>
 
                         <div class="scale-settings__input" *ngIf="!isSelectedCalibrate">
-                            <ng-container *ngIf="selectedMetricType === MetricUnitType.IMPERIAL; else metricInput">
+                            <ng-container *ngIf="selectedMeasurementSystem === MeasurementSystem.IMPERIAL; else metricInput">
                                 <div class="scale-settings__input-container scale-settings__input-container--imperial">
                                     <input 
                                         rxNumberFormat 
@@ -88,10 +88,10 @@
                                 </div>
                                 <div class="scale-settings__input-container"> 
                                     <span class="scale-settings__input-label">Display unit: </span>
-                                    <div class="scale-settings__input-unit-container scale-settings__input-container--border-radius-left">
+                                    <div class="scale-settings__input-unit-container--border-radius-left">
                                         <div #scaleUnitTrigger class="scale-settings__input-unit-container-trigger" (click)="this.isScaleUnitOpened = !this.isScaleUnitOpened">
-                                            {{selectedMetricUnit.shortLabel}}
-                                            <img src="/ssets/images/arrow-down.svg" class="btn-dropdown" />
+                                            {{selectedUnitOption.shortLabel}}
+                                            <img src="/assets/images/arrow-down.svg" class="btn-dropdown" />
                                         </div>
                                         <div #scaleUnitDropdown class="scale-settings__input-unit-container-dropdown top right" *ngIf="isScaleUnitOpened">
                                             <ul class="options-list">
@@ -124,9 +124,9 @@
 
                                 <div class="scale-settings__input-container">
                                     <span class="scale-settings__input-label">Display unit: </span>
-                                    <div class="scale-settings__input-unit-container scale-settings__input-container--border-radius-left">
+                                    <div class="scale-settings__input-unit-container --border-radius-left">
                                         <div #scaleUnitTrigger class="scale-settings__input-unit-container-trigger" (click)="this.isScaleUnitOpened = !this.isScaleUnitOpened">
-                                            {{selectedMetricUnit.shortLabel}}
+                                            {{selectedUnitOption.shortLabel}}
                                             <img src="assets/images/arrow-down.svg" class="btn-dropdown" />
                                         </div>
                                         <div #scaleUnitDropdown class="scale-settings__input-unit-container-dropdown top right" *ngIf="isScaleUnitOpened">
@@ -143,82 +143,94 @@
                             </ng-template>
                         </div>
 
-                        <div class="scale-settings__input" *ngIf="isSelectedCalibrate">    
-                            <div class="scale-settings__input-container scale-settings__input-container--border-radius-right">
-                                <input 
-                                    rxNumberFormat 
-                                    [allowNegative]="false" 
-                                    type="text"
-                                    [(ngModel)]="calibrateLength" />
-                                <div class="scale-settings__input-unit-container border-left-none">
-                                    <div #scaleUnitTrigger class="scale-settings__input-unit-container-trigger" (click)="onScaleUnitTriggerClick()">
-                                        {{selectedMetricUnit.shortLabel}}
-                                        <img src="assets/images/arrow-down.svg" class="btn-dropdown" />
-                                    </div>
-                                
-                                    <div #scaleUnitDropdown class="scale-settings__input-unit-container-dropdown top right" *ngIf="isScaleUnitOpened">
-                                        <ul class="options-list">
-                                            <li *ngFor="let option of scaleUnitOptions; let i = index"
-                                                (click)="selectMetricUnit(option)"
-                                                tabindex="0">
-                                                {{ option.shortLabel }}
-                                            </li>
-                                        </ul>
-                                    </div>
+                        <div class="scale-settings__input" *ngIf="isSelectedCalibrate"> 
+                        
+                        <div class="scale-settings__input-container scale-settings__input-container--calibration"
+                             *ngIf="selectedMeasurementSystem === MeasurementSystem.METRIC">
+                        
+                            <input
+                                rxNumberFormat
+                                [allowNegative]="false"
+                                type="text"
+                                [(ngModel)]="calibrateCorrectionMetricValue" /> 
+                                <!-- [(ngModel)]="calibrateLengthString" /> -->
+                      
+                            <div class="scale-settings__input-unit-container border-left-none">
+                            <div class="scale-settings__input-unit-container-trigger">
+                                {{selectedUnitOption.shortLabel}}
+                            </div>
+                            </div>
+                        
+
+                        </div>                        
+                        
+                        <div class="scale-settings__input-container scale-settings__input-container--calibration scale-settings__input-container--calibration-measured"
+                        *ngIf="selectedMeasurementSystem === MeasurementSystem.IMPERIAL">
+                            <input type="text" [(ngModel)]="calibrateLengthString" readonly style="width:50px;" />
+                            <div class="scale-settings__input-unit-container border-left-none">
+                                <div class="scale-settings__input-unit-container-trigger" style="width:20px;">
+                                    {{selectedUnitOption.shortLabel}}
                                 </div>
                             </div>
-                            <div class="scale-settings__input-container" *ngIf="selectedMetricType === MetricUnitType.IMPERIAL">
-                                <input
-                                    rxNumberFormat 
-                                    [allowNegative]="false" 
-                                    type="text"
-                                    [(ngModel)]="calibrateLengthFraction" />
-                                <div class="scale-settings__input-unit-container border-left-none">
-                                    <div #fractionScaleUnitTrigger class="scale-settings__input-unit-container-trigger" (click)="onFractionScaleUnitTriggerClick()">
-                                        {{selectedMetricUnitFraction.shortLabel}}
-                                        <img src="assets/images/arrow-down.svg" class="btn-dropdown" />
-                                    </div>
-                                    <div #fractionScaleUnitDropdown class="scale-settings__input-unit-container-dropdown top right" *ngIf="isScaleUnitOpenedFraction">
-                                        <ul class="options-list">
-                                            <li *ngFor="let option of scaleUnitOptions; let i = index"
-                                                (click)="selectMetricUnitFraction(option)"
-                                                tabindex="0">
-                                                {{ option.shortLabel }}
-                                            </li>
-                                        </ul>
-                                    </div>
+                          </div>
+                          
+                          <div class="scale-settings__input-separator" *ngIf="selectedMeasurementSystem === MeasurementSystem.IMPERIAL">=</div>
+                          
+                          <div class="scale-settings__input-container scale-settings__input-container--calibration" 
+                          *ngIf="selectedMeasurementSystem === MeasurementSystem.IMPERIAL">
+                            <input rxNumberFormat [allowNegative]="false" type="text" [(ngModel)]="calibrateCorrectionFeetValue" style="width:50px;"/>
+                            <div class="scale-settings__input-unit-container border-left-none">
+                                <div class="scale-settings__input-unit-container-trigger" style="width:20px;"> 
+                                    {{selectedUnitFractionOptionFoot.shortLabel}}
                                 </div>
                             </div>
-                        </div>
-
-                        <div class="scale-settings__precision">
-                            <div class="scale-settings__rounded-button-wrapper">
-                                <span class="preset-label">Precision: </span>
-
-                                <rx-dropdown
-                                    *ngIf="selectedMetricType === MetricUnitType.METRIC"
-                                    [options]="precisionOptions"
-                                    [value]="selectedScalePrecision"
-                                    (valueChange)="onScalePrecisionChanged($event)"
-                                >
-                                </rx-dropdown>
-
-                                <rx-dropdown
-                                    *ngIf="selectedMetricType === MetricUnitType.IMPERIAL"
-                                    [options]="imperialPrecisionOptions"
-                                    [value]="selectedScalePrecision"
-                                    (valueChange)="onScalePrecisionChanged($event)"
-                                >
-                                </rx-dropdown>
-                                
+                          </div>
+                          
+                          <div class="scale-settings__input-container scale-settings__input-container--calibration" *ngIf="selectedMeasurementSystem === MeasurementSystem.IMPERIAL">
+                            <input rxNumberFormat [allowNegative]="false" type="text" [(ngModel)]="calibrateCorrectionInchValue" style="width:50px;" />
+                            <div class="scale-settings__input-unit-container border-left-none">
+                                <div class="scale-settings__input-unit-container-trigger" style="width:20px;"> 
+                                    {{selectedUnitFractionOptionInch.shortLabel}}
+                                </div>
                             </div>
+                          </div>
+
+                        
+                    </div>
+
+                    <div class="scale-settings__precision" *ngIf="!isSelectedCalibrate">
+                            
+                        <div class="scale-settings__rounded-button-wrapper">
+                            <span class="preset-label">Precision: </span>
+
+                            <rx-dropdown
+                                *ngIf="selectedMeasurementSystem === MeasurementSystem.METRIC"
+                                [options]="precisionOptions"
+                                [value]="selectedScalePrecision"
+                                (valueChange)="onScalePrecisionChanged($event)"
+                            >
+                            </rx-dropdown>
+
+                            <rx-dropdown
+                                *ngIf="selectedMeasurementSystem === MeasurementSystem.IMPERIAL"
+                                [options]="imperialPrecisionOptions"
+                                [value]="selectedScalePrecision"
+                                (valueChange)="onScalePrecisionChanged($event)"
+                            >
+                            </rx-dropdown>
+                            
                         </div>
+                    </div>                    
 
                         <div class="panel-footer">
                             <button (click)="onCloseClick()" [disabled]="expandedIndex !== 0" class="measure-panel-button measure-panel-button__cancel">Cancel</button>
-                            <button (click)="addNewScale()" [disabled]="expandedIndex !== 0" class="measure-panel-button measure-panel-button__create">
+                            <button (click)="addNewScale()" [disabled]="expandedIndex !== 0" *ngIf="!isSelectedCalibrate" class="measure-panel-button measure-panel-button__create">
                                 {{ isEditingScale ? 'Edit Scale' : 'Add New Scale' }}
                             </button>
+                            <button (click)="confirmCalibrate()" [disabled]="expandedIndex !== 0" *ngIf="isSelectedCalibrate" class="measure-panel-button measure-panel-button__create">
+                                {{ 'Set Calibration' }}
+                            </button>
+
                         </div>
                     
                     </ng-template>
@@ -230,9 +242,9 @@
 
                         <div class="scale-settings__radio-group">
                             <rx-radio-button 
-                                [options]="metricSystemOptions" 
+                                [options]="measurementSystemOptions" 
                                 class="radio-group" 
-                                [selectedValue]="selectedMetricType"
+                                [selectedValue]="selectedMeasurementSystem"
                                 (selectionChange)="onRadioSelectionChange($event)">
                             </rx-radio-button>
                         </div>

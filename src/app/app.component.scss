@@ -141,6 +141,25 @@
     align-items: center;
     z-index: 1500; 
 
+    .progress-text-and-loader {
+        display: flex;
+        justify-content: space-around;
+    }
+
+    .spinner {
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid $accent;
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
     .progress {
         text-align: center;
         margin-left: 65px;
@@ -169,3 +188,43 @@
         }
     }
 }
+
+/* .progress-container{
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1500; 
+
+    .progress {
+        text-align: center;
+        margin-left: 65px;
+
+        div {
+            color: $main;
+            font-size: 15px;
+            font-weight: 400;
+        }
+    
+        progress {
+            width: 440px;
+            height: 8px;
+            margin-top: 20px;
+            border-radius: 20px;
+            border: 1px solid #ffffff47;
+    
+            &::-webkit-progress-bar {
+                background-color: #FFFFFF;
+            }
+    
+            &::-webkit-progress-value {
+                background-color: $accent;
+                border-radius: 20px;
+            }
+        }
+    }
+} */

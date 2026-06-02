@@ -624,8 +624,23 @@ export class RXCore {
         return RxCore.search3dAttributes(expression);
     }
 
+    public static search3dAttributesEx(expression: string, useregexp: boolean): Array<any> {
+        return RxCore.search3dAttributesEx(expression, useregexp);
+    }
+
+    public static search3DAttributesExArr(expressionarr: Array<string>): Array<any> {
+        return RxCore.search3DAttributesExArr(expressionarr);
+    }
+
+
     public static set3DBlockState(name: string, state: boolean): void {
         RxCore.set3DBlockState(name, state);
+    }
+
+    
+
+    public static setViewCubePosition(pos: string, offsetx : number, offsety : number): void {
+        RxCore.setViewCubePosition(pos, offsetx, offsety);
     }
 
     public static set3DBlockStateAll(state: boolean): void {
@@ -1203,6 +1218,8 @@ export class RXCore {
         RxCore.GUI_State.connect(callback);
     }
 
+
+
     public static onGuiFileLoadComplete(callback: Function): void {
         RxCore.GUI_FileLoadComplete.connect(callback);
     }
@@ -1210,6 +1227,11 @@ export class RXCore {
     public static onGuiActivateFile(callback: (fileindex: number) => void) {
         RxCore.GUI_ActivateFile.connect(callback);
     }
+
+    public static onGuiProgress(callback: (progress: number) => void) {
+        RxCore.GUI_Progress.connect(callback);
+    }
+
 
     public static onGuiPage(callback: Function): void {
         RxCore.GUI_Page.connect(callback);
@@ -1504,9 +1526,21 @@ export class RXCore {
         RxCore.setUnit(unit);
     }
 
+    //Alias method for internal use.
+    public static setMeasurementSystem(system: number): void {
+        RxCore.setUnit(system);
+    }
+
+
     public static getUnit(): any {
         return RxCore.getUnit();
     }
+
+    //Alias method for internal use.
+    public static getMeasurementSystem(): any {
+        return RxCore.getUnit();
+    }
+
 
     public static elementScale(scale: string): void {
         RxCore.elementScale(scale);
@@ -1533,8 +1567,23 @@ export class RXCore {
         return RxCore.setElementUnit(value);
     }
 
-    
 
+    public static getFractionValue(val: number, fractionPrecision:number): string {
+        return RxCore.getFractionValue(val, fractionPrecision);
+    }
+
+    public static getFractionString(val: number, fractionPrecision:number): string {
+        return RxCore.getFractionString(val, fractionPrecision);
+    }
+
+    public static getFractionScaleString(val: number, fractionPrecision:number): string {
+        return RxCore.getFractionScaleString(val, fractionPrecision);
+    }
+
+    public static getFractionScaleParts(val: number, fractionPrecision:number): any {
+        return RxCore.getFractionScaleParts(val, fractionPrecision);
+    }
+    
 
     public static metricUnit(val: string): void {
         RxCore.metricUnit(val)

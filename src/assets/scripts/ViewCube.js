@@ -641,7 +641,7 @@
             this.scene.add(this.camera);
         }
 
-        initLights() {
+        initLightsold() {
             // Match x-viewer ViewCubePlugin: directional + ambient + hemisphere so faces show clear light/shade variation
             var color = 0xffffff;
             var directionalLight = new THREE.DirectionalLight(color, 1.5);
@@ -654,6 +654,25 @@
             this.scene.add(ambientLight);
             this.scene.add(hemisphereLight);
         }
+
+        initLights() {
+            // Improved lighting for visibility
+            const color = 0xffffff;
+        
+            // Main directional light
+            const directionalLight = new THREE.DirectionalLight(color, 0.1); // increased intensity
+            directionalLight.position.set(-100, 100, 0);
+            this.scene.add(directionalLight);
+            this.scene.add(directionalLight.target);
+        
+            // Slightly stronger ambient light
+            const ambientLight = new THREE.AmbientLight(color, 0.5);
+            this.scene.add(ambientLight);
+        
+            // Slightly stronger hemisphere light for subtle fill
+            const hemisphereLight = new THREE.HemisphereLight(color, 0xdddddd, 0.3);
+            this.scene.add(hemisphereLight);
+        }        
 
         initViewCube() {
             this.viewCube = new Cube();

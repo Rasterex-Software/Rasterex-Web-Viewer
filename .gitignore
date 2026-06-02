@@ -9,6 +9,8 @@
 # Local npm package staging folder
 npm-package/dist/
 
+# threejs backup
+src/assets/scripts/threebackup/
 
 # Node
 /node_modules

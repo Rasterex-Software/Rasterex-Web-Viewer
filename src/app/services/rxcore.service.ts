@@ -358,9 +358,9 @@ export class RxCoreService {
   }
 
 
-  private _guiOnCalibrateFinished: BehaviorSubject<{isFinished: boolean, data: string}> = new BehaviorSubject<{isFinished: boolean, data: string}>({isFinished:false, data:''});
-  guiCalibrateFinished$: Observable<{isFinished: boolean, data: string}> = this._guiOnCalibrateFinished.asObservable();
-  public setCalibrateFinished(isFinished: boolean, data: string): void {
+  private _guiOnCalibrateFinished: BehaviorSubject<{isFinished: boolean, data: number}> = new BehaviorSubject<{isFinished: boolean, data: number}>({isFinished:false, data:0});
+  guiCalibrateFinished$: Observable<{isFinished: boolean, data: number}> = this._guiOnCalibrateFinished.asObservable();
+  public setCalibrateFinished(isFinished: boolean, data: number): void {
     this._guiOnCalibrateFinished.next({isFinished: isFinished, data: data});
   }
 

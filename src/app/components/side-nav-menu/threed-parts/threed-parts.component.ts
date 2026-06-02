@@ -28,6 +28,49 @@ export class ThreedPartsComponent {
     });
   }
 
+  private _getLeafGlobalIds(node: IBlock3D): string[] {
+    const ids = new Set<string>();
+    const stack: IBlock3D[] = [node];
+  
+    while (stack.length) {
+      const current = stack.pop();
+      if (!current) continue;
+  
+      const hasChildren = !!current.children?.length;
+  
+      if (hasChildren) {
+        stack.push(...current.children);
+      } else if (current.globalid) {
+        ids.add(current.globalid);
+      }
+    }
+  
+    return [...ids];
+  }
+
+  /*private _getDescendantGlobalIds(node: IBlock3D): string[] {
+    const ids = new Set<string>();
+    const stack: IBlock3D[] = [...(node.children ?? [])];
+  
+    while (stack.length > 0) {
+      const current = stack.pop();
+  
+      if (!current) {
+        continue;
+      }
+  
+      if (current.globalid) {
+        ids.add(current.globalid);
+      }
+  
+      if (current.children?.length) {
+        stack.push(...current.children);
+      }
+    }
+  
+    return [...ids];
+  }*/
+
   private _getItems(parts: Array<IBlock3D>): Array<TreeviewItem> {
     const items: Array<TreeviewItem> = [];
     for (let part of parts) {
@@ -47,7 +90,81 @@ export class ThreedPartsComponent {
     return items;
   }
 
+  /*private _itemCheckedChange(checked: boolean, node: IBlock3D): void {
+    const globalIds = this._getDescendantGlobalIds(node);
+  
+    for (const globalid of globalIds) {
+      const meshIds = RXCore.search3dAttributes(globalid) || [];
+  
+      for (const mesh of meshIds) {
+        const id = mesh.userData?.name || globalid;
+        RXCore.set3DBlockState(id, checked);
+      }
+    }
+  }*/
+
   private _itemCheckedChange(checked: boolean, node: IBlock3D): void {
+    const leafGlobalIds = this._getLeafGlobalIds(node);
+    let mesharr: any[] = [];
+    let meshnode: Array<any> = [];
+
+    if(leafGlobalIds.length != 0){
+      const mehsestest = RXCore.search3DAttributesExArr(leafGlobalIds);
+      for(let meshid = 0; meshid < mehsestest.length; meshid ++){
+        const id = mehsestest[meshid].userData?.name;// ?? leafGlobalIds[glid];
+        RXCore.set3DBlockState(id, checked);
+      }
+  
+    }else{
+
+      if (node.globalid) {
+        meshnode = RXCore.search3dAttributes(node.globalid);
+      } else {
+        meshnode = RXCore.search3dAttributes(node.name);
+      }
+  
+      for(let meshid = 0; meshid < meshnode.length; meshid ++){
+        const id = meshnode[meshid].userData?.name;// ?? globalid;
+        RXCore.set3DBlockState(id, checked);
+      }
+
+
+      
+    }
+    
+
+
+
+
+    
+    /*for(let glid = 0; glid < leafGlobalIds.length; glid ++){
+      const meshes = RXCore.search3dAttributesEx(leafGlobalIds[glid], false) || [];
+
+      for(let meshid = 0; meshid < meshes.length; meshid ++){
+        const id = meshes[meshid].userData?.name ?? leafGlobalIds[glid];
+        RXCore.set3DBlockState(id, checked);
+      }
+  
+      //mesharr.push(...meshes);
+    }*/
+    /*for(let meshid = 0; meshid < mesharr.length; meshid ++){
+      const id = mesharr[meshid].userData?.name;
+      RXCore.set3DBlockState(id, checked);
+    }*/
+    /*for (const globalid of leafGlobalIds) {
+
+
+      const meshes = RXCore.search3dAttributesEx(globalid, false) || [];
+
+  
+      for (const mesh of meshes) {
+        const id = mesh.userData?.name ?? globalid;
+        RXCore.set3DBlockState(id, checked);
+      }
+    }*/
+  }
+
+  /*private _itemCheckedChange(checked: boolean, node: IBlock3D): void {
     let meshid: Array<any> = [];
     if (node.globalid) {
       meshid = RXCore.search3dAttributes(node.globalid);
@@ -61,7 +178,7 @@ export class ThreedPartsComponent {
         RXCore.set3DBlockState(globid, checked);
       }
     }
-  }
+  }*/
 
   ngOnInit(): void {
     this.rxCoreService.gui3DParts$.subscribe((parts) => {

@@ -56,6 +56,7 @@ export class AppComponent implements AfterViewInit {
 
   timeoutId: any;
   isUploadFile: boolean = false;
+  loadProgress: number = 0;
   pasteStyle: { [key: string]: string } = { display: 'none' };
 
   infoData: Array<any> = [];
@@ -433,6 +434,7 @@ export class AppComponent implements AfterViewInit {
 
       RXCore.setdisplayBackground(document.documentElement.style.getPropertyValue("--background") || '#D6DADC');
       RXCore.setrxprintdiv(document.getElementById('printdiv'));
+      RXCore.setViewCubePosition("LR", 100, 100);
 
       this.checkIfFullyReady(initialDoc);
 
@@ -989,6 +991,36 @@ export class AppComponent implements AfterViewInit {
       RXCore.openFile(`${RXCore.Config.baseFileURL}${openfile}`);
 
     });
+
+    RXCore.onGuiProgress((progress :number) =>{
+
+      this.isUploadFile = true;
+      this.loadProgress = progress;
+
+    
+      if (progress >= 100) {
+        setTimeout(() => {
+          this.isUploadFile = false;
+          this.loadProgress = 0;
+        }, 250);
+      }
+
+    });
+
+
+    
+
+    /*onViewerProgress(progress: number) {
+      this.isUploadFile = true;
+      this.loadProgress = progress;
+    
+      if (progress >= 100) {
+        setTimeout(() => {
+          this.isUploadFile = false;
+          this.loadProgress = 0;
+        }, 250);
+      }
+    }*/
 
     /*RXCore.onGuiUpload((upload :any) =>{
       

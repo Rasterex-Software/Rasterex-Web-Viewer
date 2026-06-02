@@ -106,6 +106,12 @@ export const metricSystemOptions: MeasureOption[] = [
   { value: '1', label: 'Imperial' },
 ];
 
+export const measurementSystemOptions: MeasureOption[] = [
+  { value: 1, label: 'Metric' },
+  { value: 2, label: 'Imperial' },
+];
+
+
 export const presetOptions: PresetOption[] = [
   { pageScaleValue: 1, customScaleValue: 1, label: '1:1' },
   { pageScaleValue: 1, customScaleValue: 10, label: '1:10' },

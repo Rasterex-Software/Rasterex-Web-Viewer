@@ -1,4 +1,4 @@
-June 6, 2026 update
+June 3, 2026 update
 
 ### Updated THREE.js to verion 151. Updated 3D lighting. Added new method search3DAttributesExArr that takes an array of global IDs to get a an array of meshes. These can be used to turn these meshes on/off or other operations.
 ### Optimized RxCore parser for 2D binary data. Should now load CAD files quite a bit faster than before.

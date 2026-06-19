@@ -1,4 +1,24 @@
-June 6, 2026 update
+June 19, 2026 update
+
+### Some further adjustments for scaling to make setting scale with calibration more accurate.
+
+Updated and new files
+RxCore version is now 37.48
+
+- src\app\app.module.ts
+- src\assets\scripts\ViewCube.js
+- src\assets\scripts\rxcorefunctions.min.js
+- src\assets\scripts\rxcorefunctions.js
+- src\assets\scripts\iframefoxit.js
+- src\app\components\annotation-tools\measure-panel\measure-panel.component.ts
+- src\app\components\annotation-tools\measure-panel\measure-panel.component.scss
+- src\app\components\annotation-tools\measure-panel\measure-panel.component.html
+
+Third party 
+- src\assets\scripts\three.min.js
+
+
+June 3, 2026 update
 
 ### Updated THREE.js to verion 151. Updated 3D lighting. Added new method search3DAttributesExArr that takes an array of global IDs to get a an array of meshes. These can be used to turn these meshes on/off or other operations.
 ### Optimized RxCore parser for 2D binary data. Should now load CAD files quite a bit faster than before.

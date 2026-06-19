@@ -3,6 +3,9 @@
 
     'use strict';
 
+
+    
+
     var ViewCubeElement = {
         TopFace: "TopFace",
         FrontFace: "FrontFace",
@@ -36,6 +39,8 @@
         BottomBackLeftCorner: "BottomBackLeftCorner",
         BottomFrontLeftCorner: "BottomFrontLeftCorner",
     };
+
+    
 
     var Rotation = {
         Rotate0: 0,
@@ -97,6 +102,8 @@
     class Cube extends THREE.Object3D {
         constructor(cfg) {
             super();
+            cfg = cfg || {};
+            this.upAxis = cfg.upAxis || "Y"
             this.name = "ViewCube";
             this.AXIS_COLOR_X = 0xff0000;
             this.AXIS_COLOR_Y = 0x00ff00;
@@ -118,6 +125,7 @@
             this.lineColor = cfg && cfg.lineColor !== undefined ? cfg.lineColor : 0x90a0a0;
             this.dirty = false;
             this.activateMeshName = undefined;
+            this.upAxis = cfg?.upAxis || "Y"; // "Y" or "Z"
 
             this.init();
         }
@@ -130,6 +138,19 @@
             this.add(this.createViewCubeEdges());
             this.add(this.createViewCubeCorners());
         }
+
+        convertDirectionForUpAxis(direction) {
+            if (this.upAxis === "Z") {
+                // Convert Y-up cube direction to Z-up viewer direction
+                return new THREE.Vector3(
+                    direction.x,
+                    direction.z,
+                    direction.y
+                ).normalize();
+            }
+        
+            return direction.normalize();
+        }        
 
         createAxes() {
             var v = this.OUTER_CUBE_WIDTH / 2 + 1;
@@ -378,7 +399,102 @@
         }
 
         getDirectionByElement(viewCubeName) {
+
+
+            let direction;
+
             switch (viewCubeName) {
+                case ViewCubeElement.TopFace:
+                    direction = new THREE.Vector3(0, 1, 0);
+                    break;
+                case ViewCubeElement.BottomFace:
+                    direction = new THREE.Vector3(0, -1, 0);
+                    break;
+                case ViewCubeElement.FrontFace:
+                    direction = new THREE.Vector3(0, 0, 1);
+                    break;
+
+                case ViewCubeElement.BackFace: 
+                    direction = new THREE.Vector3(0, 0, -1);                
+                    break;
+                case ViewCubeElement.LeftFace:
+                    direction = new THREE.Vector3(-1, 0, 0);
+                    break;
+
+                case ViewCubeElement.RightFace:
+                    direction = new THREE.Vector3(1, 0, 0);
+                    break;
+                        
+                case ViewCubeElement.TopFrontEdge:
+                    direction = new THREE.Vector3(0, 1, 1);
+                    break;
+
+                case ViewCubeElement.TopRightEdge: 
+                    direction = new THREE.Vector3(1, 1, 0);
+                    break;
+
+                case ViewCubeElement.TopBackEdge:
+                     direction = new THREE.Vector3(0, 1, -1);
+                     break;
+                case ViewCubeElement.TopLeftEdge:
+                     direction = new THREE.Vector3(-1, 1, 0);
+                     break;
+                case ViewCubeElement.BottomFrontEdge:
+                   direction = new THREE.Vector3(0, -1, 1);
+                    break;
+                case ViewCubeElement.BottomRightEdge: 
+                    direction = new THREE.Vector3(1, -1, 0);
+                    break;
+                case ViewCubeElement.BottomBackEdge: 
+                    direction = new THREE.Vector3(0, -1, -1);
+                    break;
+                case ViewCubeElement.BottomLeftEdge: 
+                    direction = new THREE.Vector3(-1, -1, 0);
+                    break;
+                case ViewCubeElement.FrontLeftEdge: 
+                    direction = new THREE.Vector3(-1, 0, 1);
+                    break;
+                case ViewCubeElement.FrontRightEdge: 
+                    direction = new THREE.Vector3(1, 0, 1);
+                    break;
+                case ViewCubeElement.BackRightEdge: 
+                    direction = new THREE.Vector3(1, 0, -1);
+                    break;
+                case ViewCubeElement.BackLeftEdge: 
+                    direction = new THREE.Vector3(-1, 0, -1);
+                    break;
+                case ViewCubeElement.TopFrontLeftCorner: 
+                    direction = new THREE.Vector3(-1, 1, 1);
+                    break;
+                case ViewCubeElement.TopFrontRightCorner: 
+                    direction = new THREE.Vector3(1, 1, 1);
+                    break;
+                case ViewCubeElement.TopBackRightCorner: 
+                    direction = new THREE.Vector3(1, 1, -1);
+                    break;
+                case ViewCubeElement.TopBackLeftCorner: 
+                    direction = new THREE.Vector3(-1, 1, -1);
+                    break;
+                case ViewCubeElement.BottomFrontLeftCorner: 
+                    direction = new THREE.Vector3(-1, -1, 1);
+                    break;
+                case ViewCubeElement.BottomFrontRightCorner: 
+                    direction = new THREE.Vector3(1, -1, 1);
+                    break;
+                case ViewCubeElement.BottomBackRightCorner: 
+                    direction = new THREE.Vector3(1, -1, -1);
+                    break;
+                case ViewCubeElement.BottomBackLeftCorner: 
+                    direction = new THREE.Vector3(-1, -1, -1);
+                    break;
+                default: break;
+            }
+
+            /*switch (viewCubeName) {
+
+
+
+
                 case ViewCubeElement.TopFace: return new THREE.Vector3(0, 1, 0);
                 case ViewCubeElement.BottomFace: return new THREE.Vector3(0, -1, 0);
                 case ViewCubeElement.FrontFace: return new THREE.Vector3(0, 0, 1);
@@ -406,8 +522,10 @@
                 case ViewCubeElement.BottomBackRightCorner: return new THREE.Vector3(1, -1, -1);
                 case ViewCubeElement.BottomBackLeftCorner: return new THREE.Vector3(-1, -1, -1);
                 default: break;
-            }
-            return undefined;
+            }*/
+
+            return direction ? this.convertDirectionForUpAxis(direction) : undefined;
+
         }
 
         update() {
@@ -474,8 +592,12 @@
     }
 
     class Controller {
-        constructor(rxCore) {
-            this.rxCore = rxCore;
+        constructor(cfg) {
+            cfg = cfg || {};
+            this.rxCore = cfg;
+            this.upAxis = cfg.upAxis || "Y";
+            //this.rxCore = rxCore;
+            //this.cfg = cfg || {};
             this.container = undefined;
             this.scene = undefined;
             this.camera = undefined;
@@ -675,7 +797,9 @@
         }        
 
         initViewCube() {
-            this.viewCube = new Cube();
+            this.viewCube = new Cube({
+                upAxis: this.upAxis
+            });
             this.scene.add(this.viewCube);
             this.zoomToBBox(this.viewCube.getBBox());
         }

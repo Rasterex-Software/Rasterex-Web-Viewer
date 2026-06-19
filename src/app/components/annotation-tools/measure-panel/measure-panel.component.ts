@@ -105,6 +105,8 @@ export class MeasurePanelComponent implements OnInit, OnDestroy {
   calibrateCorrectionInchValue : string = '0';
 
   measuredCalibrateLength: number;
+  preciseFromCalibrate : number;
+  usePreciseFromCalibrate = false;
   calibrateScale: string;
   isSelectedCalibrate: boolean;
   isCalibrateFinished: boolean;
@@ -256,7 +258,7 @@ export class MeasurePanelComponent implements OnInit, OnDestroy {
 
       if (this.selectedMeasurementSystem === MeasurementSystem.IMPERIAL) {
 
-        this.calibrateLengthString = RXCore.getFractionString(this.calibrateLength, 32);
+        this.calibrateLengthString = RXCore.getFractionString(this.calibrateLength, 64);
 
       } else {
         
@@ -265,6 +267,7 @@ export class MeasurePanelComponent implements OnInit, OnDestroy {
       }
 
       this.measuredCalibrateLength = this.calibrateLength;
+      //this.usePreciseFromCalibrate = true;
 
 
       this.isCalibrateFinished = state.isFinished;
@@ -747,6 +750,11 @@ export class MeasurePanelComponent implements OnInit, OnDestroy {
         // For RXCore, we need the ratio of display to page scale
         const preciseValue = displayScaleValue / pageScaleValue;
 
+        
+        //this.measuredCalibrateLength = this.calibrateLength;
+        //this.usePreciseFromCalibrate = true;
+
+
         const updatedScale: ScaleWithPageRange = {
           value: scale,
           preciseValue: preciseValue, // Store precise value for accurate scaling
@@ -817,6 +825,8 @@ export class MeasurePanelComponent implements OnInit, OnDestroy {
 
     if (scaleObj) {
       this.selectedScale = scaleObj;
+
+
       this.applyScale(this.selectedScale);
       this.onCloseClick();
       return;
@@ -828,8 +838,12 @@ export class MeasurePanelComponent implements OnInit, OnDestroy {
     const pageScaleValue = scaleParts.length > 1 ? parseFloat(scaleParts[0]) : 1;
     const displayScaleValue = scaleParts.length > 1 ? parseFloat(scaleParts[1]) : 1;
     // For RXCore, we need the ratio of display to page scale
-    const preciseValue = displayScaleValue / pageScaleValue;
-    
+    let preciseValue = displayScaleValue / pageScaleValue;
+
+    if(this.usePreciseFromCalibrate){
+      preciseValue = this.preciseFromCalibrate;
+    }
+
 
     let obj: ScaleWithPageRange = {
       value: scale,
@@ -873,6 +887,7 @@ export class MeasurePanelComponent implements OnInit, OnDestroy {
       scalesOptions: this.scalesOptions,
     });
 
+    this.usePreciseFromCalibrate = false;
     this.onCloseClick();
   }
 
@@ -885,7 +900,7 @@ export class MeasurePanelComponent implements OnInit, OnDestroy {
       // calibrationScale = real inches per drawing inch
       const drawingInchesForOneFoot = 12 / calibrationScale;
   
-      const fraction = RXCore.getFractionScaleParts(drawingInchesForOneFoot, 32);
+      const fraction = RXCore.getFractionScaleParts(drawingInchesForOneFoot, 64);
   
       this.imperialNumerator = fraction.numerator;
       this.imperialDenominator = fraction.denominator;
@@ -937,6 +952,8 @@ export class MeasurePanelComponent implements OnInit, OnDestroy {
     if (!Number.isFinite(convertedCalibrateLength)) {
       return;
     }
+
+    this.preciseFromCalibrate = convertedCalibrateLength / this.measuredCalibrateLength;
   
     calibrateconn.SetTempCal(convertedCalibrateLength);
       
@@ -947,6 +964,9 @@ export class MeasurePanelComponent implements OnInit, OnDestroy {
     }
   
     this.populateScaleEditorFromCalibration(this.calibrateTempScale);
+
+    //this.measuredCalibrateLength = this.calibrateLength;
+    this.usePreciseFromCalibrate = true;
 
   
     this.isEditingScale = false;

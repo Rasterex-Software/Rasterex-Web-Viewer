@@ -19,7 +19,7 @@ import { DndZoneComponent } from './components/common/dnd-zone/dnd-zone.componen
 import { DndZoneDirective } from './components/common/dnd-zone/dnd-zone.directive';
 import { BottomToolbarComponent } from './components/bottom-toolbar/bottom-toolbar.component';
 import { AnnotationToolsComponent } from './components/annotation-tools/annotation-tools.component';
-import { ContextEditorComponent } from './components/annotation-tools/context-editor/context-editor.component';
+import { ContextEditorComponent } from 'src/app/components/annotation-tools/context-editor/context-editor.component';
 import { QuickActionsMenuComponent } from './components/annotation-tools/quick-actions-menu/quick-actions-menu.component';
 import { ColorPickerComponent } from './components/common/color-picker/color-picker.component';
 import { AccordionModule } from './components/common/accordion/accordion.module';

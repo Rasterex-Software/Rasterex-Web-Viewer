@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Rasterex Pre-Convert Demo</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      background: #f4f4f4;
+      margin: 0;
+      padding: 1rem;
+      display: flex;
+      flex-direction: row;
+      height: 100vh;
+      box-sizing: border-box;
+      gap: 1rem;
+    }
+
+    .panel {
+      background: #fff;
+      border-radius: 10px;
+      padding: 1rem;
+      width: 320px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      height: calc(100vh - 2rem);
+      box-sizing: border-box;
+    }
+    .file-item {
+     padding: 6px 10px;
+     margin-bottom: 4px;
+     border-radius: 4px;
+     font-size: 0.9rem;
+     cursor: default;
+    }
+
+    .file-item.waiting { background: #f0f0f0; color: #333; }
+    .file-item.processing { background: #fff3cd; color: #856404; }
+    .file-item.ready { background: #d4edda; color: #155724; cursor: pointer; }
+    .file-item.failed { background: #f8d7da; color: #721c24; } 
+
+    label {
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+    input, select {
+      padding: 0.4rem;
+      width: 100%;
+      box-sizing: border-box;
+      font-size: 0.9rem;
+    }
+
+    button {
+      padding: 0.6rem;
+      border: none;
+      border-radius: 6px;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    #btnApply { background: #2b6cb0; }
+    #btnApply:hover { background: #265a93; }
+    #btnRemove { background: #a33; }
+    #btnRemove:hover { background: #822; }
+
+    iframe {
+      flex: 1;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      height: 100%;
+    }
+
+    h1 {
+      margin-top: 0;
+      color: #2b6cb0;
+      font-size: 1.2rem;
+    }
+
+    p {
+      font-size: 0.9rem;
+      margin-bottom: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <!-- Left panel -->
+  <div class="panel">
+    <h1>Pre-Convert Demo</h1>
+    <p>This example demonstrates server-side content generation using
+        the Rasterex REST API without using RxCore. Once content is
+        available, files can be opened in the Rasterex Web Viewer.</p>
+
+
+        <div>
+            <h3>Files to Process</h3>
+            <div id="sourceList"></div>
+            <button id="startBatch" style="background:#2b6cb0;color:white;">Start Batch Processing</button>
+          
+            <h3>Online / Ready Files</h3>
+            <div id="readyList"></div>
+          </div>
+        
+
+  </div>
+
+    <!-- Right-side viewer -->
+    <iframe id="RxView360" src="../../index.html" title="Rasterex Web Viewer"></iframe>
+
+
+
+  <script>
+    const viewerFrame = document.getElementById('RxView360');
+    const viewerCore = viewerFrame?.contentWindow?.RxCore;
+
+
+    const files = [
+    { filepath: "https://dl.rasterex.com/samples/2L202306-01-TP-ŠVOK.B-OK01.dwg", cacheid: "file1", displayname: "File 1", mime: "application/dwg" },
+    { filepath: "https://dl.rasterex.com/samples/01-ANDON-L'ORANGERAIE-PLAN GENERAL 02.dwg", cacheid: "file2", displayname: "File 2", mime: "application/dwg" },
+    { filepath: "https://dl.rasterex.com/samples/rxwebmigrate.pdf", cacheid: "file3", displayname: "rxwebmigrate.pdf", mime: "application/pdf" },
+    { filepath: "https://dl.rasterex.com/samples/20160124OTC-Conference Center.ifc", cacheid: "file4", displayname: "File 4", mime: "model/ifc" },
+    { filepath: "https://dl.rasterex.com/samples/2TOUR.pdf", cacheid: "file5", displayname: "2TOUR.pdf", mime: "application/pdf" },
+    ];
+
+    const filesorg = [
+
+
+
+        {
+            filepath: "https://dl.rasterex.com/samples/2L202306-01-TP-ŠVOK.B-OK01.dwg",
+            cacheid: "2L202306-01-TP-ŠVOK.B-OK01",
+            displayname: "2L202306-01-TP-ŠVOK.B-OK01.dwg",
+            mime: "application/dwg"
+        },
+        {
+            filepath: "https://dl.rasterex.com/samples/01-ANDON-L'ORANGERAIE-PLAN GENERAL 02.dwg",
+            cacheid: "01-ANDON-L'ORANGERAIE-PLAN GENERAL 02",
+            displayname: "01-ANDON-L'ORANGERAIE-PLAN GENERAL 02.dwg",
+            mime: "application/dwg"
+        },
+        {
+            filepath: "https://dl.rasterex.com/samples/rxwebmigrate.pdf",
+            cacheid: "rxwebmigrate",
+            displayname: "rxwebmigrate.pdf",
+            mime: "application/pdf"
+        },
+        {
+            filepath: "https://dl.rasterex.com/samples/20160124OTC-Conference Center.ifc",
+            cacheid: "20160124OTC-Conference-Center",
+            displayname: "20160124OTC-Conference Center.ifc",
+            mime: "application/ifc"
+        },
+        {
+            filepath: "https://dl.rasterex.com/samples/2TOUR.pdf",
+            cacheid: "2TOUR",
+            displayname: "2TOUR.pdf",
+            mime: "application/pdf"
+        }
+    ];
+
+    function escapeXml(str) {
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&apos;");
+    }
+    
+    async function preConvertRasterex(urlFilename, cacheID, displayName, mime) {
+      const xmlPayload = `<?xml version="1.0" encoding="UTF-8"?>
+    <RxViewServer>
+    <Command>GetFile</Command>
+    <LicenseID>1</LicenseID>
+    <FileURL>${escapeXml(urlFilename)}</FileURL>
+    <CacheID>${escapeXml(cacheID)}</CacheID>
+    <DisplayName>${escapeXml(displayName)}</DisplayName>
+    <Mime>${escapeXml(mime)}</Mime>
+    </RxViewServer>`;
+      
+      const response = await fetch(
+        "https://test.rasterex.com/RxBinWeb/RxCSISAPI.dll?WebClientPublish",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/xml" },
+          body: xmlPayload
+        }
+      );
+    
+      if (!response.ok) throw new Error(`Pre-conversion failed: ${response.status}`);
+      return await response.text();
+    }
+    
+    function renderLists() {
+      const sourceList = document.getElementById('sourceList');
+      const readyList = document.getElementById('readyList');
+      sourceList.innerHTML = '';
+      readyList.innerHTML = '';
+    
+      files.forEach((file, i) => {
+        const srcRow = document.createElement('div');
+        srcRow.textContent = `${file.displayname} [${file.status || 'waiting'}]`;
+        sourceList.appendChild(srcRow);
+    
+        if (file.status === 'ready') {
+          const readyRow = document.createElement('div');
+          readyRow.textContent = file.displayname;
+          readyRow.style.cursor = 'pointer';
+          readyRow.onclick = () => {
+            viewerFrame.contentWindow.RxCore.openFile(file);
+          };
+          readyList.appendChild(readyRow);
+        }
+      });
+    }
+    
+    document.getElementById('startBatch').onclick = async () => {
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        file.status = 'processing';
+        renderLists();
+    
+        try {
+          await preConvertRasterex(file.filepath, file.cacheid, file.displayname, file.mime);
+          file.status = 'ready';
+        } catch (err) {
+          console.error(err);
+          file.status = 'failed';
+        }
+    
+        renderLists();
+      }
+    };
+    renderLists();
+</script>
+
+
+</body>
+</html>

@@ -1627,6 +1627,7 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
             !foxview.pdfViewer
         ) return;
  
+        //console.log("zoomtopointdirect");
         //|| pagenum !== foxview.curpage; //page check removed to allow zoom when between pages.
         
         foxview.scale = factor;
@@ -1713,6 +1714,7 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
             pagenum !== foxview.curpage
         ) return;
 
+
         foxview.scale = factor;
 
         foxview.pagestates[pagenum].rendered = false;
@@ -1725,7 +1727,10 @@ var foxitViewer = function foxitViewer(zsdivid, divnum, libpath) {
             y: mousepoint.my
         };
 
+        //console.log("zoomtopoint", position, factor);
+
         foxview.pdfViewer.zoomAtPosition(factor, position);
+        
     };    
 
     this.zoomdirect = function (pagenum, factor, scrolldata) {
